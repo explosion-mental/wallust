@@ -8,6 +8,8 @@ use image::GenericImageView;
 use lab::Lab;
 use owo_colors::*;
 
+//TODO use BTree from std instead of HashMap
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = "./test.png";
     let mut cols: HashMap<i32, (Lab, u32)> = HashMap::new();
