@@ -1,4 +1,3 @@
-use std::env;
 //use std::io::Cursor;
 use image::io::Reader as ImageReader;
 //use image::{GenericImage, GenericImageView, ImageBuffer, RgbImage};
@@ -44,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             },
             None => cols.insert(delta_e, (lab, 1)),
         };
-        prev = lab.clone();
+        prev = lab;
         //println!("R: {} | G: {} | B: {} | A: {}", a[0], a[1], a[2], a[3]);
         //     // Do something with pixel.
     }
