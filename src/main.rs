@@ -26,22 +26,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //Iterate over all pixels in the image.
     for (_, _, image::Rgba(a)) in img.pixels() {
         let lab = Lab::from_rgba(&a);
-        //println!("This is: '{lab:?}'");
-        let delta_e: i32 = (
-            (
-              ((prev.l - lab.l) as i32 ^ 2)
-            + ((prev.a - lab.a) as i32 ^ 2)
-            + ((prev.b - lab.b) as i32 ^ 2)
-            )
-            as f32).sqrt() as i32;
-        println!("{}", delta_e);
+        let diff = delta_e(lab, prev);
+        println!("{}", diff);
         //let sum: u32 = (lab.l + lab.a + lab.b) as u32;
-        match cols.get(&delta_e) {
+        match cols.get(&diff) {
             Some(s) => {
                 let (_, count) = s;
-                cols.insert(delta_e, (lab, count + 1))
+                cols.insert(diff, (lab, count + 1))
             },
-            None => cols.insert(delta_e, (lab, 1)),
+            None => cols.insert(diff, (lab, 1)),
         };
         prev = lab;
         //println!("R: {} | G: {} | B: {} | A: {}", a[0], a[1], a[2], a[3]);
@@ -54,4 +47,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+/// This generates the differents between two CIELAB colors
+///
+/// ref: <https://www.easyrgb.com/en/math.php>
+fn delta_e(current: Lab, previous: Lab) -> i32 {
+        let deltae: i32 = (
+            (
+              ((previous.l - current.l) as i32 ^ 2)
+            + ((previous.a - current.a) as i32 ^ 2)
+            + ((previous.b - current.b) as i32 ^ 2)
+            )
+            as f32).sqrt() as i32;
+
+        deltae
 }
