@@ -22,6 +22,13 @@ struct Histo {
     count: usize,
 }
 
+impl Histo {
+    pub fn darken(&mut self, amount: f32) {
+        let lightness = self.color.l * (1.0 - amount);
+        self.color.l = lightness;
+    }
+}
+
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
 /// size (XXX maybe a threshold for image size then?)
@@ -56,6 +63,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // sort vec by count
     histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+    //darken the Lab color. Maybe apply these in [`is_present`] ?
+    for i in &mut histo {
+        i.darken(0.5);
+    }
 
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
