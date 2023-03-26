@@ -1,6 +1,7 @@
-//use std::io::Cursor;
 use image::io::Reader as ImageReader;
-use std::collections::HashMap;
+//use std::collections::HashMap;
+//use std::io::Cursor;
+
 
 //use colorsys::{ColorAlpha, Hsl, Rgb};
 use lab::{Lab,rgbs_to_labs};
@@ -16,7 +17,7 @@ struct Histo {
 }
 
 /// threshold to accept the color difference
-const TH: f32 = 10.0;
+const TH: f32 = 20.0;
 
 /// #definition thingy
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100. The a*
@@ -41,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if is_present(lab, &mut histo) {
             continue;
         } else {
-            histo.push(Histo {value: lab, count: 1});
+            histo.push(Histo { value: lab, count: 1 });
         }
 
         //let a = lab.to_rgb();
@@ -50,7 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in histo {
         let a = i.value.to_rgb();
-        println!("{} x {} times", "COLOR".on_color(Rgb(a[0], a[1], a[2])), i.count);
+        println!("{} x {} times {:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
     }
 
     Ok(())
@@ -60,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn is_present(lab: Lab, v: &mut Vec<Histo>) -> bool {
     for i in v {
         // if any lab value is between a threshold, count it up
-        if delta_e(lab, i.value) <= TH {
+        if delta_e(lab, i.value) < TH {
             i.count += 1;
             return true;
         }
