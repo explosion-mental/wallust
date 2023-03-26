@@ -11,10 +11,10 @@ use clap::Parser;
 mod args;
 use args::*;
 
-//TODO use BTree from std instead of HashMap
 //TODO handle errors
-//TODO clap
 //TODO generate background and foreground colors, in relation to black and white
+//XXX BTree?
+//XXX generate an actual scheme, rather than listing colors¿
 
 struct Histo {
     value: Lab,
