@@ -72,14 +72,7 @@ fn is_present(lab: Lab, v: &mut Vec<Histo>) -> bool {
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
 fn delta_e(current: Lab, previous: Lab) -> f32 {
-        let deltae =
-            (
-                (
-                        (((previous.l - current.l) as i32) ^ 2)
-                    +   (((previous.a - current.a) as i32) ^ 2)
-                    +   (((previous.b - current.b) as i32) ^ 2)
-                )
-            as f32).sqrt();
-
-        deltae
+    (   ((previous.l - current.l).powf(2.0))
+    +   ((previous.a - current.a).powf(2.0))
+    +   ((previous.b - current.b).powf(2.0)) ).sqrt()
 }
