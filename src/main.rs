@@ -15,6 +15,9 @@ struct Histo {
     count: usize,
 }
 
+/// threshold to accept the color difference
+const TH: f32 = 10.0;
+
 /// #definition thingy
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100. The a*
 /// > axis is relative to the green–red opponent colors, with negative values toward green and positive
@@ -35,36 +38,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if !is_present(lab, &mut histo) {
-            histo.push(Histo {value: lab, count: 1});
-        } else {
+        if is_present(lab, &mut histo) {
             continue;
+        } else {
+            histo.push(Histo {value: lab, count: 1});
         }
 
-        let a = lab.to_rgb();
-        print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
+        //let a = lab.to_rgb();
+        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
+    }
+
+    for i in histo {
+        let a = i.value.to_rgb();
+        println!("{} x {} times", "COLOR".on_color(Rgb(a[0], a[1], a[2])), i.count);
     }
 
     Ok(())
 }
 
 /// This should use delta_e somehow
-fn is_present(lab: Lab, v: &Vec<Histo>) -> bool {
-    let mut i = v.iter();
-    let found = i.any(|x| {
-        if x.value.a == lab.a
-        && x.value.b == lab.b {
+fn is_present(lab: Lab, v: &mut Vec<Histo>) -> bool {
+    for i in v {
+        // if any lab value is between a threshold, count it up
+        if delta_e(lab, i.value) <= TH {
+            i.count += 1;
             return true;
         }
-        false
-    });
-    found
+    }
+    false
 }
 
-/// This generates the differents between two CIELAB colors
+/// Returns how much the colors differ
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
-fn delta_e(current: Lab, previous: Lab) -> i32 {
+fn delta_e(current: Lab, previous: Lab) -> f32 {
         let deltae =
             (
                 (
@@ -74,5 +81,5 @@ fn delta_e(current: Lab, previous: Lab) -> i32 {
                 )
             as f32).sqrt();
 
-        deltae as i32
+        deltae
 }
