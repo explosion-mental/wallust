@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // only print the top 16 colors
     for i in histo.iter().take(16) {
         let a = i.color.to_rgb();
-        println!("{} x {}\t\t{:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
+        println!("{} x {}\t\t#{:02X}{:02X}{:02X}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a[0], a[1], a[2]);
     }
 
     Ok(())
