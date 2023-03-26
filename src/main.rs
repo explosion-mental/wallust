@@ -49,9 +49,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
     }
 
-    for i in histo {
+    // sort vec by count
+    histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+    //for i in histo {
+    // only print the top 16 colors
+    for i in histo.iter().take(16) {
         let a = i.value.to_rgb();
-        println!("{} x {} times {:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
+        println!("{} x\t{}\ttimes\t{:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
     }
 
     Ok(())
