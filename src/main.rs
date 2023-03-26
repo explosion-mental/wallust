@@ -31,11 +31,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Init image, then convert it into rgb and finally to LAB
     let img = ImageReader::open(file)?.decode()?.to_rgba8();
-    let rgbs = img.as_raw();
-    let labs = lab::rgb_bytes_to_labs(rgbs);
-    //let rgbs = img.to_rgb8().get_pixel::<>();
+    let labs = lab::rgb_bytes_to_labs(img.as_raw());
 
-    //      Lab, count,
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
