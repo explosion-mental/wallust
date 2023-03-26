@@ -3,6 +3,7 @@ name = "wallust"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+description = "Generate a color scheme based on an image."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

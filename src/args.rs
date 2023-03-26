@@ -4,7 +4,8 @@ use clap::Parser;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
 pub struct Cli {
-    /// Use this image
+    /// Path to an image file to use
     pub file: PathBuf,
 }
