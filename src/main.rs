@@ -10,6 +10,7 @@ use owo_colors::*;
 //TODO use BTree from std instead of HashMap
 //TODO handle errors
 //TODO clap
+//TODO generate background and foreground colors, in relation to black and white
 
 struct Histo {
     value: Lab,
