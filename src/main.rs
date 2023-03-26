@@ -1,24 +1,24 @@
-use image::io::Reader as ImageReader;
 //use std::collections::HashMap;
 //use std::io::Cursor;
 
-
 //use colorsys::{ColorAlpha, Hsl, Rgb};
+use clap::Parser;
+use image::io::Reader as ImageReader;
 use lab::Lab;
 use owo_colors::*;
 
-use clap::Parser;
-
 mod args;
 use args::Cli;
-
 //TODO handle errors
 //TODO generate background and foreground colors, in relation to black and white
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
 
+/// Simple Histogram
 struct Histo {
-    value: Lab,
+    /// LAB colors
+    color: Lab,
+    /// number of times it has appeared
     count: usize,
 }
 
@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if is_present(lab, &mut histo) {
             continue;
         } else {
-            histo.push(Histo { value: lab, count: 1 });
+            histo.push(Histo { color: lab, count: 1 });
         }
 
         //let a = lab.to_rgb();
@@ -61,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //for i in histo {
     // only print the top 16 colors
     for i in histo.iter().take(16) {
-        let a = i.value.to_rgb();
+        let a = i.color.to_rgb();
         println!("{} x {}\t\t{:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
     }
 
@@ -73,7 +73,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
-        if delta_e(color, e.value) < TH {
+        if delta_e(color, e.color) < TH {
             e.count += 1;
             return true;
         }
