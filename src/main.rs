@@ -4,8 +4,12 @@ use image::io::Reader as ImageReader;
 
 
 //use colorsys::{ColorAlpha, Hsl, Rgb};
-use lab::{Lab,rgbs_to_labs};
+use lab::Lab;
 use owo_colors::*;
+
+use clap::Parser;
+mod args;
+use args::*;
 
 //TODO use BTree from std instead of HashMap
 //TODO handle errors
@@ -28,10 +32,10 @@ const TH: f32 = 20.0;
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let file = "./test.png";
+    let cli = Cli::parse();
 
     // Init image, then convert it into rgb and finally to LAB
-    let img = ImageReader::open(file)?.decode()?.to_rgba8();
+    let img = ImageReader::open(cli.file)?.decode()?.to_rgba8();
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
 
     let mut histo: Vec<Histo> = vec![];
@@ -54,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // only print the top 16 colors
     for i in histo.iter().take(16) {
         let a = i.value.to_rgb();
-        println!("{} x\t{}\ttimes\t{:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
+        println!("{} x {}\t\t{:?}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a);
     }
 
     Ok(())
