@@ -26,8 +26,8 @@ const TH: f32 = 20.0;
 
 /// #definition thingy
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100. The a*
-/// > axis is relative to the green–red opponent colors, with negative values toward green and positive
-/// > values toward red. The b* axis represents the blue–yellow opponents, with negative numbers toward
+/// > axis is relative to the green-red opponent colors, with negative values toward green and positive
+/// > values toward red. The b* axis represents the blue-yellow opponents, with negative numbers toward
 /// > blue and positive toward yellow.
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
