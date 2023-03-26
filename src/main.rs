@@ -8,8 +8,9 @@ use lab::Lab;
 use owo_colors::*;
 
 use clap::Parser;
+
 mod args;
-use args::*;
+use args::Cli;
 
 //TODO handle errors
 //TODO generate background and foreground colors, in relation to black and white
@@ -21,10 +22,12 @@ struct Histo {
     count: usize,
 }
 
-/// threshold to accept the color difference
+/// Threshold to accept the color difference
+/// This is temporary, this constant should be auto to get the best result depending on the image
+/// size (XXX maybe a threshold for image size then?)
 const TH: f32 = 20.0;
 
-/// #definition thingy
+/// #About LAB
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100. The a*
 /// > axis is relative to the green-red opponent colors, with negative values toward green and positive
 /// > values toward red. The b* axis represents the blue-yellow opponents, with negative numbers toward
@@ -54,6 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // sort vec by count
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
+    //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
     // only print the top 16 colors
     for i in histo.iter().take(16) {
@@ -64,12 +68,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// This should use delta_e somehow
-fn is_present(lab: Lab, v: &mut Vec<Histo>) -> bool {
-    for i in v {
+/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
+/// colors are similar enough, using the [`TH`] (threshold)
+fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
+    for e in histogram {
         // if any lab value is between a threshold, count it up
-        if delta_e(lab, i.value) < TH {
-            i.count += 1;
+        if delta_e(color, e.value) < TH {
+            e.count += 1;
             return true;
         }
     }
@@ -79,6 +84,7 @@ fn is_present(lab: Lab, v: &mut Vec<Histo>) -> bool {
 /// Returns how much the colors differ
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
+//XXX worth using f32?
 fn delta_e(current: Lab, previous: Lab) -> f32 {
     (   ((previous.l - current.l).powf(2.0))
     +   ((previous.a - current.a).powf(2.0))
