@@ -3,7 +3,6 @@
 //use colorsys::{ColorAlpha, Hsl, Rgb};
 
 use clap::Parser;
-use image::io::Reader as ImageReader;
 use lab::Lab;
 use anyhow::Result;
 
@@ -11,13 +10,14 @@ mod args;
 mod config;
 mod delta;
 mod colors;
+mod backends;
+use backends::parse_image;
 use delta::delta_e;
 use args::Cli;
 use config::*;
 use colors::*;
 
 //TODO handle errors
-//TODO generate background and foreground colors, in relation to black and white
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
 
@@ -38,8 +38,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // Init image, then convert it into rgb and finally to LAB
-    let img = ImageReader::open(cli.file)?.decode()?.to_rgba8();
-    let labs = lab::rgb_bytes_to_labs(img.as_raw());
+    let labs = parse_image(cli.file)?;
 
     let mut histo: Vec<Histo> = vec![];
 

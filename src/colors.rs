@@ -1,5 +1,6 @@
 //! Colors logic, structs and methods
 //! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
+//! * TODO generate background and foreground colors, in relation to black and white
 use std::fmt;
 
 use lab::Lab;
@@ -133,25 +134,31 @@ impl From<&Vec<Histo>> for Colors<MyLab> {
             }
         };
         Self {
-            background : MyLab(light(histo[0].color, 0.0)),
-            foreground : MyLab(light(histo[0].color, 100.0)),
-            color0 : MyLab(histo[00].color),
-            color1 : MyLab(histo[01].color),
-            color2 : MyLab(histo[02].color),
-            color3 : MyLab(histo[03].color),
-            color4 : MyLab(histo[04].color),
-            color5 : MyLab(histo[05].color),
-            color6 : MyLab(histo[06].color),
-            color7 : MyLab(histo[07].color),
-            color8 : MyLab(histo[08].color),
-            color9 : MyLab(histo[09].color),
-            color10: MyLab(histo[10].color),
-            color11: MyLab(histo[11].color),
-            color12: MyLab(histo[12].color),
-            color13: MyLab(histo[13].color),
-            color14: MyLab(histo[14].color),
-            color15: MyLab(histo[15].color),
+            background : light(histo[0].color, 0.0).into(),
+            foreground : light(histo[0].color, 100.0).into(),
+            color0 : histo[00].color.into(),
+            color1 : histo[01].color.into(),
+            color2 : histo[02].color.into(),
+            color3 : histo[03].color.into(),
+            color4 : histo[04].color.into(),
+            color5 : histo[05].color.into(),
+            color6 : histo[06].color.into(),
+            color7 : histo[07].color.into(),
+            color8 : histo[08].color.into(),
+            color9 : histo[09].color.into(),
+            color10: histo[10].color.into(),
+            color11: histo[11].color.into(),
+            color12: histo[12].color.into(),
+            color13: histo[13].color.into(),
+            color14: histo[14].color.into(),
+            color15: histo[15].color.into(),
         }
+    }
+}
+
+impl From<Lab> for MyLab {
+    fn from(lab: Lab) -> Self {
+        Self(lab)
     }
 }
 
