@@ -145,7 +145,7 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < TH {
-            //e.mix(color);
+            e.mix(color);
             e.count += 1;
             return true;
         }
