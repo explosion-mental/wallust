@@ -93,19 +93,26 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
 
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
     for e in entries {
+        let path = config.clone() + &e.template;
+        //println!("->'{}'", &path);
         contents.push(
-            read_to_string(config.clone() + &e.template)?
+            (e.path, read_to_string(path)?)
         );
     }
 
     let mut tt = TinyTemplate::new();
 
-    // iterate over contents and pass it as an `&String` (which is casted to &str) and apply the
-    // template
-    for e in &contents {
-        tt.add_template("colors", e)?;
+    use std::io::prelude::*;
+    use std::fs::File;
+
+    // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
+    // template and write the templated(?) file to entry.path
+    for (path, stuff) in &contents {
+        tt.add_template("colors", stuff)?;
         let rendered = tt.render("colors", &context)?;
-        println!("{}", rendered);
+        let mut buffer = File::create(shellexpand::full(path)?.as_ref())?;
+        buffer.write_all(rendered.as_bytes())?;
+        //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
 }
