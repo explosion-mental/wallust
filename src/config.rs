@@ -110,7 +110,8 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
     for (path, stuff) in &contents {
         tt.add_template("colors", stuff)?;
         let rendered = tt.render("colors", &context)?;
-        let mut buffer = File::create(shellexpand::full(path)?.as_ref())?;
+        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
+        let mut buffer = File::create(shellexpand::tilde(path).as_ref())?;
         buffer.write_all(rendered.as_bytes())?;
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
