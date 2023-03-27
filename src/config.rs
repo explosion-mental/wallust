@@ -40,6 +40,8 @@ pub fn parse_conf() -> Result<Config> {
 
 #[derive(serde::Serialize)]
 pub struct Context {
+    background: String,
+    foreground: String,
     color0: String,
     color1: String,
     color2: String,
@@ -64,6 +66,8 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
     let config = home + "/.config/wallust/";
 
     let context = Context {
+        background : format!("{}", histo[0]),
+        foreground : format!("{}", histo[1]),
         color0 : format!("{}", histo[0]),
         color1 : format!("{}", histo[1]),
         color2 : format!("{}", histo[2]),
