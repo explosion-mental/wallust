@@ -72,6 +72,7 @@ fn main() -> Result<()> {
         None => (),
     };
 
+    //TODO add print_long to list `value: color` like
     colors.print();
 
     Ok(())
