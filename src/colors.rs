@@ -46,6 +46,7 @@ impl MyLab {
     pub fn to_rgb(&self) -> [u8; 3] {
         self.0.to_rgb()
     }
+    /*
     pub fn l(&self) -> f32 {
         self.0.l
     }
@@ -55,6 +56,7 @@ impl MyLab {
     pub fn b(&self) -> f32 {
         self.0.b
     }
+    */
     /// return the Rgb type value rather than alloc to_string
     pub fn col(&self) -> String {
         let a = self.to_rgb();
@@ -136,16 +138,16 @@ impl From<&Vec<Histo>> for Colors<MyLab> {
         Self {
             background : light(histo[0].color, 0.0).into(),
             foreground : light(histo[0].color, 100.0).into(),
-            color0 : histo[00].color.into(),
-            color1 : histo[01].color.into(),
-            color2 : histo[02].color.into(),
-            color3 : histo[03].color.into(),
-            color4 : histo[04].color.into(),
-            color5 : histo[05].color.into(),
-            color6 : histo[06].color.into(),
-            color7 : histo[07].color.into(),
-            color8 : histo[08].color.into(),
-            color9 : histo[09].color.into(),
+            color0 : histo[ 0].color.into(),
+            color1 : histo[ 1].color.into(),
+            color2 : histo[ 2].color.into(),
+            color3 : histo[ 3].color.into(),
+            color4 : histo[ 4].color.into(),
+            color5 : histo[ 5].color.into(),
+            color6 : histo[ 6].color.into(),
+            color7 : histo[ 7].color.into(),
+            color8 : histo[ 8].color.into(),
+            color9 : histo[ 9].color.into(),
             color10: histo[10].color.into(),
             color11: histo[11].color.into(),
             color12: histo[12].color.into(),
