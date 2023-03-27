@@ -1,85 +1,25 @@
 //use std::collections::HashMap;
 //use std::io::Cursor;
-use std::fmt;
-
 //use colorsys::{ColorAlpha, Hsl, Rgb};
+
 use clap::Parser;
 use image::io::Reader as ImageReader;
 use lab::Lab;
-use owo_colors::*;
 use anyhow::Result;
 
 mod args;
 mod config;
 mod delta;
+mod colors;
 use delta::delta_e;
 use args::Cli;
 use config::*;
+use colors::*;
+
 //TODO handle errors
 //TODO generate background and foreground colors, in relation to black and white
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
-
-/// Simple Histogram
-pub struct Histo {
-    /// LAB colors
-    pub color: Lab,
-    /// number of times it has appeared
-    pub count: usize,
-}
-
-impl Histo {
-    pub fn darken(&mut self, amount: f32) {
-        let lightness = self.color.l * (1.0 - amount);
-        self.color.l = lightness;
-    }
-
-    pub fn mix(&mut self, new: Lab) {
-        self.color.l = (new.l + self.color.l) / 2.0;
-        self.color.a = (new.a + self.color.a) / 2.0;
-        self.color.b = (new.b + self.color.b) / 2.0;
-    }
-
-    pub fn print_cols(&self) -> String {
-        let a = self.color.to_rgb();
-        format!("{} x {}\t\t{}", "    ".on_color(Rgb(a[0], a[1], a[2])), self.count, self)
-    }
-
-    //TODO compare light value between the darkest color, and use it as a background. If it isn't
-    //dark enough, alter it artificially
-    pub fn background(&self) -> Self {
-        Self {
-            color: Lab {
-                l: 0.0,
-                a: self.color.a,
-                b: self.color.b,
-            },
-            count: 1,
-        }
-    }
-
-    //TODO same as background
-    pub fn foreground(&self) -> Self {
-        Self {
-            color: Lab {
-                l: 100.0,
-                a: self.color.a,
-                b: self.color.b,
-            },
-            count: 1,
-        }
-    }
-}
-
-/// Display the hex color when formatting [`Histo`]
-impl fmt::Display for Histo {
-    // This trait requires `fmt` with this exact signature.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let a = self.color.to_rgb();
-        write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
-    }
-}
-
 
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
@@ -122,21 +62,25 @@ fn main() -> Result<()> {
     //    i.darken(0.5);
     //}
 
+    let colors = Colors::from(&histo);
+
     let conf = parse_conf()?;
     match conf.entry {
         None => (),
         Some(s) => config::write_template(s, &histo)?,
     };
+
+    colors.print();
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
     // only print the top 16 colors
-    println!("background:{}", histo[0].background().print_cols());
-    println!("foreground:{}", histo[0].foreground().print_cols());
+    //println!("background:{}", histo[0].background().print_cols());
+    //println!("foreground:{}", histo[0].foreground().print_cols());
 
-    for (i, color) in histo.iter().take(16).enumerate() {
-        let space = if i < 10 { "    " } else { "   " };
-        println!("color{}:{}{}", i, space, color.print_cols());
-    }
+    //for (i, color) in histo.iter().take(16).enumerate() {
+    //    let space = if i < 10 { "    " } else { "   " };
+    //    println!("color{}:{}{}", i, space, color.print_cols());
+    //}
 
     Ok(())
 }
