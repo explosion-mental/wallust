@@ -1,0 +1,17 @@
+# global space #
+
+# the less this is, the more precision the colors would be, and the longer it
+# would take
+threshold = 20.0
+
+[[entry]]
+name = "dunstrc"
+path = "~/.config/dunst/dunstrc"
+
+[[entry]]
+name = "zathurarc"
+path = "~/.config/zathura/zathurarc"
+
+[[entry]]
+name = "bars.glsl"
+path = "/.config/glava/bars.glsl"
