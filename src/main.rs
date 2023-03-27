@@ -7,6 +7,7 @@ use clap::Parser;
 use image::io::Reader as ImageReader;
 use lab::Lab;
 use owo_colors::*;
+use anyhow::Result;
 
 mod args;
 mod config;
@@ -54,7 +55,7 @@ const TH: f32 = 20.0;
 /// > blue and positive toward yellow.
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // Init image, then convert it into rgb and finally to LAB
@@ -82,10 +83,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //    i.darken(0.5);
     //}
 
-    let conf = parse_conf();
+    let conf = parse_conf()?;
     match conf.entry {
         None => (),
-        Some(s) => config::write_template(s, &histo),
+        Some(s) => config::write_template(s, &histo)?,
     };
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {

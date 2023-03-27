@@ -4,6 +4,7 @@ use std::fs::read_to_string;
 use crate::Histo;
 
 use tinytemplate::TinyTemplate;
+use anyhow::Result;
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
@@ -23,18 +24,18 @@ pub struct Entries {
     pub path: String,
 }
 
-pub fn parse_conf() -> Config {
-    let home = std::env::var("HOME").unwrap();
+pub fn parse_conf() -> Result<Config> {
+    let home = std::env::var("HOME")?;
     let config = home + "/.config/wallust/wallust.toml";
 
     if ! Path::new(&config).exists() {
         panic!("no config file");
     }
 
-    let contents = read_to_string(config).unwrap();
-    let conf: Config = toml::from_str(&contents).unwrap();
+    let contents = read_to_string(config)?;
+    let conf: Config = toml::from_str(&contents)?;
     println!("{:#?}", conf);
-    conf
+    Ok(conf)
 }
 
 #[derive(serde::Serialize)]
@@ -58,9 +59,8 @@ pub struct Context {
     color16: String,
 }
 
-pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) {
-
-    let home = std::env::var("HOME").unwrap();
+pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
+    let home = std::env::var("HOME")?;
     let config = home + "/.config/wallust/";
 
     let context = Context {
@@ -90,7 +90,7 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) {
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
     for e in entries {
         contents.push(
-            read_to_string(config.clone() + &e.template).unwrap()
+            read_to_string(config.clone() + &e.template)?
         );
     }
 
@@ -99,8 +99,9 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) {
     // iterate over contents and pass it as an `&String` (which is casted to &str) and apply the
     // template
     for e in &contents {
-        tt.add_template("colors", e).unwrap();
-        let rendered = tt.render("colors", &context).unwrap();
+        tt.add_template("colors", e)?;
+        let rendered = tt.render("colors", &context)?;
         println!("{}", rendered);
     }
+    Ok(())
 }
