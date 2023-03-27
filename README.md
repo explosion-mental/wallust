@@ -7,6 +7,6 @@ wallust
 
 
 Original can be found [here](https://stallman.org/photos/rms/pages/2.html):
-![new](https://explosion-mental.codeberg.page/img/others/wallust-stallman.png "wallust-stallman")
+![new](https://explosion-mental.codeberg.page/img/other/wallust-stallman.png "wallust-stallman")
 
 a better pywal.
