@@ -1,5 +1,6 @@
 //use std::collections::HashMap;
 //use std::io::Cursor;
+use std::fmt;
 
 //use colorsys::{ColorAlpha, Hsl, Rgb};
 use clap::Parser;
@@ -30,6 +31,16 @@ impl Histo {
         self.color.l = lightness;
     }
 }
+
+/// Display the hex color when formatting [`Histo`]
+impl fmt::Display for Histo {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let a = self.color.to_rgb();
+        write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
+    }
+}
+
 
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image

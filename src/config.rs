@@ -5,7 +5,6 @@ use crate::Histo;
 
 use tinytemplate::TinyTemplate;
 
-
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -60,34 +59,48 @@ pub struct Context {
 }
 
 pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) {
-    let mut tt = tinytemplate::TinyTemplate::new();
+
     let home = std::env::var("HOME").unwrap();
     let config = home + "/.config/wallust/";
-    //let tmp = &conf.entry.unwrap()[0];
-
-    //for e in entries {
-    let template = std::fs::read_to_string(config.clone() + &entries[0].template).unwrap();
-    tt.add_template("colors", &template).unwrap();
 
     let context = Context {
-        color0 : format!("{:?}", histo[0].color),
-        color1 : format!("{:?}", histo[1].color),
-        color2 : format!("{:?}", histo[2].color),
-        color3 : format!("{:?}", histo[3].color),
-        color4 : format!("{:?}", histo[4].color),
-        color5 : format!("{:?}", histo[5].color),
-        color6 : format!("{:?}", histo[6].color),
-        color7 : format!("{:?}", histo[7].color),
-        color8 : format!("{:?}", histo[8].color),
-        color9 : format!("{:?}", histo[9].color),
-        color10: format!("{:?}", histo[10].color),
-        color11: format!("{:?}", histo[11].color),
-        color12: format!("{:?}", histo[12].color),
-        color13: format!("{:?}", histo[13].color),
-        color14: format!("{:?}", histo[14].color),
-        color15: format!("{:?}", histo[15].color),
-        color16: format!("{:?}", histo[16].color),
+        color0 : format!("{}", histo[0]),
+        color1 : format!("{}", histo[1]),
+        color2 : format!("{}", histo[2]),
+        color3 : format!("{}", histo[3]),
+        color4 : format!("{}", histo[4]),
+        color5 : format!("{}", histo[5]),
+        color6 : format!("{}", histo[6]),
+        color7 : format!("{}", histo[7]),
+        color8 : format!("{}", histo[8]),
+        color9 : format!("{}", histo[9]),
+        color10: format!("{}", histo[10]),
+        color11: format!("{}", histo[11]),
+        color12: format!("{}", histo[12]),
+        color13: format!("{}", histo[13]),
+        color14: format!("{}", histo[14]),
+        color15: format!("{}", histo[15]),
+        color16: format!("{}", histo[16]),
     };
-    let rendered = tt.render("colors", &context).unwrap();
-    println!("{}", rendered);
+
+
+    // contents of config files
+    let mut contents = vec![];
+
+    // gather `String`s of the contents of the entries (in order to cast it down to &str)
+    for e in entries {
+        contents.push(
+            read_to_string(config.clone() + &e.template).unwrap()
+        );
+    }
+
+    let mut tt = TinyTemplate::new();
+
+    // iterate over contents and pass it as an `&String` (which is casted to &str) and apply the
+    // template
+    for e in &contents {
+        tt.add_template("colors", e).unwrap();
+        let rendered = tt.render("colors", &context).unwrap();
+        println!("{}", rendered);
+    }
 }
