@@ -43,7 +43,8 @@ impl Histo {
         format!("{} x {}\t\t{}", "    ".on_color(Rgb(a[0], a[1], a[2])), self.count, self)
     }
 
-    //XXX compare light between the darkest color in the top
+    //TODO compare light value between the darkest color, and use it as a background. If it isn't
+    //dark enough, alter it artificially
     pub fn background(&self) -> Self {
         Self {
             color: Lab {
@@ -55,6 +56,7 @@ impl Histo {
         }
     }
 
+    //TODO same as background
     pub fn foreground(&self) -> Self {
         Self {
             color: Lab {
