@@ -36,7 +36,7 @@ pub fn parse_conf() -> Result<Config> {
         panic!("no config file");
     }
 
-    let contents = read_to_string(&config)
+    let contents = read_to_string(config)
         .with_context(|| format!("Failed to read file {}", config))?;
     let conf: Config = toml::from_str(&contents)?;
     //println!("{:#?}", conf);
@@ -66,7 +66,7 @@ pub struct ColorsSer {
     color15: String,
 }
 
-pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
+pub fn write_template(entries: Vec<Entries>, histo: &[Histo]) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 
