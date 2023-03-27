@@ -43,6 +43,7 @@ pub fn parse_conf() -> Result<Config> {
     Ok(conf)
 }
 
+/// 16 colors [0..=15] + background + foreground
 #[derive(serde::Serialize)]
 pub struct ColorsSer {
     background: String,
@@ -63,7 +64,6 @@ pub struct ColorsSer {
     color13: String,
     color14: String,
     color15: String,
-    color16: String,
 }
 
 pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
@@ -89,7 +89,6 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
         color13: histo[13].to_string(),
         color14: histo[14].to_string(),
         color15: histo[15].to_string(),
-        color16: histo[16].to_string(),
     };
 
 
