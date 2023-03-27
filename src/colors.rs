@@ -1,4 +1,5 @@
 //! Colors logic, structs and methods
+//! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
 use std::fmt;
 
 use lab::Lab;
@@ -58,8 +59,8 @@ impl MyLab {
     }
 }
 
-impl Colors<String> {
-    fn from(c: Colors<MyLab>) -> Self {
+impl From<&Colors<MyLab>> for Colors<String> {
+    fn from(c: &Colors<MyLab>) -> Self {
         Self {
             background : c.background.to_string(),
             foreground : c.foreground.to_string(),
@@ -79,6 +80,39 @@ impl Colors<String> {
             color13 : c.color0.to_string(),
             color14 : c.color0.to_string(),
             color15 : c.color0.to_string(),
+        }
+    }
+}
+
+impl From<&Vec<Histo>> for Colors<MyLab> {
+    fn from(histo: &Vec<Histo>) -> Self {
+        // control the light value, for bg and fg
+        let light = |lab: Lab, amount| {
+            Lab {
+                l: amount,
+                a: lab.a,
+                b: lab.b
+            }
+        };
+        Self {
+            background : MyLab(light(histo[0].color, 0.0)),
+            foreground : MyLab(light(histo[0].color, 100.0)),
+            color0 : MyLab(histo[00].color),
+            color1 : MyLab(histo[01].color),
+            color2 : MyLab(histo[02].color),
+            color3 : MyLab(histo[03].color),
+            color4 : MyLab(histo[04].color),
+            color5 : MyLab(histo[05].color),
+            color6 : MyLab(histo[06].color),
+            color7 : MyLab(histo[07].color),
+            color8 : MyLab(histo[08].color),
+            color9 : MyLab(histo[09].color),
+            color10: MyLab(histo[10].color),
+            color11: MyLab(histo[11].color),
+            color12: MyLab(histo[12].color),
+            color13: MyLab(histo[13].color),
+            color14: MyLab(histo[14].color),
+            color15: MyLab(histo[15].color),
         }
     }
 }
@@ -112,37 +146,6 @@ foreground: {}
         self.background.col(),
         self.foreground.col(),
     );
-    }
-
-    pub fn from(histo: &[Histo]) -> Self {
-        // control the light value, for bg and fg
-        let light = |lab: Lab, amount| {
-            Lab {
-                l: amount,
-                a: lab.a,
-                b: lab.b
-            }
-        };
-        Self {
-            background : MyLab(light(histo[0].color, 0.0)),
-            foreground : MyLab(light(histo[0].color, 100.0)),
-            color0 : MyLab(histo[00].color),
-            color1 : MyLab(histo[01].color),
-            color2 : MyLab(histo[02].color),
-            color3 : MyLab(histo[03].color),
-            color4 : MyLab(histo[04].color),
-            color5 : MyLab(histo[05].color),
-            color6 : MyLab(histo[06].color),
-            color7 : MyLab(histo[07].color),
-            color8 : MyLab(histo[08].color),
-            color9 : MyLab(histo[09].color),
-            color10: MyLab(histo[10].color),
-            color11: MyLab(histo[11].color),
-            color12: MyLab(histo[12].color),
-            color13: MyLab(histo[13].color),
-            color14: MyLab(histo[14].color),
-            color15: MyLab(histo[15].color),
-        }
     }
 }
 

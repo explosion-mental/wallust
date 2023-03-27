@@ -67,20 +67,10 @@ fn main() -> Result<()> {
     let conf = parse_conf()?;
     match conf.entry {
         None => (),
-        Some(s) => config::write_template(s, &histo)?,
+        Some(s) => config::write_template(s, &colors)?,
     };
 
     colors.print();
-    //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
-    //for i in histo {
-    // only print the top 16 colors
-    //println!("background:{}", histo[0].background().print_cols());
-    //println!("foreground:{}", histo[0].foreground().print_cols());
-
-    //for (i, color) in histo.iter().take(16).enumerate() {
-    //    let space = if i < 10 { "    " } else { "   " };
-    //    println!("color{}:{}{}", i, space, color.print_cols());
-    //}
 
     Ok(())
 }
