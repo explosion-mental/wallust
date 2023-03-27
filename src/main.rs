@@ -3,28 +3,19 @@
 //use colorsys::{ColorAlpha, Hsl, Rgb};
 
 use clap::Parser;
-use lab::Lab;
 use anyhow::Result;
 
 mod args;
 mod config;
-mod delta;
 mod colors;
 mod backends;
-use backends::parse_image;
-use delta::delta_e;
+mod delta;
 use args::Cli;
-use config::*;
 use colors::*;
 
 //TODO handle errors
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
-
-/// Threshold to accept the color difference
-/// This is temporary, this constant should be auto to get the best result depending on the image
-/// size (XXX maybe a threshold for image size then?)
-const TH: u32 = 20;
 
 /// #About LAB
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
@@ -37,33 +28,13 @@ const TH: u32 = 20;
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // Init image, then convert it into rgb and finally to LAB
-    let labs = parse_image(cli.file)?;
+    let conf = config::parse_conf()?;
+    // parse the image
+    let colors = match conf.parser {
+        config::Parser::Full => backends::full(&cli.file)?,
+        config::Parser::Resized => backends::resized(&cli.file)?,
+    };
 
-    let mut histo: Vec<Histo> = vec![];
-
-    for lab in labs {
-        if is_present(lab, &mut histo) {
-            continue;
-        } else {
-            histo.push(Histo { color: lab, count: 1 });
-        }
-
-        //let a = lab.to_rgb();
-        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
-    }
-
-    // sort vec by count
-    histo.sort_by(|a, b| b.count.cmp(&a.count));
-
-    //darken the Lab color. Maybe apply these in [`is_present`] ?
-    //for i in &mut histo {
-    //    i.darken(0.5);
-    //}
-
-    let colors = Colors::from(&histo);
-
-    let conf = parse_conf()?;
     match conf.entry {
         None => (),
         Some(s) => config::write_template(s, &colors)?,
@@ -72,18 +43,4 @@ fn main() -> Result<()> {
     colors.print();
 
     Ok(())
-}
-
-/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
-/// colors are similar enough, using the [`TH`] (threshold)
-fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
-    for e in histogram {
-        // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < TH {
-            e.mix(color);
-            e.count += 1;
-            return true;
-        }
-    }
-    false
 }

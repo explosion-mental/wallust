@@ -15,9 +15,17 @@ use anyhow::Context;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     /// Configurable threshold
-    pub threshold: f32,
+    pub parser: Parser,
     /// `wallust` should work with or without this
     pub entry: Option<Vec<Entries>>,
+}
+
+/// This indicates what 'parser' method to use, in the config file
+#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Parser {
+    Full,
+    Resized,
 }
 
 // An entry within the config file
