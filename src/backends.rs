@@ -14,15 +14,10 @@ use lab::Lab;
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
 /// size (XXX maybe a threshold for image size then?)
-/// <= 1.0 	Not perceptible by human eyes.
-/// 1 - 2 	Perceptible through close observation.
-/// 2 - 10 	Perceptible at a glance.
-/// 11 - 49 	Colors are more similar than opposite
-/// 100		Colors are exact opposite
-const TH: u32 = 20;
+//const TH: u32 = 20;
 
 /// By default return all values from an image
-pub fn full(f: &PathBuf) -> Result<Colors<MyLab>> {
+pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     // Init image, then convert it into rgb and finally to LAB
     let img = ImageReader::open(f)?.decode()?.to_rgba8();
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
@@ -30,7 +25,7 @@ pub fn full(f: &PathBuf) -> Result<Colors<MyLab>> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if is_present(lab, &mut histo) {
+        if is_present(lab, &mut histo, threshold) {
             continue;
         } else {
             histo.push(Histo { color: lab, count: 1 });
@@ -51,7 +46,7 @@ pub fn full(f: &PathBuf) -> Result<Colors<MyLab>> {
 }
 
 /// Resize it, then get read the image
-pub fn resized(f: &PathBuf) -> Result<Colors<MyLab>> {
+pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
     let w = true_w / 4;
     let h = true_h / 4;
@@ -63,7 +58,7 @@ pub fn resized(f: &PathBuf) -> Result<Colors<MyLab>> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if is_present(lab, &mut histo) {
+        if is_present(lab, &mut histo, threshold) {
             continue;
         } else {
             histo.push(Histo { color: lab, count: 1 });
@@ -80,10 +75,10 @@ pub fn resized(f: &PathBuf) -> Result<Colors<MyLab>> {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`TH`] (threshold)
-fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
+fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < TH {
+        if delta_e(color, e.color) < threshold {
             e.mix(color);
             e.count += 1;
             return true;

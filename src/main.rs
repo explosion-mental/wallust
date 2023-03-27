@@ -1,6 +1,7 @@
 //use std::collections::HashMap;
 //use std::io::Cursor;
 //use colorsys::{ColorAlpha, Hsl, Rgb};
+use std::path::PathBuf;
 
 use clap::Parser;
 use anyhow::Result;
@@ -12,6 +13,7 @@ mod backends;
 mod delta;
 use args::Cli;
 use colors::*;
+use config::Config;
 
 //TODO handle errors
 //XXX BTree?
@@ -25,15 +27,21 @@ use colors::*;
 /// > blue and positive toward yellow.
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
+impl Config {
+    pub fn parse(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
+        match self.parser {
+            config::Parser::Full => backends::full(file, self.threshold),
+            config::Parser::Resized => backends::resized(file, self.threshold),
+        }
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
     let conf = config::parse_conf()?;
     // parse the image
-    let colors = match conf.parser {
-        config::Parser::Full => backends::full(&cli.file)?,
-        config::Parser::Resized => backends::resized(&cli.file)?,
-    };
+    let colors = conf.parse(&cli.file)?;
 
     match conf.entry {
         None => (),

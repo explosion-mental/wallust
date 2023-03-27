@@ -14,6 +14,7 @@ use anyhow::Context;
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    pub threshold: u32,
     /// Configurable threshold
     pub parser: Parser,
     /// `wallust` should work with or without this

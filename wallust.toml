@@ -1,13 +1,23 @@
 # global space #
 
-# possible values:
-#  * full - reads the whole image
-#  * resized - resizes the image before parsing it
+# What parser (backend) to use:
+# * full - reads the whole image
+# * resized - resizes the image before parsing it
 parser = "resized"
 
-[[entry]] # An entry is just a config file you wish to apply `wallust` generated colors
+# Difference between similar colors:
+#  <= 1       Not perceptible by human eyes.
+#  1 - 2      Perceptible through close observation.
+#  2 - 10     Perceptible at a glance.
+#  11 - 49    Colors are more similar than opposite
+#  100        Colors are exact opposite
+threshold = 20
+
+# An entry is just a config file you wish to apply `wallust` generated colors
+[[entry]]
 # a relative path to a file where wallust.toml is (~/.config/wallust/)
 template = "dunstrc"
+
 # absolute path to the file to write the template (after templating)
 path = "~/.config/dunst/dunstrc"
 
