@@ -36,11 +36,23 @@ impl Config {
         }
     }
     pub fn print(&self) {
-        let col = match self.parser {
+        let parser_col = match self.parser {
             config::Parser::Full => AnsiColors::Blue,
             config::Parser::Resized => AnsiColors::Cyan,
         };
-        println!("Using {} backend parser", self.parser.bold().color(col));
+
+        let th_col = match self.threshold {
+            1 => AnsiColors::Yellow,
+            2 => AnsiColors::Cyan,
+            2..=10 => AnsiColors::Green,
+            11..=49 => AnsiColors::Blue,
+            50..=100 => AnsiColors::Red,
+            _ => AnsiColors::Red,
+        };
+        println!("Using {} backend parser with a threshold of {}",
+            self.parser.bold().color(parser_col),
+            self.threshold.bold().color(th_col),
+            );
     }
 }
 
