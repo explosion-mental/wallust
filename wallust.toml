@@ -16,4 +16,4 @@ path = "~/.config/zathura/zathurarc"
 
 [[entry]]
 template = "bars.glsl"
-path = "/.config/glava/bars.glsl"
+path = "~/.config/glava/bars.glsl"
