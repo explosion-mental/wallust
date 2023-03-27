@@ -37,6 +37,11 @@ impl Histo {
         self.color.a = (new.a + self.color.a) / 2.0;
         self.color.b = (new.b + self.color.b) / 2.0;
     }
+
+    pub fn print_cols(&self) -> String {
+        let a = self.color.to_rgb();
+        format!("{} x {}\t\t{}", "    ".on_color(Rgb(a[0], a[1], a[2])), self.count, self)
+    }
 }
 
 /// Display the hex color when formatting [`Histo`]
@@ -98,9 +103,9 @@ fn main() -> Result<()> {
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
     // only print the top 16 colors
-    for i in histo.iter().take(16) {
-        let a = i.color.to_rgb();
-        println!("{} x {}\t\t#{:02X}{:02X}{:02X}", "    ".on_color(Rgb(a[0], a[1], a[2])), i.count, a[0], a[1], a[2]);
+    for (i, color) in histo.iter().take(16).enumerate() {
+        let space = if i < 10 { "  " } else { " " };
+        println!("color{}:{}{}", i, space, color.print_cols());
     }
 
     Ok(())
