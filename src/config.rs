@@ -3,6 +3,7 @@ use std::path::Path;
 use std::fs::read_to_string;
 use std::io::prelude::*;
 use std::fs::File;
+use std::fmt;
 
 use crate::Colors;
 use crate::MyLab;
@@ -53,7 +54,7 @@ pub fn parse_conf() -> Result<Config> {
     Ok(conf)
 }
 
-pub fn write_template(entries: Vec<Entries>, values: &Colors<MyLab>) -> Result<()>{
+pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 
@@ -67,7 +68,7 @@ pub fn write_template(entries: Vec<Entries>, values: &Colors<MyLab>) -> Result<(
         let path = config.to_owned() + &e.template;
         //println!("->'{}'", &path);
         contents.push(
-            (e.path, read_to_string(&path)
+            (&e.path, read_to_string(&path)
                         .with_context(|| format!("Failed to read file {}", path))?
              )
         );
@@ -88,4 +89,15 @@ pub fn write_template(entries: Vec<Entries>, values: &Colors<MyLab>) -> Result<(
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
+}
+
+/// Add a simple `Display` for [`TurboState`]
+impl fmt::Display for Parser {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Full    => write!(f, "full"),
+            Self::Resized => write!(f, "resized"),
+        }
+    }
 }

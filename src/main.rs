@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use anyhow::Result;
+use owo_colors::{OwoColorize, AnsiColors};
 
 mod args;
 mod config;
@@ -34,18 +35,29 @@ impl Config {
             config::Parser::Resized => backends::resized(file, self.threshold),
         }
     }
+    pub fn print(&self) {
+        let col = match self.parser {
+            config::Parser::Full => AnsiColors::Blue,
+            config::Parser::Resized => AnsiColors::Cyan,
+        };
+        println!("Using {} backend parser", self.parser.bold().color(col));
+    }
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
     let conf = config::parse_conf()?;
+    println!("Generating color scheme...");
+    conf.print();
     // parse the image
     let colors = conf.parse(&cli.file)?;
 
-    match conf.entry {
-        None => (),
+    let entries = &conf.entry;
+
+    match entries {
         Some(s) => config::write_template(s, &colors)?,
+        None => (),
     };
 
     colors.print();
