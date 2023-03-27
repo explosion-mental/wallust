@@ -1,13 +1,9 @@
 # global space #
 
-# threshold: the less this is, the more precision the colors would be, and the longer it
-# would take, below a little table.
-threshold = 20.0
-# <= 1.0 	Not perceptible by human eyes.
-# 1 - 2 	Perceptible through close observation.
-# 2 - 10 	Perceptible at a glance.
-# 11 - 49 	Colors are more similar than opposite
-# 100		Colors are exact opposite
+# possible values:
+#  * full - reads the whole image
+#  * resized - resizes the image before parsing it
+parser = "resized"
 
 [[entry]] # An entry is just a config file you wish to apply `wallust` generated colors
 # a relative path to a file where wallust.toml is (~/.config/wallust/)
