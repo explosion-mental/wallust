@@ -1,6 +1,9 @@
 use serde::*;
 use std::path::Path;
 use std::fs::read_to_string;
+use std::io::prelude::*;
+use std::fs::File;
+
 use crate::Histo;
 
 use tinytemplate::TinyTemplate;
@@ -26,8 +29,8 @@ pub struct Entries {
 }
 
 pub fn parse_conf() -> Result<Config> {
-    let home = std::env::var("HOME")?;
-    let config = home + "/.config/wallust/wallust.toml";
+    let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
+    let config = config.as_ref();
 
     if ! Path::new(&config).exists() {
         panic!("no config file");
@@ -64,8 +67,8 @@ pub struct ColorsSer {
 }
 
 pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
-    let home = std::env::var("HOME")?;
-    let config = home + "/.config/wallust/";
+    let config = shellexpand::tilde("~/.config/wallust/");
+    let config = config.as_ref();
 
     let context = ColorsSer {
         background : histo[0].to_string(),
@@ -95,7 +98,7 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
 
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
     for e in entries {
-        let path = config.clone() + &e.template;
+        let path = config.to_owned() + &e.template;
         //println!("->'{}'", &path);
         contents.push(
             (e.path, read_to_string(&path)
@@ -105,9 +108,6 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
     }
 
     let mut tt = TinyTemplate::new();
-
-    use std::io::prelude::*;
-    use std::fs::File;
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
