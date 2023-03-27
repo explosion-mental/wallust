@@ -31,6 +31,12 @@ impl Histo {
         let lightness = self.color.l * (1.0 - amount);
         self.color.l = lightness;
     }
+
+    pub fn mix(&mut self, new: Lab) {
+        self.color.l = (new.l + self.color.l) / 2.0;
+        self.color.a = (new.a + self.color.a) / 2.0;
+        self.color.b = (new.b + self.color.b) / 2.0;
+    }
 }
 
 /// Display the hex color when formatting [`Histo`]
@@ -49,9 +55,10 @@ impl fmt::Display for Histo {
 const TH: f32 = 20.0;
 
 /// #About LAB
-/// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100. The a*
-/// > axis is relative to the green-red opponent colors, with negative values toward green and positive
-/// > values toward red. The b* axis represents the blue-yellow opponents, with negative numbers toward
+/// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
+/// > The a* axis is relative to the green-red opponent colors, with negative values toward green
+/// > and positive > values toward red.
+/// > The b* axis represents the blue-yellow opponents, with negative numbers toward
 /// > blue and positive toward yellow.
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
@@ -105,6 +112,7 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < TH {
+            //e.mix(color);
             e.count += 1;
             return true;
         }
