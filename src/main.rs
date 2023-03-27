@@ -8,18 +8,20 @@ use lab::Lab;
 use owo_colors::*;
 
 mod args;
+mod config;
 use args::Cli;
+use config::*;
 //TODO handle errors
 //TODO generate background and foreground colors, in relation to black and white
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
 
 /// Simple Histogram
-struct Histo {
+pub struct Histo {
     /// LAB colors
-    color: Lab,
+    pub color: Lab,
     /// number of times it has appeared
-    count: usize,
+    pub count: usize,
 }
 
 impl Histo {
@@ -65,10 +67,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     //darken the Lab color. Maybe apply these in [`is_present`] ?
-    for i in &mut histo {
-        i.darken(0.5);
-    }
+    //for i in &mut histo {
+    //    i.darken(0.5);
+    //}
 
+    let conf = parse_conf();
+    match conf.entry {
+        None => (),
+        Some(s) => config::write_template(s, &histo),
+    };
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
     // only print the top 16 colors
