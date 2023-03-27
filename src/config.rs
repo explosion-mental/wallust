@@ -71,8 +71,8 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
     let config = config.as_ref();
 
     let context = ColorsSer {
-        background : histo[0].to_string(),
-        foreground : histo[1].to_string(),
+        background : histo[0].background().to_string(),
+        foreground : histo[0].foreground().to_string(),
         color0 :  histo[0].to_string(),
         color1 :  histo[1].to_string(),
         color2 :  histo[2].to_string(),

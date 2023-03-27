@@ -42,6 +42,29 @@ impl Histo {
         let a = self.color.to_rgb();
         format!("{} x {}\t\t{}", "    ".on_color(Rgb(a[0], a[1], a[2])), self.count, self)
     }
+
+    //XXX compare light between the darkest color in the top
+    pub fn background(&self) -> Self {
+        Self {
+            color: Lab {
+                l: 0.0,
+                a: self.color.a,
+                b: self.color.b,
+            },
+            count: 1,
+        }
+    }
+
+    pub fn foreground(&self) -> Self {
+        Self {
+            color: Lab {
+                l: 100.0,
+                a: self.color.a,
+                b: self.color.b,
+            },
+            count: 1,
+        }
+    }
 }
 
 /// Display the hex color when formatting [`Histo`]
@@ -103,8 +126,11 @@ fn main() -> Result<()> {
     //TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
     //for i in histo {
     // only print the top 16 colors
+    println!("background:{}", histo[0].background().print_cols());
+    println!("foreground:{}", histo[0].foreground().print_cols());
+
     for (i, color) in histo.iter().take(16).enumerate() {
-        let space = if i < 10 { "  " } else { " " };
+        let space = if i < 10 { "    " } else { "   " };
         println!("color{}:{}{}", i, space, color.print_cols());
     }
 
