@@ -5,6 +5,7 @@ use crate::Histo;
 
 use tinytemplate::TinyTemplate;
 use anyhow::Result;
+use anyhow::Context;
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
@@ -32,14 +33,15 @@ pub fn parse_conf() -> Result<Config> {
         panic!("no config file");
     }
 
-    let contents = read_to_string(config)?;
+    let contents = read_to_string(&config)
+        .with_context(|| format!("Failed to read file {}", config))?;
     let conf: Config = toml::from_str(&contents)?;
     println!("{:#?}", conf);
     Ok(conf)
 }
 
 #[derive(serde::Serialize)]
-pub struct Context {
+pub struct ColorsSer {
     background: String,
     foreground: String,
     color0: String,
@@ -65,7 +67,7 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
     let home = std::env::var("HOME")?;
     let config = home + "/.config/wallust/";
 
-    let context = Context {
+    let context = ColorsSer {
         background : format!("{}", histo[0]),
         foreground : format!("{}", histo[1]),
         color0 : format!("{}", histo[0]),
@@ -96,7 +98,9 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
         let path = config.clone() + &e.template;
         //println!("->'{}'", &path);
         contents.push(
-            (e.path, read_to_string(path)?)
+            (e.path, read_to_string(&path)
+                        .with_context(|| format!("Failed to read file {}", path))?
+             )
         );
     }
 
@@ -111,8 +115,10 @@ pub fn write_template(entries: Vec<Entries>, histo: &Vec<Histo>) -> Result<()>{
         tt.add_template("colors", stuff)?;
         let rendered = tt.render("colors", &context)?;
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let mut buffer = File::create(shellexpand::tilde(path).as_ref())?;
-        buffer.write_all(rendered.as_bytes())?;
+        let mut buffer = File::create(shellexpand::tilde(path).as_ref())
+            .with_context(|| format!("Failed to create file {}", path))?;
+        buffer.write_all(rendered.as_bytes())
+            .with_context(|| format!("Failed to write to file {}", path))?;
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
