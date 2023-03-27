@@ -5,26 +5,28 @@ use std::fmt;
 use lab::Lab;
 use owo_colors::*;
 
+/// Generic type used for TinyTemplate and to store the actual colors.
+/// Colors are ordered by the most used to the least used.
 #[derive(serde::Serialize)]
 pub struct Colors<T> {
-    pub background: T,
-    pub foreground: T,
-    pub color0: T,
-    pub color1: T,
-    pub color2: T,
-    pub color3: T,
-    pub color4: T,
-    pub color5: T,
-    pub color6: T,
-    pub color7: T,
-    pub color8: T,
-    pub color9: T,
-    pub color10: T,
-    pub color11: T,
-    pub color12: T,
-    pub color13: T,
-    pub color14: T,
-    pub color15: T,
+    background: T,
+    foreground: T,
+    color0: T,
+    color1: T,
+    color2: T,
+    color3: T,
+    color4: T,
+    color5: T,
+    color6: T,
+    color7: T,
+    color8: T,
+    color9: T,
+    color10: T,
+    color11: T,
+    color12: T,
+    color13: T,
+    color14: T,
+    color15: T,
 }
 
 /// newtype trick to add methods
@@ -32,13 +34,13 @@ pub struct MyLab(Lab);
 
 /// Display the hex color when displaying Lab
 impl fmt::Display for MyLab {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let a = self.to_rgb();
         write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
     }
 }
 
+/// Methods for wrapper [`MyLab`] type (wraps [`Lab`])
 impl MyLab {
     pub fn to_rgb(&self) -> [u8; 3] {
         self.0.to_rgb()
@@ -59,6 +61,41 @@ impl MyLab {
     }
 }
 
+/// Methods for Colors when it's type uses MyLab
+impl Colors<MyLab> {
+    pub fn print(&self) {
+        print!(
+"
+{}{}{}{}{}{}{}{}
+{}{}{}{}{}{}{}{}
+
+background: {}
+foreground: {}
+",
+        self.color0.col(),
+        self.color1.col(),
+        self.color2.col(),
+        self.color3.col(),
+        self.color4.col(),
+        self.color5.col(),
+        self.color6.col(),
+        self.color7.col(),
+        self.color8.col(),
+        self.color9.col(),
+        self.color10.col(),
+        self.color11.col(),
+        self.color12.col(),
+        self.color13.col(),
+        self.color14.col(),
+        self.color15.col(),
+        self.background.col(),
+        self.foreground.col(),
+    );
+    }
+}
+
+/// From implementation trait for the [`Colors`] with [`MyLab`] type to a String for TinyTemplate
+/// to use
 impl From<&Colors<MyLab>> for Colors<String> {
     fn from(c: &Colors<MyLab>) -> Self {
         Self {
@@ -84,6 +121,7 @@ impl From<&Colors<MyLab>> for Colors<String> {
     }
 }
 
+/// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
 impl From<&Vec<Histo>> for Colors<MyLab> {
     fn from(histo: &Vec<Histo>) -> Self {
         // control the light value, for bg and fg
@@ -117,38 +155,6 @@ impl From<&Vec<Histo>> for Colors<MyLab> {
     }
 }
 
-impl Colors<MyLab> {
-    pub fn print(&self) {
-        print!(
-"
-{}{}{}{}{}{}{}{}
-{}{}{}{}{}{}{}{}
-
-background: {}
-foreground: {}
-",
-        self.color0.col(),
-        self.color1.col(),
-        self.color2.col(),
-        self.color3.col(),
-        self.color4.col(),
-        self.color5.col(),
-        self.color6.col(),
-        self.color7.col(),
-        self.color8.col(),
-        self.color9.col(),
-        self.color10.col(),
-        self.color11.col(),
-        self.color12.col(),
-        self.color13.col(),
-        self.color14.col(),
-        self.color15.col(),
-        self.background.col(),
-        self.foreground.col(),
-    );
-    }
-}
-
 /// Simple Histogram
 pub struct Histo {
     /// LAB colors
@@ -163,45 +169,4 @@ impl Histo {
         self.color.a = (new.a + self.color.a) / 2.0;
         self.color.b = (new.b + self.color.b) / 2.0;
     }
-
-    pub fn print_cols(&self) -> String {
-        let a = self.color.to_rgb();
-        format!("{} x {}\t\t{}", "    ".on_color(Rgb(a[0], a[1], a[2])), self.count, self)
-    }
-
-    //TODO compare light value between the darkest color, and use it as a background. If it isn't
-    //dark enough, alter it artificially
-    pub fn background(&self) -> Self {
-        Self {
-            color: Lab {
-                l: 0.0,
-                a: self.color.a,
-                b: self.color.b,
-            },
-            count: 1,
-        }
-    }
-
-    //TODO same as background
-    pub fn foreground(&self) -> Self {
-        Self {
-            color: Lab {
-                l: 100.0,
-                a: self.color.a,
-                b: self.color.b,
-            },
-            count: 1,
-        }
-    }
 }
-
-/// Display the hex color when formatting [`Histo`]
-impl fmt::Display for Histo {
-    // This trait requires `fmt` with this exact signature.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let a = self.color.to_rgb();
-        write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
-    }
-}
-
-
