@@ -11,6 +11,8 @@ use anyhow::Result;
 
 mod args;
 mod config;
+mod delta;
+use delta::delta_e;
 use args::Cli;
 use config::*;
 //TODO handle errors
@@ -151,14 +153,4 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>) -> bool {
         }
     }
     false
-}
-
-/// Returns how much the colors differ
-///
-/// ref: <https://www.easyrgb.com/en/math.php>
-//XXX worth using f32?
-fn delta_e(current: Lab, previous: Lab) -> f32 {
-    (   ((previous.l - current.l).powf(2.0))
-    +   ((previous.a - current.a).powf(2.0))
-    +   ((previous.b - current.b).powf(2.0)) ).sqrt()
 }
