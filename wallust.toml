@@ -4,14 +4,16 @@
 # would take
 threshold = 20.0
 
-[[entry]]
-name = "dunstrc"
+[[entry]] # An entry is just a config file you wish to apply `wallust` generated colors
+# a relative path to a file where wallust.toml is (~/.config/wallust/)
+template = "dunstrc"
+# absolute path to the file to write the template (after templating)
 path = "~/.config/dunst/dunstrc"
 
 [[entry]]
-name = "zathurarc"
+template = "zathurarc"
 path = "~/.config/zathura/zathurarc"
 
 [[entry]]
-name = "bars.glsl"
+template = "bars.glsl"
 path = "/.config/glava/bars.glsl"
