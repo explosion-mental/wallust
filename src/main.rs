@@ -84,7 +84,7 @@ impl fmt::Display for Histo {
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
 /// size (XXX maybe a threshold for image size then?)
-const TH: f32 = 20.0;
+const TH: u32 = 20;
 
 /// #About LAB
 /// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.

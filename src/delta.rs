@@ -3,8 +3,8 @@ use lab::Lab;
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
 #[inline]
-pub fn delta_e(lab_0: Lab, lab_1: Lab) -> f32 {
-    delta_2000(lab_0, lab_1)
+pub fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
+    delta_2000(lab_0, lab_1).round() as u32
 }
 
 //XXX is the 2000 version worth?
