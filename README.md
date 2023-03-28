@@ -12,3 +12,7 @@ Original can be found [here](https://stallman.org/photos/rms/pages/2.html):
 ![new](https://explosion-mental.codeberg.page/img/other/wallust-stallman.png "wallust-stallman")
 
 a better pywal.
+
+# TODO
+- config/cli flag that allows to set the colors as variables in shell, like pywal `$color1` ...
+- config/cli flag that allows to set the colors as Xresources values
