@@ -124,16 +124,21 @@ impl From<&Colors<MyLab>> for Colors<String> {
     }
 }
 
+/// Creates a new darker Lab color derive from the given one, changes values by amount, but
+/// prioritizes l(ight) value
 fn darken(lab: Lab, amount: f32) -> Lab {
     Lab {
         l: lab.l * (1.0 - amount),
-        a: lab.a * (1.0 - amount),
-        b: lab.b * (1.0 - amount),
+        a: lab.a * (1.0 - amount - 0.1),
+        b: lab.b * (1.0 - amount - 0.1),
     }
 }
+
+/// Creates a new lighter Lab color derive from the given one, changes values by amount, but
+/// prioritizes l(ight) value
 fn lighten(lab: Lab, amount: f32) -> Lab {
     Lab {
-        l: lab.l + (100.0 - lab.l) * amount,
+        l: lab.l + (100.0 - lab.l) * amount + amount * 2.0,
         a: lab.a + (100.0 - lab.a) * amount,
         b: lab.b + (100.0 - lab.b) * amount,
     }
