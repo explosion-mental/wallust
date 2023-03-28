@@ -150,11 +150,16 @@ impl From<&mut Vec<Histo>> for Colors<MyLab> {
         // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
         // ones that already exist (until it's 16)
         let len = histo.len();
-
         if len < 16 {
             println!("Not enought colors! Generating new colors from fetches ones...");
             for i in len..=15 {
-                histo.push(Histo { color: darken(histo[i - len].color, 0.5), count: i });
+                // generate new colors, but switch between the how (method to use)
+                let val = if i % 2 == 0 {
+                    Histo { color: darken(histo[i - len].color, 0.5), count: i }
+                } else {
+                    Histo { color: lighten(histo[i - len].color, 0.5), count: i }
+                };
+                histo.push(val);
             }
         }
 
