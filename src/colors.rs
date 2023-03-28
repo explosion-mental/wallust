@@ -58,10 +58,9 @@ impl MyLab {
         self.0.b
     }
     */
-    /// return the Rgb type value rather than alloc to_string
-    pub fn col(&self) -> String {
+    pub fn col(&self) -> Rgb {
         let a = self.to_rgb();
-        "    ".on_color(Rgb(a[0], a[1], a[2])).to_string()
+        Rgb(a[0], a[1], a[2])
     }
 }
 
@@ -76,24 +75,24 @@ impl Colors<MyLab> {
 background: {}
 foreground: {}
 ",
-        self.color0.col(),
-        self.color1.col(),
-        self.color2.col(),
-        self.color3.col(),
-        self.color4.col(),
-        self.color5.col(),
-        self.color6.col(),
-        self.color7.col(),
-        self.color8.col(),
-        self.color9.col(),
-        self.color10.col(),
-        self.color11.col(),
-        self.color12.col(),
-        self.color13.col(),
-        self.color14.col(),
-        self.color15.col(),
-        self.background.col(),
-        self.foreground.col(),
+        "    ".on_color(self.color0.col()),
+        "    ".on_color(self.color1.col()),
+        "    ".on_color(self.color2.col()),
+        "    ".on_color(self.color3.col()),
+        "    ".on_color(self.color4.col()),
+        "    ".on_color(self.color5.col()),
+        "    ".on_color(self.color6.col()),
+        "    ".on_color(self.color7.col()),
+        "    ".on_color(self.color8.col()),
+        "    ".on_color(self.color9.col()),
+        "    ".on_color(self.color10.col()),
+        "    ".on_color(self.color11.col()),
+        "    ".on_color(self.color12.col()),
+        "    ".on_color(self.color13.col()),
+        "    ".on_color(self.color14.col()),
+        "    ".on_color(self.color15.col()),
+        "    ".on_color(self.background.col()),
+        "    ".on_color(self.foreground.col()),
     );
     }
 }
