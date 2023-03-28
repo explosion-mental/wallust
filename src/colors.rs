@@ -129,8 +129,8 @@ impl From<&Colors<MyLab>> for Colors<String> {
 fn darken(lab: Lab, amount: f32) -> Lab {
     Lab {
         l: lab.l * (1.0 - amount),
-        a: lab.a * (1.0 - amount - 0.1),
-        b: lab.b * (1.0 - amount - 0.1),
+        a: lab.a * (1.0 - amount - 0.15),
+        b: lab.b * (1.0 - amount - 0.15),
     }
 }
 
@@ -138,9 +138,9 @@ fn darken(lab: Lab, amount: f32) -> Lab {
 /// prioritizes l(ight) value
 fn lighten(lab: Lab, amount: f32) -> Lab {
     Lab {
-        l: lab.l + (100.0 - lab.l) * amount + amount * 2.0,
-        a: lab.a + (100.0 - lab.a) * amount,
-        b: lab.b + (100.0 - lab.b) * amount,
+        l: lab.l + (100.0 - lab.l) * amount,
+        a: lab.a + (100.0 - lab.a) * (amount - 0.15),
+        b: lab.b + (100.0 - lab.b) * (amount - 0.15),
     }
 }
 
