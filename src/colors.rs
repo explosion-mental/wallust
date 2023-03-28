@@ -147,6 +147,7 @@ impl From<&mut Vec<Histo>> for Colors<MyLab> {
         let len = histo.len();
 
         if len < 16 {
+            println!("Not enought colors! Generating new colors from fetches ones...");
             for i in len..=15 {
                 histo.push(Histo { color: darken(histo[i - len].color, 0.5), count: i });
             }
