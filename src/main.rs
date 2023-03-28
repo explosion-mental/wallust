@@ -32,14 +32,14 @@ use config::Config;
 impl Config {
     pub fn parse(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
         match self.parser {
-            config::Parser::Full => backends::full(file, self.threshold),
-            config::Parser::Resized => backends::resized(file, self.threshold),
+            config::Backend::Full => backends::full(file, self.threshold),
+            config::Backend::Resized => backends::resized(file, self.threshold),
         }
     }
     pub fn print(&self) {
         let parser_col = match self.parser {
-            config::Parser::Full => AnsiColors::Blue,
-            config::Parser::Resized => AnsiColors::Cyan,
+            config::Backend::Full => AnsiColors::Blue,
+            config::Backend::Resized => AnsiColors::Cyan,
         };
 
         let th_col = match self.threshold {
