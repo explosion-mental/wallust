@@ -21,10 +21,11 @@ pub struct Histo {
 }
 
 impl Histo {
+    /// Mix similar Lab colors, to catch most similars ones.
     pub fn mix(&mut self, new: Lab) {
-        self.color.l = (new.l + self.color.l) / 2.0;
-        self.color.a = (new.a + self.color.a) / 2.0;
-        self.color.b = (new.b + self.color.b) / 2.0;
+        self.color.l = (self.color.l + new.l)  / 2.0;
+        //self.color.a = (self.color.a + new.a).round()  / 2.0;
+        //self.color.b = (self.color.b + new.b).round()  / 2.0;
     }
 }
 
@@ -40,10 +41,6 @@ pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
 
     let mut histo = gen_histogram(labs, threshold);
-    //darken the Lab color. Maybe apply these in [`is_present`] ?
-    //for i in &mut histo {
-    //    i.darken(0.5);
-    //}
     Ok(Colors::from(&mut histo))
 }
 
@@ -83,9 +80,6 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
         } else {
             histo.push(Histo { color: lab, count: 1 });
         }
-
-        //let a = lab.to_rgb();
-        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
     }
 
     // sort vec by count
