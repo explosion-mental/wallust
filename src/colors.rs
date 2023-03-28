@@ -125,8 +125,8 @@ impl From<&Colors<MyLab>> for Colors<String> {
 }
 
 /// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
-impl From<&Vec<Histo>> for Colors<MyLab> {
-    fn from(histo: &Vec<Histo>) -> Self {
+impl From<&mut Vec<Histo>> for Colors<MyLab> {
+    fn from(histo: &mut Vec<Histo>) -> Self {
         // control the light value, for bg and fg
         let light = |lab: Lab, amount| {
             Lab {
@@ -135,6 +135,17 @@ impl From<&Vec<Histo>> for Colors<MyLab> {
                 b: lab.b
             }
         };
+
+        // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
+        // ones that already exist (until it's 16)
+        let len = histo.len();
+        if len < 16 {
+            for i in len..=15 {
+                histo.push(histo[i - len]);
+            }
+        }
+
+
         Self {
             background : light(histo[0].color, 0.0).into(),
             foreground : light(histo[0].color, 100.0).into(),
