@@ -2,6 +2,7 @@
 //! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
 //! * TODO generate background and foreground colors, in relation to black and white
 use std::fmt;
+use crate::backends::Histo;
 
 use lab::Lab;
 use owo_colors::*;
@@ -164,18 +165,3 @@ impl From<Lab> for MyLab {
     }
 }
 
-/// Simple Histogram
-pub struct Histo {
-    /// LAB colors
-    pub color: Lab,
-    /// number of times it has appeared
-    pub count: usize,
-}
-
-impl Histo {
-    pub fn mix(&mut self, new: Lab) {
-        self.color.l = (new.l + self.color.l) / 2.0;
-        self.color.a = (new.a + self.color.a) / 2.0;
-        self.color.b = (new.b + self.color.b) / 2.0;
-    }
-}

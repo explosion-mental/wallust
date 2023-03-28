@@ -5,11 +5,27 @@ use std::path::PathBuf;
 
 
 use crate::delta::delta_e;
-use crate::{MyLab, Colors, Histo};
+use crate::{MyLab, Colors};
 
 use image::io::Reader as ImageReader;
 use anyhow::Result;
 use lab::Lab;
+
+/// Simple Histogram
+pub struct Histo {
+    /// LAB colors
+    pub color: Lab,
+    /// number of times it has appeared
+    pub count: usize,
+}
+
+impl Histo {
+    pub fn mix(&mut self, new: Lab) {
+        self.color.l = (new.l + self.color.l) / 2.0;
+        self.color.a = (new.a + self.color.a) / 2.0;
+        self.color.b = (new.b + self.color.b) / 2.0;
+    }
+}
 
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
@@ -22,27 +38,12 @@ pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let img = ImageReader::open(f)?.decode()?.to_rgba8();
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
 
-    let mut histo: Vec<Histo> = vec![];
-
-    for lab in labs {
-        if is_present(lab, &mut histo, threshold) {
-            continue;
-        } else {
-            histo.push(Histo { color: lab, count: 1 });
-        }
-
-        //let a = lab.to_rgb();
-        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
-    }
-
-    // sort vec by count
-    histo.sort_by(|a, b| b.count.cmp(&a.count));
-    Ok(Colors::from(&histo))
-
+    let histo = gen_histogram(labs, threshold);
     //darken the Lab color. Maybe apply these in [`is_present`] ?
     //for i in &mut histo {
     //    i.darken(0.5);
     //}
+    Ok(Colors::from(&histo))
 }
 
 /// Resize it, then get read the image
@@ -54,22 +55,7 @@ pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let img = img.to_rgba8();
 
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
-
-    let mut histo: Vec<Histo> = vec![];
-
-    for lab in labs {
-        if is_present(lab, &mut histo, threshold) {
-            continue;
-        } else {
-            histo.push(Histo { color: lab, count: 1 });
-        }
-
-        //let a = lab.to_rgb();
-        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
-    }
-
-    // sort vec by count
-    histo.sort_by(|a, b| b.count.cmp(&a.count));
+    let histo = gen_histogram(labs, threshold);
     Ok(Colors::from(&histo))
 }
 
@@ -85,4 +71,23 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
         }
     }
     false
+}
+
+fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
+    let mut histo: Vec<Histo> = vec![];
+
+    for lab in labs {
+        if is_present(lab, &mut histo, threshold) {
+            continue;
+        } else {
+            histo.push(Histo { color: lab, count: 1 });
+        }
+
+        //let a = lab.to_rgb();
+        //print!("{}   ", "COLOR".on_color(Rgb(a[0], a[1], a[2])));
+    }
+
+    // sort vec by count
+    histo.sort_by(|a, b| b.count.cmp(&a.count));
+    histo
 }
