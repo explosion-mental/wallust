@@ -907,6 +907,7 @@ dependencies = [
  "lab",
  "owo-colors",
  "serde",
+ "serde_json",
  "shellexpand",
  "tinytemplate",
  "toml",

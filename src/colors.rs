@@ -6,10 +6,11 @@ use crate::backends::Histo;
 
 use lab::Lab;
 use owo_colors::*;
+use serde::{Serialize, Deserialize};
 
 /// Generic type used for TinyTemplate and to store the actual colors.
 /// Colors are ordered by the most used to the least used.
-#[derive(serde::Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Colors<T> {
     background: T,
     foreground: T,
@@ -31,8 +32,19 @@ pub struct Colors<T> {
     color15: T,
 }
 
+/// serde trick to serialize types from another crate
+/// ref: <https://serde.rs/remote-derive.html>
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "Lab")]
+pub struct LabDef {
+    l: f32,
+    a: f32,
+    b: f32,
+}
+
 /// newtype trick to add methods
-pub struct MyLab(Lab);
+#[derive(Serialize, Deserialize)]
+pub struct MyLab(#[serde(with = "LabDef")] Lab);
 
 /// Display the hex color when displaying Lab
 impl fmt::Display for MyLab {

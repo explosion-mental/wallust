@@ -12,6 +12,7 @@ mod config;
 mod colors;
 mod backends;
 mod delta;
+mod cache;
 use args::Cli;
 use colors::*;
 use config::Config;
@@ -74,6 +75,8 @@ fn main() -> Result<()> {
 
     //TODO add print_long to list `value: color` like
     colors.print();
+
+    cache::write_cache(colors, &cli.file)?;
 
     Ok(())
 }
