@@ -39,12 +39,12 @@ pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let img = ImageReader::open(f)?.decode()?.to_rgba8();
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
 
-    let histo = gen_histogram(labs, threshold);
+    let mut histo = gen_histogram(labs, threshold);
     //darken the Lab color. Maybe apply these in [`is_present`] ?
     //for i in &mut histo {
     //    i.darken(0.5);
     //}
-    Ok(Colors::from(&histo))
+    Ok(Colors::from(&mut histo))
 }
 
 /// Resize it, then get read the image
@@ -56,8 +56,8 @@ pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
     let img = img.to_rgba8();
 
     let labs = lab::rgb_bytes_to_labs(img.as_raw());
-    let histo = gen_histogram(labs, threshold);
-    Ok(Colors::from(&histo))
+    let mut histo = gen_histogram(labs, threshold);
+    Ok(Colors::from(&mut histo))
 }
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
