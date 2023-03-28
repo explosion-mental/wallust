@@ -17,15 +17,15 @@ use anyhow::Context;
 pub struct Config {
     pub threshold: u32,
     /// Configurable threshold
-    pub parser: Parser,
+    pub parser: Backend,
     /// `wallust` should work with or without this
     pub entry: Option<Vec<Entries>>,
 }
 
 /// This indicates what 'parser' method to use, in the config file
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Parser {
+pub enum Backend {
     Full,
     Resized,
 }
@@ -92,7 +92,7 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
 }
 
 /// Add a simple `Display` for [`TurboState`]
-impl fmt::Display for Parser {
+impl fmt::Display for Backend {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
