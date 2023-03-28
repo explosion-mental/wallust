@@ -124,31 +124,37 @@ impl From<&Colors<MyLab>> for Colors<String> {
     }
 }
 
+fn darken(lab: Lab, amount: f32) -> Lab {
+    Lab {
+        l: lab.l * (1.0 - amount),
+        a: lab.a,
+        b: lab.b
+    }
+}
+fn lighten(lab: Lab, amount: f32) -> Lab {
+    Lab {
+        l: lab.l + (100.0 - lab.l) * amount,
+        a: lab.a,
+        b: lab.b
+    }
+}
+
 /// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
 impl From<&mut Vec<Histo>> for Colors<MyLab> {
     fn from(histo: &mut Vec<Histo>) -> Self {
-        // control the light value, for bg and fg
-        let light = |lab: Lab, amount| {
-            Lab {
-                l: amount,
-                a: lab.a,
-                b: lab.b
-            }
-        };
-
         // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
         // ones that already exist (until it's 16)
         let len = histo.len();
+
         if len < 16 {
             for i in len..=15 {
-                histo.push(histo[i - len]);
+                histo.push(Histo { color: darken(histo[i - len].color, 0.5), count: i });
             }
         }
 
-
         Self {
-            background : light(histo[0].color, 0.0).into(),
-            foreground : light(histo[0].color, 100.0).into(),
+            background : darken(histo[0].color, 0.0).into(),
+            foreground : lighten(histo[0].color, 100.0).into(),
             color0 : histo[ 0].color.into(),
             color1 : histo[ 1].color.into(),
             color2 : histo[ 2].color.into(),
