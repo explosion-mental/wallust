@@ -127,15 +127,15 @@ impl From<&Colors<MyLab>> for Colors<String> {
 fn darken(lab: Lab, amount: f32) -> Lab {
     Lab {
         l: lab.l * (1.0 - amount),
-        a: lab.a,
-        b: lab.b
+        a: lab.a * (1.0 - amount),
+        b: lab.b * (1.0 - amount),
     }
 }
 fn lighten(lab: Lab, amount: f32) -> Lab {
     Lab {
         l: lab.l + (100.0 - lab.l) * amount,
-        a: lab.a,
-        b: lab.b
+        a: lab.a + (100.0 - lab.a) * amount,
+        b: lab.b + (100.0 - lab.b) * amount,
     }
 }
 
@@ -153,8 +153,8 @@ impl From<&mut Vec<Histo>> for Colors<MyLab> {
         }
 
         Self {
-            background : darken(histo[0].color, 0.0).into(),
-            foreground : lighten(histo[0].color, 100.0).into(),
+            background : darken(histo[0].color, 0.7).into(),
+            foreground : lighten(histo[0].color, 0.7).into(),
             color0 : histo[ 0].color.into(),
             color1 : histo[ 1].color.into(),
             color2 : histo[ 2].color.into(),
