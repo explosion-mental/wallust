@@ -63,8 +63,14 @@ fn main() -> Result<()> {
     let conf = config::parse_conf()?;
     println!("Generating color scheme...");
     conf.print();
-    // parse the image
-    let colors = conf.parse(&cli.file)?;
+
+    //workaround around ref and lifetimes
+    let p = cli.file.to_owned();
+    let bend = conf.parser;
+
+    // Whether to load data from cache or to generate from scratch
+    let cached_data = cache::Cache::new(p, bend)?;
+    let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.parse(&cli.file)? };
 
     let entries = &conf.entry;
 
@@ -75,8 +81,6 @@ fn main() -> Result<()> {
 
     //TODO add print_long to list `value: color` like
     colors.print();
-
-    cache::write_cache(colors, &cli.file)?;
 
     Ok(())
 }

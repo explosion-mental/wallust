@@ -23,7 +23,7 @@ pub struct Config {
 }
 
 /// This indicates what 'parser' method to use, in the config file
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
     Full,
