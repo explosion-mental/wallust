@@ -1,3 +1,4 @@
+//! Config related stuff, like parsing the config file and writing templates defined on it
 use serde::*;
 use std::path::Path;
 use std::fs::read_to_string;

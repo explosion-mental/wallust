@@ -1,6 +1,4 @@
 //! Cache functions, stored in json
-//!
-//! You either write_cache() or read_cache()
 use std::path::PathBuf;
 use std::path::Path;
 use std::io::Write;

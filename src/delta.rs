@@ -1,13 +1,13 @@
+//! Returns how much the colors differ
+//!
+//! * TODO find out if the 2000 version worth
+//! ref: <https://www.easyrgb.com/en/math.php>
 use lab::Lab;
-/// Returns how much the colors differ
-///
-/// ref: <https://www.easyrgb.com/en/math.php>
+
 #[inline]
 pub fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
     delta_2000(lab_0, lab_1).round() as u32
 }
-
-//XXX is the 2000 version worth?
 
 /// the 1994 simple euclidean formula
 #[allow(dead_code)]

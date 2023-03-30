@@ -1,6 +1,13 @@
 //! Colors logic, structs and methods
 //! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
 //! * TODO generate background and foreground colors, in relation to black and white
+//! #About LAB
+//! > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
+//! > The a* axis is relative to the green-red opponent colors, with negative values toward green
+//! > and positive > values toward red.
+//! > The b* axis represents the blue-yellow opponents, with negative numbers toward
+//! > blue and positive toward yellow.
+//! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use std::fmt;
 use crate::backends::Histo;
 

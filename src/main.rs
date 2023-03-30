@@ -1,6 +1,4 @@
-//use std::collections::HashMap;
-//use std::io::Cursor;
-//use colorsys::{ColorAlpha, Hsl, Rgb};
+//! wallust - Generate a colorscheme based on an image
 use std::path::PathBuf;
 
 use clap::Parser;
@@ -20,14 +18,6 @@ use config::Config;
 //TODO handle errors
 //XXX BTree?
 //XXX generate an actual scheme, rather than listing colors¿
-
-/// #About LAB
-/// > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
-/// > The a* axis is relative to the green-red opponent colors, with negative values toward green
-/// > and positive > values toward red.
-/// > The b* axis represents the blue-yellow opponents, with negative numbers toward
-/// > blue and positive toward yellow.
-/// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
