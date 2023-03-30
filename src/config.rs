@@ -32,7 +32,8 @@ pub enum Backend {
     Resized,
 }
 
-// An entry within the config file
+/// An entry within the config file, toml table
+/// ref: <https://toml.io/en/v1.0.0#array-of-tables>
 #[derive(Debug, Deserialize)]
 pub struct Entries {
     /// A file inside `~/.config/wallust/`, which is used for templating
@@ -41,6 +42,7 @@ pub struct Entries {
     pub target: String,
 }
 
+/// Constructs a new config file
 pub fn parse_conf() -> Result<Config> {
     let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
     let config = config.as_ref();
@@ -57,6 +59,7 @@ pub fn parse_conf() -> Result<Config> {
     Ok(conf)
 }
 
+/// Writes `template`s into `target`s
 pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();

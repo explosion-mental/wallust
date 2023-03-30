@@ -62,9 +62,8 @@ impl Cache {
     /// Fetches values from a file present in cache
     pub fn read(&self) -> Result<Colors<MyLab>> {
         let contents = std::fs::read_to_string(&self.path)?;
-        Ok(serde_json::from_str(&contents)
-            .with_context(|| format!("Could not read cache file: '{}'\n", &self.path))?
-            )
+        serde_json::from_str(&contents)
+            .with_context(|| format!("Could not read cache file: '{}'\n", &self.path))
     }
 
     /// Write values to cache

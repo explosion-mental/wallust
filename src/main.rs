@@ -42,11 +42,8 @@ fn main() -> Result<()> {
     // Cache colors
     cached_data.write(&colors)?;
 
-    // match entries `[[entry]]` of the config file (if any)
-    match conf.entry {
-        Some(s) => config::write_template(&s, &colors)?,
-        None => (),
-    };
+    // write entries `[[entry]]` of the config file (if any)
+    if let Some(s) = conf.entry { config::write_template(&s, &colors)? }
 
     if ! cli.quiet {
         //TODO add print_long to list `value: color` like
