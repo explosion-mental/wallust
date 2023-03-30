@@ -1,9 +1,9 @@
 # global space #
 
-# What parser (backend) to use:
+# What backend parser to use:
 # * full - reads the whole image
 # * resized - resizes the image before parsing it (more color mixing)
-parser = "full"
+backend = "full"
 
 # Difference between similar colors:
 #  <= 1       Not perceptible by human eyes.
