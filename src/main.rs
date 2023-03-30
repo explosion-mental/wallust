@@ -30,7 +30,7 @@ use config::Config;
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
 impl Config {
-    pub fn parse(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
+    pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
         match self.parser {
             config::Backend::Full => backends::full(file, self.threshold),
             config::Backend::Resized => backends::resized(file, self.threshold),
@@ -70,7 +70,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, bend)?;
-    let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.parse(&cli.file)? };
+    let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.gen_colors(&cli.file)? };
 
     let entries = &conf.entry;
 
