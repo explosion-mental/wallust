@@ -1,7 +1,7 @@
-//! # Backends
-//! There are multiple methods in which you can get the most relevant colors from an image; rather
-//! than hardcoding, give options
-//! TODO use Oklab
+//! Backends
+//! * There are multiple methods in which you can get the most relevant colors from an image; rather
+//!   than hardcoding, give options
+//! * TODO add Oklab method
 use std::path::PathBuf;
 
 

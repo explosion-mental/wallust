@@ -1,4 +1,4 @@
-//! Cache functions, stored in json
+//! Cache functions, serde + serde_json
 use std::path::PathBuf;
 use std::path::Path;
 use std::io::Write;
