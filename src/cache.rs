@@ -12,7 +12,7 @@ use crate::MyLab;
 use crate::config::Backend;
 
 use serde::*;
-use anyhow::Result;
+use anyhow::{Result, Context};
 
 /// Used to manage cache, rather than passing arguments in main() a lot
 #[derive(Serialize, Deserialize)]
@@ -62,15 +62,18 @@ impl Cache {
     /// Fetches values from a file present in cache
     pub fn read(&self) -> Result<Colors<MyLab>> {
         let contents = std::fs::read_to_string(&self.path)?;
-        Ok(serde_json::from_str(&contents)?)
+        Ok(serde_json::from_str(&contents)
+            .with_context(|| format!("Could not read cache file: '{}'\n", &self.path))?
+            )
     }
 
     /// Write values to cache
     pub fn write(&self, colors: &Colors<MyLab>) -> Result<()> {
         Ok(File::create(&self.path)?
             .write_all(
-                serde_json::to_string(colors)?
-                    .as_bytes()
+                serde_json::to_string(colors)
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}'\n", &self.path))?
+                .as_bytes()
         )?)
     }
 

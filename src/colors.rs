@@ -1,5 +1,6 @@
 //! Colors logic, structs and methods
 //! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
+//! Module about the [`Colors`] struct type, how to construct it and uses for it
 //! * TODO generate background and foreground colors, in relation to black and white
 //! #About LAB
 //! > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.

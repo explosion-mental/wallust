@@ -49,8 +49,9 @@ pub fn parse_conf() -> Result<Config> {
     }
 
     let contents = read_to_string(config)
-        .with_context(|| format!("Failed to read file {}", config))?;
-    let conf: Config = toml::from_str(&contents)?;
+        .with_context(|| format!("Failed to read file {}:\n", config))?;
+    let conf: Config = toml::from_str(&contents)
+        .with_context(|| format!("Failed to deserialize config file {}:\n", config))?;
     //println!("{:#?}", conf);
     Ok(conf)
 }
@@ -70,7 +71,7 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
         //println!("->'{}'", &path);
         contents.push(
             (&e.path, read_to_string(&path)
-                        .with_context(|| format!("Failed to read file {}", path))?
+                        .with_context(|| format!("Failed to read file {}:\n", path))?
              )
         );
     }
@@ -84,9 +85,9 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
         let rendered = tt.render("colors", &context)?;
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let mut buffer = File::create(shellexpand::tilde(path).as_ref())
-            .with_context(|| format!("Failed to create file {}", path))?;
+            .with_context(|| format!("Failed to create file {}:\n", path))?;
         buffer.write_all(rendered.as_bytes())
-            .with_context(|| format!("Failed to write to file {}", path))?;
+            .with_context(|| format!("Failed to write to file {}:\n", path))?;
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
