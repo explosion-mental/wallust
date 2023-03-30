@@ -1,7 +1,7 @@
 # wallust - Generate colors from an image
 
 ![gif](https://explosion-mental.codeberg.page/img/screensus/wallust.gif "wallust gif")
-> [^sources]
+> sources[^sources]
 
 ## Features
 - use of templates and writing these out defined in the config file.
@@ -38,4 +38,4 @@ cp -f ./target/release/wallust /usr/local/bin
   other color spaces like hsl/hsv or Oklab
 - think about releasing binaries with CI
 
-[^sources]: 1 <https://stallman.org/photos/rms/pages/2.html> - 2 <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - 3 <>
+[^sources]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
