@@ -2,8 +2,8 @@
 
 # What parser (backend) to use:
 # * full - reads the whole image
-# * resized - resizes the image before parsing it
-parser = "resized"
+# * resized - resizes the image before parsing it (more color mixing)
+parser = "full"
 
 # Difference between similar colors:
 #  <= 1       Not perceptible by human eyes.
@@ -11,7 +11,7 @@ parser = "resized"
 #  2 - 10     Perceptible at a glance.
 #  11 - 49    Colors are more similar than opposite
 #  100        Colors are exact opposite
-threshold = 20
+threshold = 11
 
 # An entry is just a config file you wish to apply `wallust` generated colors
 [[entry]]
