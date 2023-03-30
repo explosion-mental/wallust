@@ -38,8 +38,8 @@ impl Cache {
         let modif = if let Ok(o) = md.modified() { o } else { panic!("Not Supported") };
 
         // The following generates a hash name from a filename and it's `stat` attrs
-        let hash_name = format!("{}{}{}{}{}",
-            filename.display(),
+        let hash_name = format!("{}{}{}{}",
+            //filename.display(),
             md.ino(),
             //md.file_type(),
             md.len(),
