@@ -38,7 +38,4 @@ cp -f ./target/release/wallust /usr/local/bin
   other color spaces like hsl/hsv or Oklab
 - think about releasing binaries with CI
 
-[^sources]:
-1: <https://stallman.org/photos/rms/pages/2.html>
-2: <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg>
-3: <>
+[^sources]: 1 <https://stallman.org/photos/rms/pages/2.html> - 2 <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - 3 <>
