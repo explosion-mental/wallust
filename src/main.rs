@@ -29,40 +29,15 @@ use config::Config;
 /// > blue and positive toward yellow.
 /// ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 
-impl Config {
-    pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
-        match self.parser {
-            config::Backend::Full => backends::full(file, self.threshold),
-            config::Backend::Resized => backends::resized(file, self.threshold),
-        }
-    }
-    pub fn print(&self) {
-        let parser_col = match self.parser {
-            config::Backend::Full => AnsiColors::Blue,
-            config::Backend::Resized => AnsiColors::Cyan,
-        };
-
-        let th_col = match self.threshold {
-            1 => AnsiColors::Yellow,
-            2 => AnsiColors::Cyan,
-            3..=10 => AnsiColors::Green,
-            11..=49 => AnsiColors::Blue,
-            50..=100 => AnsiColors::Red,
-            _ => AnsiColors::Red,
-        };
-        println!("Using {} backend parser with a threshold of {}",
-            self.parser.bold().color(parser_col),
-            self.threshold.bold().color(th_col),
-            );
-    }
-}
-
 fn main() -> Result<()> {
     let cli = Cli::parse();
-
     let conf = config::parse_conf()?;
+
     println!("Generating color scheme...");
-    conf.print();
+    println!("Using {} backend parser with a threshold of {}",
+        conf.parser.bold().color(conf.backend_col()),
+        conf.threshold.bold().color(conf.threshold_col()),
+    );
 
     //workaround around ref and lifetimes
     let p = cli.file.to_owned();
@@ -72,10 +47,12 @@ fn main() -> Result<()> {
     let cached_data = cache::Cache::new(p, bend)?;
     let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.gen_colors(&cli.file)? };
 
-    let entries = &conf.entry;
+    // Cache colors
+    cached_data.write(&colors)?;
 
-    match entries {
-        Some(s) => config::write_template(s, &colors)?,
+    // match entries `[[entry]]` of the config file (if any)
+    match conf.entry {
+        Some(s) => config::write_template(&s, &colors)?,
         None => (),
     };
 
@@ -83,4 +60,29 @@ fn main() -> Result<()> {
     colors.print();
 
     Ok(())
+}
+
+impl Config {
+    pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
+        match self.parser {
+            config::Backend::Full => backends::full(file, self.threshold),
+            config::Backend::Resized => backends::resized(file, self.threshold),
+        }
+    }
+    pub fn threshold_col(&self) -> AnsiColors {
+        match self.threshold {
+            1 => AnsiColors::Yellow,
+            2 => AnsiColors::Cyan,
+            3..=10 => AnsiColors::Green,
+            11..=49 => AnsiColors::Blue,
+            50..=100 => AnsiColors::Red,
+            _ => AnsiColors::Red,
+        }
+    }
+    pub fn backend_col(&self) -> AnsiColors {
+        match self.parser {
+            config::Backend::Full => AnsiColors::Blue,
+            config::Backend::Resized => AnsiColors::Cyan,
+        }
+    }
 }
