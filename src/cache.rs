@@ -29,11 +29,12 @@ pub struct Cache {
 
 impl Cache {
     /// init cache
-    pub fn new(filename: PathBuf, backend: Backend) -> Result<Self> {
+    pub fn new(filename: PathBuf, backend: Backend, threshold: u32) -> Result<Self> {
         let cachepath = match backend {
             Backend::Full    => shellexpand::tilde("~/.cache/wallust/full"),
             Backend::Resized => shellexpand::tilde("~/.cache/wallust/resized"),
         };
+        let cachepath = format!("{cachepath}/{threshold}");
 
         let md = fs::metadata(&filename)?;
         // if these metadata are not avaliable, then we can't cache
@@ -51,7 +52,7 @@ impl Cache {
         );
 
         // Create cache dir (with all of it's parents
-        fs::create_dir_all(cachepath.as_ref())?;
+        fs::create_dir_all(&cachepath)?;
 
         Ok(Self {
             path: format!("{cachepath}/{hash_name}"),

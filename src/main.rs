@@ -44,7 +44,7 @@ fn main() -> Result<()> {
     let bend = conf.parser;
 
     // Whether to load data from cache or to generate from scratch
-    let cached_data = cache::Cache::new(p, bend)?;
+    let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
     let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.gen_colors(&cli.file)? };
 
     // Cache colors
