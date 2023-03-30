@@ -45,7 +45,7 @@ impl Config {
         let th_col = match self.threshold {
             1 => AnsiColors::Yellow,
             2 => AnsiColors::Cyan,
-            2..=10 => AnsiColors::Green,
+            3..=10 => AnsiColors::Green,
             11..=49 => AnsiColors::Blue,
             50..=100 => AnsiColors::Red,
             _ => AnsiColors::Red,
