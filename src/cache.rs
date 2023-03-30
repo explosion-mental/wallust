@@ -19,8 +19,6 @@ use anyhow::Result;
 /// Used to manage cache, rather than passing arguments in main() a lot
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
-    ///What backend it's used
-    back: Backend,
     /// Filename that's gonna be cached
     file: PathBuf,
     /// A file "hash" name, for the cache filename
@@ -38,7 +36,7 @@ impl Cache {
         };
 
         let md = fs::metadata(&filename)?;
-        //XXX if these metadata are not avaliable, then we can't cache
+        // if these metadata are not avaliable, then we can't cache
         let birth = if let Ok(o) = md.created()  { o } else { anyhow::bail!("Not Supported") };
         let modif = if let Ok(o) = md.modified() { o } else { anyhow::bail!("Not Supported") };
 
@@ -57,7 +55,6 @@ impl Cache {
 
         Ok(Self {
             path: format!("{cachepath}/{hash_name}"),
-            back: backend,
             file: filename,
             hash: hash_name,
         })
