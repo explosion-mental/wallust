@@ -1,6 +1,6 @@
 # wallust - Generate colors from an image
 
-![gif](https://explosion-mental.codeberg.page/img/screensus/wallust.gif "wallust gif")
+![gif](https://explosion-mental.codeberg.page/img/other/wallust.gif "wallust gif")
 > sources[^sources]
 
 ## Features
