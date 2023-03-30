@@ -25,13 +25,13 @@ fn main() -> Result<()> {
 
     println!("Generating color scheme...");
     println!("Using {} backend parser with a threshold of {}",
-        conf.parser.bold().color(conf.backend_col()),
+        conf.backend.bold().color(conf.backend_col()),
         conf.threshold.bold().color(conf.threshold_col()),
     );
 
     //workaround around ref and lifetimes
     let p = cli.file.to_owned();
-    let bend = conf.parser;
+    let bend = conf.backend;
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
@@ -54,7 +54,7 @@ fn main() -> Result<()> {
 
 impl Config {
     pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
-        match self.parser {
+        match self.backend {
             config::Backend::Full => backends::full(file, self.threshold),
             config::Backend::Resized => backends::resized(file, self.threshold),
         }
@@ -70,7 +70,7 @@ impl Config {
         }
     }
     pub fn backend_col(&self) -> AnsiColors {
-        match self.parser {
+        match self.backend {
             config::Backend::Full => AnsiColors::Blue,
             config::Backend::Resized => AnsiColors::Cyan,
         }

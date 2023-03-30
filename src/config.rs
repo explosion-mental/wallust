@@ -18,7 +18,7 @@ use anyhow::Context;
 pub struct Config {
     pub threshold: u32,
     /// Configurable threshold
-    pub parser: Backend,
+    pub backend: Backend,
     /// `wallust` should work with or without this
     pub entry: Option<Vec<Entries>>,
 }
