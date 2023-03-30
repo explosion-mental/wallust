@@ -16,10 +16,11 @@ use anyhow::Context;
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    /// threshold to use to differentiate colors
     pub threshold: u32,
-    /// Configurable threshold
+    /// Which backend to use, see backends.rs
     pub backend: Backend,
-    /// `wallust` should work with or without this
+    /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
 }
 
@@ -36,8 +37,8 @@ pub enum Backend {
 pub struct Entries {
     /// A file inside `~/.config/wallust/`, which is used for templating
     pub template: String,
-    /// The actual path of config files
-    pub path: String,
+    /// Where to write the template
+    pub target: String,
 }
 
 pub fn parse_conf() -> Result<Config> {
@@ -70,7 +71,7 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
         let path = config.to_owned() + &e.template;
         //println!("->'{}'", &path);
         contents.push(
-            (&e.path, read_to_string(&path)
+            (&e.target, read_to_string(&path)
                         .with_context(|| format!("Failed to read file {}:\n", path))?
              )
         );

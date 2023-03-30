@@ -19,12 +19,12 @@ threshold = 11
 template = "dunstrc"
 
 # absolute path to the file to write the template (after templating)
-path = "~/.config/dunst/dunstrc"
+target = "~/.config/dunst/dunstrc"
 
 [[entry]]
 template = "zathurarc"
-path = "~/.config/zathura/zathurarc"
+target = "~/.config/zathura/zathurarc"
 
 [[entry]]
 template = "bars.glsl"
-path = "~/.config/glava/bars.glsl"
+target = "~/.config/glava/bars.glsl"
