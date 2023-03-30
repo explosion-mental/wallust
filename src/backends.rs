@@ -32,7 +32,6 @@ impl Histo {
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
 /// size (XXX maybe a threshold for image size then?)
-//const TH: u32 = 20;
 
 /// By default return all values from an image
 pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
@@ -58,7 +57,7 @@ pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
 }
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
-/// colors are similar enough, using the [`TH`] (threshold)
+/// colors are similar enough, using the [`Config.threshold`]
 fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up

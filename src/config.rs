@@ -94,7 +94,7 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
     Ok(())
 }
 
-/// Add a simple `Display` for [`TurboState`]
+/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
 impl fmt::Display for Backend {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
