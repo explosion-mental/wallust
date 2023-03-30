@@ -3,21 +3,19 @@ name = "wallust"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Generate a color scheme based on an image."
+description = "Generate a 16 color scheme based on an image."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-image = "0.24.*"
-colorsys = "0.6"
-lab = "0.11.0"
-histogram = "0.7.1"
+anyhow = "1.0"
+image = "0.24"
+lab = "0.11"
 owo-colors = "3"
 toml = "0.7"
-tinytemplate = "1.2.1"
-anyhow = "1.0"
+tinytemplate = "1.2"
+serde_json = "1.0"
 shellexpand = "3.1"
-serde_json = "1"
 
 clap  = { version = "4.1", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
