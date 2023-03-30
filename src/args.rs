@@ -8,4 +8,8 @@ use std::path::PathBuf;
 pub struct Cli {
     /// Path to an image file to use
     pub file: PathBuf,
+
+    /// Don't print anything
+    #[arg(short, long)]
+    pub quiet: bool,
 }

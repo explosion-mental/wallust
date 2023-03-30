@@ -23,11 +23,13 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let conf = config::parse_conf()?;
 
-    println!("Generating color scheme...");
-    println!("Using {} backend parser with a threshold of {}",
-        conf.backend.bold().color(conf.backend_col()),
-        conf.threshold.bold().color(conf.threshold_col()),
-    );
+    if ! cli.quiet {
+        println!("Generating color scheme...");
+        println!("Using {} backend parser with a threshold of {}",
+            conf.backend.bold().color(conf.backend_col()),
+            conf.threshold.bold().color(conf.threshold_col()),
+        );
+    }
 
     //workaround around ref and lifetimes
     let p = cli.file.to_owned();
@@ -46,8 +48,10 @@ fn main() -> Result<()> {
         None => (),
     };
 
-    //TODO add print_long to list `value: color` like
-    colors.print();
+    if ! cli.quiet {
+        //TODO add print_long to list `value: color` like
+        colors.print();
+    }
 
     Ok(())
 }
