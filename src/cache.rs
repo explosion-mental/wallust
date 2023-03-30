@@ -3,7 +3,9 @@
 //! You either write_cache() or read_cache()
 use std::path::PathBuf;
 use std::path::Path;
+use std::io::Write;
 use std::fs;
+use std::fs::File;
 use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
 
@@ -31,10 +33,24 @@ impl Cache {
             Backend::Full    => "~/.cache/wallust/full",
             Backend::Resized => "~/.cache/wallust/resized",
         };
+        let md = fs::metadata(&filename)?;
+        let birth = if let Ok(o) = md.created() { o } else { panic!("Not Supported") };
+        let modif = if let Ok(o) = md.modified() { o } else { panic!("Not Supported") };
+
+        // The following generates a hash name from a filename and it's `stat` attrs
+        let hash_name = format!("{}{}{}{}{}",
+            filename.display(),
+            md.ino(),
+            //md.file_type(),
+            md.len(),
+            birth.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
+            modif.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
+        );
+
         Ok(Self {
             back: backend,
             file: filename,
-            hash: "".to_string(),
+            hash: hash_name,
             path: cachepath.into(),
         })
     }
@@ -44,9 +60,12 @@ impl Cache {
         Ok(serde_json::from_str(&contents)?)
     }
 
-    pub fn write(colors: &Colors<MyLab>) -> Result<()> {
-        println!("{}", serde_json::to_string(colors)?);
-        Ok(())
+    pub fn write(&self, colors: &Colors<MyLab>) -> Result<()> {
+        Ok(File::create(&self.path)?
+            .write_all(
+                serde_json::to_string(colors)?
+                    .as_bytes()
+        )?)
     }
 
     pub fn is_cached(&self) -> bool {
@@ -57,19 +76,3 @@ impl Cache {
     }
 }
 
-/// Generates the name the cache file it's gonna use, which is a hash
-//TODO
-fn cachename(file: &PathBuf) -> Result<String> {
-    let md = fs::metadata(&file)?;
-    let birth = if let Ok(o) = md.created() { o } else { panic!("Not Supported") };
-    let modif = if let Ok(o) = md.modified() { o } else { panic!("Not Supported") };
-    Ok(
-    format!("{}{}{}{}{}",
-        file.display(),
-        md.ino(),
-        //md.file_type(),
-        md.len(),
-        birth.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
-        modif.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
-    ))
-}
