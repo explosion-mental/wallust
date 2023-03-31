@@ -49,7 +49,7 @@ impl Config {
         let config = config.as_ref();
 
         if ! Path::new(&config).exists() {
-            panic!("no config file");
+            anyhow::bail!("no config file");
         }
 
         let contents = read_to_string(config)
