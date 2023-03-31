@@ -4,13 +4,17 @@
 //! * TODO add Oklab method
 use std::path::PathBuf;
 
-
 use crate::delta::delta_e;
 use crate::{MyLab, Colors};
 
 use image::io::Reader as ImageReader;
 use anyhow::Result;
 use lab::Lab;
+
+mod full;
+mod resized;
+pub use full::*;
+pub use resized::*;
 
 /// Simple Histogram
 pub struct Histo {
@@ -32,29 +36,6 @@ impl Histo {
 /// Threshold to accept the color difference
 /// This is temporary, this constant should be auto to get the best result depending on the image
 /// size (XXX maybe a threshold for image size then?)
-
-/// By default return all values from an image
-pub fn full(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
-    // Init image, then convert it into rgb and finally to LAB
-    let img = ImageReader::open(f)?.decode()?.to_rgba8();
-    let labs = lab::rgb_bytes_to_labs(img.as_raw());
-
-    let mut histo = gen_histogram(labs, threshold);
-    Ok(Colors::from(&mut histo))
-}
-
-/// Resize it, then get read the image
-pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
-    let (true_w, true_h) = image::image_dimensions(f)?;
-    let w = true_w / 4;
-    let h = true_h / 4;
-    let img = image::open(f)?.resize(w, h, image::imageops::Gaussian);
-    let img = img.to_rgba8();
-
-    let labs = lab::rgb_bytes_to_labs(img.as_raw());
-    let mut histo = gen_histogram(labs, threshold);
-    Ok(Colors::from(&mut histo))
-}
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
