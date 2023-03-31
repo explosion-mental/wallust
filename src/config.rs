@@ -48,18 +48,15 @@ impl Config {
         let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
         let config = config.as_ref();
 
-        if ! Path::new(&config).exists() {
-            anyhow::bail!("no config file");
-        }
+        if ! Path::new(&config).exists() { anyhow::bail!("no config file"); }
 
-        let contents = read_to_string(config)
-            .with_context(|| format!("Failed to read file {}:\n", config))?;
-        let conf: Config = toml::from_str(&contents)
-            .with_context(|| format!("Failed to deserialize config file {}:\n", config))?;
-        //println!("{:#?}", conf);
-        Ok(conf)
+        toml::from_str(
+            &read_to_string(config)
+                .with_context(|| format!("Failed to read file {}:\n", config))?
+        ).with_context(|| format!("Failed to deserialize config file {}:\n", config))
     }
 }
+
 /// Writes `template`s into `target`s
 pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
