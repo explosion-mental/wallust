@@ -3,6 +3,7 @@
 //!   than hardcoding, give options
 //! * TODO add Oklab method
 use std::path::PathBuf;
+use std::fmt;
 
 use crate::delta::delta_e;
 use crate::{MyLab, Colors};
@@ -10,6 +11,7 @@ use crate::{MyLab, Colors};
 use image::io::Reader as ImageReader;
 use anyhow::Result;
 use lab::Lab;
+use serde::*;
 
 mod full;
 mod resized;
@@ -30,6 +32,25 @@ impl Histo {
         self.color.l = (self.color.l + new.l)  / 2.0;
         //self.color.a = (self.color.a + new.a).round()  / 2.0;
         //self.color.b = (self.color.b + new.b).round()  / 2.0;
+    }
+}
+
+/// This indicates what 'parser' method to use, in the config file
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum Backend {
+    Full,
+    Resized,
+}
+
+/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
+impl fmt::Display for Backend {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Full    => write!(f, "full"),
+            Self::Resized => write!(f, "resized"),
+        }
     }
 }
 

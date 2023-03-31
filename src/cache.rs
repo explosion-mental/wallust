@@ -9,7 +9,7 @@ use std::time::SystemTime;
 
 use crate::Colors;
 use crate::MyLab;
-use crate::config::Backend;
+use crate::backends::Backend;
 
 use serde::*;
 use anyhow::{Result, Context};

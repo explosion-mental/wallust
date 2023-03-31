@@ -55,8 +55,8 @@ fn main() -> Result<()> {
 impl Config {
     pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
         match self.backend {
-            config::Backend::Full => backends::full(file, self.threshold),
-            config::Backend::Resized => backends::resized(file, self.threshold),
+            backends::Backend::Full => backends::full(file, self.threshold),
+            backends::Backend::Resized => backends::resized(file, self.threshold),
         }
     }
     pub fn threshold_col(&self) -> AnsiColors {
@@ -71,8 +71,8 @@ impl Config {
     }
     pub fn backend_col(&self) -> AnsiColors {
         match self.backend {
-            config::Backend::Full => AnsiColors::Blue,
-            config::Backend::Resized => AnsiColors::Cyan,
+            backends::Backend::Full => AnsiColors::Blue,
+            backends::Backend::Resized => AnsiColors::Cyan,
         }
     }
 }

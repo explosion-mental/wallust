@@ -4,10 +4,10 @@ use std::path::Path;
 use std::fs::read_to_string;
 use std::io::prelude::*;
 use std::fs::File;
-use std::fmt;
 
 use crate::Colors;
 use crate::MyLab;
+use crate::backends::Backend;
 
 use tinytemplate::TinyTemplate;
 use anyhow::Result;
@@ -22,14 +22,6 @@ pub struct Config {
     pub backend: Backend,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
-}
-
-/// This indicates what 'parser' method to use, in the config file
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum Backend {
-    Full,
-    Resized,
 }
 
 /// An entry within the config file, toml table
@@ -93,15 +85,4 @@ pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
-}
-
-/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
-impl fmt::Display for Backend {
-    // This trait requires `fmt` with this exact signature.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Full    => write!(f, "full"),
-            Self::Resized => write!(f, "resized"),
-        }
-    }
 }
