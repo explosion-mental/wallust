@@ -11,7 +11,6 @@ mod colors;
 mod backends;
 mod delta;
 mod cache;
-use args::Cli;
 use colors::*;
 use config::Config;
 
@@ -20,8 +19,8 @@ use config::Config;
 //XXX generate an actual scheme, rather than listing colors¿
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let conf = config::parse_conf()?;
+    let cli = args::Cli::parse();
+    let conf = Config::new()?;
 
     if ! cli.quiet {
         println!("Generating color scheme...");

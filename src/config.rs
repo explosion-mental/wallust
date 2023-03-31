@@ -42,23 +42,24 @@ pub struct Entries {
     pub target: String,
 }
 
-/// Constructs a new config file
-pub fn parse_conf() -> Result<Config> {
-    let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
-    let config = config.as_ref();
+impl Config {
+    /// Constructs [`Config`] by reading the config file
+    pub fn new() -> Result<Config> {
+        let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
+        let config = config.as_ref();
 
-    if ! Path::new(&config).exists() {
-        panic!("no config file");
+        if ! Path::new(&config).exists() {
+            panic!("no config file");
+        }
+
+        let contents = read_to_string(config)
+            .with_context(|| format!("Failed to read file {}:\n", config))?;
+        let conf: Config = toml::from_str(&contents)
+            .with_context(|| format!("Failed to deserialize config file {}:\n", config))?;
+        //println!("{:#?}", conf);
+        Ok(conf)
     }
-
-    let contents = read_to_string(config)
-        .with_context(|| format!("Failed to read file {}:\n", config))?;
-    let conf: Config = toml::from_str(&contents)
-        .with_context(|| format!("Failed to deserialize config file {}:\n", config))?;
-    //println!("{:#?}", conf);
-    Ok(conf)
 }
-
 /// Writes `template`s into `target`s
 pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
