@@ -7,7 +7,6 @@ mod args;
 mod config;
 mod colors;
 mod backends;
-mod delta;
 mod cache;
 use colors::*;
 use config::Config;
