@@ -67,17 +67,6 @@ impl MyLab {
     pub fn to_rgb(&self) -> [u8; 3] {
         self.0.to_rgb()
     }
-    /*
-    pub fn l(&self) -> f32 {
-        self.0.l
-    }
-    pub fn a(&self) -> f32 {
-        self.0.a
-    }
-    pub fn b(&self) -> f32 {
-        self.0.b
-    }
-    */
     pub fn col(&self) -> Rgb {
         let a = self.to_rgb();
         Rgb(a[0], a[1], a[2])
