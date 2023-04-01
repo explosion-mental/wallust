@@ -15,8 +15,8 @@ use serde::*;
 
 mod full;
 mod resized;
-pub use full::*;
-pub use resized::*;
+use full::*;
+use resized::*;
 
 /// Simple Histogram
 pub struct Histo {
@@ -41,6 +41,14 @@ impl Histo {
 pub enum Backend {
     Full,
     Resized,
+}
+
+pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<MyLab>> {
+    let method_to_use = match backend {
+        Backend::Full => full,
+        Backend::Resized => resized,
+    };
+    method_to_use(file, threshold)
 }
 
 /// Add a simple `Display` for [`Backend`], used in main() to print which is in use

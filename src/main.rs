@@ -1,6 +1,4 @@
 //! wallust - Generate a colorscheme based on an image
-use std::path::PathBuf;
-
 use clap::Parser;
 use anyhow::Result;
 use owo_colors::{OwoColorize, AnsiColors};
@@ -36,7 +34,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
-    let colors = if cached_data.is_cached() { cached_data.read()? } else { conf.gen_colors(&cli.file)? };
+    let colors = if cached_data.is_cached() { cached_data.read()? } else { backends::gen_colors(&cli.file, &conf.backend, conf.threshold)? };
 
     // Cache colors
     cached_data.write(&colors)?;
@@ -53,12 +51,6 @@ fn main() -> Result<()> {
 }
 
 impl Config {
-    pub fn gen_colors(&self, file: &PathBuf) -> Result<Colors<MyLab>> {
-        match self.backend {
-            backends::Backend::Full => backends::full(file, self.threshold),
-            backends::Backend::Resized => backends::resized(file, self.threshold),
-        }
-    }
     pub fn threshold_col(&self) -> AnsiColors {
         match self.threshold {
             1 => AnsiColors::Yellow,
