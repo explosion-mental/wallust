@@ -53,14 +53,14 @@ impl fmt::Display for Myrgb {
     }
 }
 
-/// Methods for wrapper [`MyLab`] type (wraps [`Lab`])
+/// methods for [`Myrgb`]
 impl Myrgb {
     pub fn col(&self) -> Rgb {
         Rgb(self.0, self.1, self.2)
     }
 }
 
-/// Methods for Colors when it's type uses MyLab
+/// print colors as `var.print()`
 impl Colors<Myrgb> {
     pub fn print(&self) {
         print!(
@@ -93,7 +93,7 @@ foreground: {}
     }
 }
 
-/// From implementation trait for the [`Colors`] with [`MyLab`] type to a String for TinyTemplate
+/// From implementation trait for the [`Colors`] with [`Myrgb`] type to a String for TinyTemplate
 /// to use
 impl From<&Colors<Myrgb>> for Colors<String> {
     fn from(c: &Colors<Myrgb>) -> Self {
@@ -200,7 +200,7 @@ mod tmplab {
     use crate::colors::Colors;
     use crate::colors::Myrgb;
     use std::fmt;
-    use owo_colors::*;
+    //use owo_colors::*;
     use serde::{Serialize, Deserialize};
 
     /// serde trick to serialize types from another crate
@@ -249,10 +249,10 @@ mod tmplab {
         pub fn to_rgb(&self) -> [u8; 3] {
             self.0.to_rgb()
         }
-        pub fn col(&self) -> Rgb {
+        /* pub fn col(&self) -> Rgb {
             let a = self.to_rgb();
             Rgb(a[0], a[1], a[2])
-        }
+        } */
     }
 
     impl From<&Colors<Myrgb>> for Colors<MyLab> {
