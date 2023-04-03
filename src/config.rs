@@ -6,7 +6,7 @@ use std::io::prelude::*;
 use std::fs::File;
 
 use crate::Colors;
-use crate::MyLab;
+use crate::Myrgb;
 use crate::backends::Backend;
 
 use tinytemplate::TinyTemplate;
@@ -50,7 +50,7 @@ impl Config {
 }
 
 /// Writes `template`s into `target`s
-pub fn write_template(entries: &[Entries], values: &Colors<MyLab>) -> Result<()>{
+pub fn write_template(entries: &[Entries], values: &Colors<Myrgb>) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 

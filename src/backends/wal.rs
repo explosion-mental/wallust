@@ -4,7 +4,7 @@ use std::str;
 
 /// use Image Magick to get colors
 //TODO flatten the hues like pywal
-pub fn wal(f: &PathBuf, threshold: u32) -> Result<Colors> {
+pub fn wal(f: &PathBuf, threshold: u32) -> Result<Colors<Myrgb>> {
 
     let im = Command::new("convert")
         .arg(f)

@@ -8,7 +8,8 @@ use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
 
 use crate::Colors;
-use crate::MyLab;
+use crate::Myrgb;
+use crate::colors::MyLab;
 use crate::backends::Backend;
 
 use serde::*;
@@ -60,17 +61,17 @@ impl Cache {
     }
 
     /// Fetches values from a file present in cache
-    pub fn read(&self) -> Result<Colors<MyLab>> {
+    pub fn read(&self) -> Result<Colors<Myrgb>> {
         let contents = std::fs::read_to_string(&self.path)?;
-        serde_json::from_str(&contents)
-            .with_context(|| format!("Could not read cache file: '{}'\n", &self.path))
+        Ok(Colors::from(serde_json::from_str::<Colors<MyLab>>(&contents)?))
     }
 
     /// Write values to cache
-    pub fn write(&self, colors: &Colors<MyLab>) -> Result<()> {
+    pub fn write(&self, colors: &Colors<Myrgb>) -> Result<()> {
+        let c: Colors<MyLab> = colors.into();
         Ok(File::create(&self.path)?
             .write_all(
-                serde_json::to_string(colors)
+                serde_json::to_string(&c)
                     .with_context(|| format!("Failed to deserilize from the json cached file: '{}'\n", &self.path))?
                 .as_bytes()
         )?)

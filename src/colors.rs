@@ -1,4 +1,5 @@
-//! Colors logic, structs and methods
+//! # Colors logic
+//! Since most libraries offer conversion to hex (as `#EEEEEE`), the struct will contain rgb values
 //! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
 //! Module about the [`Colors`] struct type, how to construct it and uses for it
 //! * TODO generate background and foreground colors, in relation to black and white
@@ -12,6 +13,7 @@
 use std::fmt;
 use crate::backends::Histo;
 
+pub use tmplab::*;
 use lab::Lab;
 use owo_colors::*;
 use serde::{Serialize, Deserialize};
@@ -40,41 +42,26 @@ pub struct Colors<T> {
     color15: T,
 }
 
-/// serde trick to serialize types from another crate
-/// ref: <https://serde.rs/remote-derive.html>
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Lab")]
-pub struct LabDef {
-    l: f32,
-    a: f32,
-    b: f32,
-}
-
-/// newtype trick to add methods
-#[derive(Serialize, Deserialize)]
-pub struct MyLab(#[serde(with = "LabDef")] Lab);
+/// Type that every backend should return
+#[derive(Copy, Clone)]
+pub struct Myrgb(u8, u8, u8);
 
 /// Display the hex color when displaying Lab
-impl fmt::Display for MyLab {
+impl fmt::Display for Myrgb {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let a = self.to_rgb();
-        write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
+        write!(f, "#{:02X}{:02X}{:02X}", self.0, self.1, self.2)
     }
 }
 
 /// Methods for wrapper [`MyLab`] type (wraps [`Lab`])
-impl MyLab {
-    pub fn to_rgb(&self) -> [u8; 3] {
-        self.0.to_rgb()
-    }
+impl Myrgb {
     pub fn col(&self) -> Rgb {
-        let a = self.to_rgb();
-        Rgb(a[0], a[1], a[2])
+        Rgb(self.0, self.1, self.2)
     }
 }
 
 /// Methods for Colors when it's type uses MyLab
-impl Colors<MyLab> {
+impl Colors<Myrgb> {
     pub fn print(&self) {
         print!(
 "
@@ -108,27 +95,27 @@ foreground: {}
 
 /// From implementation trait for the [`Colors`] with [`MyLab`] type to a String for TinyTemplate
 /// to use
-impl From<&Colors<MyLab>> for Colors<String> {
-    fn from(c: &Colors<MyLab>) -> Self {
+impl From<&Colors<Myrgb>> for Colors<String> {
+    fn from(c: &Colors<Myrgb>) -> Self {
         Self {
             background : c.background.to_string(),
             foreground : c.foreground.to_string(),
             color0  : c.color0.to_string(),
-            color1  : c.color0.to_string(),
-            color2  : c.color0.to_string(),
-            color3  : c.color0.to_string(),
-            color4  : c.color0.to_string(),
-            color5  : c.color0.to_string(),
-            color6  : c.color0.to_string(),
-            color7  : c.color0.to_string(),
-            color8  : c.color0.to_string(),
-            color9  : c.color0.to_string(),
-            color10 : c.color0.to_string(),
-            color11 : c.color0.to_string(),
-            color12 : c.color0.to_string(),
-            color13 : c.color0.to_string(),
-            color14 : c.color0.to_string(),
-            color15 : c.color0.to_string(),
+            color1  : c.color1.to_string(),
+            color2  : c.color2.to_string(),
+            color3  : c.color3.to_string(),
+            color4  : c.color4.to_string(),
+            color5  : c.color5.to_string(),
+            color6  : c.color6.to_string(),
+            color7  : c.color7.to_string(),
+            color8  : c.color8.to_string(),
+            color9  : c.color9.to_string(),
+            color10 : c.color10.to_string(),
+            color11 : c.color11.to_string(),
+            color12 : c.color12.to_string(),
+            color13 : c.color13.to_string(),
+            color14 : c.color14.to_string(),
+            color15 : c.color15.to_string(),
         }
     }
 }
@@ -154,7 +141,7 @@ fn lighten(lab: Lab, amount: f32) -> Lab {
 }
 
 /// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
-impl From<&mut Vec<Histo>> for Colors<MyLab> {
+impl From<&mut Vec<Histo>> for Colors<Myrgb> {
     fn from(histo: &mut Vec<Histo>) -> Self {
         // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
         // ones that already exist (until it's 16)
@@ -195,9 +182,169 @@ impl From<&mut Vec<Histo>> for Colors<MyLab> {
     }
 }
 
-impl From<Lab> for MyLab {
+impl From<Lab> for Myrgb {
     fn from(lab: Lab) -> Self {
-        Self(lab)
+        let a = lab.to_rgb();
+        Self(a[0], a[1], a[2])
     }
 }
 
+/// Temporal workaround to maintain [`MyLab`], which is now replaced by [`Myrgb`] as a standard way
+/// of storing values.
+/// on major release delete this, since we store MyLab values on cache files.
+mod tmplab {
+    use lab::Lab;
+    use crate::backends::Histo;
+    use crate::colors::darken;
+    use crate::colors::lighten;
+    use crate::colors::Colors;
+    use crate::colors::Myrgb;
+    use std::fmt;
+    use owo_colors::*;
+    use serde::{Serialize, Deserialize};
+
+    /// serde trick to serialize types from another crate
+    /// ref: <https://serde.rs/remote-derive.html>
+    #[derive(Serialize, Deserialize)]
+    #[serde(remote = "Lab")]
+    pub struct LabDef {
+        l: f32,
+        a: f32,
+        b: f32,
+    }
+
+    /// newtype trick to add methods
+    #[derive(Serialize, Deserialize)]
+    pub struct MyLab(#[serde(with = "LabDef")] Lab);
+
+    /// Display the hex color when displaying Lab
+    impl fmt::Display for MyLab {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            let a = self.to_rgb();
+            write!(f, "#{:02X}{:02X}{:02X}", a[0], a[1], a[2])
+        }
+    }
+
+    impl From<Myrgb> for MyLab {
+        fn from(a: Myrgb) -> Self {
+            lab::Lab::from_rgb(&[a.0, a.1, a.2]).into()
+        }
+    }
+
+    impl From<MyLab> for Myrgb {
+        fn from(lab: MyLab) -> Self {
+            let a = lab.to_rgb();
+            Self(a[0], a[1], a[2])
+        }
+    }
+
+    impl From<Lab> for MyLab {
+        fn from(lab: Lab) -> Self {
+            Self(lab)
+        }
+    }
+
+    /// Methods for wrapper [`MyLab`] type (wraps [`Lab`])
+    impl MyLab {
+        pub fn to_rgb(&self) -> [u8; 3] {
+            self.0.to_rgb()
+        }
+        pub fn col(&self) -> Rgb {
+            let a = self.to_rgb();
+            Rgb(a[0], a[1], a[2])
+        }
+    }
+
+    impl From<&Colors<Myrgb>> for Colors<MyLab> {
+        fn from(c: &Colors<Myrgb>) -> Self {
+            Self {
+                background : c.background.into(),
+                foreground : c.foreground.into(),
+                color0  : c.color0.into(),
+                color1  : c.color1.into(),
+                color2  : c.color2.into(),
+                color3  : c.color3.into(),
+                color4  : c.color4.into(),
+                color5  : c.color5.into(),
+                color6  : c.color6.into(),
+                color7  : c.color7.into(),
+                color8  : c.color8.into(),
+                color9  : c.color9.into(),
+                color10 : c.color10.into(),
+                color11 : c.color11.into(),
+                color12 : c.color12.into(),
+                color13 : c.color13.into(),
+                color14 : c.color14.into(),
+                color15 : c.color15.into(),
+
+            }
+        }
+    }
+
+    impl From<Colors<MyLab>> for Colors<Myrgb> {
+        fn from(c: Colors<MyLab>) -> Self {
+            Self {
+                background : c.background.into(),
+                foreground : c.foreground.into(),
+                color0 : c.color0.into(),
+                color1 : c.color1.into(),
+                color2 : c.color2.into(),
+                color3 : c.color3.into(),
+                color4 : c.color4.into(),
+                color5 : c.color5.into(),
+                color6 : c.color6.into(),
+                color7 : c.color7.into(),
+                color8 : c.color8.into(),
+                color9 : c.color9.into(),
+                color10: c.color10.into(),
+                color11: c.color11.into(),
+                color12: c.color12.into(),
+                color13: c.color13.into(),
+                color14: c.color14.into(),
+                color15: c.color15.into(),
+            }
+        }
+    }
+
+    /// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
+    impl From<&mut Vec<Histo>> for Colors<MyLab> {
+        fn from(histo: &mut Vec<Histo>) -> Self {
+            // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
+            // ones that already exist (until it's 16)
+            let len = histo.len();
+            if len < 16 {
+                println!("Not enought colors! Generating new colors from fetches ones...");
+                for i in len..=15 {
+                    // generate new colors, but switch between the how (method to use)
+                    let val = if i % 2 == 0 {
+                        Histo { color: darken(histo[i - len].color, 0.5), count: i }
+                    } else {
+                        Histo { color: lighten(histo[i - len].color, 0.5), count: i }
+                    };
+                    histo.push(val);
+                }
+            }
+
+            Self {
+                background : darken(histo[0].color, 0.7).into(),
+                foreground : lighten(histo[0].color, 0.7).into(),
+                color0 : histo[ 0].color.into(),
+                color1 : histo[ 1].color.into(),
+                color2 : histo[ 2].color.into(),
+                color3 : histo[ 3].color.into(),
+                color4 : histo[ 4].color.into(),
+                color5 : histo[ 5].color.into(),
+                color6 : histo[ 6].color.into(),
+                color7 : histo[ 7].color.into(),
+                color8 : histo[ 8].color.into(),
+                color9 : histo[ 9].color.into(),
+                color10: histo[10].color.into(),
+                color11: histo[11].color.into(),
+                color12: histo[12].color.into(),
+                color13: histo[13].color.into(),
+                color14: histo[14].color.into(),
+                color15: histo[15].color.into(),
+            }
+        }
+    }
+}

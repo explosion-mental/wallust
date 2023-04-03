@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 use std::fmt;
 
-use crate::{MyLab, Colors};
+use crate::{Colors, Myrgb};
 
 use image::io::Reader as ImageReader;
 use anyhow::Result;
@@ -43,7 +43,7 @@ pub enum Backend {
     Resized,
 }
 
-pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<MyLab>> {
+pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
     let method_to_use = match backend {
         Backend::Full => full,
         Backend::Resized => resized,

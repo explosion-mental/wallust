@@ -1,7 +1,7 @@
 use crate::backends::*;
 
 /// Resize it, then get read the image
-pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<MyLab>> {
+pub fn resized(f: &PathBuf, threshold: u32) -> Result<Colors<Myrgb>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
     let w = true_w / 4;
     let h = true_h / 4;
