@@ -19,30 +19,23 @@ mod resized;
 use full::*;
 use resized::*;
 
-/// Simple Histogram
-pub struct Histo {
-    /// LAB colors
-    pub color: Lab,
-    /// number of times it has appeared
-    pub count: usize,
-}
-
-impl Histo {
-    /// Mix similar Lab colors, to catch most similars ones.
-    pub fn mix(&mut self, new: Lab) {
-        self.color.l = (self.color.l + new.l)  / 2.0;
-        //self.color.a = (self.color.a + new.a).round()  / 2.0;
-        //self.color.b = (self.color.b + new.b).round()  / 2.0;
-    }
-}
-
-/// This indicates what 'parser' method to use, in the config file
+/// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
     Full,
     Resized,
 }
+
+/// main fn that calls other methods, used in main.rs
+pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
+    let method_to_use = match backend {
+        Backend::Full => full,
+        Backend::Resized => resized,
+    };
+    method_to_use(file, threshold)
+}
+
 
 impl Backend {
     /// This assigns a colors for a backend, used when printing
@@ -52,14 +45,6 @@ impl Backend {
             Backend::Resized => AnsiColors::Cyan,
         }
     }
-}
-
-pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
-    let method_to_use = match backend {
-        Backend::Full => full,
-        Backend::Resized => resized,
-    };
-    method_to_use(file, threshold)
 }
 
 /// Add a simple `Display` for [`Backend`], used in main() to print which is in use
@@ -73,9 +58,23 @@ impl fmt::Display for Backend {
     }
 }
 
-/// Threshold to accept the color difference
-/// This is temporary, this constant should be auto to get the best result depending on the image
-/// size (XXX maybe a threshold for image size then?)
+/// Simple Histogram
+/// TODO think about a better generic way of storing (ColorSpace, count)
+pub struct Histo {
+    /// LAB colors - TODO allow other colorspaces
+    pub color: Lab,
+    /// number of times it has appeared
+    pub count: usize,
+}
+
+impl Histo {
+    /// Mix similar Lab colors, to catch most similars ones.
+    pub fn mix(&mut self, new: Lab) {
+        self.color.l = (self.color.l + new.l)  / 2.0;
+        //self.color.a = (self.color.a + new.a).round()  / 2.0;
+        //self.color.b = (self.color.b + new.b).round()  / 2.0;
+    }
+}
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
@@ -113,7 +112,7 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
 /// * TODO find out if the 2000 version worth
 /// ref: <https://www.easyrgb.com/en/math.php>
 #[inline]
-pub fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
+fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
     delta_2000(lab_0, lab_1).round() as u32
 }
 
