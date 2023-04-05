@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     if ! cli.quiet {
         println!("Generating color scheme...");
         println!("Using {} backend parser with a threshold of {}",
-            conf.backend.bold().color(conf.backend_col()),
+            conf.backend.bold().color(conf.backend.col()),
             conf.threshold.bold().color(conf.threshold_col()),
         );
     }
@@ -58,12 +58,6 @@ impl Config {
             11..=49 => AnsiColors::Blue,
             50..=100 => AnsiColors::Red,
             _ => AnsiColors::Red,
-        }
-    }
-    pub fn backend_col(&self) -> AnsiColors {
-        match self.backend {
-            backends::Backend::Full => AnsiColors::Blue,
-            backends::Backend::Resized => AnsiColors::Cyan,
         }
     }
 }

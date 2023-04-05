@@ -12,6 +12,7 @@ use image::io::Reader as ImageReader;
 use anyhow::Result;
 use lab::Lab;
 use serde::*;
+use owo_colors::AnsiColors;
 
 mod full;
 mod resized;
@@ -41,6 +42,16 @@ impl Histo {
 pub enum Backend {
     Full,
     Resized,
+}
+
+impl Backend {
+    /// This assigns a colors for a backend, used when printing
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            Backend::Full => AnsiColors::Blue,
+            Backend::Resized => AnsiColors::Cyan,
+        }
+    }
 }
 
 pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
