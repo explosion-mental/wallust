@@ -36,6 +36,11 @@ cargo build --release
 cp -f ./target/release/wallust /usr/local/bin
 ```
 
+### NetBSD
+If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
+```
+pkgin install wallust
+```
 
 ## TODO
 - config/cli flag that allows to set the colors as variables in shell, like pywal `$color1` ...
