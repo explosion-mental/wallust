@@ -4,7 +4,7 @@ use std::str;
 
 /// use Image Magick to get colors
 //TODO flatten the hues like pywal
-pub fn wal(f: &PathBuf, threshold: u32) -> Result<Colors<Myrgb>> {
+pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
 
     let im = Command::new("convert")
         .arg(f)
@@ -16,7 +16,7 @@ pub fn wal(f: &PathBuf, threshold: u32) -> Result<Colors<Myrgb>> {
         .arg("txt:-")
         .output()?;
 
-    let mut cols: Vec<[u8; 3]> = vec![];
+    let mut cols: Vec<u8> = vec![];
     // The output is like the following:
     //   0,0: (92,64,54)  #5C4036  srgb(36.1282%,25.1188%,21.1559%)
     //            ^
@@ -32,12 +32,10 @@ pub fn wal(f: &PathBuf, threshold: u32) -> Result<Colors<Myrgb>> {
         let r = split.next().unwrap().parse::<u8>()?;
         let g = split.next().unwrap().parse::<u8>()?;
         let b = split.next().unwrap().parse::<u8>()?;
-        cols.push([r, g, b]);
+        cols.push(r);
+        cols.push(g);
+        cols.push(b);
     }
-    println!("{:?}", cols);
-
-    let labs = lab::rgbs_to_labs(&cols);
-
-    let mut histo = gen_histogram(labs, threshold);
-    Ok(Colors::from(&mut histo))
+    //println!("{:?}", cols);
+    Ok(cols)
 }

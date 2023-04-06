@@ -33,7 +33,12 @@ pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<C
         Backend::Full => full,
         Backend::Resized => resized,
     };
-    method_to_use(file, threshold)
+    let rgbas = method_to_use(file)?;
+
+
+    let labs = lab::rgb_bytes_to_labs(&rgbas);
+    let mut histo = gen_histogram(labs, threshold);
+    Ok(Colors::from(&mut histo))
 }
 
 
