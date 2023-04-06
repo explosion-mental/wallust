@@ -1,6 +1,7 @@
 use crate::backends::*;
 
 /// Resize it, then get read the image
+//TODO don't resize if image is X by X large
 pub fn resized(f: &PathBuf) -> Result<Vec<u8>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
     let w = true_w / 4;
