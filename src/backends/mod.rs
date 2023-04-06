@@ -1,4 +1,5 @@
 //! Backends
+//! A backend is like a filter
 //! * There are multiple methods in which you can get the most relevant colors from an image; rather
 //!   than hardcoding, give options
 //! * TODO add Oklab method
@@ -16,8 +17,10 @@ use owo_colors::AnsiColors;
 
 mod full;
 mod resized;
+mod wal;
 use full::*;
 use resized::*;
+use wal::*;
 
 /// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -25,6 +28,7 @@ use resized::*;
 pub enum Backend {
     Full,
     Resized,
+    Wal,
 }
 
 /// main fn that calls other methods, used in main.rs
@@ -32,6 +36,7 @@ pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<C
     let method_to_use = match backend {
         Backend::Full => full,
         Backend::Resized => resized,
+        Backend::Wal => wal,
     };
     let rgbas = method_to_use(file)?;
 
@@ -48,6 +53,7 @@ impl Backend {
         match self {
             Backend::Full => AnsiColors::Blue,
             Backend::Resized => AnsiColors::Cyan,
+            Backend::Wal => AnsiColors::Red,
         }
     }
 }
@@ -59,6 +65,7 @@ impl fmt::Display for Backend {
         match self {
             Self::Full    => write!(f, "full"),
             Self::Resized => write!(f, "resized"),
+            Self::Wal     => write!(f, "wal"),
         }
     }
 }

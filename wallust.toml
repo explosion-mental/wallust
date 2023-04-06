@@ -1,8 +1,9 @@
 # global space #
 
-# What backend parser to use:
-# * full - reads the whole image
-# * resized - resizes the image before parsing it (more color mixing)
+# How to parse the image:
+# * full - reads the whole image (more precision)
+# * resized - resizes the image before parsing it (more color mixing, faster)
+# * wal - uses image magick `convert` to read the image
 backend = "full"
 
 # Difference between similar colors:
