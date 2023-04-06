@@ -103,6 +103,14 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
 
     // sort vec by count
     histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+    // take the first 8 most used colors
+    let mut histo: Vec<Histo> = histo.into_iter().take(8).collect();
+
+    // sort by lightness, like pywal
+    // TODO read morea about partial_cmp and float arithmetic
+    histo.sort_by(|a, b| b.color.l.partial_cmp(&a.color.l).unwrap());
+
     histo
 }
 
