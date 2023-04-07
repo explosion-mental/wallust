@@ -50,11 +50,11 @@ impl Config {
 }
 
 /// Writes `template`s into `target`s
-pub fn write_template(entries: &[Entries], values: &Colors<Myrgb>) -> Result<()>{
+pub fn write_template(entries: &[Entries], values: &Colors) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 
-    let context: Colors<String> = Colors::from(values);
+    let context: ColorsTemplate = values.into();
 
     // contents of config files
     let mut contents = vec![];
@@ -85,4 +85,55 @@ pub fn write_template(entries: &[Entries], values: &Colors<Myrgb>) -> Result<()>
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
+}
+
+/// Simply a copy of [`Colors`]
+/// (to avoid working with generics, since there is no need to complicate this)
+#[derive(Serialize, Deserialize)]
+struct ColorsTemplate {
+    background: String,
+    foreground: String,
+    color0 : String,
+    color1 : String,
+    color2 : String,
+    color3 : String,
+    color4 : String,
+    color5 : String,
+    color6 : String,
+    color7 : String,
+    color8 : String,
+    color9 : String,
+    color10: String,
+    color11: String,
+    color12: String,
+    color13: String,
+    color14: String,
+    color15: String,
+}
+
+/// From implementation trait for the [`Colors`] with [`Myrgb`] type to a String for TinyTemplate
+/// to use
+impl From<&Colors> for ColorsTemplate {
+    fn from(c: &Colors) -> Self {
+        Self {
+            background : c.background.to_string(),
+            foreground : c.foreground.to_string(),
+            color0  : c.color0.to_string(),
+            color1  : c.color1.to_string(),
+            color2  : c.color2.to_string(),
+            color3  : c.color3.to_string(),
+            color4  : c.color4.to_string(),
+            color5  : c.color5.to_string(),
+            color6  : c.color6.to_string(),
+            color7  : c.color7.to_string(),
+            color8  : c.color8.to_string(),
+            color9  : c.color9.to_string(),
+            color10 : c.color10.to_string(),
+            color11 : c.color11.to_string(),
+            color12 : c.color12.to_string(),
+            color13 : c.color13.to_string(),
+            color14 : c.color14.to_string(),
+            color15 : c.color15.to_string(),
+        }
+    }
 }

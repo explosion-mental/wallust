@@ -1,7 +1,7 @@
 //! Default method to generate colors
 use crate::backends::*;
 
-pub fn dark(coo: Vec<Myrgb>) -> Colors<Myrgb> {
+pub fn dark(coo: Vec<Myrgb>) -> Colors {
     // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
     // ones that already exist (until it's 16)
     let mut c = coo.clone();

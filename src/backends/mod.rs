@@ -41,7 +41,7 @@ pub enum Filter {
 }
 
 /// main fn that calls other methods, used in main.rs
-pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
+pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors> {
     // read image
     let method_to_use = match backend {
         Backend::Full => full,

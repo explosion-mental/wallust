@@ -56,13 +56,13 @@ impl Cache {
     }
 
     /// Fetches values from a file present in cache
-    pub fn read(&self) -> Result<Colors<Myrgb>> {
+    pub fn read(&self) -> Result<Colors> {
         let contents = std::fs::read_to_string(&self.path)?;
         Ok(serde_json::from_str(&contents)?)
     }
 
     /// Write values to cache
-    pub fn write(&self, colors: &Colors<Myrgb>) -> Result<()> {
+    pub fn write(&self, colors: &Colors) -> Result<()> {
         Ok(File::create(&self.path)?
             .write_all(
                 serde_json::to_string(colors)

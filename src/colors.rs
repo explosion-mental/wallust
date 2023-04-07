@@ -19,25 +19,25 @@ use serde::{Serialize, Deserialize};
 /// Generic type used for TinyTemplate and to store the actual colors.
 /// Colors are ordered by the most used to the least used.
 #[derive(Serialize, Deserialize)]
-pub struct Colors<T> {
-    pub background: T,
-    pub foreground: T,
-    pub color0: T,
-    pub color1: T,
-    pub color2: T,
-    pub color3: T,
-    pub color4: T,
-    pub color5: T,
-    pub color6: T,
-    pub color7: T,
-    pub color8: T,
-    pub color9: T,
-    pub color10: T,
-    pub color11: T,
-    pub color12: T,
-    pub color13: T,
-    pub color14: T,
-    pub color15: T,
+pub struct Colors {
+    pub background: Myrgb,
+    pub foreground: Myrgb,
+    pub color0 : Myrgb,
+    pub color1 : Myrgb,
+    pub color2 : Myrgb,
+    pub color3 : Myrgb,
+    pub color4 : Myrgb,
+    pub color5 : Myrgb,
+    pub color6 : Myrgb,
+    pub color7 : Myrgb,
+    pub color8 : Myrgb,
+    pub color9 : Myrgb,
+    pub color10: Myrgb,
+    pub color11: Myrgb,
+    pub color12: Myrgb,
+    pub color13: Myrgb,
+    pub color14: Myrgb,
+    pub color15: Myrgb,
 }
 
 /// Type that every backend should return
@@ -78,7 +78,7 @@ impl Myrgb {
 }
 
 /// print colors as `var.print()`
-impl Colors<Myrgb> {
+impl Colors {
     pub fn print(&self) {
         print!(
 "
@@ -107,33 +107,6 @@ foreground: {}
         "    ".on_color(self.background.col()),
         "    ".on_color(self.foreground.col()),
     );
-    }
-}
-
-/// From implementation trait for the [`Colors`] with [`Myrgb`] type to a String for TinyTemplate
-/// to use
-impl From<&Colors<Myrgb>> for Colors<String> {
-    fn from(c: &Colors<Myrgb>) -> Self {
-        Self {
-            background : c.background.to_string(),
-            foreground : c.foreground.to_string(),
-            color0  : c.color0.to_string(),
-            color1  : c.color1.to_string(),
-            color2  : c.color2.to_string(),
-            color3  : c.color3.to_string(),
-            color4  : c.color4.to_string(),
-            color5  : c.color5.to_string(),
-            color6  : c.color6.to_string(),
-            color7  : c.color7.to_string(),
-            color8  : c.color8.to_string(),
-            color9  : c.color9.to_string(),
-            color10 : c.color10.to_string(),
-            color11 : c.color11.to_string(),
-            color12 : c.color12.to_string(),
-            color13 : c.color13.to_string(),
-            color14 : c.color14.to_string(),
-            color15 : c.color15.to_string(),
-        }
     }
 }
 
