@@ -25,9 +25,11 @@ fn main() -> Result<()> {
 
     if ! cli.quiet {
         println!("Generating color scheme...");
-        println!("Using {} backend parser with a threshold of {}",
+        println!("- {} backend parser\n- threshold of {}\n- {} filter\n- {} color space",
             conf.backend.bold().color(conf.backend.col()),
             conf.threshold.bold().color(conf.threshold_col()),
+            conf.filter.bold().color(conf.filter.col()),
+            conf.color_space.bold().color(conf.color_space.col()),
         );
     }
 
