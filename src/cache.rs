@@ -9,7 +9,6 @@ use std::time::SystemTime;
 
 use crate::Colors;
 use crate::Myrgb;
-use crate::colors::MyLab;
 use crate::backends::Backend;
 
 use serde::*;
