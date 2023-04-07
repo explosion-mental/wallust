@@ -23,7 +23,6 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
     //            ^
     //    we care bout this representation
     for line in String::from_utf8(output)?.lines().skip(1) {
-        println!("{}", line);
         let mut s = line.split_ascii_whitespace();
         let Some(_) = s.next() else {
             anyhow::bail!("convert failed giving colors");
