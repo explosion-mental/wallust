@@ -38,12 +38,12 @@ impl Cache {
 
         // The following generates a hash name from a filename and it's `stat` attrs
         let hash_name = format!("{}{}{}{}",
+            birth.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
+            modif.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
             //filename.display(),
             md.ino(),
             //md.file_type(),
             md.len(),
-            birth.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
-            modif.duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
         );
 
         // Create cache dir (with all of it's parents
@@ -59,18 +59,17 @@ impl Cache {
     /// Fetches values from a file present in cache
     pub fn read(&self) -> Result<Colors<Myrgb>> {
         let contents = std::fs::read_to_string(&self.path)?;
-        Ok(Colors::from(serde_json::from_str::<Colors<MyLab>>(&contents)?))
+        Ok(serde_json::from_str(&contents)?)
     }
 
     /// Write values to cache
     pub fn write(&self, colors: &Colors<Myrgb>) -> Result<()> {
-        let c: Colors<MyLab> = colors.into();
         Ok(File::create(&self.path)?
             .write_all(
-                serde_json::to_string(&c)
+                serde_json::to_string(colors)
                     .with_context(|| format!("Failed to deserilize from the json cached file: '{}'\n", &self.path))?
                 .as_bytes()
-        )?)
+            )?)
     }
 
     /// To determine whether to read from cache or to generate the colors from scratch
