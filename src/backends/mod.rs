@@ -18,9 +18,11 @@ use owo_colors::AnsiColors;
 mod full;
 mod resized;
 mod wal;
+mod dark;
 use full::*;
 use resized::*;
 use wal::*;
+use dark::*;
 
 /// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -31,8 +33,15 @@ pub enum Backend {
     Wal,
 }
 
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum Filter {
+    Dark,
+}
+
 /// main fn that calls other methods, used in main.rs
 pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors<Myrgb>> {
+    // read image
     let method_to_use = match backend {
         Backend::Full => full,
         Backend::Resized => resized,
@@ -40,12 +49,17 @@ pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<C
     };
     let rgbas = method_to_use(file)?;
 
-
+    // color space
     let labs = lab::rgb_bytes_to_labs(&rgbas);
-    let mut histo = gen_histogram(labs, threshold);
-    Ok(Colors::from(&mut histo))
-}
 
+    // get the most used colors
+    let histo = gen_histogram(labs, threshold);
+
+    // generate a `Colors` struct
+    let colors = dark(histo);
+
+    Ok(colors)
+}
 
 impl Backend {
     /// This assigns a colors for a backend, used when printing
@@ -102,7 +116,7 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
     false
 }
 
-fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
+fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Myrgb> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
@@ -123,7 +137,9 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Histo> {
     // TODO read morea about partial_cmp and float arithmetic
     histo.sort_by(|a, b| b.color.l.partial_cmp(&a.color.l).unwrap());
 
-    histo
+    let c: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
+
+    c
 }
 
 

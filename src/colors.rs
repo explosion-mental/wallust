@@ -22,28 +22,28 @@ use serde::{Serialize, Deserialize};
 /// Colors are ordered by the most used to the least used.
 #[derive(Serialize, Deserialize)]
 pub struct Colors<T> {
-    background: T,
-    foreground: T,
-    color0: T,
-    color1: T,
-    color2: T,
-    color3: T,
-    color4: T,
-    color5: T,
-    color6: T,
-    color7: T,
-    color8: T,
-    color9: T,
-    color10: T,
-    color11: T,
-    color12: T,
-    color13: T,
-    color14: T,
-    color15: T,
+    pub background: T,
+    pub foreground: T,
+    pub color0: T,
+    pub color1: T,
+    pub color2: T,
+    pub color3: T,
+    pub color4: T,
+    pub color5: T,
+    pub color6: T,
+    pub color7: T,
+    pub color8: T,
+    pub color9: T,
+    pub color10: T,
+    pub color11: T,
+    pub color12: T,
+    pub color13: T,
+    pub color14: T,
+    pub color15: T,
 }
 
 /// Type that every backend should return
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Myrgb(u8, u8, u8);
 
 /// Display the hex color when displaying Lab
