@@ -11,7 +11,6 @@
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use std::fmt;
-use crate::backends::Histo;
 
 use lab::Lab;
 use owo_colors::*;
@@ -155,48 +154,6 @@ fn lighten(lab: Lab, amount: f32) -> Lab {
         l: lab.l + (100.0 - lab.l) * amount,
         a: lab.a + (100.0 - lab.a) * (amount - 0.15),
         b: lab.b + (100.0 - lab.b) * (amount - 0.15),
-    }
-}
-
-/// From implementation trait for the vec of [`Histo`] generated in main() to [`Colors`]
-impl From<&mut Vec<Histo>> for Colors<Myrgb> {
-    fn from(histo: &mut Vec<Histo>) -> Self {
-        // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the
-        // ones that already exist (until it's 16)
-        let len = histo.len();
-        if len < 16 {
-            println!("Not enought colors! Generating new colors from fetches ones...");
-            for i in len..=15 {
-                // generate new colors, but switch between the how (method to use)
-                let val = if i % 2 == 0 {
-                    Histo { color: darken(histo[i - len].color, 0.5), count: i }
-                } else {
-                    Histo { color: lighten(histo[i - len].color, 0.5), count: i }
-                };
-                histo.push(val);
-            }
-        }
-
-        Self {
-            background : darken(histo[0].color, 0.7).into(),
-            foreground : lighten(histo[0].color, 0.7).into(),
-            color0 : histo[ 0].color.into(),
-            color1 : histo[ 1].color.into(),
-            color2 : histo[ 2].color.into(),
-            color3 : histo[ 3].color.into(),
-            color4 : histo[ 4].color.into(),
-            color5 : histo[ 5].color.into(),
-            color6 : histo[ 6].color.into(),
-            color7 : histo[ 7].color.into(),
-            color8 : histo[ 8].color.into(),
-            color9 : histo[ 9].color.into(),
-            color10: histo[10].color.into(),
-            color11: histo[11].color.into(),
-            color12: histo[12].color.into(),
-            color13: histo[13].color.into(),
-            color14: histo[14].color.into(),
-            color15: histo[15].color.into(),
-        }
     }
 }
 
