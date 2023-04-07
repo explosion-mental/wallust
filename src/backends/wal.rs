@@ -1,6 +1,5 @@
 use crate::backends::*;
 use std::process::Command;
-use std::str;
 
 /// use Image Magick to get colors
 //TODO flatten the hues like pywal
@@ -21,7 +20,7 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
     //   0,0: (92,64,54)  #5C4036  srgb(36.1282%,25.1188%,21.1559%)
     //            ^
     //    we care bout this one
-    for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
+    for line in String::from_utf8(im.stdout)?.lines().skip(1) {
         println!("{}", line);
         let mut s = line.split_ascii_whitespace();
         let Some(_) = s.next() else {
