@@ -12,7 +12,7 @@ mod backends;
 mod filters;
 mod cache;
 mod colorspaces;
-use colors::*;
+use colors::{Colors, Myrgb};
 use config::Config;
 
 //TODO handle errors
@@ -56,7 +56,7 @@ fn main() -> Result<()> {
 }
 
 /// main fn that calls other methods, used in main.rs
-pub fn gen_colors(file: &PathBuf, c: &Config) -> Result<Colors> {
+fn gen_colors(file: &PathBuf, c: &Config) -> Result<Colors> {
     // read image
     let rgbas = backends::main(file, &c.backend)?;
 
