@@ -16,11 +16,13 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
         .output()?;
 
     let mut cols: Vec<u8> = vec![];
+    let output = im.stdout;
+
     // The output is like the following:
     //   0,0: (92,64,54)  #5C4036  srgb(36.1282%,25.1188%,21.1559%)
     //            ^
-    //    we care bout this one
-    for line in String::from_utf8(im.stdout)?.lines().skip(1) {
+    //    we care bout this representation
+    for line in String::from_utf8(output)?.lines().skip(1) {
         println!("{}", line);
         let mut s = line.split_ascii_whitespace();
         let Some(_) = s.next() else {
