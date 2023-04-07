@@ -17,13 +17,9 @@ use owo_colors::AnsiColors;
 mod full;
 mod resized;
 mod wal;
-mod dark;
-mod lab;
 use full::*;
 use resized::*;
 use wal::*;
-use dark::*;
-use self::lab::*;
 
 /// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -34,30 +30,13 @@ pub enum Backend {
     Wal,
 }
 
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum Filter {
-    Dark,
-}
-
-/// main fn that calls other methods, used in main.rs
-pub fn gen_colors(file: &PathBuf, backend: &Backend, threshold: u32) -> Result<Colors> {
-    // read image
+pub fn main(f: &PathBuf, backend: &Backend) -> Result<Vec<u8>> {
     let method_to_use = match backend {
         Backend::Full => full,
         Backend::Resized => resized,
         Backend::Wal => wal,
     };
-    let rgbas = method_to_use(file)?;
-
-    // get the top 8 most used colors, ordered from the lightess to the darkess. Different color
-    // spaces could be used here.
-    let histo = lab(&rgbas, threshold);
-
-    // Apply a [`Filter`] that returns the [`Colors`] struct
-    let colors = dark(histo);
-
-    Ok(colors)
+    method_to_use(f)
 }
 
 impl Backend {

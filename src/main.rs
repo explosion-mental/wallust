@@ -1,4 +1,6 @@
 //! wallust - Generate a colorscheme based on an image
+use std::path::PathBuf;
+
 use clap::Parser;
 use anyhow::Result;
 use owo_colors::{OwoColorize, AnsiColors};
@@ -7,7 +9,9 @@ mod args;
 mod config;
 mod colors;
 mod backends;
+mod filters;
 mod cache;
+mod colorspaces;
 use colors::*;
 use config::Config;
 
@@ -33,7 +37,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
-    let colors = if cached_data.is_cached() { cached_data.read()? } else { backends::gen_colors(&cli.file, &conf.backend, conf.threshold)? };
+    let colors = if cached_data.is_cached() { cached_data.read()? } else { gen_colors(&cli.file, &conf.backend, conf.threshold)? };
 
     // Cache colors
     cached_data.write(&colors)?;
@@ -47,6 +51,21 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// main fn that calls other methods, used in main.rs
+pub fn gen_colors(file: &PathBuf, backend: &backends::Backend, threshold: u32) -> Result<Colors> {
+    // read image
+    let rgbas = backends::main(file, backend)?;
+
+    // get the top 8 most used colors, ordered from the lightess to the darkess. Different color
+    // spaces could be used here.
+    let histo = colorspaces::main(&rgbas, threshold, &colorspaces::ColorSpaces::Lab);
+
+    // Apply a [`Filters`] that returns the [`Colors`] struct
+    let colors = filters::main(histo, &filters::Filters::Dark);
+
+    Ok(colors)
 }
 
 impl Config {

@@ -1,4 +1,4 @@
-use crate::backends::*;
+use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 

@@ -1,5 +1,5 @@
 //! Default method to generate colors
-use crate::backends::*;
+use crate::filters::*;
 
 pub fn dark(coo: Vec<Myrgb>) -> Colors {
     // Make sure the vector has 16 colors; if it's lower, derive new generated colors from the

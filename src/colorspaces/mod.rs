@@ -1,0 +1,41 @@
+//! Filters
+use std::fmt;
+use crate::Myrgb;
+
+use serde::*;
+use owo_colors::{OwoColorize, AnsiColors};
+
+mod lab;
+use self::lab::*;
+
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum ColorSpaces {
+    Lab,
+}
+
+pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces) -> Vec<Myrgb> {
+    let method_to_use = match cs {
+        ColorSpaces::Lab => lab,
+    };
+    method_to_use(cols, th)
+}
+
+impl ColorSpaces {
+    /// This assigns a colors for a backend, used when printing
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            Self::Lab => AnsiColors::Blue,
+        }
+    }
+}
+
+/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
+impl fmt::Display for ColorSpaces {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Lab => write!(f, "lab"),
+        }
+    }
+}
