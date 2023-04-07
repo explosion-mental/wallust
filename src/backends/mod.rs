@@ -82,12 +82,3 @@ impl fmt::Display for Backend {
         }
     }
 }
-
-/// Simple Histogram
-/// TODO think about a better generic way of storing (ColorSpace, count)
-pub struct Histo {
-    /// LAB colors - TODO allow other colorspaces
-    pub color: ::lab::Lab,
-    /// number of times it has appeared
-    pub count: usize,
-}
