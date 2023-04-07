@@ -53,10 +53,29 @@ impl fmt::Display for Myrgb {
     }
 }
 
-/// methods for [`Myrgb`]
+/// methods for [`Myrgb`] darken and lighten are basically from pywal `util.py` (just 'type safe' :p)
 impl Myrgb {
+    /// to owo [`Rgb`]
     pub fn col(&self) -> Rgb {
         Rgb(self.0, self.1, self.2)
+    }
+
+    /// darkens rgb by amount (lossy)
+    pub fn darken(&self, amount: f32) -> Self {
+        Self(
+            (f32::from(self.0) * (1.0 - amount)) as u8,
+            (f32::from(self.1) * (1.0 - amount)) as u8,
+            (f32::from(self.2) * (1.0 - amount)) as u8,
+        )
+    }
+
+    /// ligthen rgb by amount (lossy)
+    pub fn lighten(&self, amount: f32) -> Self {
+        Self(
+            (f32::from(self.0) + f32::from(255 - self.0) * amount) as u8,
+            (f32::from(self.1) + f32::from(255 - self.1) * amount) as u8,
+            (f32::from(self.2) + f32::from(255 - self.2) * amount) as u8,
+        )
     }
 }
 
