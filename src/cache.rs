@@ -8,7 +8,6 @@ use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
 
 use crate::Colors;
-use crate::Myrgb;
 use crate::backends::Backend;
 
 use serde::*;

@@ -110,26 +110,6 @@ foreground: {}
     }
 }
 
-/// Creates a new darker Lab color derive from the given one, changes values by amount, but
-/// prioritizes l(ight) value
-fn darken(lab: Lab, amount: f32) -> Lab {
-    Lab {
-        l: lab.l * (1.0 - amount),
-        a: lab.a * (1.0 - amount - 0.15),
-        b: lab.b * (1.0 - amount - 0.15),
-    }
-}
-
-/// Creates a new lighter Lab color derive from the given one, changes values by amount, but
-/// prioritizes l(ight) value
-fn lighten(lab: Lab, amount: f32) -> Lab {
-    Lab {
-        l: lab.l + (100.0 - lab.l) * amount,
-        a: lab.a + (100.0 - lab.a) * (amount - 0.15),
-        b: lab.b + (100.0 - lab.b) * (amount - 0.15),
-    }
-}
-
 impl From<Lab> for Myrgb {
     fn from(lab: Lab) -> Self {
         let a = lab.to_rgb();

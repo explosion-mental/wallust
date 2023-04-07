@@ -6,7 +6,6 @@ use std::io::prelude::*;
 use std::fs::File;
 
 use crate::Colors;
-use crate::Myrgb;
 use crate::backends::Backend;
 
 use tinytemplate::TinyTemplate;
