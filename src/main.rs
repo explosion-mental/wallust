@@ -37,7 +37,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
-    let colors = if cached_data.is_cached() { cached_data.read()? } else { gen_colors(&cli.file, &conf.backend, conf.threshold)? };
+    let colors = if cached_data.is_cached() { cached_data.read()? } else { gen_colors(&cli.file, &conf)? };
 
     // Cache colors
     cached_data.write(&colors)?;
@@ -54,16 +54,16 @@ fn main() -> Result<()> {
 }
 
 /// main fn that calls other methods, used in main.rs
-pub fn gen_colors(file: &PathBuf, backend: &backends::Backend, threshold: u32) -> Result<Colors> {
+pub fn gen_colors(file: &PathBuf, c: &Config) -> Result<Colors> {
     // read image
-    let rgbas = backends::main(file, backend)?;
+    let rgbas = backends::main(file, &c.backend)?;
 
     // get the top 8 most used colors, ordered from the lightess to the darkess. Different color
     // spaces could be used here.
-    let histo = colorspaces::main(&rgbas, threshold, &colorspaces::ColorSpaces::Lab);
+    let histo = colorspaces::main(&rgbas, c.threshold, &c.color_space);
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
-    let colors = filters::main(histo, &filters::Filters::Dark);
+    let colors = filters::main(histo, &c.filter);
 
     Ok(colors)
 }

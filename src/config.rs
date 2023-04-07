@@ -6,7 +6,6 @@ use std::io::prelude::*;
 use std::fs::File;
 
 use crate::Colors;
-use crate::backends::Backend;
 
 use tinytemplate::TinyTemplate;
 use anyhow::Result;
@@ -18,7 +17,11 @@ pub struct Config {
     /// threshold to use to differentiate colors
     pub threshold: u32,
     /// Which backend to use, see backends.rs
-    pub backend: Backend,
+    pub backend: crate::backends::Backend,
+    /// Which filter to use, see filters.rs
+    pub filter: crate::filters::Filters,
+    /// Which colorspace to use, see colorspaces.rs
+    pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
 }

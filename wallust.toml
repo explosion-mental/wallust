@@ -6,6 +6,14 @@
 # * wal - uses image magick `convert` to read the image
 backend = "full"
 
+# How would the palette created be.
+# * dark - dark colors
+filter = "dark"
+
+# What color space to use to differentiate and select the scheme.
+# * lab - use CIEL*a*b color space
+color_space = "lab"
+
 # Difference between similar colors:
 #  <= 1       Not perceptible by human eyes.
 #  1 - 2      Perceptible through close observation.
