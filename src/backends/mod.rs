@@ -7,8 +7,6 @@
 use std::path::PathBuf;
 use std::fmt;
 
-use crate::{Colors, Myrgb};
-
 use image::io::Reader as ImageReader;
 use anyhow::Result;
 use serde::*;

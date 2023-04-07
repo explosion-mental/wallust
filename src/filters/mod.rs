@@ -1,8 +1,7 @@
 //! Filters
-use std::path::PathBuf;
 use std::fmt;
 
-use owo_colors::{OwoColorize, AnsiColors};
+use owo_colors::AnsiColors;
 use serde::*;
 
 use crate::{Colors, Myrgb};
