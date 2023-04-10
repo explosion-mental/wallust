@@ -37,7 +37,7 @@ fn main() -> Result<()> {
     };
 
     // Cache colors
-    cached_data.write(&colors)?;
+    if ! cached_data.is_cached() { cached_data.write(&colors)?; }
 
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry { config::write_template(&s, &colors)? }
