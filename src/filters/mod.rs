@@ -4,7 +4,7 @@ use std::fmt;
 use owo_colors::AnsiColors;
 use serde::*;
 
-use crate::{Colors, Myrgb};
+use crate::colors::{Colors, Myrgb};
 
 mod dark;
 

@@ -1,6 +1,7 @@
 //! Filters
 use std::fmt;
-use crate::Myrgb;
+
+use crate::colors::Myrgb;
 
 use serde::*;
 use owo_colors::AnsiColors;

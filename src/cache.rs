@@ -7,7 +7,8 @@ use std::fs::File;
 use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
 
-use crate::Colors;
+use crate::colors::Colors;
+use crate::config::Config;
 
 use serde::*;
 use anyhow::{Result, Context};
@@ -25,7 +26,7 @@ pub struct Cache {
 
 impl Cache {
     /// init cache
-    pub fn new(filename: PathBuf, c: &crate::Config) -> Result<Self> {
+    pub fn new(filename: PathBuf, c: &Config) -> Result<Self> {
         let mixing = if c.mix_colors { "mixed" } else { "default" };
         let cachepath = format!("{}/{}/{}/{}", shellexpand::tilde("~/.cache/wallust"), c.backend, c.threshold, mixing);
 

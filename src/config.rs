@@ -5,11 +5,12 @@ use std::fs::read_to_string;
 use std::io::prelude::*;
 use std::fs::File;
 
-use crate::Colors;
+use crate::colors::Colors;
 
 use tinytemplate::TinyTemplate;
 use anyhow::Result;
 use anyhow::Context;
+use owo_colors::AnsiColors;
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
@@ -89,6 +90,20 @@ pub fn write_template(entries: &[Entries], values: &Colors) -> Result<()>{
         //println!("FROM: '{path}' --- '{}'", rendered);
     }
     Ok(())
+}
+
+impl Config {
+    /// thershold color for owo_colors
+    pub fn threshold_col(&self) -> AnsiColors {
+        match self.threshold {
+            1 => AnsiColors::Yellow,
+            2 => AnsiColors::Cyan,
+            3..=10 => AnsiColors::Green,
+            11..=49 => AnsiColors::Blue,
+            50..=100 => AnsiColors::Red,
+            _ => AnsiColors::Red,
+        }
+    }
 }
 
 /// Simply a copy of [`Colors`]

@@ -3,25 +3,19 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use anyhow::Result;
-use owo_colors::{OwoColorize, AnsiColors};
+use owo_colors::OwoColorize;
 
 mod args;
-mod config;
-mod colors;
 mod backends;
-mod filters;
 mod cache;
+mod colors;
 mod colorspaces;
-use colors::{Colors, Myrgb};
-use config::Config;
-
-//TODO handle errors
-//XXX BTree?
-//XXX generate an actual scheme, rather than listing colors¿
+mod config;
+mod filters;
 
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
-    let conf = Config::new()?;
+    let conf = config::Config::new()?;
 
     if ! cli.quiet {
         println!("Generating color scheme...");
@@ -59,30 +53,18 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// main fn that calls other methods, used in main.rs
-fn gen_colors(file: &PathBuf, c: &Config) -> Result<Colors> {
+/// How [`Colors`] is filled
+fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
     // read image
     let rgbas = backends::main(file, &c.backend)?;
 
-    // get the top 8 most used colors, ordered from the lightess to the darkess. Different color
-    // spaces could be used here.
-    let histo = colorspaces::main(&rgbas, c.threshold, &c.color_space, c.mix_colors);
+    // get the top 16 most used colors, ordered from the darkest to lightest. Different color
+    // spaces can be used here.
+    let top = colorspaces::main(&rgbas, c.threshold, &c.color_space, c.mix_colors);
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
-    let colors = filters::main(histo, &c.filter);
+    let colors = filters::main(top, &c.filter);
 
     Ok(colors)
 }
 
-impl Config {
-    pub fn threshold_col(&self) -> AnsiColors {
-        match self.threshold {
-            1 => AnsiColors::Yellow,
-            2 => AnsiColors::Cyan,
-            3..=10 => AnsiColors::Green,
-            11..=49 => AnsiColors::Blue,
-            50..=100 => AnsiColors::Red,
-            _ => AnsiColors::Red,
-        }
-    }
-}
