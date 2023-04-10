@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
     let colors = if cached_data.is_cached() {
-        if ! cli.quiet { println!("- Using cache, found at '{}'", cached_data.path); }
+        if ! cli.quiet { println!("- Using cache {}", cached_data.path.italic()); }
         cached_data.read()?
     } else {
         gen_colors(&cli.file, &conf)?
