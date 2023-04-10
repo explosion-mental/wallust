@@ -20,7 +20,7 @@ pub struct Cache {
     /// A file "hash" name, for the cache filename
     hash: String,
     /// Path of the cache
-    path: String,
+    pub path: String,
 }
 
 impl Cache {

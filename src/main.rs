@@ -38,7 +38,12 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(p, &conf)?;
-    let colors = if cached_data.is_cached() { cached_data.read()? } else { gen_colors(&cli.file, &conf)? };
+    let colors = if cached_data.is_cached() {
+        if ! cli.quiet { println!("- Using cache, found at '{}'", cached_data.path); }
+        cached_data.read()?
+    } else {
+        gen_colors(&cli.file, &conf)?
+    };
 
     // Cache colors
     cached_data.write(&colors)?;
