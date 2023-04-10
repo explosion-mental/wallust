@@ -75,8 +75,6 @@ impl Colors {
 {}{}{}{}{}{}{}{}
 {}{}{}{}{}{}{}{}
 
-background: {}
-foreground: {}
 ",
         "    ".on_color(self.color0.col()),
         "    ".on_color(self.color1.col()),
@@ -94,8 +92,32 @@ foreground: {}
         "    ".on_color(self.color13.col()),
         "    ".on_color(self.color14.col()),
         "    ".on_color(self.color15.col()),
-        "    ".on_color(self.background.col()),
-        "    ".on_color(self.foreground.col()),
-    );
+        );
+    }
+
+    pub fn done(&self) {
+        print!(
+"
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+",
+        " E ".on_color(self.color0 .col()).color(self.color7 .col()).bold().blink(),
+        " N ".on_color(self.color1 .col()).color(self.color6 .col()).bold().blink(),
+        " J ".on_color(self.color2 .col()).color(self.color5 .col()).bold().blink(),
+        " O ".on_color(self.color3 .col()).color(self.color4 .col()).bold().blink(),
+        " Y ".on_color(self.color4 .col()).color(self.color3 .col()).bold().blink(),
+        "  ".strikethrough(),
+        " T ".on_color(self.color5 .col()).color(self.color2 .col()).bold().blink(),
+        " H ".on_color(self.color6 .col()).color(self.color1 .col()).bold().blink(),
+        " E ".on_color(self.color7 .col()).color(self.color0 .col()).bold().blink(),
+        "  ".strikethrough(),
+        " P ".on_color(self.color15.col()).color(self.color8 .col()).bold().blink(),
+        " A ".on_color(self.color14.col()).color(self.color9 .col()).bold().blink(),
+        " L ".on_color(self.color13.col()).color(self.color10.col()).bold().blink(),
+        " E ".on_color(self.color12.col()).color(self.color11.col()).bold().blink(),
+        " T ".on_color(self.color11.col()).color(self.color12.col()).bold().blink(),
+        " T ".on_color(self.color10.col()).color(self.color13.col()).bold().blink(),
+        " E ".on_color(self.color9 .col()).color(self.color14.col()).bold().blink(),
+        " ! ".on_color(self.color8 .col()).color(self.color15.col()).bold().blink(),
+        );
     }
 }

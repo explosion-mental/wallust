@@ -19,7 +19,7 @@ fn main() -> Result<()> {
 
     if ! cli.quiet {
         println!("Generating color scheme...");
-        println!("- {} backend parser\n- Threshold of {}\n- {} filter\n- {} color space",
+        println!(" > {} backend parser\n > Threshold of {}\n > {} filter\n > {} color space",
             conf.backend.bold().color(conf.backend.col()),
             conf.threshold.bold().color(conf.threshold_col()),
             conf.filter.bold().color(conf.filter.col()),
@@ -30,25 +30,30 @@ fn main() -> Result<()> {
     // Whether to load data from cache or to generate from scratch
     let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
     let colors = if cached_data.is_cached() {
-        if ! cli.quiet { println!("- Using cache {}", cached_data.path.italic()); }
+        if ! cli.quiet { println!(" > Using cache {}", cached_data.path.italic()); }
         cached_data.read()?
     } else {
         gen_colors(&cli.file, &conf)?
     };
 
-    // Cache colors
-    if ! cached_data.is_cached() { cached_data.write(&colors)?; }
-
-    // write entries `[[entry]]` of the config file (if any)
-    if let Some(s) = conf.entry {
-        if ! cli.quiet { println!("- Writing templates.."); }
-        config::write_template(&s, &colors)?
-    }
-
     if ! cli.quiet {
         //TODO add print_long to list `value: color` like
         colors.print();
     }
+
+    // Cache colors
+    if ! cached_data.is_cached() {
+        if ! cli.quiet { println!(" > Saving scheme to cache.."); }
+        cached_data.write(&colors)?;
+    }
+
+    // write entries `[[entry]]` of the config file (if any)
+    if let Some(s) = conf.entry {
+        if ! cli.quiet { println!(" > Writing templates.."); }
+        config::write_template(&s, &colors)?
+    }
+
+    if ! cli.quiet { colors.done(); }
 
     Ok(())
 }
