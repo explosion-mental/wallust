@@ -38,7 +38,7 @@ impl fmt::Display for ColorSpaces {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Lab => write!(f, "lab"),
+            Self::Lab => write!(f, "Lab"),
         }
     }
 }

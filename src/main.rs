@@ -19,7 +19,7 @@ fn main() -> Result<()> {
 
     if ! cli.quiet {
         println!("Generating color scheme...");
-        println!("- {} backend parser\n- threshold of {}\n- {} filter\n- {} color space",
+        println!("- {} backend parser\n- Threshold of {}\n- {} filter\n- {} color space",
             conf.backend.bold().color(conf.backend.col()),
             conf.threshold.bold().color(conf.threshold_col()),
             conf.filter.bold().color(conf.filter.col()),
@@ -40,7 +40,10 @@ fn main() -> Result<()> {
     if ! cached_data.is_cached() { cached_data.write(&colors)?; }
 
     // write entries `[[entry]]` of the config file (if any)
-    if let Some(s) = conf.entry { config::write_template(&s, &colors)? }
+    if let Some(s) = conf.entry {
+        if ! cli.quiet { println!("- Writing templates.."); }
+        config::write_template(&s, &colors)?
+    }
 
     if ! cli.quiet {
         //TODO add print_long to list `value: color` like

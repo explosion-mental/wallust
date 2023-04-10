@@ -48,9 +48,9 @@ impl fmt::Display for Backend {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Full    => write!(f, "full"),
-            Self::Resized => write!(f, "resized"),
-            Self::Wal     => write!(f, "wal"),
+            Self::Full    => write!(f, "Full"),
+            Self::Resized => write!(f, "Resized"),
+            Self::Wal     => write!(f, "Wal"),
         }
     }
 }

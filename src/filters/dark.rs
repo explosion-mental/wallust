@@ -23,8 +23,8 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
     }
 
     Colors {
-        background : c[0].darken(0.7),
-        foreground : c[0].lighten(0.7),
+        background : c[0].darken(0.8), // background
+        foreground : c[5].lighten(0.65),
 
         // * First row *
         color0 : c[0].darken(0.8), // background
