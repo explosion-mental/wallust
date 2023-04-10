@@ -19,7 +19,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     // take the first 8 most used colors
-    let mut histo: Vec<Histo> = histo.into_iter().take(8).collect();
+    let mut histo: Vec<Histo> = histo.into_iter().take(16).collect();
 
     // sort by lightness, like pywal
     // TODO read morea about partial_cmp and float arithmetic

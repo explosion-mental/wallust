@@ -6,6 +6,7 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
     // ones that already exist (until it's 16)
     let mut c = coo.clone();
     let len = c.len();
+    // This method requires at least 6 colors
     if len < 6 {
         println!("Not enought colors! Generating new colors from fetches ones...");
         for (i, value) in coo.iter().enumerate() {
