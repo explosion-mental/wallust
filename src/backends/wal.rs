@@ -20,23 +20,27 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
 
     // Sample output of `convert` is like the following:
     //   0,0: (92,64,54)  #5C4036  srgb(36.1282%,25.1188%,21.1559%)
-    //            ^
-    //    we care bout this one
+    //   skip     skip       ^
+    //              we care bout this one
 
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
-        let mut s = line.split_ascii_whitespace().skip(1);
-
-        let c = s.next().expect("Should be present as e.g. (0, 0, 0)").replace(['(', ')'], "");
-        let mut split = c.split(',');
-
-        let r = split.next().expect("convert outputs this").parse::<u8>()?;
-        let g = split.next().expect("convert outputs this").parse::<u8>()?;
-        let b = split.next().expect("convert outputs this").parse::<u8>()?;
-
-        cols.push(r);
-        cols.push(g);
-        cols.push(b);
+        let mut s = line.split_ascii_whitespace().skip(2);
+        let hex = s.next().expect("Should always be present e.g. #EEEEEE");
+        cols.append(&mut decode_hex(hex)?);
     }
-    //println!("{:?}", cols);
     Ok(cols)
+}
+
+/// Simple hex decode from string, input is like `#EEEEEE`
+/// ref: <https://stackoverflow.com/a/52992629>
+fn decode_hex(s: &str) -> Result<Vec<u8>> {
+    let s = &s[1..];
+    if s.len() % 2 != 0 {
+        anyhow::bail!("Error decoding hex, OddLength");
+    } else {
+        (0..s.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
+            .collect()
+    }
 }
