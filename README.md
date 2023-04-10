@@ -10,9 +10,11 @@
 > sources[^sources]
 
 ## Features
-- use of templates and writing these out defined in the config file.
-- different backends (currently only 2)
-- cache values
+- Config file at `~/.config/wallust/wallust.toml`
+	* templating integrated in a config file
+	* backends, colorspaces and filters
+	* configurable threshold
+- cache scheme palette at `~/.cache/wallust`
 
 
 ## Usage
