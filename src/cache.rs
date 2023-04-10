@@ -31,8 +31,10 @@ impl Cache {
 
         let md = fs::metadata(&filename)?;
         // if these metadata are not avaliable, then we can't cache
-        let birth = if let Ok(o) = md.created()  { o } else { anyhow::bail!("Not Supported") };
-        let modif = if let Ok(o) = md.modified() { o } else { anyhow::bail!("Not Supported") };
+        let birth = md.created()
+            .with_context(|| format!("wallust needs the 'created' file metadata for a cache hash, your platform seems to not support it."))?;
+        let modif = md.modified()
+            .with_context(|| format!("wallust needs the 'modified' file metadata for a cache hash, your platform seems to not support it."))?;
 
         // The following generates a hash name from a filename and it's `stat` attrs
         let hash_name = format!("{}{}{}{}",
