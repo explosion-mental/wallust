@@ -27,8 +27,7 @@ pub struct Cache {
 impl Cache {
     /// init cache
     pub fn new(filename: PathBuf, c: &Config) -> Result<Self> {
-        let mixing = if c.mix_colors { "mixed" } else { "default" };
-        let cachepath = format!("{}/{}/{}/{}", shellexpand::tilde("~/.cache/wallust"), c.backend, c.threshold, mixing);
+        let cachepath = format!("{}/{}/{}", shellexpand::tilde("~/.cache/wallust"), c.backend, c.threshold);
 
         let md = fs::metadata(&filename)?;
         // if these metadata are not avaliable, then we can't cache

@@ -20,8 +20,6 @@ pub struct Config {
     pub backend: crate::backends::Backend,
     /// Which filter to use, see filters.rs
     pub filter: crate::filters::Filters,
-    /// To mix colors if similar enough
-    pub mix_colors: bool,
     /// Which colorspace to use, see colorspaces.rs
     pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)

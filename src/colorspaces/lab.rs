@@ -2,13 +2,13 @@ use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
-pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
+pub fn lab(cols: &[u8], threshold: u32) -> Vec<Myrgb> {
     let labs = rgb_bytes_to_labs(cols);
 
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if is_present(lab, &mut histo, threshold, mix) {
+        if is_present(lab, &mut histo, threshold) {
             continue;
         } else {
             histo.push(Histo { color: lab, count: 1 });
@@ -50,11 +50,11 @@ impl Histo {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool) -> bool {
+fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold {
-            if mix { e.mix(color); }
+            e.mix(color);
             e.count += 1;
             return true;
         }

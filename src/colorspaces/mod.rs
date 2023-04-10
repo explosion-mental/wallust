@@ -17,11 +17,11 @@ pub enum ColorSpaces {
     Lab,
 }
 
-pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces, mix: bool) -> Vec<Myrgb> {
+pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces) -> Vec<Myrgb> {
     let method_to_use = match cs {
         ColorSpaces::Lab => self::lab::lab,
     };
-    method_to_use(cols, th, mix)
+    method_to_use(cols, th)
 }
 
 impl ColorSpaces {
