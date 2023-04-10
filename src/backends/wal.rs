@@ -11,7 +11,7 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
         .arg("-resize")
         .arg("25%")
         .arg("-colors")
-        .arg("9")
+        .arg("16")
         .arg("-unique-colors")
         .arg("txt:-")
         .output()?;
