@@ -64,7 +64,6 @@ pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Resu
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
     for e in entries {
         let path = config.to_owned() + &e.template;
-        //println!("->'{}'", &path);
         contents.push(
             (&e.target, read_to_string(&path)
                         .with_context(|| format!("Failed to read file {}:\n", path))?
