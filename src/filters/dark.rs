@@ -6,9 +6,11 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
     // ones that already exist (until it's 16)
     let mut c = coo.clone();
     let len = c.len();
-    // This method requires at least 6 colors
+
+    // This method requires at least 6 colors, if not, generate new ones
+    //TODO generate new colors by mixing (and maybe tweak by some random number)
     if len < 6 {
-        println!("Not enought colors! Generating new colors from fetches ones...");
+        eprintln!("Not enought colors! Generating new colors from fetches ones...");
         for (i, value) in coo.iter().enumerate() {
             // generate new colors, but switch between the how (method to use)
             let val = if i % 2 == 0 {
