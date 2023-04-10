@@ -15,9 +15,6 @@ use owo_colors::AnsiColors;
 mod full;
 mod resized;
 mod wal;
-use full::*;
-use resized::*;
-use wal::*;
 
 /// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -30,9 +27,9 @@ pub enum Backend {
 
 pub fn main(f: &PathBuf, backend: &Backend) -> Result<Vec<u8>> {
     let method_to_use = match backend {
-        Backend::Full => full,
-        Backend::Resized => resized,
-        Backend::Wal => wal,
+        Backend::Full => full::full,
+        Backend::Resized => resized::resized,
+        Backend::Wal => wal::wal,
     };
     method_to_use(f)
 }
@@ -41,9 +38,9 @@ impl Backend {
     /// This assigns a colors for a backend, used when printing
     pub fn col(&self) -> AnsiColors {
         match self {
-            Backend::Full => AnsiColors::Blue,
-            Backend::Resized => AnsiColors::Cyan,
-            Backend::Wal => AnsiColors::Red,
+            Self::Full => AnsiColors::Blue,
+            Self::Resized => AnsiColors::Cyan,
+            Self::Wal => AnsiColors::Red,
         }
     }
 }

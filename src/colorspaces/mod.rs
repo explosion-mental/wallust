@@ -6,7 +6,6 @@ use serde::*;
 use owo_colors::AnsiColors;
 
 mod lab;
-use self::lab::*;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -16,7 +15,7 @@ pub enum ColorSpaces {
 
 pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces, mix: bool) -> Vec<Myrgb> {
     let method_to_use = match cs {
-        ColorSpaces::Lab => lab,
+        ColorSpaces::Lab => self::lab::lab,
     };
     method_to_use(cols, th, mix)
 }

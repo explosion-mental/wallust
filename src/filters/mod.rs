@@ -6,9 +6,7 @@ use serde::*;
 
 use crate::{Colors, Myrgb};
 
-
 mod dark;
-use dark::*;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -18,7 +16,7 @@ pub enum Filters {
 
 pub fn main(histo: Vec<Myrgb>, filter: &Filters) -> Colors {
     let method_to_use = match filter {
-        Filters::Dark => dark,
+        Filters::Dark => dark::dark,
     };
     method_to_use(histo)
 }
