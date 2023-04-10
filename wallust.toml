@@ -22,6 +22,9 @@ color_space = "lab"
 #  100        Colors are exact opposite
 threshold = 11
 
+# if colors are similar enough, determined by the threshold, mix them
+mix_colors = true
+
 # An entry is just a config file you wish to apply `wallust` generated colors
 [[entry]]
 # a relative path to a file where wallust.toml is (~/.config/wallust/)

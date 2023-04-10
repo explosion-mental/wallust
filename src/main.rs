@@ -62,7 +62,7 @@ fn gen_colors(file: &PathBuf, c: &Config) -> Result<Colors> {
 
     // get the top 8 most used colors, ordered from the lightess to the darkess. Different color
     // spaces could be used here.
-    let histo = colorspaces::main(&rgbas, c.threshold, &c.color_space);
+    let histo = colorspaces::main(&rgbas, c.threshold, &c.color_space, c.mix_colors);
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
     let colors = filters::main(histo, &c.filter);
