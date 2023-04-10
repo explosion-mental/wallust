@@ -8,7 +8,6 @@ use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
 
 use crate::Colors;
-use crate::backends::Backend;
 
 use serde::*;
 use anyhow::{Result, Context};
@@ -26,8 +25,9 @@ pub struct Cache {
 
 impl Cache {
     /// init cache
-    pub fn new(filename: PathBuf, backend: Backend, threshold: u32) -> Result<Self> {
-        let cachepath = format!("{}/{backend}/{threshold}", shellexpand::tilde("~/.cache/wallust"));
+    pub fn new(filename: PathBuf, c: &crate::Config) -> Result<Self> {
+        let mixing = if c.mix_colors { "mixed" } else { "default" };
+        let cachepath = format!("{}/{}/{}/{}", shellexpand::tilde("~/.cache/wallust"), c.backend, c.threshold, mixing);
 
         let md = fs::metadata(&filename)?;
         // if these metadata are not avaliable, then we can't cache

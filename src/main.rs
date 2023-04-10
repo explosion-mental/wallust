@@ -35,10 +35,9 @@ fn main() -> Result<()> {
 
     //workaround around ref and lifetimes
     let p = cli.file.to_owned();
-    let bend = conf.backend;
 
     // Whether to load data from cache or to generate from scratch
-    let cached_data = cache::Cache::new(p, bend, conf.threshold)?;
+    let cached_data = cache::Cache::new(p, &conf)?;
     let colors = if cached_data.is_cached() { cached_data.read()? } else { gen_colors(&cli.file, &conf)? };
 
     // Cache colors
