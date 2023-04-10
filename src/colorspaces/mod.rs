@@ -3,7 +3,7 @@ use std::fmt;
 
 use crate::colors::Myrgb;
 
-use serde::*;
+use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
 mod lab;

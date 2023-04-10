@@ -1,17 +1,17 @@
 //! Cache functions, serde + serde_json
-use std::path::PathBuf;
-use std::path::Path;
-use std::io::Write;
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::MetadataExt;
+use std::io::Write;
 use std::time::SystemTime;
+use std::path::PathBuf;
+use std::path::Path;
 
 use crate::colors::Colors;
 use crate::config::Config;
 
-use serde::*;
 use anyhow::{Result, Context};
+use serde::{Serialize, Deserialize};
 
 /// Used to manage cache, rather than passing arguments in main() a lot
 #[derive(Serialize, Deserialize)]

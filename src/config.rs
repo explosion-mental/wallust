@@ -1,16 +1,15 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
-use serde::*;
 use std::path::Path;
 use std::fs::read_to_string;
-use std::io::prelude::*;
 use std::fs::File;
+use std::io::Write;
 
 use crate::colors::Colors;
 
-use tinytemplate::TinyTemplate;
-use anyhow::Result;
-use anyhow::Context;
+use anyhow::{Result, Context};
 use owo_colors::AnsiColors;
+use tinytemplate::TinyTemplate;
+use serde::{Serialize, Deserialize};
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]

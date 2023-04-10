@@ -13,7 +13,7 @@
 use std::fmt;
 
 use lab::Lab;
-use owo_colors::*;
+use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
 /// Generic type used for TinyTemplate and to store the actual colors.

@@ -2,7 +2,7 @@
 use std::fmt;
 
 use owo_colors::AnsiColors;
-use serde::*;
+use serde::{Serialize, Deserialize};
 
 use crate::colors::{Colors, Myrgb};
 
