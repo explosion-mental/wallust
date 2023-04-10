@@ -27,11 +27,8 @@ fn main() -> Result<()> {
         );
     }
 
-    //workaround around ref and lifetimes
-    let p = cli.file.to_owned();
-
     // Whether to load data from cache or to generate from scratch
-    let cached_data = cache::Cache::new(p, &conf)?;
+    let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
     let colors = if cached_data.is_cached() {
         if ! cli.quiet { println!("- Using cache, found at '{}'", cached_data.path); }
         cached_data.read()?
