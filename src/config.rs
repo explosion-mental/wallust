@@ -52,7 +52,7 @@ impl Config {
 }
 
 /// Writes `template`s into `target`s
-pub fn write_template(entries: &[Entries], values: &Colors) -> Result<()>{
+pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 
@@ -76,15 +76,17 @@ pub fn write_template(entries: &[Entries], values: &Colors) -> Result<()>{
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
-    for (path, stuff) in &contents {
-        tt.add_template("colors", stuff)?;
+    for (target, file_content) in &contents {
+        tt.add_template("colors", file_content)?;
         let rendered = tt.render("colors", &context)?;
+
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let mut buffer = File::create(shellexpand::tilde(path).as_ref())
-            .with_context(|| format!("Failed to create file {}:\n", path))?;
+        let mut buffer = File::create(shellexpand::tilde(target).as_ref())
+            .with_context(|| format!("Failed to create file {}:\n", target))?;
+
         buffer.write_all(rendered.as_bytes())
-            .with_context(|| format!("Failed to write to file {}:\n", path))?;
-        //println!("FROM: '{path}' --- '{}'", rendered);
+            .with_context(|| format!("Failed to write to file {}:\n", target))?;
+        if ! quiet { println!("    * {} ... OK", target); }
     }
     Ok(())
 }

@@ -50,7 +50,7 @@ fn main() -> Result<()> {
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
         if ! cli.quiet { println!(" > Writing templates.."); }
-        config::write_template(&s, &colors)?
+        config::write_template(&s, &colors, cli.quiet)?
     }
 
     if ! cli.quiet { colors.done(); }
