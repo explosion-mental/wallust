@@ -60,7 +60,7 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32) -> Vec<Myrgb> {
 
     // sort by lightness, like pywal
     // TODO read morea about partial_cmp and float arithmetic
-    histo.sort_by(|a, b| b.color.l.partial_cmp(&a.color.l).unwrap());
+    histo.sort_by(|a, b| a.color.l.partial_cmp(&b.color.l).unwrap());
 
     let c: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
 
