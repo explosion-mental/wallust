@@ -1,3 +1,10 @@
+//! #About LAB
+//! > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
+//! > The a* axis is relative to the green-red opponent colors, with negative values toward green
+//! > and positive > values toward red.
+//! > The b* axis represents the blue-yellow opponents, with negative numbers toward
+//! > blue and positive toward yellow.
+//! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
@@ -47,6 +54,14 @@ impl Histo {
         //self.color.b = (self.color.b + new.b).round()  / 2.0;
     }
 }
+
+impl From<Lab> for Myrgb {
+    fn from(lab: Lab) -> Self {
+        let a = lab.to_rgb();
+        Self(a[0], a[1], a[2])
+    }
+}
+
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]

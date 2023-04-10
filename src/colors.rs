@@ -1,23 +1,13 @@
 //! # Colors logic
-//! Since most libraries offer conversion to hex (as `#EEEEEE`), the struct will contain rgb values
-//! * TODO force 16 colors. maybe use `--theme`s, like `wal`, as backup colors
-//! Module about the [`Colors`] struct type, how to construct it and uses for it
-//! * TODO generate background and foreground colors, in relation to black and white
-//! #About LAB
-//! > The lightness value, L*, also referred to as "Lstar," defines black at 0 and white at 100.
-//! > The a* axis is relative to the green-red opponent colors, with negative values toward green
-//! > and positive > values toward red.
-//! > The b* axis represents the blue-yellow opponents, with negative numbers toward
-//! > blue and positive toward yellow.
-//! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
+//! Here [`Colors`] and [`Myrgb`] types are defined. These are simple enough used by backends,
+//! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
+//! the base has more structure (also because it's only 16 colors).
 use std::fmt;
 
-use lab::Lab;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
-/// Generic type used for TinyTemplate and to store the actual colors.
-/// Colors are ordered by the most used to the least used.
+/// This is how the scheme it's organized
 #[derive(Serialize, Deserialize)]
 pub struct Colors {
     pub background: Myrgb,
@@ -44,7 +34,7 @@ pub struct Colors {
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Myrgb(pub u8, pub u8, pub u8);
 
-/// Display the hex color when displaying Lab
+/// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
 impl fmt::Display for Myrgb {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "#{:02X}{:02X}{:02X}", self.0, self.1, self.2)
@@ -77,7 +67,7 @@ impl Myrgb {
     }
 }
 
-/// print colors as `var.print()`
+/// print the scheme
 impl Colors {
     pub fn print(&self) {
         print!(
@@ -109,11 +99,3 @@ foreground: {}
     );
     }
 }
-
-impl From<Lab> for Myrgb {
-    fn from(lab: Lab) -> Self {
-        let a = lab.to_rgb();
-        Self(a[0], a[1], a[2])
-    }
-}
-
