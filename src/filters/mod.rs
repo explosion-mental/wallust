@@ -1,4 +1,8 @@
-//! Filters
+//! # Filters
+//! A filter is just a way to fill the [`Colors`] struct. A method to generate a scheme that makes
+//! the most prominent colors make sense as a scheme/palette. You _should_ get 16 colors returned
+//! by [`ColorSpaces`], but the scenario in which an image has less than those colors is possible
+//! so it is needed to handle that event, in case you need some amount of colors.
 use std::fmt;
 
 use owo_colors::AnsiColors;

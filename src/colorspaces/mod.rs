@@ -1,4 +1,7 @@
-//! Filters
+//! # Colorspaces
+//! This is just an interface to get the most (16) prominent colors, from darkest to lightest, as
+//! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
+//! so this deserved it's own module.
 use std::fmt;
 
 use crate::colors::Myrgb;

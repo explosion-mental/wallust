@@ -1,9 +1,7 @@
-//! Backends
-//! A backend is like a filter
-//! * There are multiple methods in which you can get the most relevant colors from an image; rather
-//!   than hardcoding, give options
-//! * TODO add Oklab method
-//! On this file are usual helper functions
+//! # Backends
+//! A backend is the **how** to read the image, and get rgb, as a `Vec<u8>`, from that image. This
+//! is, all the colors present in the raw image file (so then it's used to find the most prominent
+//! colors).
 use std::path::PathBuf;
 use std::fmt;
 
