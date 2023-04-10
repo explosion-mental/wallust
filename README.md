@@ -45,10 +45,7 @@ pkgin install wallust
 ```
 
 ## TODO
-- config/cli flag that allows to set the colors as variables in shell, like pywal `$color1` ...
-- config/cli flag that allows to set the colors as Xresources values
-- make `Colors` type not rely on lab color space, so the backends can include
-  other color spaces like hsl/hsv or Oklab
+- terminal color sequences
 - think about releasing binaries with CI
 
 [^sources]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
