@@ -2,46 +2,9 @@ use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
-pub fn lab(cols: &[u8], th: u32, mix: bool) -> Vec<Myrgb> {
+pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
     let labs = rgb_bytes_to_labs(cols);
 
-    gen_histogram(labs, th, mix)
-
-}
-
-/// Simple Histogram
-/// TODO think about a better generic way of storing (ColorSpace, count)
-pub struct Histo {
-    /// LAB colors - TODO allow other colorspaces
-    pub color: ::lab::Lab,
-    /// number of times it has appeared
-    pub count: usize,
-}
-
-impl Histo {
-    /// Mix similar Lab colors, to catch most similars ones.
-    pub fn mix(&mut self, new: Lab) {
-        self.color.l = (self.color.l + new.l)  / 2.0;
-        //self.color.a = (self.color.a + new.a).round()  / 2.0;
-        //self.color.b = (self.color.b + new.b).round()  / 2.0;
-    }
-}
-
-/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
-/// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool) -> bool {
-    for e in histogram {
-        // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < threshold {
-            if mix { e.mix(color); }
-            e.count += 1;
-            return true;
-        }
-    }
-    false
-}
-
-fn gen_histogram(labs: Vec<Lab>, threshold: u32, mix: bool) -> Vec<Myrgb> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
@@ -67,6 +30,37 @@ fn gen_histogram(labs: Vec<Lab>, threshold: u32, mix: bool) -> Vec<Myrgb> {
     c
 }
 
+/// Simple Histogram
+/// TODO think about a better generic way of storing (ColorSpace, count)
+struct Histo {
+    /// LAB colors - TODO allow other colorspaces
+    color: ::lab::Lab,
+    /// number of times it has appeared
+    count: usize,
+}
+
+impl Histo {
+    /// Mix similar Lab colors, to catch most similars ones.
+    fn mix(&mut self, new: Lab) {
+        self.color.l = (self.color.l + new.l)  / 2.0;
+        //self.color.a = (self.color.a + new.a).round()  / 2.0;
+        //self.color.b = (self.color.b + new.b).round()  / 2.0;
+    }
+}
+
+/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
+/// colors are similar enough, using the [`Config.threshold`]
+fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool) -> bool {
+    for e in histogram {
+        // if any lab value is between a threshold, count it up
+        if delta_e(color, e.color) < threshold {
+            if mix { e.mix(color); }
+            e.count += 1;
+            return true;
+        }
+    }
+    false
+}
 
 /// Returns how much the colors differ
 ///
