@@ -26,8 +26,8 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
         let Some(_) = s.next() else {
             anyhow::bail!("convert failed giving colors");
         };
-        let c = s.next().unwrap().replace(&['(', ')'], "");
-        let mut split = c.split(",");
+        let c = s.next().unwrap().replace(['(', ')'], "");
+        let mut split = c.split(',');
         let r = split.next().unwrap().parse::<u8>()?;
         let g = split.next().unwrap().parse::<u8>()?;
         let b = split.next().unwrap().parse::<u8>()?;
