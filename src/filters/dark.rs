@@ -6,7 +6,7 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
     // ones that already exist (until it's 16)
     let mut c = coo.clone();
     let len = c.len();
-    if len < 8 {
+    if len < 6 {
         println!("Not enought colors! Generating new colors from fetches ones...");
         for (i, value) in coo.iter().enumerate() {
             // generate new colors, but switch between the how (method to use)
@@ -22,21 +22,29 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
     Colors {
         background : c[0].darken(0.7),
         foreground : c[0].lighten(0.7),
-        color0 : c[0],
-        color1 : c[1],
-        color2 : c[2],
-        color3 : c[3],
-        color4 : c[4],
-        color5 : c[5],
-        color6 : c[6],
-        color7 : c[7],
-        color8 : c[0],
-        color9 : c[1],
-        color10: c[2],
-        color11: c[3],
-        color12: c[4],
-        color13: c[5],
-        color14: c[6],
-        color15: c[7],
+
+        // * First row *
+        color0 : c[0].darken(0.8), // background
+
+        color1 : c[0],
+        color2 : c[1],
+        color3 : c[2],
+        color4 : c[3],
+        color5 : c[4],
+        color6 : c[5],
+
+        color7 : c[5].lighten(0.8),
+
+        // * Second row *
+        color8 : c[0].darken(0.65), //bold background
+
+        color9 : c[0],
+        color10: c[1],
+        color11: c[2],
+        color12: c[3],
+        color13: c[4],
+        color14: c[5],
+
+        color15: c[5].lighten(0.65),
     }
 }

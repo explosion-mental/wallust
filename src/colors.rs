@@ -42,7 +42,7 @@ pub struct Colors {
 
 /// Type that every backend should return
 #[derive(Copy, Clone, Serialize, Deserialize)]
-pub struct Myrgb(u8, u8, u8);
+pub struct Myrgb(pub u8, pub u8, pub u8);
 
 /// Display the hex color when displaying Lab
 impl fmt::Display for Myrgb {
