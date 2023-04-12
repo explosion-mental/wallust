@@ -1,4 +1,4 @@
-# global space #
+# -- global space -- #
 
 # How to parse the image:
 # * full - reads the whole image (more precision)
@@ -6,15 +6,11 @@
 # * wal - uses image magick `convert` to read the image
 backend = "full"
 
-# How would the palette created be.
-# * dark - dark colors
-filter = "dark"
-
-# What color space to use to differentiate and select the scheme.
+# What color space to use to produce and select the most prominent colors:
 # * lab - use CIEL*a*b color space
 color_space = "lab"
 
-# Difference between similar colors:
+# Difference between similar colors, used by the colorspace:
 #  <= 1       Not perceptible by human eyes.
 #  1 - 2      Perceptible through close observation.
 #  2 - 10     Perceptible at a glance.
@@ -22,7 +18,11 @@ color_space = "lab"
 #  100        Colors are exact opposite
 threshold = 11
 
-# An entry is just a config file you wish to apply `wallust` generated colors
+# Use the most prominent colors in a way that makes sense, a scheme:
+# * dark - 8 dark colors, color0 darkest - color7 lightest
+filter = "dark"
+
+# -- entries are just a config file you wish to apply `wallust` generated colors to -- #
 [[entry]]
 # a relative path to a file where wallust.toml is (~/.config/wallust/)
 template = "dunstrc"
