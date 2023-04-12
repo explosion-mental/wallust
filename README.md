@@ -6,7 +6,7 @@
 [![CodeBerg](https://img.shields.io/badge/Hosted_at-Codeberg-%232185D0?style=flat-square&logo=CodeBerg)](https://codeberg.org/explosion-mental/wallust)
 <br>
 
-![gif](https://explosion-mental.codeberg.page/img/other/wallust.gif "wallust gif")
+![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
 > sources[^sources]
 
 ## Features
