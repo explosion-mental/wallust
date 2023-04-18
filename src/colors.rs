@@ -131,7 +131,8 @@ impl Colors {
         );
     }
 
-    pub fn sequences(&self/*, seq_path: &str*/) -> anyhow::Result<()> {
+    pub fn sequences(&self) -> anyhow::Result<()> {
+        let seq_file = shellexpand::tilde("~/.cache/wallust/sequences");
         let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
 \x1B]4;1;{col1}\x1B\\\
@@ -192,8 +193,8 @@ impl Colors {
             };
         }
 
-        //File::create(seq_file)?
-        //    .write_all(&sequences.as_bytes())?;
+        File::create(seq_file.as_ref())?
+            .write_all(&sequences.as_bytes())?;
 
         Ok(())
     }
