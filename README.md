@@ -7,7 +7,7 @@
 <br>
 
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
-> sources[^1]
+> sources: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
 
 **It is reccomended to clean the cache in a new major and minor release**
 
@@ -87,4 +87,3 @@ pkgin install wallust
 ## TODO
 - **release binaries** - figure out woodkeeper codeberg CI
 
-[^1]: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
