@@ -11,12 +11,21 @@
 
 ## Features
 - Sets terminal colors sequences on all active terminals
-- Config file at `~/.config/wallust/wallust.toml`
+- Config file at `~/.config/wallust/wallust.toml`:
 	* templating integrated in a config file
 	* backends, colorspaces and filters
 	* configurable threshold
-- cache scheme palette at `~/.cache/wallust`
+- Cache scheme palette at `~/.cache/wallust`
 
+### Terminal color sequences
+By default, `wallust` will send these sequences to all open terminals
+(/dev/pts/). You can skip this with the `-s` or `--skip-sequences` flag.
+
+When opening new terminals you will notice that the color sequences are not
+applied. To solve this you can send the sequences yourself when your shell
+opens. `wallust` will store the sequences in `~/.cache/wallust/sequences`, so
+the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
+`.bashrc`, etc.
 
 ### Templating & Config File
 You can use `wallust` generated colors in your program by __template__ing them
@@ -74,6 +83,6 @@ pkgin install wallust
 ```
 
 ## TODO
-- think about releasing binaries with CI
+- **release binaries** - figure out woodkeeper codeberg CI
 
 [^1]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
