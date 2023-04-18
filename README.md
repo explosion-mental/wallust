@@ -9,6 +9,8 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
 > sources[^1]
 
+**It is reccomended to clean the cache in a new major and minor release**
+
 ## Features
 - Sets terminal colors sequences on all active terminals
 - Config file at `~/.config/wallust/wallust.toml`:
