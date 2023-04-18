@@ -53,9 +53,12 @@ fn main() -> Result<()> {
         config::write_template(&s, &colors, cli.quiet)?
     }
 
-    if ! cli.quiet { colors.done(); }
+    if ! cli.skip_sequences {
+        if ! cli.quiet { println!(" > Setting terminal sequences.."); }
+        colors.sequences()?;
+    }
 
-    colors.sequences()?;
+    if ! cli.quiet { colors.done(); }
 
     Ok(())
 }

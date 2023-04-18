@@ -13,4 +13,8 @@ pub struct Cli {
     /// Don't print anything
     #[arg(short, long)]
     pub quiet: bool,
+
+    /// Skip setting terminal sequences
+    #[arg(short, long)]
+    pub skip_sequences: bool
 }
