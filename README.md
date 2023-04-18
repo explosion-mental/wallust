@@ -9,7 +9,7 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
 > sources: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
 
-**It is reccomended to clean the cache in a new major and minor release**
+**It is reccomended to clean the cache in a new major and minor release** _but is not required_
 
 ## Features
 - Sets terminal colors sequences on all active terminals
@@ -30,7 +30,7 @@ the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
 `.bashrc`, etc.
 
 ### Templating & Config File
-You can use `wallust` generated colors in your program by __template__ing them
+You can use `wallust` generated colors in your program by _template_ing them
 in it's config file. Below an example:
 ```
 # zathurarc config file
