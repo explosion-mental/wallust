@@ -31,7 +31,7 @@ the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
 
 ### Templating & Config File
 You can use `wallust` generated colors in a program by _templating_ the colors
-in it's config file. Below an example:
+in it's config file, like the following example:
 ```
 # zathurarc config file
 
@@ -45,17 +45,17 @@ set statusbar-bg   "{color4}"
 set statusbar-fg   "{color6}"
 set inputbar-bg    "{color1}"
 ```
-Then add this file to `~/.config/wallust/` (e.g.
-__~/.config/wallust/zathurarc__) and add a new entry to `wallust.toml`
+Then add this file to `~/.config/wallust/` (e.g. _~/.config/wallust/zathurarc_)
+and add a new entry to `wallust.toml`
 ```toml
 [[entry]]
 template = "zathurarc"
 target = "~/.config/zathura/zathurarc"
 ```
 
-**NOTE:** The template name doesn't have to match the target name, e.g. the
+**NOTE:** The template name doesn't have to match the target name: e.g. the
 file could be named `sample.conf`, and thus the entry would have `template =
-"sample.conf"`, but the target can remain the same.
+"sample.conf"`, but the target can remain the same, e.g. `target = "~/.config/zathurarc"`.
 
 ## Usage
 ```
