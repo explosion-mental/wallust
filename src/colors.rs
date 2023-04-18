@@ -131,6 +131,11 @@ impl Colors {
         );
     }
 
+    /// Sets terminal color sequences, from pywal
+    /// ## Special colors.
+    /// Source: https://goo.gl/KcoQgP
+    /// 10 = foreground, 11 = background, 12 = cursor foreground
+    /// 13 = mouse foreground, 708 = background border color.
     pub fn sequences(&self) -> anyhow::Result<()> {
         let seq_file = shellexpand::tilde("~/.cache/wallust/sequences");
         let sequences = format!(
@@ -152,7 +157,7 @@ impl Colors {
 \x1B]4;15;{col15}\x1B\\\
 \x1B]10;{fg}\x1B\\\
 \x1B]11;{bg}\x1B\\\
-\x1B]12;{fg}\x1B\\\
+\x1B]12;{cursor}\x1B\\\
 \x1B]13;{fg}\x1B\\\
 \x1B]17;{fg}\x1B\\\
 \x1B]19;{bg}\x1B\\\
@@ -162,6 +167,7 @@ impl Colors {
 ",
         bg = self.background,
         fg = self.foreground,
+        cursor = self.foreground,
         col0  = self.color0,
         col1  = self.color1,
         col2  = self.color2,
