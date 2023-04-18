@@ -87,4 +87,4 @@ pkgin install wallust
 ## TODO
 - **release binaries** - figure out woodkeeper codeberg CI
 
-[^1]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
+[^1]: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
