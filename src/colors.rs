@@ -3,6 +3,8 @@
 //! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
 //! the base has more structure (also because it's only 16 colors).
 use std::fmt;
+use std::fs::File;
+use std::io::Write;
 
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
@@ -118,5 +120,72 @@ impl Colors {
         "E ".color(self.color9 .col()).bold().blink(),
         "! ".color(self.color8 .col()).bold().blink(),
         );
+    }
+
+    pub fn sequences(&self/*, seq_path: &str*/) -> anyhow::Result<()> {
+        let sequences = format!(
+"\x1B]4;0;{col0}\x1B\\\
+\x1B]4;1;{col1}\x1B\\\
+\x1B]4;2;{col2}\x1B\\\
+\x1B]4;3;{col3}\x1B\\\
+\x1B]4;4;{col4}\x1B\\\
+\x1B]4;5;{col5}\x1B\\\
+\x1B]4;6;{col6}\x1B\\\
+\x1B]4;7;{col7}\x1B\\\
+\x1B]4;8;{col8}\x1B\\\
+\x1B]4;9;{col9}\x1B\\\
+\x1B]4;10;{col10}\x1B\\\
+\x1B]4;11;{col11}\x1B\\\
+\x1B]4;12;{col12}\x1B\\\
+\x1B]4;13;{col13}\x1B\\\
+\x1B]4;14;{col14}\x1B\\\
+\x1B]4;15;{col15}\x1B\\\
+\x1B]10;{fg}\x1B\\\
+\x1B]11;{bg}\x1B\\\
+\x1B]12;{fg}\x1B\\\
+\x1B]13;{fg}\x1B\\\
+\x1B]17;{fg}\x1B\\\
+\x1B]19;{bg}\x1B\\\
+\x1B]4;232;{bg}\x1B\\\
+\x1B]4;256;{fg}\x1B\\\
+\x1B]4;257;{bg}\x1B\\\
+",
+        bg = self.background,
+        fg = self.foreground,
+        col0  = self.color0,
+        col1  = self.color1,
+        col2  = self.color2,
+        col3  = self.color3,
+        col4  = self.color4,
+        col5  = self.color5,
+        col6  = self.color6,
+        col7  = self.color7,
+        col8  = self.color8,
+        col9  = self.color9,
+        col10 = self.color10,
+        col11 = self.color11,
+        col12 = self.color12,
+        col13 = self.color13,
+        col14 = self.color14,
+        col15 = self.color15,
+        );
+
+
+        for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
+            match entry {
+                Ok(path) => {
+                    File::create(&path)?
+                        .write_all(&sequences.as_bytes())?;
+                    },
+                Err(e) => {
+                    anyhow::bail!("Error while sending sequences to terminals:\n{e}")
+                },
+            };
+        }
+
+        //File::create(seq_file)?
+        //    .write_all(&sequences.as_bytes())?;
+
+        Ok(())
     }
 }

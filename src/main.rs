@@ -55,6 +55,8 @@ fn main() -> Result<()> {
 
     if ! cli.quiet { colors.done(); }
 
+    colors.sequences()?;
+
     Ok(())
 }
 
