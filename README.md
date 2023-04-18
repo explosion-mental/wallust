@@ -7,9 +7,10 @@
 <br>
 
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
-> sources[^sources]
+> sources[^1]
 
 ## Features
+- Sets terminal colors sequences on all active terminals
 - Config file at `~/.config/wallust/wallust.toml`
 	* templating integrated in a config file
 	* backends, colorspaces and filters
@@ -73,7 +74,6 @@ pkgin install wallust
 ```
 
 ## TODO
-- terminal color sequences
 - think about releasing binaries with CI
 
-[^sources]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
+[^1]: <https://stallman.org/photos/rms/pages/2.html> - <https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp> - <https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg>
