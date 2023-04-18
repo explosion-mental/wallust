@@ -30,7 +30,7 @@ the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
 `.bashrc`, etc.
 
 ### Templating & Config File
-You can use `wallust` generated colors in your program by _template_ing them
+You can use `wallust` generated colors in your program by _template_ ing them
 in it's config file. Below an example:
 ```
 # zathurarc config file
