@@ -131,7 +131,8 @@ impl Colors {
         );
     }
 
-    /// Sets terminal color sequences, from pywal
+    /// Sets terminal color sequences
+    /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
     /// ## Special colors.
     /// Source: https://goo.gl/KcoQgP
     /// 10 = foreground, 11 = background, 12 = cursor foreground
