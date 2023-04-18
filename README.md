@@ -86,4 +86,5 @@ pkgin install wallust
 
 ## TODO
 - **release binaries** - figure out woodkeeper codeberg CI
+for more, grep the src for TODO `rg TODO`
 
