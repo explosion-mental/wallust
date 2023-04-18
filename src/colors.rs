@@ -67,6 +67,15 @@ impl Myrgb {
             (f32::from(self.2) + f32::from(255 - self.2) * amount) as u8,
         )
     }
+
+    pub fn blend(&self, other: Self) -> Self {
+        Self(
+            (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
+            (0.5 * f32::from(self.1) + 0.5 * f32::from(other.1)) as u8,
+            (0.5 * f32::from(self.2) + 0.5 * f32::from(other.2)) as u8,
+
+        )
+    }
 }
 
 /// print the scheme
