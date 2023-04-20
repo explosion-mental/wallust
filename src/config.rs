@@ -3,13 +3,14 @@ use std::path::Path;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
+use std::collections::HashMap;
 
 use crate::colors::Colors;
 
 use anyhow::{Result, Context};
 use owo_colors::AnsiColors;
-use tinytemplate::TinyTemplate;
-use serde::{Serialize, Deserialize};
+use new_string_template::template::Template;
+use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
@@ -56,8 +57,6 @@ pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Resu
     let config = shellexpand::tilde("~/.config/wallust/");
     let config = config.as_ref();
 
-    let context: ColorsTemplate = values.into();
-
     // contents of config files
     let mut contents = vec![];
 
@@ -71,13 +70,11 @@ pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Resu
         );
     }
 
-    let mut tt = TinyTemplate::new();
-
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for (target, file_content) in &contents {
-        tt.add_template("colors", file_content)?;
-        let rendered = tt.render("colors", &context)?;
+        let rendered = Template::new(file_content).render(&values.to_hash())
+            .with_context(|| format!("Templating failed with {}:\n", target))?;
 
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let mut buffer = File::create(shellexpand::tilde(target).as_ref())
@@ -104,53 +101,27 @@ impl Config {
     }
 }
 
-/// Simply a copy of [`Colors`]
-/// (to avoid working with generics, since there is no need to complicate this)
-#[derive(Serialize, Deserialize)]
-struct ColorsTemplate {
-    background: String,
-    foreground: String,
-    color0 : String,
-    color1 : String,
-    color2 : String,
-    color3 : String,
-    color4 : String,
-    color5 : String,
-    color6 : String,
-    color7 : String,
-    color8 : String,
-    color9 : String,
-    color10: String,
-    color11: String,
-    color12: String,
-    color13: String,
-    color14: String,
-    color15: String,
-}
-
-/// From implementation trait for the [`Colors`] with [`Myrgb`] type to a String for TinyTemplate
-/// to use
-impl From<&Colors> for ColorsTemplate {
-    fn from(c: &Colors) -> Self {
-        Self {
-            background : c.background.to_string(),
-            foreground : c.foreground.to_string(),
-            color0  : c.color0.to_string(),
-            color1  : c.color1.to_string(),
-            color2  : c.color2.to_string(),
-            color3  : c.color3.to_string(),
-            color4  : c.color4.to_string(),
-            color5  : c.color5.to_string(),
-            color6  : c.color6.to_string(),
-            color7  : c.color7.to_string(),
-            color8  : c.color8.to_string(),
-            color9  : c.color9.to_string(),
-            color10 : c.color10.to_string(),
-            color11 : c.color11.to_string(),
-            color12 : c.color12.to_string(),
-            color13 : c.color13.to_string(),
-            color14 : c.color14.to_string(),
-            color15 : c.color15.to_string(),
-        }
+impl Colors {
+    pub fn to_hash(&self) -> HashMap<&str, String> {
+        let mut map = HashMap::new();
+        map.insert("color0" , self.color0 .to_string());
+        map.insert("color1" , self.color1 .to_string());
+        map.insert("color2" , self.color2 .to_string());
+        map.insert("color3" , self.color3 .to_string());
+        map.insert("color4" , self.color4 .to_string());
+        map.insert("color5" , self.color5 .to_string());
+        map.insert("color6" , self.color6 .to_string());
+        map.insert("color7" , self.color7 .to_string());
+        map.insert("color8" , self.color8 .to_string());
+        map.insert("color9" , self.color9 .to_string());
+        map.insert("color10", self.color10.to_string());
+        map.insert("color11", self.color11.to_string());
+        map.insert("color12", self.color12.to_string());
+        map.insert("color13", self.color13.to_string());
+        map.insert("color14", self.color14.to_string());
+        map.insert("color15", self.color15.to_string());
+        map.insert("foreground", self.foreground.to_string());
+        map.insert("background", self.background.to_string());
+        map
     }
 }
