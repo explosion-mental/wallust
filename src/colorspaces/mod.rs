@@ -2,7 +2,6 @@
 //! This is just an interface to get the most (16) prominent colors, from darkest to lightest, as
 //! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
 //! so this deserved it's own module.
-//! * TODO avoid giving black, very black, colors given that the filter module already darkens it.
 use std::fmt;
 
 use crate::colors::Myrgb;
