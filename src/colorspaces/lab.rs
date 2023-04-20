@@ -22,6 +22,9 @@ pub fn lab(cols: &[u8], threshold: u32) -> Vec<Myrgb> {
             histo.push(Histo { color: lab, count: 1 });
         }
     }
+    //TODO mix colors if they are more than 16, but if the new histogram is smaller than 16 just
+    //use the original one.
+    //if labs.len() > 16
 
     // sort vec by count
     histo.sort_by(|a, b| b.count.cmp(&a.count));
@@ -49,6 +52,8 @@ struct Histo {
 
 impl Histo {
     /// Mix similar Lab colors, to catch most similars ones.
+    /// THIS REDUCES COLOR QUANTITY
+    #[allow(dead_code)]
     fn mix(&mut self, new: Lab) {
         self.color.l = (self.color.l + new.l)  / 2.0;
         //self.color.a = (self.color.a + new.a).round()  / 2.0;
@@ -70,7 +75,8 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold {
-            e.mix(color);
+            //TODO
+            //e.mix(color);
             e.count += 1;
             return true;
         }
