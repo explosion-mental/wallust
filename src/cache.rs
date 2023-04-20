@@ -67,7 +67,7 @@ impl Cache {
         Ok(File::create(&self.path)?
             .write_all(
                 serde_json::to_string(colors)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}'\n", &self.path))?
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self.path))?
                 .as_bytes()
             )?)
     }

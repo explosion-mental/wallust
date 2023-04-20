@@ -47,8 +47,8 @@ impl Config {
 
         toml::from_str(
             &read_to_string(config)
-                .with_context(|| format!("Failed to read file {}:\n", config))?
-        ).with_context(|| format!("Failed to deserialize config file {}:\n", config))
+                .with_context(|| format!("Failed to read file {}:", config))?
+        ).with_context(|| format!("Failed to deserialize config file {}:", config))
     }
 }
 
@@ -65,7 +65,7 @@ pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Resu
         let path = config.to_owned() + &e.template;
         contents.push(
             (&e.target, read_to_string(&path)
-                        .with_context(|| format!("Failed to read file {}:\n", path))?
+                        .with_context(|| format!("Failed to read file {}:", path))?
              )
         );
     }
@@ -74,14 +74,14 @@ pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Resu
     // template and write the templated(?) file to entry.path
     for (target, file_content) in &contents {
         let rendered = Template::new(file_content).render(&values.to_hash())
-            .with_context(|| format!("Templating failed with {}:\n", target))?;
+            .with_context(|| format!("Templating failed with {}:", target))?;
 
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let mut buffer = File::create(shellexpand::tilde(target).as_ref())
-            .with_context(|| format!("Failed to create file {}:\n", target))?;
+            .with_context(|| format!("Failed to create file {}:", target))?;
 
         buffer.write_all(rendered.as_bytes())
-            .with_context(|| format!("Failed to write to file {}:\n", target))?;
+            .with_context(|| format!("Failed to write to file {}:", target))?;
         if ! quiet { println!("    * {} ... OK", target); }
     }
     Ok(())
