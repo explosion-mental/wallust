@@ -41,10 +41,10 @@ fn main() -> Result<()> {
         colors.print();
     }
 
-    // Cache colors
-    if ! cached_data.is_cached() {
-        if ! cli.quiet { println!(" > Saving scheme to cache.."); }
-        cached_data.write(&colors)?;
+    // Set sequences
+    if ! cli.skip_sequences {
+        if ! cli.quiet { println!(" > Setting terminal sequences.."); }
+        colors.sequences()?;
     }
 
     // write entries `[[entry]]` of the config file (if any)
@@ -53,9 +53,10 @@ fn main() -> Result<()> {
         config::write_template(&s, &colors, cli.quiet)?
     }
 
-    if ! cli.skip_sequences {
-        if ! cli.quiet { println!(" > Setting terminal sequences.."); }
-        colors.sequences()?;
+    // Cache colors
+    if ! cached_data.is_cached() {
+        if ! cli.quiet { println!(" > Saving scheme to cache.."); }
+        cached_data.write(&colors)?;
     }
 
     if ! cli.quiet { colors.done(); }
