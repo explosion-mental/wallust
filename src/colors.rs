@@ -68,6 +68,7 @@ impl Myrgb {
         )
     }
 
+    //mix with other [`Myrgb`]
     pub fn blend(&self, other: Self) -> Self {
         Self(
             (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
@@ -186,7 +187,6 @@ impl Colors {
         col14 = self.color14,
         col15 = self.color15,
         );
-
 
         for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
             match entry {
