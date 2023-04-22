@@ -37,8 +37,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
     // TODO read more about partial_cmp and float arithmetic
     histo.sort_by(|a, b| a.color.l.partial_cmp(&b.color.l).unwrap());
 
-    let c: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
-    c
+    histo.iter().map(|x| x.color.into()).collect()
 }
 
 /// Simple Histogram
