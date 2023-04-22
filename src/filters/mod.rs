@@ -11,16 +11,19 @@ use serde::{Serialize, Deserialize};
 use crate::colors::{Colors, Myrgb};
 
 mod dark;
+mod dark16;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
     Dark,
+    Dark16,
 }
 
 pub fn main(histo: Vec<Myrgb>, filter: &Filters) -> Colors {
     let method_to_use = match filter {
         Filters::Dark => dark::dark,
+        Filters::Dark16 => dark16::dark16,
     };
     method_to_use(histo)
 }
@@ -30,6 +33,7 @@ impl Filters {
     pub fn col(&self) -> AnsiColors {
         match self {
             Self::Dark => AnsiColors::Blue,
+            Self::Dark16 => AnsiColors::Green,
         }
     }
 }
@@ -40,6 +44,7 @@ impl fmt::Display for Filters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Dark => write!(f, "Dark"),
+            Self::Dark16 => write!(f, "Dark16"),
         }
     }
 }
