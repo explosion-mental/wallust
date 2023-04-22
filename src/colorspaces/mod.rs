@@ -15,13 +15,14 @@ mod lab;
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpaces {
     Lab,
+    LabMixed,
 }
 
 pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces) -> Vec<Myrgb> {
-    let method_to_use = match cs {
-        ColorSpaces::Lab => self::lab::lab,
-    };
-    method_to_use(cols, th)
+    match cs {
+        ColorSpaces::Lab => self::lab::lab(cols, th, false),
+        ColorSpaces::LabMixed => self::lab::lab(cols, th, true),
+    }
 }
 
 impl ColorSpaces {
@@ -29,6 +30,7 @@ impl ColorSpaces {
     pub fn col(&self) -> AnsiColors {
         match self {
             Self::Lab => AnsiColors::Blue,
+            Self::LabMixed => AnsiColors::Green,
         }
     }
 }
@@ -39,6 +41,7 @@ impl fmt::Display for ColorSpaces {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Lab => write!(f, "Lab"),
+            Self::LabMixed => write!(f, "LabMixed"),
         }
     }
 }

@@ -9,35 +9,35 @@ use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
-pub fn lab(cols: &[u8], threshold: u32) -> Vec<Myrgb> {
+/// Currently this works in function with the filters methods, which currently only needs 6 colors.
+/// Let's make sure the colorspace backend at least these quantity.
+/// Just in case, I will leave this as before: 16.
+const NEEDED_COLS: usize = 16;
+
+pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
     let labs = rgb_bytes_to_labs(cols);
 
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if lab.l < 1.0 { continue; } //ignore really dark colors
-        if is_present(lab, &mut histo, threshold) {
+        if is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {
             histo.push(Histo { color: lab, count: 1 });
         }
     }
-    //TODO mix colors if they are more than 16, but if the new histogram is smaller than 16 just
-    //use the original one.
-    //if labs.len() > 16
 
     // sort vec by count
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
-    // take the first 8 most used colors
-    let mut histo: Vec<Histo> = histo.into_iter().take(16).collect();
+    // take the *necessary* most used colors
+    let mut histo: Vec<Histo> = histo.into_iter().take(NEEDED_COLS).collect();
 
     // sort by lightness, like pywal
-    // TODO read morea about partial_cmp and float arithmetic
+    // TODO read more about partial_cmp and float arithmetic
     histo.sort_by(|a, b| a.color.l.partial_cmp(&b.color.l).unwrap());
 
     let c: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
-
     c
 }
 
@@ -52,12 +52,11 @@ struct Histo {
 
 impl Histo {
     /// Mix similar Lab colors, to catch most similars ones.
-    /// THIS REDUCES COLOR QUANTITY
-    #[allow(dead_code)]
+    /// NOTE: This reduces color quantity
     fn mix(&mut self, new: Lab) {
-        self.color.l = (self.color.l + new.l)  / 2.0;
-        //self.color.a = (self.color.a + new.a).round()  / 2.0;
-        //self.color.b = (self.color.b + new.b).round()  / 2.0;
+        self.color.l = self.color.l * 0.5 + new.l * 0.5;
+        //self.color.a = self.color.a * 0.5 + new.a * 0.5;
+        //self.color.b = self.color.b * 0.5 + new.b * 0.5;
     }
 }
 
@@ -71,12 +70,11 @@ impl From<Lab> for Myrgb {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32) -> bool {
+fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold {
-            //TODO
-            //e.mix(color);
+            if mix { e.mix(color); }
             e.count += 1;
             return true;
         }
