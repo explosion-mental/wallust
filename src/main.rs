@@ -17,18 +17,22 @@ fn main() -> Result<()> {
     let cli = args::Cli::parse();
     let conf = config::Config::new()?;
 
+    // print some info that's gonna be used
     if ! cli.quiet {
-        println!("Generating color scheme...");
-        println!(" > {} backend parser\n > Threshold of {}\n > {} filter\n > {} color space",
-            conf.backend.bold().color(conf.backend.col()),
-            conf.threshold.bold().color(conf.threshold_col()),
-            conf.filter.bold().color(conf.filter.col()),
-            conf.color_space.bold().color(conf.color_space.col()),
+        println!(" > image: {img}\n > {back} backend parser\n > Threshold of {th}\n > Using {filter} filter\n > {cs} color space",
+            back = conf.backend.bold().color(conf.backend.col()),
+            th = conf.threshold.bold().color(conf.threshold_col()),
+            filter = conf.filter.bold().color(conf.filter.col()),
+            cs = conf.color_space.bold().color(conf.color_space.col()),
+            img = cli.file.display(),
         );
+        println!(" > Generating color scheme...");
     }
 
-    // Whether to load data from cache or to generate from scratch
+    // generate hash cache file name and cache dir
     let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
+
+    // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
         if ! cli.quiet { println!(" > Using cache {}", cached_data.path.italic()); }
         cached_data.read()?
@@ -43,7 +47,7 @@ fn main() -> Result<()> {
 
     // Set sequences
     if ! cli.skip_sequences {
-        if ! cli.quiet { println!(" > Setting terminal sequences.."); }
+        if ! cli.quiet { println!(" > sequences: Setting terminal colors.."); }
         colors.sequences()?;
     }
 

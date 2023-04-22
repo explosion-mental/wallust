@@ -52,7 +52,7 @@ impl Cache {
             md.len(),
         );
 
-        // Create cache dir (with all of it's parents
+        // Create cache dir (with all of it's parents)
         fs::create_dir_all(&cachepath)?;
 
         Ok(Self {
@@ -75,7 +75,8 @@ impl Cache {
                 serde_json::to_string(colors)
                     .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self.path))?
                 .as_bytes()
-            )?)
+            )?
+        )
     }
 
     /// To determine whether to read from cache or to generate the colors from scratch
