@@ -8,6 +8,7 @@ backend = "full"
 
 # What color space to use to produce and select the most prominent colors:
 # * lab - use CIEL*a*b color space
+# * labmixed - variant of lab that mixes colors, unless there are not enough colors (fallbacking to lab usual behaviour)
 color_space = "lab"
 
 # Difference between similar colors, used by the colorspace:
