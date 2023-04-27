@@ -20,7 +20,9 @@ color_space = "lab"
 threshold = 11
 
 # Use the most prominent colors in a way that makes sense, a scheme:
-# * dark - 8 dark colors, color0 darkest - color7 lightest
+# * dark   - 8 dark colors, color0 darkest - color7 lightest
+# * dark16 - same as dark but it displays 16 colors
+# * light  - 8 light colors, color0 lightest - color7 darkest
 filter = "dark"
 
 # -- entries are just a config file you wish to apply `wallust` generated colors to -- #
