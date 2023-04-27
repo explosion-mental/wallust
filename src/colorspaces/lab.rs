@@ -14,7 +14,7 @@ use ::lab::Lab;
 /// Just in case, I will leave this as before: 16.
 const NEEDED_COLS: usize = 16;
 
-pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
+pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Vec<Myrgb> {
     let labs = rgb_bytes_to_labs(cols);
 
     let mut histo: Vec<Histo> = vec![];
@@ -28,16 +28,21 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
         }
     }
 
-    // sort vec by count
+    // sort vec by count, most used colors
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     // take the *necessary* most used colors
-    let mut histo: Vec<Histo> = histo.into_iter().take(NEEDED_COLS).collect();
+    let mut histo: Vec<&Histo> = histo.iter().take(NEEDED_COLS).collect();
 
-    // sort by lightness, like pywal
+    // sort by lightness, first lightest color and last darkest
     // TODO read more about partial_cmp and float arithmetic
     // inverting these will create a pseudo light scheme
-    histo.sort_by(|a, b| a.color.l.partial_cmp(&b.color.l).unwrap());
+    histo.sort_by(|a, b|
+        match &sort {
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
+        }
+    );
 
     histo.iter().map(|x| x.color.into()).collect()
 }

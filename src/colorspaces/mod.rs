@@ -23,6 +23,11 @@ pub fn main(cols: &[u8], th: u32, cs: &ColorSpaces) -> Vec<Myrgb> {
         ColorSpaces::Lab => self::lab::lab(cols, th, false),
         ColorSpaces::LabMixed => self::lab::lab(cols, th, true),
     }
+/// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
+/// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
+pub enum ColorOrder {
+    LightFirst,
+    DarkFirst,
 }
 
 impl ColorSpaces {
