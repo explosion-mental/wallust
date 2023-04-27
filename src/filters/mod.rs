@@ -14,6 +14,7 @@ use crate::colors::{Colors, Myrgb};
 pub mod dark;
 pub mod dark16;
 pub mod light;
+pub mod light16;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -21,6 +22,7 @@ pub enum Filters {
     Dark,
     Dark16,
     Light,
+    Light16,
 }
 
 impl Filters {
@@ -30,6 +32,7 @@ impl Filters {
             Self::Dark => AnsiColors::Blue,
             Self::Dark16 => AnsiColors::Green,
             Self::Light => AnsiColors::Yellow,
+            Self::Light16 => AnsiColors::Cyan,
         }
     }
 }
@@ -42,6 +45,7 @@ impl fmt::Display for Filters {
             Self::Dark => write!(f, "Dark"),
             Self::Dark16 => write!(f, "Dark16"),
             Self::Light => write!(f, "Light"),
+            Self::Light16 => write!(f, "Light16"),
         }
     }
 }

@@ -1,7 +1,7 @@
 //! Default method to generate colors
 use crate::filters::*;
 
-pub fn light(coo: Vec<Myrgb>) -> Colors {
+pub fn light16(coo: Vec<Myrgb>) -> Colors {
     let mut c = coo.clone();
     let len = c.len();
 
@@ -38,12 +38,12 @@ pub fn light(coo: Vec<Myrgb>) -> Colors {
 
         /* First row */
         color0 : *lightest, // background
-        color1 : c[6],
-        color2 : c[5],
-        color3 : c[4],
-        color4 : c[3],
-        color5 : c[2],
-        color6 : c[1],
+        color1 : c[6].darken(0.25),
+        color2 : c[5].darken(0.25),
+        color3 : c[4].darken(0.25),
+        color4 : c[3].darken(0.25),
+        color5 : c[2].darken(0.25),
+        color6 : c[1].darken(0.25),
         color7 : col7, // fg
 
         /* Second row */
