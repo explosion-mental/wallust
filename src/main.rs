@@ -70,15 +70,27 @@ fn main() -> Result<()> {
 
 /// How [`Colors`] is filled
 fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
+
+    let sort_ord = match c.filter {
+        filters::Filters::Dark | filters::Filters::Dark16 => colorspaces::ColorOrder::LightFirst,
+    };
+
+
     // read image
     let rgbas = backends::main(file, &c.backend)?;
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let top = colorspaces::main(&rgbas, c.threshold, &c.color_space);
+    let top =  match c.color_space {
+        colorspaces::ColorSpaces::Lab => colorspaces::lab::lab(&rgbas, c.threshold, false, sort_ord),
+        colorspaces::ColorSpaces::LabMixed => colorspaces::lab::lab(&rgbas, c.threshold, true, sort_ord),
+    };
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
-    let colors = filters::main(top, &c.filter);
+    let colors = match c.filter {
+        filters::Filters::Dark => filters::dark::dark(top),
+        filters::Filters::Dark16 => filters::dark16::dark16(top),
+    };
 
     Ok(colors)
 }
