@@ -26,17 +26,20 @@ pub fn dark16(coo: Vec<Myrgb>) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // This parser only needs 6 colors [0..=5]
-    let bg = c[0].darken(0.8);
-    let fg = c[5].lighten(0.65);
+    let lightest = c.first().expect("not empty");
+    let darkest = c.last().expect("not empty");
 
-    let col7  = c[5].blend(ee);
-    let col15 = c[5].blend(ee).darken(0.2);
+    let bg = darkest.darken(0.8);
+    let fg = lightest.lighten(0.65);
+
+    let col7  = lightest.blend(ee);
+    let col15 = lightest.blend(ee).darken(0.2);
 
     let col8  = col7.darken(0.30); //color 8 needs to be a bit brighter to contrast color0 and background
 
     // darken the background color slightly, just like pywal
-    let f = format!("{:02x}", c[0].0).chars().last().expect("garanted to have 2 elements by the fmt");
-    let col0  = if f != '0' { bg } else { c[0].darken(0.4) };
+    let f = format!("{:02x}", darkest.0).chars().last().expect("garanted to have 2 elements by the fmt");
+    let col0  = if f != '0' { bg } else { darkest.darken(0.4) };
 
     Colors {
         background : bg, // background
@@ -44,22 +47,22 @@ pub fn dark16(coo: Vec<Myrgb>) -> Colors {
 
         /* First row */
         color0 : col0, // background
-        color1 : c[0].darken(0.25),
-        color2 : c[1].darken(0.25),
-        color3 : c[2].darken(0.25),
+        color1 : c[6].darken(0.25),
+        color2 : c[5].darken(0.25),
+        color3 : c[4].darken(0.25),
         color4 : c[3].darken(0.25),
-        color5 : c[4].darken(0.25),
-        color6 : c[5].darken(0.25),
+        color5 : c[2].darken(0.25),
+        color6 : c[1].darken(0.25),
         color7 : col7, // fg
 
         /* Second row */
         color8 : col8, // brighter than col0
-        color9 : c[0],
-        color10: c[1],
-        color11: c[2],
+        color9 : c[6],
+        color10: c[5],
+        color11: c[4],
         color12: c[3],
-        color13: c[4],
-        color14: c[5],
+        color13: c[2],
+        color14: c[1],
         color15: col15, //a little darken than col7
     }
 }
