@@ -20,7 +20,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Vec<Myrg
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
-        if lab.l < 1.0 { continue; } //ignore really dark colors
+        if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
         if is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {

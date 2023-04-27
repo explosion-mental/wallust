@@ -73,6 +73,7 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
 
     let sort_ord = match c.filter {
         filters::Filters::Dark | filters::Filters::Dark16 => colorspaces::ColorOrder::LightFirst,
+        filters::Filters::Light => colorspaces::ColorOrder::DarkFirst,
     };
 
 
@@ -90,6 +91,7 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
     let colors = match c.filter {
         filters::Filters::Dark => filters::dark::dark(top),
         filters::Filters::Dark16 => filters::dark16::dark16(top),
+        filters::Filters::Light => filters::light::light(top),
     };
 
     Ok(colors)
