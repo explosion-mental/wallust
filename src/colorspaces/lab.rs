@@ -20,6 +20,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
     let mut histo: Vec<Histo> = vec![];
 
     for lab in labs {
+        if lab.l < 1.0 { continue; } //ignore really dark colors
         if is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {
@@ -35,6 +36,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool) -> Vec<Myrgb> {
 
     // sort by lightness, like pywal
     // TODO read more about partial_cmp and float arithmetic
+    // inverting these will create a pseudo light scheme
     histo.sort_by(|a, b| a.color.l.partial_cmp(&b.color.l).unwrap());
 
     histo.iter().map(|x| x.color.into()).collect()
