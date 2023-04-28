@@ -3,7 +3,8 @@
 //! the most prominent colors make sense as a scheme/palette. You _should_ get 16 colors returned
 //! by [`ColorSpaces`], but the scenario in which an image has less than those colors is possible
 //! so it is needed to handle that event, in case you need some amount of colors.
-//! TODO improve API: instead of defininr `Colors` in each module on here, just adjust the values (like c.color0.darken() etc)
+//! * TODO improve API: instead of defininr `Colors` in each module on here, just adjust the values (like c.color0.darken() etc)
+//! * TODO maybe on v3.0.0 change name to scheme, which sounds better.
 use std::fmt;
 
 use owo_colors::AnsiColors;
