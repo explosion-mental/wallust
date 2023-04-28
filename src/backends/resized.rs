@@ -7,6 +7,6 @@ pub fn resized(f: &PathBuf) -> Result<Vec<u8>> {
     let w = true_w / 4;
     let h = true_h / 4;
     let img = image::open(f)?.resize(w, h, image::imageops::Gaussian);
-    Ok(img.to_rgba8().into_raw())
+    Ok(img.to_rgb8().into_raw())
 }
 
