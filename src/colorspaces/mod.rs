@@ -20,8 +20,12 @@ pub enum ColorSpaces {
 
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
+/// Using these with [`full`] or [`resize`] backends, the LightFirst will give a more pastel
+/// colors. While the DarkFrist will give you more heavy ones (more hue ones)
 pub enum ColorOrder {
+    /// `colors[0]` will be the lightest, and `colors.last()` will be the darkest
     LightFirst,
+    /// `colors[0]` will be the darkest, and `colors.last()` will be the lightest
     DarkFirst,
 }
 
