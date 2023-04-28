@@ -71,20 +71,24 @@ fn main() -> Result<()> {
 /// How [`Colors`] is filled
 fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
 
+    // choose how to sort colors, more on [`ColorOrder`]
     let sort_ord = match c.filter {
         filters::Filters::Dark  | filters::Filters::Dark16 => colorspaces::ColorOrder::LightFirst,
         filters::Filters::Light | filters::Filters::Light16 => colorspaces::ColorOrder::DarkFirst,
     };
 
-
     // read image
-    let rgbas = backends::main(file, &c.backend)?;
+    let rgb8s = match c.backend {
+        backends::Backend::Full    => backends::full::full(file)?,
+        backends::Backend::Resized => backends::resized::resized(file)?,
+        backends::Backend::Wal     => backends::wal::wal(file)?,
+    };
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let top =  match c.color_space {
-        colorspaces::ColorSpaces::Lab => colorspaces::lab::lab(&rgbas, c.threshold, false, sort_ord),
-        colorspaces::ColorSpaces::LabMixed => colorspaces::lab::lab(&rgbas, c.threshold, true, sort_ord),
+    let top = match c.color_space {
+        colorspaces::ColorSpaces::Lab => colorspaces::lab::lab(&rgb8s, c.threshold, false, sort_ord),
+        colorspaces::ColorSpaces::LabMixed => colorspaces::lab::lab(&rgb8s, c.threshold, true, sort_ord),
     };
 
     // Apply a [`Filters`] that returns the [`Colors`] struct

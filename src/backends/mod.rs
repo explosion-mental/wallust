@@ -10,9 +10,9 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
-mod full;
-mod resized;
-mod wal;
+pub mod full;
+pub mod resized;
+pub mod wal;
 
 /// This indicates what 'parser' method to use, defined in the config file
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -21,15 +21,6 @@ pub enum Backend {
     Full,
     Resized,
     Wal,
-}
-
-pub fn main(f: &PathBuf, backend: &Backend) -> Result<Vec<u8>> {
-    let method_to_use = match backend {
-        Backend::Full => full::full,
-        Backend::Resized => resized::resized,
-        Backend::Wal => wal::wal,
-    };
-    method_to_use(f)
 }
 
 impl Backend {
