@@ -85,6 +85,7 @@ pkgin install wallust
 ```
 
 ## TODO
-- **release binaries** - figure out woodkeeper codeberg CI
 for more, grep the src for TODO `rg TODO`
-
+- **release binaries** - figure out woodkeeper codeberg CI
+- Think about using [k means algo](https://en.wikipedia.org/wiki/K-means_clustering)
+  similar to [pigmnts](https://github.com/blenderskool/pigmnts) (just without seg faulting :p)
