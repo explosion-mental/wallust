@@ -5,6 +5,7 @@
 //! > The b* axis represents the blue-yellow opponents, with negative numbers toward
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
+//! * TODO find out if the 2000 version worth
 use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
@@ -62,7 +63,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
 /// Simple Histogram
 /// TODO think about a better generic way of storing (ColorSpace, count)
 struct Histo {
-    /// LAB colors - TODO allow other colorspaces
+    /// LAB colors
     color: ::lab::Lab,
     /// number of times it has appeared
     count: usize,
@@ -102,7 +103,6 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool)
 
 /// Returns how much the colors differ
 ///
-/// * TODO find out if the 2000 version worth
 /// ref: <https://www.easyrgb.com/en/math.php>
 #[inline]
 fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
