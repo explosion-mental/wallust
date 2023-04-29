@@ -44,22 +44,22 @@ pub fn dark(coo: Vec<Myrgb>) -> Colors {
 
         /* First row */
         color0 : col0, // background
-        color1 : c[6],
-        color2 : c[5],
-        color3 : c[4],
-        color4 : c[3],
-        color5 : c[2],
-        color6 : c[1],
+        color1 : c[5],
+        color2 : c[4],
+        color3 : c[3],
+        color4 : c[2],
+        color5 : c[1],
+        color6 : c[0],
         color7 : col7, // fg
 
         /* Second row */
         color8 : col8, // brighter than col0
-        color9 : c[6],
-        color10: c[5],
-        color11: c[4],
-        color12: c[3],
-        color13: c[2],
-        color14: c[1],
+        color9 : c[5],
+        color10: c[4],
+        color11: c[3],
+        color12: c[2],
+        color13: c[1],
+        color14: c[0],
         color15: col15, //a little darken than col7
     }
 }
