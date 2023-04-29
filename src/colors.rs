@@ -192,7 +192,7 @@ impl Colors {
             match entry {
                 Ok(path) => {
                     File::create(&path)?
-                        .write_all(&sequences.as_bytes())?;
+                        .write_all(sequences.as_bytes())?;
                     },
                 Err(e) => {
                     anyhow::bail!("Error while sending sequences to terminals:\n{e}")
@@ -201,7 +201,7 @@ impl Colors {
         }
 
         File::create(seq_file.as_ref())?
-            .write_all(&sequences.as_bytes())?;
+            .write_all(sequences.as_bytes())?;
 
         Ok(())
     }

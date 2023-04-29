@@ -38,9 +38,9 @@ impl Cache {
         let md = fs::metadata(&filename)?;
         // if these metadata are not avaliable, then we can't cache
         let birth = md.created()
-            .with_context(|| format!("wallust needs the 'created' file metadata for a cache hash, your platform seems to not support it."))?;
+            .with_context(|| "wallust needs the 'created' file metadata for a cache hash, your platform seems to not support it.".to_string())?;
         let modif = md.modified()
-            .with_context(|| format!("wallust needs the 'modified' file metadata for a cache hash, your platform seems to not support it."))?;
+            .with_context(|| "wallust needs the 'modified' file metadata for a cache hash, your platform seems to not support it.".to_string())?;
 
         // The following generates a hash name from a filename and it's `stat` attrs
         let hash_name = format!("{}{}{}{}",
