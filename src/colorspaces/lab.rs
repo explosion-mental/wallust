@@ -10,11 +10,14 @@ use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
 /// Currently this works in function with the filters methods, which currently only needs 6 colors.
-/// Let's make sure the colorspace backend at least these quantity.
-/// Just in case, I will leave this as before: 16.
-const NEEDED_COLS: usize = 16;
+/// Let's make sure the colorspace backend send at least these number of colors.
+const MIN_COLS: usize = 6;
 
-pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Vec<Myrgb> {
+/// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
+/// the top MAX_COLS lab colors.
+const MAX_COLS: usize = 16;
+
+pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<Vec<Myrgb>> {
     let labs = rgb_bytes_to_labs(cols);
 
     let mut histo: Vec<Histo> = vec![];
@@ -32,7 +35,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Vec<Myrg
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     // take the *necessary* most used colors
-    let mut histo: Vec<&Histo> = histo.iter().take(NEEDED_COLS).collect();
+    let mut histo: Vec<&Histo> = histo.iter().take(MAX_COLS).collect();
 
     // sort by lightness, first lightest color and last darkest
     // TODO read more about partial_cmp and float arithmetic
@@ -44,7 +47,16 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Vec<Myrg
         }
     );
 
-    histo.iter().map(|x| x.color.into()).collect()
+    let histo: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
+
+    // error out if not enough colors.
+    // TODO learn some interpolation to generate artificial colors
+    if histo.len() <= MIN_COLS {
+        anyhow::bail!(NOT_ENOUGH_COLS)
+    } else {
+        Ok(histo)
+    }
+
 }
 
 /// Simple Histogram

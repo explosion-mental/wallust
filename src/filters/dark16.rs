@@ -4,25 +4,7 @@
 //! This is to make constranst between those (they got the same hue).
 use crate::filters::*;
 
-pub fn dark16(coo: Vec<Myrgb>) -> Colors {
-    let mut c = coo.clone();
-    let len = c.len();
-
-    // This method requires at least 6 colors, if not, generate new ones
-    //TODO generate new colors by mixing (and maybe tweak by some random number)
-    if len < 6 {
-        eprintln!("Not enought colors! Generating new colors from fetches ones...");
-        for (i, value) in coo.iter().enumerate() {
-            // generate new colors, but switch between the how (method to use)
-            let val = if i % 2 == 0 {
-                value.darken(0.5)
-            } else {
-                value.lighten(0.5)
-            };
-            c.push(val);
-        }
-    }
-
+pub fn dark16(c: Vec<Myrgb>) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // This parser only needs 6 colors [0..=5]

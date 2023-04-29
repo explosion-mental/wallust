@@ -87,8 +87,8 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
     let top = match c.color_space {
-        colorspaces::ColorSpaces::Lab => colorspaces::lab::lab(&rgb8s, c.threshold, false, sort_ord),
-        colorspaces::ColorSpaces::LabMixed => colorspaces::lab::lab(&rgb8s, c.threshold, true, sort_ord),
+        colorspaces::ColorSpaces::Lab => colorspaces::lab::lab(&rgb8s, c.threshold, false, sort_ord)?,
+        colorspaces::ColorSpaces::LabMixed => colorspaces::lab::lab(&rgb8s, c.threshold, true, sort_ord)?,
     };
 
     // Apply a [`Filters`] that returns the [`Colors`] struct

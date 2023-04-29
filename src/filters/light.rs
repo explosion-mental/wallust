@@ -1,25 +1,7 @@
 //! Default method to generate colors
 use crate::filters::*;
 
-pub fn light(coo: Vec<Myrgb>) -> Colors {
-    let mut c = coo.clone();
-    let len = c.len();
-
-    // This method requires at least 6 colors, if not, generate new ones
-    //TODO generate new colors by mixing (and maybe tweak by some random number)
-    if len < 6 {
-        eprintln!("Not enought colors! Generating new colors from fetches ones...");
-        for (i, value) in coo.iter().enumerate() {
-            // generate new colors, but switch between the how (method to use)
-            let val = if i % 2 == 0 {
-                value.darken(0.5)
-            } else {
-                value.lighten(0.5)
-            };
-            c.push(val);
-        }
-    }
-
+pub fn light(c: Vec<Myrgb>) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");
     let darkest = c.first().expect("not empty");

@@ -6,10 +6,18 @@ use std::fmt;
 
 use crate::colors::Myrgb;
 
+use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
 pub mod lab;
+
+const NOT_ENOUGH_COLS: &str =
+"\
+Not enough colors to create a scheme.
+Try changing the threshold or the backend.
+It may very well be that the image doesn't have enough colors.\
+";
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
