@@ -93,10 +93,10 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
     let colors = match c.filter {
-        filters::Filters::Dark => filters::dark::dark(top),
-        filters::Filters::Dark16 => filters::dark16::dark16(top),
-        filters::Filters::Light => filters::light::light(top),
-        filters::Filters::Light16 => filters::light16::light16(top),
+        filters::Filters::Dark => filters::dark::dark(&top),
+        filters::Filters::Dark16 => filters::dark16::dark16(&top),
+        filters::Filters::Light => filters::light::light(&top),
+        filters::Filters::Light16 => filters::light16::light16(&top),
     };
 
     Ok(colors)

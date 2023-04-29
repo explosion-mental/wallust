@@ -1,7 +1,7 @@
 //! Default method to generate colors
 use crate::filters::*;
 
-pub fn light(c: Vec<Myrgb>) -> Colors {
+pub fn light(c: &[Myrgb]) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");
     let darkest = c.first().expect("not empty");

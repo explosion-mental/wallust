@@ -1,7 +1,7 @@
 //! Default method to generate colors
 use crate::filters::*;
 
-pub fn dark(c: Vec<Myrgb>) -> Colors {
+pub fn dark(c: &[Myrgb]) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // This parser only needs 6 colors [0..=5]

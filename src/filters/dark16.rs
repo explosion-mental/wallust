@@ -4,7 +4,7 @@
 //! This is to make constranst between those (they got the same hue).
 use crate::filters::*;
 
-pub fn dark16(c: Vec<Myrgb>) -> Colors {
+pub fn dark16(c: &[Myrgb]) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // This parser only needs 6 colors [0..=5]
