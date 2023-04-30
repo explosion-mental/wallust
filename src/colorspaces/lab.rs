@@ -48,16 +48,27 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         }
     );
 
+    // Artificially generate colors until we got MIN_COLS
+    //XXX should this be optional, or brute force the scheme palette
+    while histo.len() <= MIN_COLS {
+        interpolate(&histo);
+    }
+
     let histo: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
 
     // error out if not enough colors.
     // TODO learn some interpolation to generate artificial colors
-    if histo.len() <= MIN_COLS {
-        anyhow::bail!(NOT_ENOUGH_COLS)
-    } else {
-        Ok(histo)
-    }
+    Ok(histo)
 
+}
+
+/// Combines some colors to generate new ones
+fn interpolate(histo: &Vec<&Histo>) {
+
+    //take a look at <https://github.com/ndavd/colinterp>
+    //I cannot find anything about interpolating CIE L,a*b* colors, only RGB ones.
+    //I may need to accept the performance drop in encoding and decoding twice
+    //(lab -> rgb -> interpolation -> lab -> sort_by -> rgb)
 }
 
 /// Simple Histogram
