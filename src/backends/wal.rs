@@ -8,7 +8,6 @@
 //!   skip   skip         ^
 //!                we care bout this one
 //! ```
-
 use crate::backends::*;
 use std::process::Command;
 use std::str;
@@ -16,7 +15,6 @@ use std::str;
 /// use Image Magick to get colors
 //TODO flatten the hues like pywal
 pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
-
     let im = Command::new("convert")
         .arg(f)
         .arg("-resize")
