@@ -70,15 +70,10 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         match &sort {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
             ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
-    }
+        }
     );
 
-    let histo: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
-
-    // error out if not enough colors.
-    // TODO learn some interpolation to generate artificial colors
-    Ok(histo)
-
+    Ok(histo.iter().map(|x| x.color.into()).collect())
 }
 
 /// Combines some colors to generate new ones
