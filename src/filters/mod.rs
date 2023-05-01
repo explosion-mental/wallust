@@ -12,10 +12,10 @@ use serde::{Serialize, Deserialize};
 
 use crate::colors::{Colors, Myrgb};
 
-pub mod dark;
-pub mod dark16;
-pub mod light;
-pub mod light16;
+mod dark;
+mod dark16;
+mod light;
+mod light16;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -24,6 +24,15 @@ pub enum Filters {
     Dark16,
     Light,
     Light16,
+}
+
+pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
+    match f {
+        Filters::Dark    => dark::dark,
+        Filters::Dark16  => dark16::dark16,
+        Filters::Light   => light::light,
+        Filters::Light16 => light16::light16,
+    }
 }
 
 impl Filters {

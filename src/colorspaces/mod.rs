@@ -10,7 +10,7 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
-pub mod lab;
+mod lab;
 
 const NOT_ENOUGH_COLS: &str =
 "\
@@ -35,6 +35,13 @@ pub enum ColorOrder {
     LightFirst,
     /// `colors[0]` will be the darkest, and `colors.last()` will be the lightest
     DarkFirst,
+}
+
+pub fn main(c: ColorSpaces, cols: &[u8], th: u32, sort_ord: ColorOrder) -> Result<Vec<Myrgb>> {
+    match c {
+        ColorSpaces::Lab      => lab::lab(cols, th, false, sort_ord),
+        ColorSpaces::LabMixed => lab::lab(cols, th, true, sort_ord),
+    }
 }
 
 impl ColorSpaces {
