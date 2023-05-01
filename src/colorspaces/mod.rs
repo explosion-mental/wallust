@@ -19,6 +19,7 @@ Try changing the threshold or the backend.
 It may very well be that the image doesn't have enough colors.\
 ";
 
+/// Corresponds to the modules inside this module and `color_space` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpaces {
@@ -45,7 +46,7 @@ pub fn main(c: ColorSpaces, cols: &[u8], th: u32, sort_ord: ColorOrder) -> Resul
 }
 
 impl ColorSpaces {
-    /// This assigns a colors for a backend, used when printing
+    /// Assign a color for the ColorSpaces
     pub fn col(&self) -> AnsiColors {
         match self {
             Self::Lab => AnsiColors::Blue,
@@ -54,9 +55,8 @@ impl ColorSpaces {
     }
 }
 
-/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
+/// Display what [`ColorSpaces`] is in use. Used in cache and main.
 impl fmt::Display for ColorSpaces {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Lab => write!(f, "Lab"),

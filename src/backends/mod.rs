@@ -15,7 +15,8 @@ mod resized;
 mod wal;
 mod thumb;
 
-/// This indicates what 'parser' method to use, defined in the config file
+/// This indicates what 'parser' method to use, defined in the config file.
+/// Corresponds to the modules inside this module
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
@@ -24,6 +25,7 @@ pub enum Backend {
     Wal,
     Thumb,
 }
+
 pub fn main(backend: &Backend) -> fn(&PathBuf) -> Result<Vec<u8>> {
     match backend {
         Backend::Full    => full::full,
@@ -45,9 +47,8 @@ impl Backend {
     }
 }
 
-/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
+/// Add a simple `Display` for [`Backend`], used in main() and part of the cache path.
 impl fmt::Display for Backend {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Full    => write!(f, "Full"),

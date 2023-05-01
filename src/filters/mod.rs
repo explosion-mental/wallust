@@ -1,10 +1,11 @@
 //! # Filters
 //! A filter is just a way to fill the [`Colors`] struct. A method to generate a scheme that makes
-//! the most prominent colors make sense as a scheme/palette. You _should_ get 16 colors returned
-//! by [`ColorSpaces`], but the scenario in which an image has less than those colors is possible
-//! so it is needed to handle that event, in case you need some amount of colors.
-//! * TODO improve API: instead of defininr `Colors` in each module on here, just adjust the values (like c.color0.darken() etc)
+//! the most prominent colors make sense as a scheme/palette. The vector slice will always have at
+//! least 6 colors, so don't fear on using `.expect()` with this certainty and avoiding boilerplate
+//! code. The scenario in which an image has less than those colors is possible and already handled in
+//! the [`colorspaces`] module, so don't bother with that.
 //! * TODO maybe on v3.0.0 change name to scheme, which sounds better.
+//! * XXX would other filters need more than 6 (or even 8) colors? if so, change the return type to `Result<Colors>`
 use std::fmt;
 
 use owo_colors::AnsiColors;
@@ -17,6 +18,7 @@ mod dark16;
 mod light;
 mod light16;
 
+/// Corresponds to the modules inside this module and `filter` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
@@ -36,7 +38,7 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
 }
 
 impl Filters {
-    /// This assigns a colors for a backend, used when printing
+    /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
         match self {
             Self::Dark => AnsiColors::Blue,
@@ -47,9 +49,8 @@ impl Filters {
     }
 }
 
-/// Add a simple `Display` for [`Backend`], used in main() to print which is in use
+/// Display what [`Filters`] is in use. Used in cache and main.
 impl fmt::Display for Filters {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Dark => write!(f, "Dark"),

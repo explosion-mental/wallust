@@ -1,4 +1,4 @@
-//! Default method to generate colors
+//! light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 use crate::filters::*;
 
 pub fn light(c: &[Myrgb]) -> Colors {

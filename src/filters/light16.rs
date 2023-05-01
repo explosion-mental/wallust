@@ -1,4 +1,4 @@
-//! Default method to generate colors
+//! Variation of the [`light`] scheme, but with a 16 variation, similar to how [`dark16`] does it.
 use crate::filters::*;
 
 pub fn light16(c: &[Myrgb]) -> Colors {
