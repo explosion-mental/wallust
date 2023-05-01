@@ -12,11 +12,11 @@ use ::lab::Lab;
 
 /// Currently this works in function with the filters methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
-const MIN_COLS: usize = 6;
+const MIN_COLS: u8 = 6;
 
 /// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
 /// the top MAX_COLS lab colors.
-const MAX_COLS: usize = 16;
+const MAX_COLS: u8 = 16;
 
 pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<Vec<Myrgb>> {
     let labs = rgb_bytes_to_labs(cols);
@@ -36,7 +36,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
     histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     // take the *necessary* most used colors
-    let mut histo: Vec<&Histo> = histo.iter().take(MAX_COLS).collect();
+    let mut histo: Vec<Histo> = histo.into_iter().take(MAX_COLS.into()).collect();
 
     // sort by lightness, first lightest color and last darkest
     // TODO read more about partial_cmp and float arithmetic
@@ -48,11 +48,25 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         }
     );
 
+    if histo.len() < 2 {
+        anyhow::bail!("Image should at least have two different pixel colors.");
+    }
     // Artificially generate colors until we got MIN_COLS
     //XXX should this be optional, or brute force the scheme palette
-    while histo.len() <= MIN_COLS {
-        interpolate(&histo);
+    let size = histo.len();
+    if size <= MIN_COLS.into() {
+        eprintln!("Not enough colors, artificially generating new ones..");
+        interpolate(&mut histo, MAX_COLS, threshold);
     }
+    // take and sort again
+    // TODO only re-do this operations if `size <= MIN_COLS`
+    let mut histo: Vec<_> = histo.clone().into_iter().take(MAX_COLS.into()).collect();
+    histo.sort_by(|a, b|
+        match &sort {
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
+    }
+    );
 
     let histo: Vec<_> = histo.iter().map(|x| x.color.into()).collect();
 
@@ -63,16 +77,53 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
 }
 
 /// Combines some colors to generate new ones
-fn interpolate(histo: &Vec<&Histo>) {
+fn interpolate(histo: &mut Vec<Histo>, n: u8, threshold: u32) {
 
     //take a look at <https://github.com/ndavd/colinterp>
     //I cannot find anything about interpolating CIE L,a*b* colors, only RGB ones.
     //I may need to accept the performance drop in encoding and decoding twice
     //(lab -> rgb -> interpolation -> lab -> sort_by -> rgb)
+    let color_a: Myrgb = histo.first().expect("not empty").color.into();
+    let color_b: Myrgb = histo.last().expect("not empty").color.into();
+
+    let mut palette: Vec<Myrgb> = vec![];
+
+    let jump_r = (f32::from(color_b.0 as i16 - color_a.0 as i16)) / (f32::from(n) - 1.0);
+    let jump_g = (f32::from(color_b.1 as i16 - color_a.1 as i16)) / (f32::from(n) - 1.0);
+    let jump_b = (f32::from(color_b.2 as i16 - color_a.2 as i16)) / (f32::from(n) - 1.0);
+
+    let mut curr_r = f32::from(color_a.0);
+    let mut curr_g = f32::from(color_a.1);
+    let mut curr_b = f32::from(color_a.2);
+
+    //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
+
+    for _ in 0..n {
+        let r = curr_r.round() as u8;
+        let g = curr_g.round() as u8;
+        let b = curr_b.round() as u8;
+        palette.push(Myrgb(r, g, b));
+        curr_r += jump_r;
+        curr_g += jump_g;
+        curr_b += jump_b;
+
+    }
+
+    for c in palette {
+        let lab = Lab::from_rgb(&[c.0, c.1, c.2]);
+        if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
+        // We can't mix colors given that there aren't many.
+        if is_present(lab, histo, threshold, false) {
+            continue;
+        } else {
+            histo.push(Histo { color: lab, count: 1 });
+        }
+    }
 }
 
 /// Simple Histogram
 /// TODO think about a better generic way of storing (ColorSpace, count)
+#[derive(Copy, Clone)]
 struct Histo {
     /// LAB colors
     color: ::lab::Lab,
