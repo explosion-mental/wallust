@@ -22,12 +22,14 @@ pub enum Backend {
     Full,
     Resized,
     Wal,
+    Thumb,
 }
 pub fn main(backend: &Backend) -> fn(&PathBuf) -> Result<Vec<u8>> {
     match backend {
         Backend::Full    => full::full,
         Backend::Resized => resized::resized,
         Backend::Wal     => wal::wal,
+        Backend::Thumb => thumb::thumb,
     }
 }
 
@@ -38,6 +40,7 @@ impl Backend {
             Self::Full => AnsiColors::Blue,
             Self::Resized => AnsiColors::Cyan,
             Self::Wal => AnsiColors::Red,
+            Self::Thumb => AnsiColors::Magenta,
         }
     }
 }
@@ -50,6 +53,7 @@ impl fmt::Display for Backend {
             Self::Full    => write!(f, "Full"),
             Self::Resized => write!(f, "Resized"),
             Self::Wal     => write!(f, "Wal"),
+            Self::Thumb   => write!(f, "Thumb"),
         }
     }
 }
