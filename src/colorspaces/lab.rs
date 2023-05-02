@@ -51,27 +51,26 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
     if histo.len() < 2 {
         anyhow::bail!("Image should at least have two different pixel colors.");
     }
+
     // Artificially generate colors until we got MIN_COLS
     //XXX should this be optional, or brute force the scheme palette
     if histo.len() <= MIN_COLS.into() {
         eprintln!("Not enough colors, artificially generating new ones..");
         interpolate(&mut histo, MAX_COLS, threshold);
+        // take and sort again
+        histo = histo.clone().into_iter().take(MAX_COLS.into()).collect();
+        histo.sort_by(|a, b|
+            match &sort {
+                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
+                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
+            }
+        );
     }
 
     // not enough colors, even after making new colors
     if histo.len() <= MIN_COLS.into() {
         anyhow::bail!("New generated colors are not enough for a scheme, quitting.");
     }
-
-    // take and sort again
-    // TODO only re-do this operations if `size <= MIN_COLS`
-    let mut histo: Vec<_> = histo.clone().into_iter().take(MAX_COLS.into()).collect();
-    histo.sort_by(|a, b|
-        match &sort {
-            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
-            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
-        }
-    );
 
     Ok(histo.iter().map(|x| x.color.into()).collect())
 }
