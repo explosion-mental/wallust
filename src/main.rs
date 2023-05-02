@@ -71,12 +71,9 @@ fn main() -> Result<()> {
 /// How [`Colors`] is filled
 fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
     // choose how to sort colors, more on [`ColorOrder`]
-    let sort_ord = match c.filter {
-        filters::Filters::Dark  | filters::Filters::Dark16  => colorspaces::ColorOrder::LightFirst,
-        filters::Filters::Light | filters::Filters::Light16 => colorspaces::ColorOrder::DarkFirst,
-    };
+    let sort_ord = filters::sort_ord(&c.filter);
 
-    // read image
+    // read image as raw rgb8 vecs
     let rgb8s = backends::main(&c.backend)(file)?;
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color

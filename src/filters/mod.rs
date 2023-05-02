@@ -37,6 +37,14 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
     }
 }
 
+/// Use different sorting `sort_by` on different filters, which creates even more schemes.
+pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
+    match f {
+        Filters::Dark  | Filters::Dark16  => crate::colorspaces::ColorOrder::LightFirst,
+        Filters::Light | Filters::Light16 => crate::colorspaces::ColorOrder::DarkFirst,
+    }
+}
+
 impl Filters {
     /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
