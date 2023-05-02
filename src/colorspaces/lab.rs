@@ -82,6 +82,9 @@ fn interpolate(histo: &mut Vec<Histo>, n: u8, threshold: u32) {
     //I cannot find anything about interpolating CIE L,a*b* colors, only RGB ones.
     //I may need to accept the performance drop in encoding and decoding twice
     //(lab -> rgb -> interpolation -> lab -> sort_by -> rgb)
+    // TODO rather than hardcoding the first() and last(), find an algo to get better and more
+    //      random, yet uniform results. Could be as simple as using the rand() crate or just going
+    //      +1 on the index inside a while loop until the MIN_COLS are met.
     let color_a: Myrgb = histo.first().expect("not empty").color.into();
     let color_b: Myrgb = histo.last().expect("not empty").color.into();
 
