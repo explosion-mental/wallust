@@ -54,7 +54,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
 
     // Artificially generate colors until we got MIN_COLS
     //XXX should this be optional, or brute force the scheme palette
-    if histo.len() <= MIN_COLS.into() {
+    if histo.len() < MIN_COLS.into() {
         eprintln!("Not enough colors, artificially generating new ones..");
         interpolate(&mut histo, MAX_COLS, threshold);
         // take and sort again
@@ -68,7 +68,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
     }
 
     // not enough colors, even after making new colors
-    if histo.len() <= MIN_COLS.into() {
+    if histo.len() < MIN_COLS.into() {
         anyhow::bail!("New generated colors are not enough for a scheme, quitting.");
     }
 
