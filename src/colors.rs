@@ -68,7 +68,7 @@ impl Myrgb {
         )
     }
 
-    //mix with other [`Myrgb`]
+    /// Mix with other [`Myrgb`]
     pub fn blend(&self, other: Self) -> Self {
         Self(
             (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
@@ -79,8 +79,8 @@ impl Myrgb {
     }
 }
 
-/// print the scheme
 impl Colors {
+    /// Print the scheme out
     pub fn print(&self) {
         print!(
 "
@@ -107,6 +107,7 @@ impl Colors {
         );
     }
 
+    /// Fancy `enjoy the palette!` message
     pub fn done(&self) {
         let space = "  ".strikethrough();
         print!(
