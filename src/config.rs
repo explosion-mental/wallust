@@ -43,7 +43,12 @@ impl Config {
         let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
         let config = config.as_ref();
 
-        if ! Path::new(&config).exists() { anyhow::bail!("Config file not found, please create ~/.config/wallust/wallust.toml"); }
+        if ! Path::new(&config).exists() {
+            anyhow::bail!(
+"Config file not found, please create ~/.config/wallust/wallust.toml
+Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml> for a documented example."
+            );
+        }
 
         toml::from_str(
             &read_to_string(config)
