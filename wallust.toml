@@ -28,7 +28,8 @@ threshold = 11
 #  * light16 - same as light but displays 16 colors
 filter = "dark16"
 
-# Example entries, which are just a file you wish to apply `wallust` generated colors to
+# Example entries, which are just a file you wish to apply `wallust` generated colors to.
+# An `[[entry]]` is optional.
 [[entry]]
 # a relative path to a file where wallust.toml is (~/.config/wallust/)
 template = "dunstrc"
