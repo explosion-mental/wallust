@@ -1,10 +1,11 @@
 # -- global space -- #
 
 # How the image is parse, in order to get the colors:
-#  * full    - reads the whole image (more precision)
-#  * resized - resizes the image before parsing it (more color mixing, faster)
-#  * wal     - uses image magick `convert` to read the image (most stable and recommended)
-backend = "wal"
+#  * full    - reads the whole image (more precision, slower)
+#  * resized - resizes the image to 1/4th of the original, before parsing it (more color mixing, faster)
+#  * thumb   - fast algo hardcoded to 512x512 (faster than resized)
+#  * wal     - uses image magick `convert` to read the image (less colors)
+backend = "thumb"
 
 # What color space to use to produce and select the most prominent colors:
 #  * lab      - use CIEL*a*b color space
@@ -27,7 +28,7 @@ threshold = 11
 #  * light16 - same as light but displays 16 colors
 filter = "dark16"
 
-# -- entries are just a config file you wish to apply `wallust` generated colors to -- #
+# Example entries, which are just a file you wish to apply `wallust` generated colors to
 [[entry]]
 # a relative path to a file where wallust.toml is (~/.config/wallust/)
 template = "dunstrc"
@@ -40,5 +41,5 @@ template = "zathurarc"
 target = "~/.config/zathura/zathurarc"
 
 [[entry]]
-template = "bars.glsl"
+template = "glava_bars"
 target = "~/.config/glava/bars.glsl"
