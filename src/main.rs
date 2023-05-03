@@ -26,7 +26,6 @@ fn main() -> Result<()> {
             cs = conf.color_space.bold().color(conf.color_space.col()),
             img = cli.file.display(),
         );
-        println!(" > Generating color scheme...");
     }
 
     // generate hash cache file name and cache dir
@@ -37,6 +36,7 @@ fn main() -> Result<()> {
         if ! cli.quiet { println!(" > Using cache {}", cached_data.path.italic()); }
         cached_data.read()?
     } else {
+        if ! cli.quiet { println!(" > Generating color scheme..."); }
         gen_colors(&cli.file, &conf)?
     };
 
@@ -85,4 +85,3 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
 
     Ok(colors)
 }
-
