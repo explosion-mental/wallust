@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use clap::Parser;
 use anyhow::Result;
 use owo_colors::OwoColorize;
+use spinners::{Spinner, Spinners};
 
 mod args;
 mod backends;
@@ -36,8 +37,15 @@ fn main() -> Result<()> {
         if ! cli.quiet { println!(" > Using cache {}", cached_data.path.italic()); }
         cached_data.read()?
     } else {
-        if ! cli.quiet { println!(" > Generating color scheme..."); }
-        gen_colors(&cli.file, &conf)?
+        let cols = if ! cli.quiet {
+            let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
+            let c = gen_colors(&cli.file, &conf)?;
+            sp.stop_with_newline();
+            c
+        } else {
+            gen_colors(&cli.file, &conf)?
+        };
+        cols
     };
 
     if ! cli.quiet {
