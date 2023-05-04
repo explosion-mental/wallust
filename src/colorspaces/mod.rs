@@ -19,14 +19,6 @@ Try changing the threshold or the backend.
 It may very well be that the image doesn't have enough colors.\
 ";
 
-/// Corresponds to the modules inside this module and `color_space` parameter in the config file.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum ColorSpaces {
-    Lab,
-    LabMixed,
-}
-
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
 /// Using these with [`full`] or [`resize`] backends, the LightFirst will give a more pastel
@@ -38,10 +30,21 @@ pub enum ColorOrder {
     DarkFirst,
 }
 
+/// Corresponds to the modules inside this module and `color_space` parameter in the config file.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum ColorSpaces {
+    Lab,
+    LabMixed,
+}
+
+/// re export to shorten from `ColorSpaces::Lab` to `Lab`
+use self::ColorSpaces::*;
+
 pub fn main(c: ColorSpaces, cols: &[u8], th: u32, sort_ord: ColorOrder) -> Result<Vec<Myrgb>> {
     match c {
-        ColorSpaces::Lab      => lab::lab(cols, th, false, sort_ord),
-        ColorSpaces::LabMixed => lab::lab(cols, th, true, sort_ord),
+        Lab      => lab::lab(cols, th, false, sort_ord),
+        LabMixed => lab::lab(cols, th, true, sort_ord),
     }
 }
 
@@ -49,8 +52,8 @@ impl ColorSpaces {
     /// Assign a color for the ColorSpaces
     pub fn col(&self) -> AnsiColors {
         match self {
-            Self::Lab => AnsiColors::Blue,
-            Self::LabMixed => AnsiColors::Green,
+            Lab => AnsiColors::Blue,
+            LabMixed => AnsiColors::Green,
         }
     }
 }
@@ -59,8 +62,8 @@ impl ColorSpaces {
 impl fmt::Display for ColorSpaces {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Lab => write!(f, "Lab"),
-            Self::LabMixed => write!(f, "LabMixed"),
+            Lab => write!(f, "Lab"),
+            LabMixed => write!(f, "LabMixed"),
         }
     }
 }

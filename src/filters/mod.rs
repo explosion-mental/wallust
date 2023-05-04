@@ -28,20 +28,23 @@ pub enum Filters {
     Light16,
 }
 
+/// re export to shorten from `Filters::Dark` to `Dark`
+use self::Filters::*;
+
 pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
     match f {
-        Filters::Dark    => dark::dark,
-        Filters::Dark16  => dark16::dark16,
-        Filters::Light   => light::light,
-        Filters::Light16 => light16::light16,
+        Dark    => dark::dark,
+        Dark16  => dark16::dark16,
+        Light   => light::light,
+        Light16 => light16::light16,
     }
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
-        Filters::Dark  | Filters::Dark16  => crate::colorspaces::ColorOrder::LightFirst,
-        Filters::Light | Filters::Light16 => crate::colorspaces::ColorOrder::DarkFirst,
+        Dark  | Dark16  => crate::colorspaces::ColorOrder::LightFirst,
+        Light | Light16 => crate::colorspaces::ColorOrder::DarkFirst,
     }
 }
 
@@ -49,10 +52,10 @@ impl Filters {
     /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
         match self {
-            Self::Dark => AnsiColors::Blue,
-            Self::Dark16 => AnsiColors::Green,
-            Self::Light => AnsiColors::Yellow,
-            Self::Light16 => AnsiColors::Cyan,
+            Dark => AnsiColors::Blue,
+            Dark16 => AnsiColors::Green,
+            Light => AnsiColors::Yellow,
+            Light16 => AnsiColors::Cyan,
         }
     }
 }
@@ -61,10 +64,10 @@ impl Filters {
 impl fmt::Display for Filters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Dark => write!(f, "Dark"),
-            Self::Dark16 => write!(f, "Dark16"),
-            Self::Light => write!(f, "Light"),
-            Self::Light16 => write!(f, "Light16"),
+            Dark => write!(f, "Dark"),
+            Dark16 => write!(f, "Dark16"),
+            Light => write!(f, "Light"),
+            Light16 => write!(f, "Light16"),
         }
     }
 }

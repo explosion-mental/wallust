@@ -26,12 +26,15 @@ pub enum Backend {
     Thumb,
 }
 
+/// re export to shorten from `Backend::Full` to `Full`
+use self::Backend::*;
+
 pub fn main(backend: &Backend) -> fn(&PathBuf) -> Result<Vec<u8>> {
     match backend {
-        Backend::Full    => full::full,
-        Backend::Resized => resized::resized,
-        Backend::Wal     => wal::wal,
-        Backend::Thumb => thumb::thumb,
+        Full    => full::full,
+        Resized => resized::resized,
+        Wal     => wal::wal,
+        Thumb   => thumb::thumb,
     }
 }
 
@@ -39,10 +42,10 @@ impl Backend {
     /// This assigns a colors for a backend, used when printing
     pub fn col(&self) -> AnsiColors {
         match self {
-            Self::Full => AnsiColors::Blue,
-            Self::Resized => AnsiColors::Cyan,
-            Self::Wal => AnsiColors::Red,
-            Self::Thumb => AnsiColors::Magenta,
+            Full => AnsiColors::Blue,
+            Resized => AnsiColors::Cyan,
+            Wal => AnsiColors::Red,
+            Thumb => AnsiColors::Magenta,
         }
     }
 }
@@ -51,10 +54,10 @@ impl Backend {
 impl fmt::Display for Backend {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Full    => write!(f, "Full"),
-            Self::Resized => write!(f, "Resized"),
-            Self::Wal     => write!(f, "Wal"),
-            Self::Thumb   => write!(f, "Thumb"),
+            Full    => write!(f, "Full"),
+            Resized => write!(f, "Resized"),
+            Wal     => write!(f, "Wal"),
+            Thumb   => write!(f, "Thumb"),
         }
     }
 }
