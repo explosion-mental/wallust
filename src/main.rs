@@ -20,16 +20,11 @@ fn main() -> Result<()> {
 
     // print some info that's gonna be used
     if ! cli.quiet {
-        println!(" > image: {img}\n > {back} backend parser\n > Threshold of {th}\n > Using {filter} filter\n > {cs} color space",
-            back = conf.backend.bold().color(conf.backend.col()),
-            th = conf.threshold.bold().color(conf.threshold_col()),
-            filter = conf.filter.bold().color(conf.filter.col()),
-            cs = conf.color_space.bold().color(conf.color_space.col()),
-            img = cli.file.display(),
-        );
+        println!(" > image: {}", cli.file.display());
+        conf.print();
     }
 
-    // generate hash cache file name and cache dir
+    // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
 
     // Whether to load data from cache or to generate one from scratch

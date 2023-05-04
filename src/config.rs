@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use crate::colors::Colors;
 
 use anyhow::{Result, Context};
-use owo_colors::AnsiColors;
+use owo_colors::{AnsiColors, OwoColorize};
 use new_string_template::template::Template;
 use serde::Deserialize;
 
@@ -60,6 +60,19 @@ Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallu
             &read_to_string(&config)
                 .with_context(|| format!("Failed to read file {}:", config))?
         ).with_context(|| format!("Failed to deserialize config file {}:", config))
+    }
+
+    pub fn print(&self) {
+        println!(
+" > {back} backend parser
+ > Threshold of {th}
+ > Using {filter} filter
+ > {cs} color space",
+            back   = self.backend.bold().color(self.backend.col()),
+            th     = self.threshold.bold().color(self.threshold_col()),
+            filter = self.filter.bold().color(self.filter.col()),
+            cs     = self.color_space.bold().color(self.color_space.col()),
+        );
     }
 }
 
