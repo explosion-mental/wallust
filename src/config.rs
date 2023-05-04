@@ -78,11 +78,14 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
     for e in entries {
         let path = config.to_owned() + &e.template;
-        contents.push(
-            (&e.target, read_to_string(&path)
-                        .with_context(|| format!("Failed to read file {}:", path))?
-             )
-        );
+        let file_template = match read_to_string(&path) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("    - Skipping {path}: {e}");
+                continue;
+            }
+        };
+        contents.push( (&e.target, file_template) );
     }
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
