@@ -34,9 +34,17 @@ fn main() -> Result<()> {
     } else {
         let cols = if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
-            let c = gen_colors(&cli.file, &conf)?;
-            sp.stop_with_newline();
-            c
+            let c = gen_colors(&cli.file, &conf);
+            match c {
+                Ok(o) => {
+                    sp.stop_with_message(format!("[{}] Color scheme palette generated!", "I".magenta().bold()));
+                    o
+                }
+                Err(e) => {
+                    sp.stop_with_message("".into());
+                    return Err(e);
+                },
+            }
         } else {
             gen_colors(&cli.file, &conf)?
         };
