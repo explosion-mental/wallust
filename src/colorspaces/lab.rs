@@ -38,16 +38,6 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
     // take the *necessary* most used colors
     let mut histo: Vec<Histo> = histo.into_iter().take(MAX_COLS.into()).collect();
 
-    // sort by lightness, first lightest color and last darkest
-    // TODO read more about partial_cmp and float arithmetic
-    // inverting these will create a pseudo light scheme
-    histo.sort_by(|a, b|
-        match &sort {
-            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
-            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
-        }
-    );
-
     if histo.len() < 2 {
         anyhow::bail!("Image should at least have two different pixel colors.");
     }
@@ -59,13 +49,17 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         interpolate(&mut histo, MAX_COLS, threshold);
         // take and sort again
         histo = histo.clone().into_iter().take(MAX_COLS.into()).collect();
-        histo.sort_by(|a, b|
-            match &sort {
-                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
-                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
-            }
-        );
     }
+
+    // sort by lightness, first lightest color and last darkest
+    // TODO read more about partial_cmp and float arithmetic
+    // inverting these will create a pseudo light scheme
+    histo.sort_by(|a, b|
+        match &sort {
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
+        }
+    );
 
     // not enough colors, even after making new colors
     if histo.len() < MIN_COLS.into() {
@@ -85,8 +79,8 @@ fn interpolate(histo: &mut Vec<Histo>, n: u8, threshold: u32) {
     // TODO rather than hardcoding the first() and last(), find an algo to get better and more
     //      random, yet uniform results. Could be as simple as using the rand() crate or just going
     //      +1 on the index inside a while loop until the MIN_COLS are met.
-    let color_a: Myrgb = histo.first().expect("not empty").color.into();
-    let color_b: Myrgb = histo.last().expect("not empty").color.into();
+    let color_a: Myrgb = histo[0].color.into();
+    let color_b: Myrgb = histo[1].color.into();
 
     let mut palette: Vec<Myrgb> = vec![];
 
