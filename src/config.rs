@@ -40,18 +40,24 @@ pub struct Entries {
 impl Config {
     /// Constructs [`Config`] by reading the config file
     pub fn new() -> Result<Config> {
-        let config = shellexpand::tilde("~/.config/wallust/wallust.toml");
-        let config = config.as_ref();
+        let Some(config) = dirs::config_dir() else {
+            anyhow::bail!(
+                "Config path for the platform wasn't found,
+please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        };
+        let config = config.display().to_string() + "/wallust/wallust.toml";
 
+
+        // XXX maybe generate a sample config file if one isn't found
         if ! Path::new(&config).exists() {
             anyhow::bail!(
-"Config file not found, please create ~/.config/wallust/wallust.toml
+                "Config file not found, please create ~/.config/wallust/wallust.toml
 Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml> for a documented example."
             );
         }
 
         toml::from_str(
-            &read_to_string(config)
+            &read_to_string(&config)
                 .with_context(|| format!("Failed to read file {}:", config))?
         ).with_context(|| format!("Failed to deserialize config file {}:", config))
     }
@@ -59,8 +65,12 @@ Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallu
 
 /// Writes `template`s into `target`s
 pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
-    let config = shellexpand::tilde("~/.config/wallust/");
-    let config = config.as_ref();
+    let Some(config) = dirs::config_dir() else {
+        anyhow::bail!(
+            "Config path for the platform wasn't found,
+please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+    };
+    let config = config.display().to_string() + "/wallust/";
 
     // contents of config files
     let mut contents = vec![];

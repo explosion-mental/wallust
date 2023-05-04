@@ -1012,6 +1012,7 @@ version = "2.2.1"
 dependencies = [
  "anyhow",
  "clap",
+ "dirs",
  "glob",
  "image",
  "lab",

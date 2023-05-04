@@ -27,8 +27,15 @@ pub struct Cache {
 impl Cache {
     /// init cache
     pub fn new(filename: PathBuf, c: &Config) -> Result<Self> {
-        let cachepath = format!("{root}/{back}/{th}/{cs}/{filter}",
-            root = shellexpand::tilde("~/.cache/wallust"),
+
+        let Some(cache_path) = dirs::cache_dir() else {
+            anyhow::bail!(
+"The cache path for the platform could not be found,
+please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        };
+
+        let cachepath = format!("{root}/wallust/{back}/{th}/{cs}/{filter}",
+            root = cache_path.display(), // ~/.cache/
             back = c.backend,
             th = c.threshold,
             cs = c.color_space,
