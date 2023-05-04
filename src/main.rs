@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
     // print some info that's gonna be used
     if ! cli.quiet {
-        println!(" > image: {}", cli.file.display());
+        println!("[{i}] {img}: {}", cli.file.display(), i = "I".blue().bold(), img = "image".magenta().bold());
         conf.print();
     }
 
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
-        if ! cli.quiet { println!(" > Using cache {}", cached_data.path.italic()); }
+        if ! cli.quiet { println!("[{i}] {c}: Using cache {}", cached_data.path.italic(), i = "I".blue().bold(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {
         let cols = if ! cli.quiet {
@@ -50,19 +50,19 @@ fn main() -> Result<()> {
 
     // Set sequences
     if ! cli.skip_sequences {
-        if ! cli.quiet { println!(" > sequences: Setting terminal colors.."); }
+        if ! cli.quiet { println!("[{}] {}: Setting terminal colors.", "I".blue().bold(), "sequences".magenta().bold()); }
         colors.sequences()?;
     }
 
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
-        if ! cli.quiet { println!(" > Writing templates.."); }
+        if ! cli.quiet { println!("[{}] {}: Writing templates..", "I".blue().bold(), "templates".magenta().bold()); }
         config::write_template(&s, &colors, cli.quiet)?
     }
 
     // Cache colors
     if ! cached_data.is_cached() {
-        if ! cli.quiet { println!(" > Saving scheme to cache.."); }
+        if ! cli.quiet { println!("[{}] {}: Saving scheme to cache.", "I".blue().bold(), "cache".magenta().bold()); }
         cached_data.write(&colors)?;
     }
 

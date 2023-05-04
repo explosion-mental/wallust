@@ -64,14 +64,19 @@ Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallu
 
     pub fn print(&self) {
         println!(
-" > {back} backend parser
- > Threshold of {th}
- > Using {filter} filter
- > {cs} color space",
-            back   = self.backend.bold().color(self.backend.col()),
-            th     = self.threshold.bold().color(self.threshold_col()),
-            filter = self.filter.bold().color(self.filter.col()),
-            cs     = self.color_space.bold().color(self.color_space.col()),
+"[{i}] {back_f}: Using {back} backend parser
+[{i}] {th_f}: Using delta of {th} in between colors
+[{i}] {cs_f}: Using {cs} colorspace variation
+[{i}] {filter_f}: Using {filter} scheme filter",
+            back     = self.backend.bold().color(self.backend.col()),
+            th       = self.threshold.bold().color(self.threshold_col()),
+            filter   = self.filter.bold().color(self.filter.col()),
+            cs       = self.color_space.bold().color(self.color_space.col()),
+            i        = "I".blue().bold(),
+            back_f   = "image parser".magenta().bold(),
+            th_f     = "threshold".magenta().bold(),
+            filter_f = "scheme".magenta().bold(),
+            cs_f     = "colorspace".magenta().bold(),
         );
     }
 }
@@ -94,7 +99,7 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("    - Skipping {path}: {e}");
+                eprintln!("[{w}] Skipping {path}: {e}", w = "W".red().bold());
                 continue;
             }
         };
