@@ -36,8 +36,14 @@ fn main() -> Result<()> {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
             let c = gen_colors(&cli.file, &conf);
             match c {
-                Ok(o) => {
-                    sp.stop_with_message(format!("[{}] Color scheme palette generated!", "I".magenta().bold()));
+                Ok((o, w)) => {
+                    let msg = if w {
+                        format!("[{w}] Not enough colors in the image, artificially generating new colors..\n[{i}] Color scheme palette generated", i = "I".magenta().bold(), w = "W".red().bold())
+                    } else {
+                        format!("[{}] Color scheme palette generated!", "I".magenta().bold())
+                    };
+
+                    sp.stop_with_message(msg);
                     o
                 }
                 Err(e) => {
@@ -46,7 +52,8 @@ fn main() -> Result<()> {
                 },
             }
         } else {
-            gen_colors(&cli.file, &conf)?
+            let (c, _) = gen_colors(&cli.file, &conf)?;
+            c
         };
         cols
     };
@@ -80,7 +87,7 @@ fn main() -> Result<()> {
 }
 
 /// How [`Colors`] is filled
-fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
+fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<(colors::Colors, bool)> {
     // choose how to sort colors, more on [`ColorOrder`]
     let sort_ord = filters::sort_ord(&c.filter);
 
@@ -89,10 +96,10 @@ fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<colors::Colors> {
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let top = colorspaces::main(c.color_space, &rgb8s, c.threshold, sort_ord)?;
+    let (top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, sort_ord)?;
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
     let colors = filters::main(&c.filter)(&top);
 
-    Ok(colors)
+    Ok((colors, warn))
 }

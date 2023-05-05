@@ -19,8 +19,10 @@ const MIN_COLS: u8 = 6;
 /// the top MAX_COLS lab colors.
 const MAX_COLS: u8 = 16;
 
-pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<Vec<Myrgb>> {
+pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
     let labs = rgb_bytes_to_labs(cols);
+    // This is to indicate if there were any warnings, since we can't print them directly
+    let mut warn = false;
 
     let mut histo: Vec<Histo> = vec![];
 
@@ -48,7 +50,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
     // TODO Don't instantly print "Not enough colors[...]" but just pass it to main to print it at
     // the end. maybe like a tuple `(histo, bool)`
     if histo.len() < MIN_COLS.into() {
-        eprintln!("   Not enough colors, artificially generating new ones..");
+        warn = true;
         // copy the vector and combine over it.
         let combination = histo.clone().into_iter().combinations(2);
         // try to generate new colors with interpolation in between the already gathered colors
@@ -78,7 +80,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         }
     );
 
-    Ok(histo.iter().map(|x| x.color.into()).collect())
+    Ok((histo.iter().map(|x| x.color.into()).collect(), warn))
 }
 
 /// Combines some colors to generate new ones
