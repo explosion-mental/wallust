@@ -12,12 +12,12 @@ use owo_colors::AnsiColors;
 
 mod lab;
 
-const NOT_ENOUGH_COLS: &str =
-"\
-Not enough colors to create a scheme.
-Try changing the threshold or the backend.
-It may very well be that the image doesn't have enough colors.\
-";
+//const NOT_ENOUGH_COLS: &str =
+//"\
+//Not enough colors to create a scheme.
+//Try changing the threshold or the backend.
+//It may very well be that the image doesn't have enough colors.\
+//";
 
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
