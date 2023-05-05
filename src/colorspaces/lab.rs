@@ -45,10 +45,9 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
         anyhow::bail!("Image should at least have two different pixel colors.");
     }
 
-    // Artificially generate colors until we got MIN_COLS
-    //XXX should this be optional, or brute force the scheme palette
-    // TODO Don't instantly print "Not enough colors[...]" but just pass it to main to print it at
-    // the end. maybe like a tuple `(histo, bool)`
+    // Artificially generate colors with linear interpolation in between the colors that we already
+    // have. However even this can even fail and not generate enough different colors, so there is
+    // another check below
     if histo.len() < MIN_COLS.into() {
         warn = true;
         // copy the vector and combine over it.
@@ -67,12 +66,14 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
 
     // not enough colors, even after making new colors (if any)
     if histo.len() < MIN_COLS.into() {
-        anyhow::bail!("New generated colors are not enough for a scheme, quitting.");
+        anyhow::bail!(
+"Colors gathered from the image are not enough for a scheme, even after trying to artificially generate new ones, quitting."
+        );
     }
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    // TODO read more about partial_cmp and float arithmetic
-    // inverting these will create a pseudo light scheme
+    // TODO: read more about partial_cmp and float arithmetic
+    // XXX: inverting these will create a pseudo light scheme
     histo.sort_by(|a, b|
         match &sort {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
@@ -84,13 +85,13 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
 }
 
 /// Combines some colors to generate new ones
+/// Using something similar to <https://github.com/ndavd/colinterp>
+/// I didn't find anything about interpolating CIE L,a*b* colors, only RGB ones, so I'm accepting
+/// converting into and from just for this operation (which should not overhead the program since
+/// at max is only 5 values in combination)
+/// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
 fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, threshold: u32) {
-
-    //take a look at <https://github.com/ndavd/colinterp>
-    //I cannot find anything about interpolating CIE L,a*b* colors, only RGB ones.
-    //I may need to accept the performance drop in encoding and decoding twice
-    //(lab -> rgb -> interpolation -> lab -> sort_by -> rgb)
-
+    //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
     let mut palette: Vec<Myrgb> = vec![];
 
     let jump_r = (f32::from(color_b.0 as i16 - color_a.0 as i16)) / (f32::from(n) - 1.0);
@@ -100,8 +101,6 @@ fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, th
     let mut curr_r = f32::from(color_a.0);
     let mut curr_g = f32::from(color_a.1);
     let mut curr_b = f32::from(color_a.2);
-
-    //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
 
     for _ in 0..n {
         let r = curr_r.round() as u8;
@@ -114,6 +113,7 @@ fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, th
 
     }
 
+    //similar to how it's done at the start of `lab()`
     for c in palette {
         let lab = Lab::from_rgb(&[c.0, c.1, c.2]);
         if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
