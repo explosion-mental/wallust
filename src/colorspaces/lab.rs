@@ -9,6 +9,7 @@
 use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
+use itertools::Itertools;
 
 /// Currently this works in function with the filters methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
@@ -44,14 +45,30 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
 
     // Artificially generate colors until we got MIN_COLS
     //XXX should this be optional, or brute force the scheme palette
+    // TODO Don't instantly print "Not enough colors[...]" but just pass it to main to print it at
+    // the end. maybe like a tuple `(histo, bool)`
     if histo.len() < MIN_COLS.into() {
         eprintln!("   Not enough colors, artificially generating new ones..");
-        interpolate(&mut histo, MAX_COLS, threshold);
-        // take and sort again
-        histo = histo.clone().into_iter().take(MAX_COLS.into()).collect();
+        // copy the vector and combine over it.
+        let combination = histo.clone().into_iter().combinations(2);
+        // try to generate new colors with interpolation in between the already gathered colors
+        for comb in combination {
+            let color_a: Myrgb = comb[0].color.into();
+            let color_b: Myrgb = comb[1].color.into();
+
+            interpolate(&mut histo, color_a, color_b, MAX_COLS, threshold);
+            if histo.len() >= MIN_COLS.into() { break; }
+        }
+        // take again, just to be sure
+        histo = histo.into_iter().take(MAX_COLS.into()).collect();
     }
 
-    // sort by lightness, first lightest color and last darkest
+    // not enough colors, even after making new colors (if any)
+    if histo.len() < MIN_COLS.into() {
+        anyhow::bail!("New generated colors are not enough for a scheme, quitting.");
+    }
+
+    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
     // TODO read more about partial_cmp and float arithmetic
     // inverting these will create a pseudo light scheme
     histo.sort_by(|a, b|
@@ -61,25 +78,16 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<V
         }
     );
 
-    // not enough colors, even after making new colors
-    if histo.len() < MIN_COLS.into() {
-        anyhow::bail!("New generated colors are not enough for a scheme, quitting.");
-    }
-
     Ok(histo.iter().map(|x| x.color.into()).collect())
 }
 
 /// Combines some colors to generate new ones
-fn interpolate(histo: &mut Vec<Histo>, n: u8, threshold: u32) {
+fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, threshold: u32) {
 
     //take a look at <https://github.com/ndavd/colinterp>
     //I cannot find anything about interpolating CIE L,a*b* colors, only RGB ones.
     //I may need to accept the performance drop in encoding and decoding twice
     //(lab -> rgb -> interpolation -> lab -> sort_by -> rgb)
-    // First colors are the most prominent, so it's pretty likely that the top (first, second, etc)
-    // have some prominent differences
-    let color_a: Myrgb = histo[0].color.into();
-    let color_b: Myrgb = histo[1].color.into();
 
     let mut palette: Vec<Myrgb> = vec![];
 
@@ -118,7 +126,7 @@ fn interpolate(histo: &mut Vec<Histo>, n: u8, threshold: u32) {
 
 /// Simple Histogram
 /// TODO think about a better generic way of storing (ColorSpace, count)
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 struct Histo {
     /// LAB colors
     color: ::lab::Lab,
