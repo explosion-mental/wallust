@@ -12,10 +12,15 @@
 
 **It is recommended to clean the cache in a new major and minor release** _but is not required_
 
+
+If you don't have a config file, `wallust` will generate the
+[default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
+for you.
+
 ## Features
 - Sets terminal colors sequences on all active terminals
 - Config file at `~/.config/wallust/wallust.toml` (documented in the sample `wallust.toml` of this repo):
-	* templating integrated in a config file
+	* optional templating integrated in a config file
 	* backends, colorspaces and filters
 	* configurable threshold
 - Cache scheme palette at `~/.cache/wallust`
@@ -30,7 +35,7 @@ opens. `wallust` will store the sequences in `~/.cache/wallust/sequences`, so
 the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
 `.bashrc`, etc.
 
-### Templating & Config File
+### Templating [OPTIONAL]
 You can use `wallust` generated colors in a program by _templating_ the colors
 in it's config file, like the following example:
 ```
