@@ -1,5 +1,6 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
 use std::path::Path;
+use std::fs;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
@@ -45,15 +46,15 @@ impl Config {
                 "Config path for the platform wasn't found,
 please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
         };
-        let config = config.display().to_string() + "/wallust/wallust.toml";
+        let config_dir = config.display().to_string() + "/wallust";
+        let config = config_dir.to_owned() + "/wallust.toml";
 
-
-        // XXX maybe generate a sample config file if one isn't found
         if ! Path::new(&config).exists() {
-            anyhow::bail!(
-                "Config file not found, please create ~/.config/wallust/wallust.toml
-Check out <https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml> for a documented example."
-            );
+            // Create cache dir (with all of it's parents)
+            eprintln!("Config file not found. Creating default one at {config}");
+            fs::create_dir_all(&config_dir)?;
+            File::create(&config)?
+                .write_all(include_str!("../wallust.toml").as_bytes())?;
         }
 
         toml::from_str(
