@@ -51,7 +51,7 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
 
         if ! Path::new(&config).exists() {
             // Create cache dir (with all of it's parents)
-            eprintln!("Config file not found. Creating default one at {config}");
+            eprintln!("[{}] Config file not found. Creating default one at {config}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
             File::create(&config)?
                 .write_all(include_str!("../wallust.toml").as_bytes())?;
