@@ -38,9 +38,9 @@ fn main() -> Result<()> {
             match c {
                 Ok((o, w)) => {
                     let msg = if w {
-                        format!("[{w}] Not enough colors in the image, artificially generating new colors..\n[{i}] Color scheme palette generated", i = "I".magenta().bold(), w = "W".red().bold())
+                        format!("[{w}] Not enough colors in the image, artificially generating new colors..\n[{i}] Color scheme palette generated", i = "I".blue().bold(), w = "W".red().bold())
                     } else {
-                        format!("[{}] Color scheme palette generated!", "I".magenta().bold())
+                        format!("[{}] Color scheme palette generated!", "I".blue().bold())
                     };
 
                     sp.stop_with_message(msg);
