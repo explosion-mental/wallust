@@ -7,7 +7,7 @@
 [![MatrixChat](https://matrix.to/img/matrix-badge.svg)](https://matrix.to/#/#wal-lust:matrix.org)
 <br>
 
-![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.gif "wallust gif")
+![gif](https://explosion-mental.codeberg.page/img/other/wallust-v2.3.gif "wallust gif")
 > sources: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
 
 **It is recommended to clean the cache in a new major and minor release** _but is not required_
