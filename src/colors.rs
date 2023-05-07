@@ -140,7 +140,13 @@ impl Colors {
     /// 10 = foreground, 11 = background, 12 = cursor foreground
     /// 13 = mouse foreground, 708 = background border color.
     pub fn sequences(&self) -> anyhow::Result<()> {
-        let seq_file = shellexpand::tilde("~/.cache/wallust/sequences");
+        let Some(cache_path) = dirs::cache_dir() else {
+            anyhow::bail!(
+"The cache path for the platform could not be found,
+please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        };
+        let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+
         let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
 \x1B]4;1;{col1}\x1B\\\
@@ -201,7 +207,7 @@ impl Colors {
             };
         }
 
-        File::create(seq_file.as_ref())?
+        File::create(seq_file)?
             .write_all(sequences.as_bytes())?;
 
         Ok(())
