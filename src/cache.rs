@@ -44,7 +44,7 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
         // Create cache dir (with all of it's parents)
         fs::create_dir_all(&cachepath)?;
 
-        let md = fs::metadata(&filename)?;
+        let md = fs::metadata(filename)?;
         // The following generates a hash name from a filename and it's `stat` attrs
         let hash_name = format!("{}_{}_{}_{}.json",
             name.to_string_lossy(),
