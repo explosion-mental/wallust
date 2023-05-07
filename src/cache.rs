@@ -21,7 +21,7 @@ const CACHE_VER: &str = "1.0";
 
 impl Cache {
     /// init cache
-    pub fn new(filename: PathBuf, c: &Config) -> Result<Self> {
+    pub fn new(filename: &PathBuf, c: &Config) -> Result<Self> {
 
         let Some(cache_path) = dirs::cache_dir() else {
             anyhow::bail!(

@@ -26,7 +26,7 @@ fn main() -> Result<()> {
     }
 
     // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(cli.file.to_owned(), &conf)?;
+    let cached_data = cache::Cache::new(&cli.file, &conf)?;
 
     // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
