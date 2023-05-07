@@ -17,10 +17,11 @@ mod filters;
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
     let conf = config::Config::new()?;
+    let info = "I".blue().bold().to_string();
 
     // print some info that's gonna be used
     if ! cli.quiet {
-        println!("[{i}] {img}: {}", cli.file.display(), i = "I".blue().bold(), img = "image".magenta().bold());
+        println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
         conf.print();
     }
 
@@ -29,21 +30,20 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
-        if ! cli.quiet { println!("[{i}] {c}: Using cache {}", cached_data.path.italic(), i = "I".blue().bold(), c = "cache".magenta().bold()); }
+        if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
-    } else {
+    } else { // generate colors
         let cols = if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
-            let c = gen_colors(&cli.file, &conf);
-            match c {
+            match gen_colors(&cli.file, &conf) {
                 Ok((o, w)) => {
-                    let msg = if w {
-                        format!("[{w}] Not enough colors in the image, artificially generating new colors..\n[{i}] Color scheme palette generated", i = "I".blue().bold(), w = "W".red().bold())
+                    let warn = if w {
+                        format!("[{}] Not enough colors in the image, artificially generating new colors..", "W".red().bold())
                     } else {
-                        format!("[{}] Color scheme palette generated!", "I".blue().bold())
+                        "".into()
                     };
 
-                    sp.stop_with_message(msg);
+                    sp.stop_with_message(format!("{warn}[{info}] Color scheme palette generated!"));
                     o
                 }
                 Err(e) => {
@@ -65,19 +65,19 @@ fn main() -> Result<()> {
 
     // Set sequences
     if ! cli.skip_sequences {
-        if ! cli.quiet { println!("[{}] {}: Setting terminal colors.", "I".blue().bold(), "sequences".magenta().bold()); }
+        if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
         colors.sequences()?;
     }
 
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
-        if ! cli.quiet { println!("[{}] {}: Writing templates..", "I".blue().bold(), "templates".magenta().bold()); }
+        if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
         config::write_template(&s, &colors, cli.quiet)?
     }
 
     // Cache colors
     if ! cached_data.is_cached() {
-        if ! cli.quiet { println!("[{}] {}: Saving scheme to cache.", "I".blue().bold(), "cache".magenta().bold()); }
+        if ! cli.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
         cached_data.write(&colors)?;
     }
 
