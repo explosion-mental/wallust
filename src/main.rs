@@ -33,7 +33,8 @@ fn main() -> Result<()> {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else { // generate colors
-        let cols = if ! cli.quiet {
+        
+        if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
             match gen_colors(&cli.file, &conf) {
                 Ok((o, w)) => {
@@ -54,8 +55,7 @@ fn main() -> Result<()> {
         } else {
             let (c, _) = gen_colors(&cli.file, &conf)?;
             c
-        };
-        cols
+        }
     };
 
     if ! cli.quiet {
