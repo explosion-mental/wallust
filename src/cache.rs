@@ -52,11 +52,8 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
             md.ino(),
             CACHE_VER,
         );
-        println!("{cachepath}/{hash_name}");
 
-        Ok(Self {
-            path: format!("{cachepath}/{hash_name}"),
-        })
+        Ok(Self { path: format!("{cachepath}/{hash_name}") })
     }
 
     /// Fetches values from a file present in cache
