@@ -96,3 +96,10 @@ for more, grep the src for TODO `rg TODO`
 - Think about using [k means algo](https://en.wikipedia.org/wiki/K-means_clustering)
   similar to [pigmnts](https://github.com/blenderskool/pigmnts) (just without seg faulting :p)
 - use `thiserror` for errors in the modules (there aren't that many)
+
+## Related
+- [pywal - 🎨Generate and change color-schemes on the fly](https://github.com/dylanaraps/pywal)
+- [pywal16 - 16 colors fork of pywal](https://github.com/eylles/pywal16)
+- [wpgtk - 🎴a colorscheme, wallpaper and template manager for *nix](https://github.com/deviantfero/wpgtk)
+- [wal-theme-picker - pick the best theme for the image (_rather than generating one_)](https://github.com/drybalka/wal-theme-picker)
+- [pigmnts - 🎨Color palette generator from an image using WebAssesmbly and Rust](https://github.com/blenderskool/pigmnts)
