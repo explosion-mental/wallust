@@ -19,11 +19,15 @@ for you.
 
 ## Features
 - Sets terminal colors sequences on all active terminals
-- Config file at `~/.config/wallust/wallust.toml` (documented in the sample `wallust.toml` of this repo):
+- Respects directory structure by platform:
+    * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
+    * MacOs: `$HOME/Library/Caches`
+    * Windows: `{FOLDERID_LocalAppData}`
+- Configuration file, documented at `wallust.toml` of this repo:
 	* optional templating integrated in a config file
 	* backends, colorspaces and filters
 	* configurable threshold
-- Cache scheme palette at `~/.cache/wallust`
+- Cache scheme palettes
 
 ### Terminal color sequences
 By default, `wallust` will send these sequences to all open terminals
@@ -31,9 +35,9 @@ By default, `wallust` will send these sequences to all open terminals
 
 When opening new terminals you will notice that the color sequences are not
 applied. To solve this you can send the sequences yourself when your shell
-opens. `wallust` will store the sequences in `~/.cache/wallust/sequences`, so
-the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`,
-`.bashrc`, etc.
+opens. `wallust` will store the sequences in the cache directory as a file
+called `sequences`, the usual way is to `cat ~/.cache/wallust/sequences` in
+your `.zshrc`, `.bashrc`, etc.
 
 ### Templating [OPTIONAL]
 You can use `wallust` generated colors in a program by _templating_ the colors
@@ -51,8 +55,8 @@ set statusbar-bg   "{color4}"
 set statusbar-fg   "{color6}"
 set inputbar-bg    "{color1}"
 ```
-Then add this file to `~/.config/wallust/` (e.g. _~/.config/wallust/zathurarc_)
-and add a new entry to `wallust.toml`
+Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
+(config directory defined by the platform) and add a new entry to `wallust.toml`
 ```toml
 [[entry]]
 template = "zathurarc"
