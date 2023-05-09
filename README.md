@@ -73,20 +73,32 @@ wallust my_wallpaper.png
 ```
 
 ## Installation
-```
-cargo install wallust
-```
+Keep in mind that the git repo is constantly updated, if you wanna use git,
+`checkout` to a stable version.
 
-or, if you cloned the repo
+### Build from source
+#### From this repo
+Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
+page and download the `.zip` or `.tar.gz` repository. After extracting the contents,
+go to the directory (`cd MAYOR.MINOR.PATCH`).
+
+Then you can do the following, which moves the binary into your `$CARGO_HOME/bin`
 ```
 cargo install --path .
 ```
-or just build it (`cargo build --release`) and copy the binary to one folder
-present in your `$PATH` like `/usr/local/bin`
+
+or build it and copy the binary to one folder present in your `$PATH` like
+`/usr/local/bin`
 ```
 cargo build --release
 cp -f ./target/release/wallust /usr/local/bin
 ```
+
+#### From crates.io
+```
+cargo install wallust
+```
+This will use the lastest version
 
 ### NetBSD
 If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
