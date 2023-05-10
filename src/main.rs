@@ -86,9 +86,9 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// How [`Colors`] is filled
+/// How [`Colors`] is filled, returns the colors itself and a bool that indicates whether
+/// [`backends`] had some warnings or not (ugly workaround ik)
 fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<(colors::Colors, bool)> {
-    //TODO make this configurable in `wallust.toml`
     // choose how to sort colors, more on [`ColorOrder`]
     let sort_ord = filters::sort_ord(&c.filter);
 
