@@ -20,9 +20,14 @@ for you.
 ## Features
 - Sets terminal colors sequences on all active terminals
 - Respects directory structure by platform:
-    * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
-    * MacOs: `$HOME/Library/Caches`
-    * Windows: `{FOLDERID_LocalAppData}`
+    * Cache:
+        - Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
+        - MacOs: `$HOME/Library/Caches`
+        - Windows: `{FOLDERID_LocalAppData}`
+    * Config:
+        - Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
+        - MacOs: `$HOME/Library/Application Support`
+        - Windows: `{FOLDERID_RoamingAppData}`
 - Configuration file, documented at `wallust.toml` of this repo:
 	* optional templating integrated in a config file
 	* backends, colorspaces and filters
