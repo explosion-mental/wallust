@@ -39,7 +39,7 @@ fn main() -> Result<()> {
             match gen_colors(&cli.file, &conf) {
                 Ok((o, w)) => {
                     let warn = if w {
-                        format!("[{}] Not enough colors in the image, artificially generating new colors..", "W".red().bold())
+                        format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold())
                     } else {
                         "".into()
                     };
