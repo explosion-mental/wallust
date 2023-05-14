@@ -198,9 +198,14 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
         for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
             match entry {
                 Ok(path) => {
-                    File::create(&path)?
-                        .write_all(sequences.as_bytes())?;
-                    },
+                    match File::create(&path) {
+                        Ok(o) => o,
+                        Err(e) => { //ignore errors, but report them
+                            eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
+                            continue;
+                        },
+                    }.write_all(sequences.as_bytes())?
+                },
                 Err(e) => {
                     anyhow::bail!("Error while sending sequences to terminals:\n{e}")
                 },
