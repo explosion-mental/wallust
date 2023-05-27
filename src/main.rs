@@ -13,6 +13,7 @@ mod colors;
 mod colorspaces;
 mod config;
 mod filters;
+mod template;
 
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
@@ -72,7 +73,7 @@ fn main() -> Result<()> {
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
         if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-        config::write_template(&s, &colors, cli.quiet)?
+        template::write_template(&s, &colors, cli.quiet)?
     }
 
     // Cache colors
