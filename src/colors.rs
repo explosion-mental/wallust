@@ -77,6 +77,40 @@ impl Myrgb {
 
         )
     }
+
+    //This outputs `235,235,235` as r,g,b
+    pub fn rgb(&self) -> String {
+        format!("{},{},{}", self.0, self.1, self.2)
+    }
+
+    //TODO alpha
+    //.rgba output `235,235,235,1.0`
+    pub fn rgba(&self) -> String {
+        let alpha = 1.0;
+        format!("rgba({},{},{},{alpha})", self.0, self.1, self.2)
+    }
+
+    //xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
+    pub fn xrgba(&self) -> String {
+        format!("{:02x}/{:02x}/{:02x}/ff", self.0, self.1, self.2)
+    }
+
+    //This only "strips" the `#` from the usual output, leaving the following: `EEEEEE`
+    pub fn strip(&self) -> String {
+        format!("{:02X}{:02X}{:02X}", self.0, self.1, self.2)
+    }
+
+    pub fn red(&self) -> String {
+        format!("{}", self.0)
+    }
+
+    pub fn green(&self) -> String {
+        format!("{}", self.1)
+    }
+
+    pub fn blue(&self) -> String {
+        format!("{}", self.2)
+    }
 }
 
 impl Colors {
