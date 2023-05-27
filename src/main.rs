@@ -17,8 +17,17 @@ mod template;
 
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
-    let conf = config::Config::new()?;
     let info = "I".blue().bold().to_string();
+
+    // init directories
+    let Some(config_path) = dirs::config_dir() else {
+        anyhow::bail!("Config path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+    };
+    let Some(cache_path) = dirs::cache_dir() else {
+        anyhow::bail!("The cache path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+    };
+
+    let conf = config::Config::new(&config_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -27,7 +36,7 @@ fn main() -> Result<()> {
     }
 
     // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, &conf)?;
+    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
     // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
@@ -67,13 +76,13 @@ fn main() -> Result<()> {
     // Set sequences
     if ! cli.skip_sequences {
         if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences()?;
+        colors.sequences(&cache_path)?;
     }
 
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
         if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-        template::write_template(&cli.file, &s, &colors, cli.quiet)?
+        template::write_template(&config_path, &cli.file, &s, &colors, cli.quiet)?
     }
 
     // Cache colors

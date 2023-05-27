@@ -5,6 +5,7 @@
 use std::fmt;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
@@ -173,12 +174,7 @@ impl Colors {
     /// Source: https://goo.gl/KcoQgP
     /// 10 = foreground, 11 = background, 12 = cursor foreground
     /// 13 = mouse foreground, 708 = background border color.
-    pub fn sequences(&self) -> anyhow::Result<()> {
-        let Some(cache_path) = dirs::cache_dir() else {
-            anyhow::bail!(
-"The cache path for the platform could not be found,
-please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
-        };
+    pub fn sequences(&self, cache_path: &PathBuf) -> anyhow::Result<()> {
         let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
         let sequences = format!(

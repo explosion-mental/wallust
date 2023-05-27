@@ -12,12 +12,7 @@ use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
-pub fn write_template(image_path: &PathBuf, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
-    let Some(config) = dirs::config_dir() else {
-        anyhow::bail!(
-            "Config path for the platform wasn't found,
-please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
-    };
+pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
     let config = config.display().to_string() + "/wallust/";
 
     // contents of config files

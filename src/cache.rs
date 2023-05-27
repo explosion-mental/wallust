@@ -21,13 +21,7 @@ const CACHE_VER: &str = "1.0";
 
 impl Cache {
     /// init cache
-    pub fn new(filename: &PathBuf, c: &Config) -> Result<Self> {
-
-        let Some(cache_path) = dirs::cache_dir() else {
-            anyhow::bail!(
-"The cache path for the platform could not be found,
-please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
-        };
+    pub fn new(filename: &PathBuf, c: &Config, cache_path: &PathBuf) -> Result<Self> {
 
         let Some(name) = filename.file_name() else {
             anyhow::bail!("Using '..' as a parameter is not supported");
