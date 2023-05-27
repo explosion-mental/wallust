@@ -73,7 +73,7 @@ fn main() -> Result<()> {
     // write entries `[[entry]]` of the config file (if any)
     if let Some(s) = conf.entry {
         if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-        template::write_template(&s, &colors, cli.quiet)?
+        template::write_template(&cli.file, &s, &colors, cli.quiet)?
     }
 
     // Cache colors

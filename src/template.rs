@@ -1,6 +1,7 @@
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use std::collections::HashMap;
 
 use crate::config::Entries;
@@ -11,7 +12,7 @@ use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
-pub fn write_template(entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
+pub fn write_template(image_path: &PathBuf, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
     let Some(config) = dirs::config_dir() else {
         anyhow::bail!(
             "Config path for the platform wasn't found,
@@ -38,7 +39,7 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for (target, file_content) in &contents {
-        let rendered = Template::new(file_content).render(&values.to_hash())
+        let rendered = Template::new(file_content).render(&values.to_hash(&image_path))
             .with_context(|| format!("Templating failed with {}:", target))?;
 
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
@@ -53,9 +54,12 @@ please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
 }
 
 impl Colors {
-    pub fn to_hash(&self) -> HashMap<&str, String> {
+    pub fn to_hash(&self, image_path: &PathBuf) -> HashMap<&str, String> {
         let mut map = HashMap::new();
         //XXX instead of multiple `.method()` maybe using enums and match with a single method
+
+        //full path to the image
+        map.insert("wallpaper", image_path.display().to_string());
 
         // normal output `#EEEEEE`
         map.insert("color0" , self.color0 .to_string());
