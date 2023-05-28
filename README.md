@@ -83,6 +83,7 @@ file could be named `sample.conf`, and thus the entry would have `template =
 
 #### Variables and Methods
 - `{wallpaper}`: The full path to the current wallpaper.
+- `{alpha}`: displays 100, this is here to be compatible with pywal templates.
 - `{var}`: Output the color in `hex`.
 - `{var.rgb}`: Output the color in `rgb`.
 - `{var.rgba}`: Output the color in `rgba`.
@@ -92,7 +93,7 @@ file could be named `sample.conf`, and thus the entry would have `template =
 - `{var.green}`: Output the green value.
 - `{var.blue}`: Output the blue value.
 
-Where `var` can be `color0` - `color15`, `background` and `foreground`.
+Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`.
 
 
 ## Installation
