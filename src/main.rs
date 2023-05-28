@@ -39,7 +39,7 @@ fn main() -> Result<()> {
     }
 
     // Whether to load data from cache or to generate one from scratch
-    let colors = if cached_data.is_cached() {
+    let colors = if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {

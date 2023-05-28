@@ -16,5 +16,11 @@ pub struct Cli {
 
     /// Skip setting terminal sequences
     #[arg(short, long)]
-    pub skip_sequences: bool
+    pub skip_sequences: bool,
+
+    /// Generates colors even if there is a cache version of it
+    //ref: https://github.com/dylanaraps/pywal/issues/692
+    //TODO short version will be `-o`, make sure we won't need that flag
+    #[arg(short, long)]
+    pub overwrite_cache: bool,
 }
