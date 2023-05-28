@@ -27,16 +27,16 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
     };
 
+    // check config file or generate one if not one isn't found
     let conf = config::Config::new(&config_path)?;
+    // generate hash cache file name and cache dir to either read or write to it
+    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
         println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
         conf.print();
     }
-
-    // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
     // Whether to load data from cache or to generate one from scratch
     let colors = if cached_data.is_cached() {
