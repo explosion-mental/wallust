@@ -73,6 +73,7 @@ impl Colors {
 
         //full path to the image
         map.insert("wallpaper", image_path.display().to_string());
+        map.insert("alpha", 100.to_string());
 
         // normal output `#EEEEEE`
         map.insert("color0" , self.color0 .to_string());
