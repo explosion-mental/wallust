@@ -42,19 +42,16 @@ fn main() -> Result<()> {
     let colors = if cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
-    } else { // generate colors
-
+    } else {
+        // generate colors
         if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
-            match gen_colors(&cli.file, &conf) {
-                Ok((o, w)) => {
-                    let warn = if w {
-                        format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold())
-                    } else {
-                        "".into()
-                    };
+            let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
 
-                    sp.stop_with_message(format!("{warn}[{info}] Color scheme palette generated!"));
+            //ugly workaround for printing warning, gotta stop the spinner first
+            match gen_colors(&cli.file, &conf) {
+                Ok((o, warn)) => {
+                    sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
                     o
                 }
                 Err(e) => {
