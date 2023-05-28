@@ -1,6 +1,5 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
 use std::path::Path;
-use std::path::PathBuf;
 use std::fs;
 use std::fs::read_to_string;
 use std::fs::File;
@@ -37,7 +36,7 @@ pub struct Entries {
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(config: &PathBuf) -> Result<Config> {
+    pub fn new(config: &Path) -> Result<Config> {
         let config_dir = config.display().to_string() + "/wallust";
         let config = config_dir.to_owned() + "/wallust.toml";
 

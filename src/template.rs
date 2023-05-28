@@ -2,7 +2,7 @@
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::Path;
 use std::collections::HashMap;
 
 use crate::config::Entries;
@@ -13,7 +13,7 @@ use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
-pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
+pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
     let config = config.display().to_string() + "/wallust/";
     let warn = "W".red().bold().to_string();
 
@@ -36,7 +36,7 @@ pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for (target, file_content) in &contents {
-        let rendered = match Template::new(file_content).render(&values.to_hash(&image_path)) {
+        let rendered = match Template::new(file_content).render(&values.to_hash(image_path)) {
             Ok(o) => o,
             Err(e) => {
                 eprintln!("[{warn}] Templating failed with {target}: {e}");
@@ -67,7 +67,7 @@ pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries
 }
 
 impl Colors {
-    pub fn to_hash(&self, image_path: &PathBuf) -> HashMap<&str, String> {
+    pub fn to_hash(&self, image_path: &Path) -> HashMap<&str, String> {
         let mut map = HashMap::new();
         //XXX instead of multiple `.method()` maybe using enums and match with a single method
 

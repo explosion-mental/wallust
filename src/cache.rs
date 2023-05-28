@@ -3,7 +3,6 @@ use std::fs;
 use std::fs::File;
 use std::os::unix::fs::MetadataExt;
 use std::io::Write;
-use std::path::PathBuf;
 use std::path::Path;
 
 use crate::colors::Colors;
@@ -21,7 +20,7 @@ const CACHE_VER: &str = "1.0";
 
 impl Cache {
     /// init cache
-    pub fn new(filename: &PathBuf, c: &Config, cache_path: &PathBuf) -> Result<Self> {
+    pub fn new(filename: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
 
         let Some(name) = filename.file_name() else {
             anyhow::bail!("Using '..' as a parameter is not supported");
