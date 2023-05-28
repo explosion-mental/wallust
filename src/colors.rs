@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
@@ -246,5 +247,27 @@ impl Colors {
             .write_all(sequences.as_bytes())?;
 
         Ok(())
+    }
+}
+
+pub trait HexConversion {
+    fn decode_hex(&self) -> Result<Vec<u8>>;
+}
+
+/// Simple hex decode from string
+/// * input `#EEEEEE` or `EEEEEE`
+/// * output `[238, 238, 238]`
+/// ref: <https://stackoverflow.com/a/52992629>
+impl HexConversion for &str {
+    fn decode_hex(&self) -> Result<Vec<u8>> {
+        let s = if &self[..1] == "#" { &self[1..] } else { &self };
+        if s.len() % 2 != 0 {
+            anyhow::bail!("Error decoding hex, OddLength");
+        } else {
+            (0..s.len())
+                .step_by(2)
+                .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
+                .collect()
+        }
     }
 }

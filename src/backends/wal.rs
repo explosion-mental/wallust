@@ -9,6 +9,7 @@
 //!                we care bout this one
 //! ```
 use crate::backends::*;
+use crate::colors::HexConversion;
 use std::process::Command;
 use std::str;
 
@@ -30,21 +31,7 @@ pub fn wal(f: &PathBuf) -> Result<Vec<u8>> {
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(2);
         let hex = s.next().expect("Should always be present e.g. #EEEEEE");
-        cols.append(&mut decode_hex(hex)?);
+        cols.append(&mut hex.decode_hex()?);
     }
     Ok(cols)
-}
-
-/// Simple hex decode from string, input is like `#EEEEEE`
-/// ref: <https://stackoverflow.com/a/52992629>
-fn decode_hex(s: &str) -> Result<Vec<u8>> {
-    let s = &s[1..];
-    if s.len() % 2 != 0 {
-        anyhow::bail!("Error decoding hex, OddLength");
-    } else {
-        (0..s.len())
-            .step_by(2)
-            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
-            .collect()
-    }
 }
