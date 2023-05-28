@@ -1,3 +1,4 @@
+//! Template stuff, definitions and how it's parsed
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
