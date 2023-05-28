@@ -74,6 +74,7 @@ impl Colors {
         map.insert("color13", self.color13.to_string());
         map.insert("color14", self.color14.to_string());
         map.insert("color15", self.color15.to_string());
+        map.insert("cursor", self.foreground.to_string());
         map.insert("foreground", self.foreground.to_string());
         map.insert("background", self.background.to_string());
 
@@ -94,6 +95,7 @@ impl Colors {
         map.insert("color13.rgb", self.color13.rgb());
         map.insert("color14.rgb", self.color14.rgb());
         map.insert("color15.rgb", self.color15.rgb());
+        map.insert("cursor.rgb", self.foreground.rgb());
         map.insert("foreground.rgb", self.foreground.rgb());
         map.insert("background.rgb", self.background.rgb());
 
@@ -114,6 +116,7 @@ impl Colors {
         map.insert("color13.rgba", self.color13.rgba());
         map.insert("color14.rgba", self.color14.rgba());
         map.insert("color15.rgba", self.color15.rgba());
+        map.insert("cursor.rgba", self.foreground.rgba());
         map.insert("foreground.rgba", self.foreground.rgba());
         map.insert("background.rgba", self.background.rgba());
 
@@ -134,6 +137,7 @@ impl Colors {
         map.insert("color13.xrgba", self.color13.xrgba());
         map.insert("color14.xrgba", self.color14.xrgba());
         map.insert("color15.xrgba", self.color15.xrgba());
+        map.insert("cursor.xrgba", self.foreground.xrgba());
         map.insert("foreground.xrgba", self.foreground.xrgba());
         map.insert("background.xrgba", self.background.xrgba());
 
@@ -154,6 +158,7 @@ impl Colors {
         map.insert("color13.strip", self.color13.strip());
         map.insert("color14.strip", self.color14.strip());
         map.insert("color15.strip", self.color15.strip());
+        map.insert("cursor.strip", self.foreground.strip());
         map.insert("foreground.strip", self.foreground.strip());
         map.insert("background.strip", self.background.strip());
 
@@ -174,6 +179,7 @@ impl Colors {
         map.insert("color13.red", self.color13.red());
         map.insert("color14.red", self.color14.red());
         map.insert("color15.red", self.color15.red());
+        map.insert("cursor.red", self.foreground.red());
         map.insert("foreground.red", self.foreground.red());
         map.insert("background.red", self.background.red());
 
@@ -194,6 +200,7 @@ impl Colors {
         map.insert("color13.green", self.color13.green());
         map.insert("color14.green", self.color14.green());
         map.insert("color15.green", self.color15.green());
+        map.insert("cursor.green", self.foreground.green());
         map.insert("foreground.green", self.foreground.green());
         map.insert("background.green", self.background.green());
 
@@ -214,6 +221,7 @@ impl Colors {
         map.insert("color13.blue", self.color13.blue());
         map.insert("color14.blue", self.color14.blue());
         map.insert("color15.blue", self.color15.blue());
+        map.insert("cursor.blue", self.foreground.blue());
         map.insert("foreground.blue", self.foreground.blue());
         map.insert("background.blue", self.background.blue());
 
