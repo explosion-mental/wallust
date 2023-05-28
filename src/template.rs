@@ -8,13 +8,14 @@ use std::collections::HashMap;
 use crate::config::Entries;
 use crate::colors::Colors;
 
-use anyhow::{Result, Context};
+use anyhow::Result;
 use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
 pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
     let config = config.display().to_string() + "/wallust/";
+    let warn = "W".red().bold().to_string();
 
     // contents of config files
     let mut contents = vec![];
@@ -25,7 +26,7 @@ pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("[{w}] Skipping {path}: {e}", w = "W".red().bold());
+                eprintln!("[{warn}] Skipping {path}: {e}");
                 continue;
             }
         };
@@ -35,15 +36,31 @@ pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for (target, file_content) in &contents {
-        let rendered = Template::new(file_content).render(&values.to_hash(&image_path))
-            .with_context(|| format!("Templating failed with {}:", target))?;
+        let rendered = match Template::new(file_content).render(&values.to_hash(&image_path)) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{warn}] Templating failed with {target}: {e}");
+                continue;
+            }
+        };
 
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let mut buffer = File::create(shellexpand::tilde(target).as_ref())
-            .with_context(|| format!("Failed to create file {}:", target))?;
+        let mut buffer = match File::create(shellexpand::tilde(target).as_ref()) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{warn}] Failed to create file {target}: {e}");
+                continue;
+            }
+        };
 
-        buffer.write_all(rendered.as_bytes())
-            .with_context(|| format!("Failed to write to file {}:", target))?;
+        match buffer.write_all(rendered.as_bytes()) {
+            Ok(()) => (),
+            Err(e) => {
+                eprintln!("[{warn}] Failed to write to file {target}: {e}");
+                continue;
+            }
+        }
+
         if ! quiet { println!("    * {} ... OK", target); }
     }
     Ok(())
