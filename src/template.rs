@@ -17,7 +17,7 @@ pub fn write_template(config: &PathBuf, image_path: &PathBuf, entries: &[Entries
     let config = config.display().to_string() + "/wallust/";
     let warn = "W".red().bold().to_string();
 
-    // contents of config files
+    // contents of config files (basically a dict)
     let mut contents = vec![];
 
     // gather `String`s of the contents of the entries (in order to cast it down to &str)
