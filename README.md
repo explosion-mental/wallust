@@ -17,6 +17,11 @@ If you don't have a config file, `wallust` will generate the
 [default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
 for you.
 
+## Usage
+```
+wallust my_wallpaper.png
+```
+
 ## Features
 - Sets terminal colors sequences on all active terminals
 - Respects directory structure by platform:
@@ -67,19 +72,41 @@ Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
 template = "zathurarc"
 target = "~/.config/zathura/zathurarc"
 ```
+You can find examples at
+[pywal templates](https://github.com/dylanaraps/pywal/tree/master/pywal/templates)
+or
+[wpgtk templates](https://github.com/deviantfero/wpgtk-templates)
 
 **NOTE:** The template name doesn't have to match the target name: e.g. the
 file could be named `sample.conf`, and thus the entry would have `template =
 "sample.conf"`, but the target can remain the same, e.g. `target = "~/.config/zathurarc"`.
 
-## Usage
-```
-wallust my_wallpaper.png
-```
+#### Variables and Methods
+- `{wallpaper}`: The full path to the current wallpaper.
+- `{var}`: Output the color in `hex`.
+- `{var.rgb}`: Output the color in `rgb`.
+- `{var.rgba}`: Output the color in `rgba`.
+- `{var.xrgba}`: Output the color in `xrgb`.
+- `{var.strip}`: Output the color in `hex` (without a `#`).
+- `{var.red}`: Output the red value.
+- `{var.green}`: Output the green value.
+- `{var.blue}`: Output the blue value.
+
+Where `var` can be `color0` - `color15`, `background` and `foreground`.
+
 
 ## Installation
 Keep in mind that the git repo is constantly updated, if you wanna use git,
 `checkout` to a stable version.
+
+### Binary
+Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
+and download the `tar.gz` file, which contains a binary for musl, so it should
+work for most *nix platforms.
+
+```
+tar -xf wallust-TARGET.tar.gz
+```
 
 ### Build from source
 #### From this repo
@@ -111,9 +138,9 @@ If you are using NetBSD, a native package is available from the official reposit
 pkgin install wallust
 ```
 
-## TODO
+## TODOs
 for more, grep the src for TODO `rg TODO`
-- **release binaries** - figure out woodkeeper codeberg CI
+- release binaries with a CI, figure out woodkeeper codeberg CI
 - Think about using [k means algo](https://en.wikipedia.org/wiki/K-means_clustering)
   similar to [pigmnts](https://github.com/blenderskool/pigmnts) (just without seg faulting :p)
 - use `thiserror` for errors in the modules (there aren't that many)
