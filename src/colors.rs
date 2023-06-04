@@ -260,7 +260,7 @@ pub trait HexConversion {
 /// ref: <https://stackoverflow.com/a/52992629>
 impl HexConversion for &str {
     fn decode_hex(&self) -> Result<Vec<u8>> {
-        let s = if &self[..1] == "#" { &self[1..] } else { &self };
+        let s = if &self[..1] == "#" { &self[1..] } else { self };
         if s.len() % 2 != 0 {
             anyhow::bail!("Error decoding hex, OddLength");
         } else {
