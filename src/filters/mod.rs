@@ -20,6 +20,7 @@ use self::Filters::*;
 
 mod dark;
 mod dark16;
+mod harddark;
 mod light;
 mod light16;
 
@@ -31,6 +32,8 @@ pub enum Filters {
     Dark,
     /// Dark bg and fg with some opaque variations, making 16 colors
     Dark16,
+    /// Dark with hard hue colors
+    HardDark,
     /// Light bg, dark fg
     Light,
     /// Same as [`Light`] but with 8 color variations, making 16 in total
@@ -41,6 +44,7 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
     match f {
         Dark    => dark::dark,
         Dark16  => dark16::dark16,
+        HardDark => harddark::harddark,
         Light   => light::light,
         Light16 => light16::light16,
     }
@@ -50,6 +54,8 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
         Dark  | Dark16  => crate::colorspaces::ColorOrder::LightFirst,
+
+        HardDark |
         Light | Light16 => crate::colorspaces::ColorOrder::DarkFirst,
     }
 }
@@ -60,6 +66,7 @@ impl Filters {
         match self {
             Dark => AnsiColors::Blue,
             Dark16 => AnsiColors::Green,
+            HardDark => AnsiColors::Magenta,
             Light => AnsiColors::Yellow,
             Light16 => AnsiColors::Cyan,
         }
@@ -72,6 +79,7 @@ impl fmt::Display for Filters {
         match self {
             Dark => write!(f, "Dark"),
             Dark16 => write!(f, "Dark16"),
+            HardDark => write!(f, "HardDark"),
             Light => write!(f, "Light"),
             Light16 => write!(f, "Light16"),
         }
