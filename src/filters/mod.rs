@@ -13,6 +13,9 @@ use serde::{Serialize, Deserialize};
 
 use crate::colors::{Colors, Myrgb};
 
+/// re export to shorten from `Filters::Dark` to `Dark`
+use self::Filters::*;
+
 mod dark;
 mod dark16;
 mod light;
@@ -31,9 +34,6 @@ pub enum Filters {
     /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
 }
-
-/// re export to shorten from `Filters::Dark` to `Dark`
-use self::Filters::*;
 
 pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
     match f {
