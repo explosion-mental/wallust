@@ -22,9 +22,13 @@ mod light16;
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
+    /// Dark bg, light fg
     Dark,
+    /// Dark bg and fg with some opaque variations, making 16 colors
     Dark16,
+    /// Light bg, dark fg
     Light,
+    /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
 }
 
