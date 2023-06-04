@@ -19,8 +19,7 @@ pub struct Cli {
     pub skip_sequences: bool,
 
     /// Generates colors even if there is a cache version of it
-    //ref: https://github.com/dylanaraps/pywal/issues/692
-    //TODO short version will be `-o`, make sure we won't need that flag
+    //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short, long)]
     pub overwrite_cache: bool,
 }

@@ -68,10 +68,7 @@ impl Cache {
 
     /// To determine whether to read from cache or to generate the colors from scratch
     pub fn is_cached(&self) -> bool {
-        if Path::new(&self.path).exists() {
-            return true;
-        }
-        false
+        if Path::new(&self.path).exists() { true } else { false }
     }
 }
 
