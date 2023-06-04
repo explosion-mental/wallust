@@ -1,4 +1,5 @@
-//! Default method to generate colors
+//! # dark
+//! Default method to generate colors. Sorted by [`LightFirst`]
 use crate::filters::*;
 
 pub fn dark(c: &[Myrgb]) -> Colors {

@@ -1,3 +1,4 @@
+//! # light
 //! light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 use crate::filters::*;
 

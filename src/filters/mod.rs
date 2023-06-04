@@ -4,8 +4,10 @@
 //! least 6 colors, so don't fear on using `.expect()` with this certainty and avoiding boilerplate
 //! code. The scenario in which an image has less than those colors is possible and already handled in
 //! the [`colorspaces`] module, so don't bother with that.
+//!
 //! * TODO maybe on v3.0.0 change name to scheme, which sounds better.
-//! * XXX would other filters need more than 6 (or even 8) colors? if so, change the return type to `Result<Colors>`
+//! * XXX would other filters need more than 6 (or even 8) colors? if so, change the return type to
+//!   `Result<Colors>` or just fallback to a scheme
 use std::fmt;
 
 use owo_colors::AnsiColors;
