@@ -1,5 +1,6 @@
 [package]
 name = "wallust"
+# name = "wal" # TODO drop in replacement for wal
 version = "2.4.1"
 edition = "2021"
 license = "MIT"
@@ -28,7 +29,3 @@ itertools = "0.10"
 
 clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
-
-# TODO drop-in replacement for `wal`
-#[[bin]]
-#name = "wal"
