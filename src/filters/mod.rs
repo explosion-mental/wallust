@@ -23,6 +23,7 @@ mod dark16;
 mod harddark;
 mod light;
 mod light16;
+mod softlight;
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
@@ -38,6 +39,8 @@ pub enum Filters {
     Light,
     /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
+    /// Light with soft pastel colors
+    SoftLight,
 }
 
 pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
@@ -47,12 +50,14 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
         HardDark => harddark::harddark,
         Light   => light::light,
         Light16 => light16::light16,
+        SoftLight => softlight::softlight,
     }
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
+        SoftLight |
         Dark  | Dark16  => crate::colorspaces::ColorOrder::LightFirst,
 
         HardDark |
@@ -69,6 +74,7 @@ impl Filters {
             HardDark => AnsiColors::Magenta,
             Light => AnsiColors::Yellow,
             Light16 => AnsiColors::Cyan,
+            SoftLight => AnsiColors::BrightYellow,
         }
     }
 }
@@ -82,6 +88,7 @@ impl fmt::Display for Filters {
             HardDark => write!(f, "HardDark"),
             Light => write!(f, "Light"),
             Light16 => write!(f, "Light16"),
+            SoftLight => write!(f, "SoftLight"),
         }
     }
 }
