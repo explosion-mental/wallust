@@ -20,6 +20,10 @@ pub struct Cli {
 
     /// Generates colors even if there is a cache version of it
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
-    #[arg(short, long)]
+    #[arg(short = 'c', long)]
     pub overwrite_cache: bool,
+
+    /// Don't cache the results
+    #[arg(short, long)]
+    pub no_cache: bool,
 }
