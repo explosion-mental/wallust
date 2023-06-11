@@ -258,13 +258,32 @@ pub trait HexConversion {
 /// * input `#EEEEEE` or `EEEEEE`
 /// * output `[238, 238, 238]`
 /// ref: <https://stackoverflow.com/a/52992629>
+/// # Example
+/// ```
+/// # use wallust::colors::HexConversion;
+/// let gray    = "#EEEEEE".decode_hex().unwrap();
+/// let no_hash = "EE0000".decode_hex().unwrap();
+/// assert_eq!(vec![238, 238, 238], gray);
+/// assert_eq!(vec![238, 0, 0], no_hash);
+/// ```
+///
+/// # Errors
+/// ```
+/// # use wallust::colors::HexConversion;
+/// let wrong_letter   = "#EEEEEG".decode_hex().unwrap_err();
+/// let unneeded_chars = "##EEEEEE".decode_hex().unwrap_err();
+/// assert_eq!("invalid digit found in string", wrong_letter.to_string());
+/// assert_eq!("Error decoding hex, OddLength", unneeded_chars.to_string());
+/// ```
 impl HexConversion for &str {
     fn decode_hex(&self) -> Result<Vec<u8>> {
         let s = if &self[..1] == "#" { &self[1..] } else { self };
-        if s.len() % 2 != 0 {
+        let len = s.len();
+
+        if len % 2 != 0 {
             anyhow::bail!("Error decoding hex, OddLength");
         } else {
-            (0..s.len())
+            (0..len)
                 .step_by(2)
                 .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
                 .collect()
