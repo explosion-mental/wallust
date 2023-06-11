@@ -6,14 +6,16 @@ use anyhow::Result;
 use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
 
-mod args;
-mod backends;
-mod cache;
-mod colors;
-mod colorspaces;
-mod config;
-mod filters;
-mod template;
+use wallust::{
+    args,
+    backends,
+    cache,
+    colors,
+    colorspaces,
+    config,
+    filters,
+    template,
+};
 
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
