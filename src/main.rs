@@ -5,6 +5,7 @@ use clap::Parser;
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
+use std::ffi::OsStr;
 
 use wallust::{
     args,
@@ -15,6 +16,7 @@ use wallust::{
     config,
     filters,
     template,
+    themes,
 };
 
 fn main() -> Result<()> {
@@ -34,15 +36,21 @@ fn main() -> Result<()> {
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
+    let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json");
+
     // print some info that's gonna be used
     if ! cli.quiet {
-        println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
+        let msg = if is_theme { "theme" } else { "image" };
+        println!("[{info}] {img}: {f}", f = cli.file.display(), img = msg.magenta().bold());
         conf.print();
     }
 
+
     // Whether to load data from cache or to generate one from scratch
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
-    let colors = if !cli.overwrite_cache && cached_data.is_cached() {
+    let colors = if is_theme {
+        themes::wal(&cli.file)?
+    } else if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {

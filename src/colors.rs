@@ -290,3 +290,10 @@ impl HexConversion for &str {
         }
     }
 }
+
+/// From a vec to Myrgb
+impl From<Vec<u8>> for Myrgb {
+    fn from(v: Vec<u8>) -> Myrgb {
+        Myrgb(v[0], v[1], v[2])
+    }
+}
