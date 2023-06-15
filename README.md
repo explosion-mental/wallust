@@ -45,7 +45,8 @@ it's rgb8 bytes. This can be done the _usual_ way using imagemagick
 [convert](https://imagemagick.org/script/command-line-processing.php) tool,
 just like how
 [`pywal` does it](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14),
-which `wallust` can also do (this requires the actual CLI program `convert` installed).
+which `wallust` can also do (this requires the actual CLI program `convert`
+installed), or other methods **dependency free**.
 
 
 ### ColorSpace
@@ -174,6 +175,16 @@ If you are using NetBSD, a native package is available from the official reposit
 ```
 pkgin install wallust
 ```
+
+## Contribute!
+Show some of your taste by changing the
+[backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
+[colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces)
+and/or
+[filters](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/filters).
+
+
+Having thoughts or suggestios is also very welcome.
 
 ## TODOs
 for more, grep the src for TODO `rg TODO`
