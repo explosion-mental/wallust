@@ -177,7 +177,7 @@ pkgin install wallust
 ```
 
 ## Contribute!
-Show some of your taste by changing the
+Show some of your taste by adding a
 [backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
 [colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces)
 and/or
