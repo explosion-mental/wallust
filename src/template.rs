@@ -30,12 +30,14 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
                 continue;
             }
         };
-        contents.push( (&e.target, file_template) );
+        contents.push( (&e.target, file_template, path) );
     }
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
-    for (target, file_content) in &contents {
+    for (target, file_content, template_path) in &contents {
+        if ! quiet { println!("  * Templating: {template_path}"); }
+
         let rendered = match Template::new(file_content).render(&values.to_hash(image_path)) {
             Ok(o) => o,
             Err(e) => {
@@ -61,7 +63,7 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
             }
         }
 
-        if ! quiet { println!("    * {} ... OK", target); }
+        if ! quiet { println!("      Created: {} ... OK", target); }
     }
     Ok(())
 }
