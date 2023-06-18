@@ -59,7 +59,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
             let color_b: Myrgb = comb[1].color.into();
 
             interpolate(&mut histo, color_a, color_b, MAX_COLS, threshold);
-            if histo.len() >= MIN_COLS.into() { break; }
+            if histo.len() >= MIN_COLS.into() { break; } //enough colors, stop interpolating
         }
         // take again, just to be sure
         histo = histo.into_iter().take(MAX_COLS.into()).collect();
@@ -80,7 +80,9 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
         }
     );
 
-    Ok((histo.iter().map(|x| x.color.into()).collect(), warn))
+    let histo: Vec<Myrgb> = histo.iter().map(|x| x.color.into()).collect();
+
+    Ok((histo, warn))
 }
 
 /// Combines some colors to generate new ones
