@@ -67,9 +67,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
 
     // not enough colors, even after making new colors (if any)
     if histo.len() < MIN_COLS.into() {
-        anyhow::bail!(
-"Colors gathered from the image are not enough for a scheme, even after trying to artificially generate new ones, quitting."
-        );
+        anyhow::bail!(NOT_ENOUGH_COLS);
     }
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
