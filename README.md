@@ -176,6 +176,29 @@ If you are using NetBSD, a native package is available from the official reposit
 pkgin install wallust
 ```
 
+### Nix
+If you are using Nix, a native package is available for the [unstable channel][nix-search]. Run:
+
+```
+nix-env -iA nixos.wallust # change `nixos` for `nixpkgs`, if on a non-NixOS system
+```
+
+to install it for your profile;
+
+```
+nix-shell -p wallust
+```
+
+to try it with `nix-shell`; and finally
+
+```
+nix run nixpkgs#wallust
+```
+
+to directly run it, if using `flakes`.
+
+[nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
+
 ## Contribute!
 Show some of your taste by adding a
 [backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
