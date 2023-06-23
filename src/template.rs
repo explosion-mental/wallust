@@ -38,14 +38,7 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
     for (target, file_content, template_path) in &contents {
         if ! quiet { println!("  * Templating: {template_path}"); }
 
-        let rendered = match Template::new(file_content).render(&values.to_hash(image_path)) {
-            Ok(o) => o,
-            Err(e) => {
-                eprintln!("[{warn}] Templating failed with {target}: {e}");
-                continue;
-            }
-        };
-
+        let rendered = Template::new(file_content).render_nofail(&values.to_hash(image_path));
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let mut buffer = match File::create(shellexpand::tilde(target).as_ref()) {
             Ok(o) => o,
