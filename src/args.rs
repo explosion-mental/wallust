@@ -26,4 +26,8 @@ pub struct Cli {
     /// Don't cache the results
     #[arg(short, long)]
     pub no_cache: bool,
+
+    /// Use PATH as the config directory
+    #[arg(short = 'C', long, value_name = "PATH")]
+    pub config_path: Option<PathBuf>,
 }
