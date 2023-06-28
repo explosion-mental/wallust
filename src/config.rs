@@ -1,5 +1,6 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
 use std::path::Path;
+use std::path::PathBuf;
 use std::fs;
 use std::fs::read_to_string;
 use std::fs::File;
@@ -36,13 +37,22 @@ pub struct Entries {
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(config: &Path) -> Result<Config> {
-        let config_dir = config.display().to_string() + "/wallust";
-        let config = config_dir.to_owned() + "/wallust.toml";
+    pub fn new(config: &Path, custom: Option<&PathBuf>) -> Result<Config> {
 
-        if ! Path::new(&config).exists() {
-            // Create cache dir (with all of it's parents)
-            eprintln!("[{}] Config file not found.. creating default one at {config}", "W".red().bold());
+        // init `.config/wallust/wallust.toml`
+        let config_dir = config.display().to_string() + "/wallust";
+        let def_conf = PathBuf::from(config_dir.to_owned() + "/wallust.toml");
+
+        // is the user using `--config-path`
+        let (config, default_path) = match custom {
+            None => (&def_conf, true),
+            Some(s) => (s, false),
+        };
+
+        // Create cache dir (with all of it's parents) ONLY if the flag `--config-path` isn't in use
+        if ! Path::new(&config).exists() && default_path {
+            let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
+            eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
             File::create(&config)?
                 .write_all(include_str!("../wallust.toml").as_bytes())?;
@@ -50,8 +60,8 @@ impl Config {
 
         toml::from_str(
             &read_to_string(&config)
-                .with_context(|| format!("Failed to read file {}:", config))?
-        ).with_context(|| format!("Failed to deserialize config file {}:", config))
+                .with_context(|| format!("Failed to read file {}:", config.display()))?
+        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))
     }
 
     pub fn print(&self) {

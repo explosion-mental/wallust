@@ -22,13 +22,7 @@ fn main() -> Result<()> {
     let info = "I".blue().bold().to_string();
 
     // init directories
-    let Some(config_path) = (|| -> Option<PathBuf> {
-        if let Some(c) = &cli.config_path {
-            Some(c.to_owned())
-        } else {
-            dirs::config_dir()
-        }
-    })() else {
+    let Some(config_path) = dirs::config_dir() else {
         anyhow::bail!("Config path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
     };
     let Some(cache_path) = dirs::cache_dir() else {
@@ -36,7 +30,7 @@ fn main() -> Result<()> {
     };
 
     // check config file or generate one if not one isn't found
-    let conf = config::Config::new(&config_path)?;
+    let conf = config::Config::new(&config_path, cli.config_path.as_ref())?;
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
