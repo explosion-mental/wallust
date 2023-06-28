@@ -54,12 +54,12 @@ impl Config {
             let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
             eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
-            File::create(&config)?
+            File::create(config)?
                 .write_all(include_str!("../wallust.toml").as_bytes())?;
         }
 
         toml::from_str(
-            &read_to_string(&config)
+            &read_to_string(config)
                 .with_context(|| format!("Failed to read file {}:", config.display()))?
         ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))
     }
