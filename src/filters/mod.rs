@@ -26,7 +26,7 @@ mod light16;
 mod softlight;
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
     /// Dark bg, light fg

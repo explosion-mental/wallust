@@ -33,10 +33,12 @@ pub enum ColorOrder {
 }
 
 /// Corresponds to the modules inside this module and `color_space` parameter in the config file.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpaces {
+    /// Uses Cie L*a*b color space
     Lab,
+    /// Same as `lab` but mixes the colors gathered
     LabMixed,
 }
 

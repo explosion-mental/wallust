@@ -17,12 +17,16 @@ mod thumb;
 
 /// This indicates what 'parser' method to use, defined in the config file.
 /// Corresponds to the modules inside this module
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
+    /// Read and return the whole image pixels
     Full,
+    /// Resize it, then get read the image
     Resized,
+    /// Uses image magick to generate the colors, like pywal
     Wal,
+    /// Faster algo than the `resized` module, hardcoded to 512x512
     Thumb,
 }
 

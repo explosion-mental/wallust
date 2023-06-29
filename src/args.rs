@@ -2,6 +2,12 @@
 //! * consider using the same flags as `pywal`, in order to be a drop-in replacement..
 use std::path::PathBuf;
 
+use crate::{
+    backends::Backend,
+    colorspaces::ColorSpaces,
+    filters::Filters,
+};
+
 use clap::Parser;
 
 #[derive(Parser, Debug)]
@@ -20,7 +26,7 @@ pub struct Cli {
 
     /// Generates colors even if there is a cache version of it
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
-    #[arg(short = 'c', long)]
+    #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
 
     /// Don't cache the results
@@ -30,4 +36,16 @@ pub struct Cli {
     /// Use PATH as the config directory
     #[arg(short = 'C', long, value_name = "PATH")]
     pub config_path: Option<PathBuf>,
+
+    /// Custom backend (ignores config file)
+    #[arg(short, long, value_enum)]
+    backend: Option<Backend>,
+
+    /// Custom colorspace (ignores config file)
+    #[arg(short, long, value_enum)]
+    colorspace: Option<ColorSpaces>,
+
+    /// Custom filter (ignores config file)
+    #[arg(short, long, value_enum)]
+    filter: Option<Filters>,
 }
