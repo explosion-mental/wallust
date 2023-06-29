@@ -21,6 +21,7 @@ for you.
 ```
 wallust my_wallpaper.png
 ```
+_use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
 ## Features
 - Sets terminal colors sequences on all active terminals
