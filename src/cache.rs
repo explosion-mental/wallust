@@ -1,9 +1,15 @@
 //! Cache functions, serde + serde_json
 use std::fs;
 use std::fs::File;
-use std::os::unix::fs::MetadataExt;
 use std::io::Write;
 use std::path::Path;
+
+
+#[cfg(unix)]
+use std::os::unix::fs::MetadataExt;
+
+#[cfg(windows)]
+use std::os::windows::fs::MetadataExt;
 
 use crate::colors::Colors;
 use crate::config::Config;
@@ -37,12 +43,20 @@ impl Cache {
         // Create cache dir (with all of it's parents)
         fs::create_dir_all(&cachepath)?;
 
+        // get medatada
         let md = fs::metadata(filename)?;
+
+        // use the ino number on *nix systems, and the "magick file number" on windows
+        #[cfg(unix)]
+        let num = md.ino();
+        #[cfg(windows)]
+        let num = md.file_attributes() ;
+
         // The following generates a hash name from a filename and it's `stat` attrs
         let hash_name = format!("{}_{}_{}_{}.json",
             name.to_string_lossy(),
             md.len(),
-            md.ino(),
+            num,
             CACHE_VER,
         );
 
