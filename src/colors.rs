@@ -12,7 +12,7 @@ use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
 /// This is how the scheme it's organized
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Copy, Clone)]
 pub struct Colors {
     pub background: Myrgb,
     pub foreground: Myrgb,

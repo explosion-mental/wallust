@@ -7,7 +7,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    /// Path to an image file to use
+    /// Path to an image or json theme to use
     pub file: PathBuf,
 
     /// Don't print anything
@@ -26,4 +26,8 @@ pub struct Cli {
     /// Don't cache the results
     #[arg(short, long)]
     pub no_cache: bool,
+
+    /// theme
+    #[arg(short, long)]
+    pub theme: Option<String>,
 }

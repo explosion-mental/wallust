@@ -36,7 +36,7 @@ fn main() -> Result<()> {
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
-    let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json");
+    let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") || cli.theme != None;
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -48,8 +48,10 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate one from scratch
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
+
     let colors = if is_theme {
-        themes::wal(&cli.file)?
+        //themes::wal(&cli.file)?
+        themes::new(cli.theme.unwrap())?
     } else if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?

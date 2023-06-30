@@ -8,7 +8,7 @@
 //!
 //! * TODO OPTIONALLY (with compile time features) integrate the classic `pywal`/terminal sexy
 //!        themes in the binary and access them with `-t/--theme` (e.g. `wallust --theme 3024`)
-use std::path::PathBuf;
+use std::{path::PathBuf, fs::DirEntry};
 
 use crate::colors::{Colors, HexConversion};
 
@@ -82,6 +82,44 @@ pub fn wal(path: &PathBuf) -> Result<Colors> {
     let contents = std::fs::read_to_string(path)?;
     let ser: WalTheme = serde_json::from_str(&contents)?;
     ser.to_colors()
+}
+
+use std::collections::HashMap;
+use include_dir::{include_dir, Dir, DirEntry as MyDir};
+
+/// raw '[u8] from the files
+static COLS_DIR: Dir<'_> = include_dir!("colorschemes/dark");
+
+lazy_static::lazy_static! {
+    /// colorschemes from files to a hashmap
+    // TODO this should be a compile time feature
+    static ref COLS: HashMap<String, Colors> = {
+        //let p_dark = std::fs::read_dir("./colorschemes/dark/").unwrap();
+        let mut ret = HashMap::new();
+        let read = |x| {
+            let ser: WalTheme = serde_json::from_str(x).unwrap();
+            ser.to_colors().unwrap()
+        };
+
+        for i in COLS_DIR.entries() {
+            let file = match i {
+                MyDir::File(a) => a,
+                MyDir::Dir(_) => continue,
+            };
+            ret.insert(
+                file.path().file_stem().unwrap().to_string_lossy().to_string(),
+                read(file.contents_utf8().unwrap())
+            );
+        }
+        ret
+    };
+}
+
+pub fn new(file: String) -> Result<Colors> {
+    match COLS.get(&file) {
+        Some(s) => Ok(*s),
+        None => panic!("NO FILE"),
+    }
 }
 
 // pub fn terminalsexy(path: &PathBuf) -> Result<Colors> {
