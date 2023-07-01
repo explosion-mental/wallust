@@ -8,7 +8,7 @@
 //!
 //! * TODO OPTIONALLY (with compile time features) integrate the classic `pywal`/terminal sexy
 //!        themes in the binary and access them with `-t/--theme` (e.g. `wallust --theme 3024`)
-use std::{path::PathBuf, fs::DirEntry};
+use std::{path::PathBuf};
 
 use crate::colors::{Colors, HexConversion};
 
@@ -87,29 +87,39 @@ pub fn wal(path: &PathBuf) -> Result<Colors> {
 use std::collections::HashMap;
 use include_dir::{include_dir, Dir, DirEntry as MyDir};
 
-/// raw '[u8] from the files
-static COLS_DIR: Dir<'_> = include_dir!("colorschemes/dark");
+/// raw &[u8]
+static COLS_DIR_DARK: Dir<'_> = include_dir!("colorschemes/dark");
+static COLS_DIR_LIGHT: Dir<'_> = include_dir!("colorschemes/light");
 
 lazy_static::lazy_static! {
     /// colorschemes from files to a hashmap
     // TODO this should be a compile time feature
     static ref COLS: HashMap<String, Colors> = {
-        //let p_dark = std::fs::read_dir("./colorschemes/dark/").unwrap();
         let mut ret = HashMap::new();
         let read = |x| {
             let ser: WalTheme = serde_json::from_str(x).unwrap();
             ser.to_colors().unwrap()
         };
 
-        for i in COLS_DIR.entries() {
+        for i in COLS_DIR_DARK.entries() {
             let file = match i {
                 MyDir::File(a) => a,
                 MyDir::Dir(_) => continue,
             };
-            ret.insert(
-                file.path().file_stem().unwrap().to_string_lossy().to_string(),
-                read(file.contents_utf8().unwrap())
-            );
+
+            let key = file.path().file_stem().unwrap().to_string_lossy().to_string();
+            let color_de = file.contents_utf8().unwrap();
+            ret.insert(key + "-dark", read(color_de));
+        }
+
+        for i in COLS_DIR_LIGHT.entries() {
+            let file = match i {
+                MyDir::File(a) => a,
+                MyDir::Dir(_) => continue,
+            };
+            let key = file.path().file_stem().unwrap().to_string_lossy().to_string();
+            let color_de = file.contents_utf8().unwrap();
+            ret.insert(key + "-light", read(color_de));
         }
         ret
     };
@@ -118,7 +128,7 @@ lazy_static::lazy_static! {
 pub fn new(file: String) -> Result<Colors> {
     match COLS.get(&file) {
         Some(s) => Ok(*s),
-        None => panic!("NO FILE"),
+        None => anyhow::bail!("Theme not found.\nQuitting..."),
     }
 }
 
