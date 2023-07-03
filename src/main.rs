@@ -45,7 +45,6 @@ fn main() -> Result<()> {
         conf.print();
     }
 
-
     // Whether to load data from cache or to generate one from scratch
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
 

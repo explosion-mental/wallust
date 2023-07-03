@@ -27,7 +27,20 @@ pub struct Cli {
     #[arg(short, long)]
     pub no_cache: bool,
 
-    /// theme
-    #[arg(short, long, value_parser = crate::themes::COLS_KEY)]
+    #[arg(short, long, value_parser = crate::themes::COLS_KEY, hide_possible_values(true))]
     pub theme: Option<String>,
+
+    #[clap(subcommand)]
+    pub subcmds: Option<Subcmds>,
+}
+
+#[derive(Debug, clap::Subcommand)]
+#[command(version, about, long_about)]
+#[command(subcommand_negates_reqs(true))]
+pub enum Subcmds {
+    /// Apply a certain theme/colorscheme
+    Cs {
+        #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
+        theme: String
+    },
 }
