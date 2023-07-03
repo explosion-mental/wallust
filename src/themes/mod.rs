@@ -8,7 +8,7 @@
 //!
 //! * TODO OPTIONALLY (with compile time features) integrate the classic `pywal`/terminal sexy
 //!        themes in the binary and access them with `-t/--theme` (e.g. `wallust --theme 3024`)
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use crate::colors::{Colors, HexConversion};
 
@@ -84,52 +84,30 @@ pub fn wal(path: &PathBuf) -> Result<Colors> {
     ser.to_colors()
 }
 
-use std::collections::HashMap;
-use include_dir::{include_dir, Dir, DirEntry as MyDir};
+mod colorschemes;
+use colorschemes::COLS_VALUE;
+use colorschemes::COLS_KEY;
+use anyhow::Context;
 
-/// raw &[u8]
-static COLS_DIR_DARK: Dir<'_> = include_dir!("colorschemes/dark");
-static COLS_DIR_LIGHT: Dir<'_> = include_dir!("colorschemes/light");
+//#[cfg(feature = "built-in-theme")]
+pub fn built_in_theme(theme_key: String) -> Result<Colors> {
+    let mut i = 0;
+    let mut found = false;
 
-lazy_static::lazy_static! {
-    /// colorschemes from files to a hashmap
-    // TODO this should be a compile time feature
-    static ref COLS: HashMap<String, Colors> = {
-        let mut ret = HashMap::new();
-        let read = |x| {
-            let ser: WalTheme = serde_json::from_str(x).unwrap();
-            ser.to_colors().unwrap()
-        };
-
-        for i in COLS_DIR_DARK.entries() {
-            let file = match i {
-                MyDir::File(a) => a,
-                MyDir::Dir(_) => continue,
-            };
-
-            let key = file.path().file_stem().unwrap().to_string_lossy().to_string();
-            let color_de = file.contents_utf8().unwrap();
-            ret.insert(key + "-dark", read(color_de));
+    for e in COLS_KEY {
+        if e == theme_key {
+            found = true;
+            break;
         }
-
-        for i in COLS_DIR_LIGHT.entries() {
-            let file = match i {
-                MyDir::File(a) => a,
-                MyDir::Dir(_) => continue,
-            };
-            let key = file.path().file_stem().unwrap().to_string_lossy().to_string();
-            let color_de = file.contents_utf8().unwrap();
-            ret.insert(key + "-light", read(color_de));
-        }
-        ret
-    };
-}
-
-pub fn new(file: String) -> Result<Colors> {
-    match COLS.get(&file) {
-        Some(s) => Ok(*s),
-        None => anyhow::bail!("Theme not found.\nQuitting..."),
+        i += 1;
     }
+
+    if found == false {
+        anyhow::bail!("Theme not found. Quitting...")
+    }
+
+    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).with_context(|| "hi")?;
+    ser.to_colors()
 }
 
 // pub fn terminalsexy(path: &PathBuf) -> Result<Colors> {

@@ -50,8 +50,8 @@ fn main() -> Result<()> {
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
 
     let colors = if is_theme {
-        //themes::wal(&cli.file)?
-        themes::new(cli.theme.unwrap())?
+        themes::built_in_theme(cli.theme.unwrap())?
+        //themes::new(cli.theme.unwrap())?
     } else if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
