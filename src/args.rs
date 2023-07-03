@@ -28,6 +28,6 @@ pub struct Cli {
     pub no_cache: bool,
 
     /// theme
-    #[arg(short, long)]
+    #[arg(short, long, value_parser = crate::themes::COLS_KEY)]
     pub theme: Option<String>,
 }

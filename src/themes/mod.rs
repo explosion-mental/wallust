@@ -13,7 +13,13 @@ use std::path::PathBuf;
 use crate::colors::{Colors, HexConversion};
 
 use anyhow::Result;
+use anyhow::Context;
 use serde::{Serialize, Deserialize};
+
+use colorschemes::COLS_VALUE;
+pub use colorschemes::COLS_KEY;
+
+pub mod colorschemes;
 
 #[derive(Serialize, Deserialize)]
 pub struct WalSpecial {
@@ -49,6 +55,52 @@ pub struct WalTheme {
     pub colors: WalColors,
 }
 
+pub enum Schemes {
+    /// uses the wal colorscheme format
+    /// see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>
+    Wal,
+    /// uses <https://terminal.sexy> JSON export
+    TerminalSexy,
+}
+
+/// reads a $file with an specified $format
+pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
+    let contents = std::fs::read_to_string(file)?;
+
+    match format {
+        Schemes::Wal => {
+            let ser: WalTheme = serde_json::from_str(&contents)?;
+            ser.to_colors()
+
+        },
+        Schemes::TerminalSexy => {
+            todo!()
+        },
+    }
+}
+
+//#[cfg(feature = "built-in-theme")]
+/// Uses built-in themes. See `colorschemes.rs`
+pub fn built_in_theme(theme_key: String) -> Result<Colors> {
+    let mut i = 0;
+    let mut found = false;
+
+    for e in COLS_KEY {
+        if e == theme_key {
+            found = true;
+            break;
+        }
+        i += 1;
+    }
+
+    if found == false {
+        anyhow::bail!("Theme not found. Quitting...")
+    }
+
+    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).with_context(|| "hi")?;
+    ser.to_colors()
+}
+
 impl WalTheme {
     fn to_colors(&self) -> Result<Colors> {
         let c = &self.colors;
@@ -78,40 +130,3 @@ impl WalTheme {
     }
 }
 
-pub fn wal(path: &PathBuf) -> Result<Colors> {
-    let contents = std::fs::read_to_string(path)?;
-    let ser: WalTheme = serde_json::from_str(&contents)?;
-    ser.to_colors()
-}
-
-mod colorschemes;
-use colorschemes::COLS_VALUE;
-use colorschemes::COLS_KEY;
-use anyhow::Context;
-
-//#[cfg(feature = "built-in-theme")]
-pub fn built_in_theme(theme_key: String) -> Result<Colors> {
-    let mut i = 0;
-    let mut found = false;
-
-    for e in COLS_KEY {
-        if e == theme_key {
-            found = true;
-            break;
-        }
-        i += 1;
-    }
-
-    if found == false {
-        anyhow::bail!("Theme not found. Quitting...")
-    }
-
-    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).with_context(|| "hi")?;
-    ser.to_colors()
-}
-
-// pub fn terminalsexy(path: &PathBuf) -> Result<Colors> {
-//     let contents = std::fs::read_to_string(path)?;
-//     Ok(serde_json::from_str(&contents)?)
-// }
-//

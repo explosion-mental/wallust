@@ -51,7 +51,6 @@ fn main() -> Result<()> {
 
     let colors = if is_theme {
         themes::built_in_theme(cli.theme.unwrap())?
-        //themes::new(cli.theme.unwrap())?
     } else if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
