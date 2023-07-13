@@ -16,9 +16,12 @@ use anyhow::Result;
 use anyhow::Context;
 use serde::{Serialize, Deserialize};
 
+#[cfg(feature = "themes")]
 use colorschemes::COLS_VALUE;
+#[cfg(feature = "themes")]
 pub use colorschemes::COLS_KEY;
 
+#[cfg(feature = "themes")]
 pub mod colorschemes;
 
 #[derive(Serialize, Deserialize)]
@@ -86,8 +89,7 @@ pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
     ser.to_colors()
 }
 
-//#[cfg(feature = "built-in-theme")]
-/// Uses built-in themes. See `colorschemes.rs`
+#[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: String) -> Result<Colors> {
     let mut i = 0;
     let mut found = false;

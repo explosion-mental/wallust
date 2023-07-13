@@ -44,6 +44,7 @@ pub enum Subcmds {
     },
 
     /// Apply a custom built in theme
+    #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
         #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]

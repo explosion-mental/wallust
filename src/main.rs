@@ -39,6 +39,7 @@ fn main() -> Result<()> {
     }
 
     match cli.subcmds {
+        #[cfg(feature = "themes")]
         Some(args::Subcmds::Theme { theme, quiet, skip_sequences }) => {
             if ! quiet { println!("[{info}] Using a theme: {theme}"); }
             let colors = themes::built_in_theme(theme)?;
