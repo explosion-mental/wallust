@@ -5,6 +5,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
+use crate::themes;
+
 /// Overall cli type for clap
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -22,10 +24,31 @@ pub struct Cli {
 #[derive(Debug, clap::Subcommand)]
 #[command(version, about, long_about)]
 pub enum Subcmds {
-    /// Apply a certain theme/colorscheme
+    /// Apply a certain colorscheme
     Cs {
+        /// Path to the file that has a colorscheme
+        file: PathBuf,
+
+        /// Don't print anything
+        #[arg(short, long)]
+        quiet: bool,
+
+        /// Skip setting terminal sequences
+        #[arg(short, long)]
+        skip_sequences: bool,
+
+        /// Specify a custom format. Without this option, wallust will sequentially try to decode
+        /// it by trying one by one.
+        #[arg(short, long)]
+        format: Option<themes::Schemes>,
+    },
+
+    /// Apply a custom built in theme
+    Theme {
+        /// A custom built in theme to choose from
         #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
         theme: String,
+
         /// Don't print anything
         #[arg(short, long)]
         quiet: bool,
@@ -34,7 +57,6 @@ pub enum Subcmds {
         #[arg(short, long)]
         skip_sequences: bool,
     },
-
 }
 
 /// No subcommands, global arguments

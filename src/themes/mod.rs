@@ -55,10 +55,11 @@ pub struct WalTheme {
     pub colors: WalColors,
 }
 
+#[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Schemes {
     /// uses the wal colorscheme format
     /// see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>
-    Wal,
+    Pywal,
     /// uses <https://terminal.sexy> JSON export
     TerminalSexy,
 }
@@ -68,7 +69,7 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
 
     match format {
-        Schemes::Wal => {
+        Schemes::Pywal => {
             let ser: WalTheme = serde_json::from_str(&contents)?;
             ser.to_colors()
 
@@ -77,6 +78,12 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
             todo!()
         },
     }
+}
+
+pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
+    let contents = std::fs::read_to_string(file)?;
+    let ser: WalTheme = serde_json::from_str(&contents)?;
+    ser.to_colors()
 }
 
 //#[cfg(feature = "built-in-theme")]

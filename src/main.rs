@@ -39,7 +39,7 @@ fn main() -> Result<()> {
     }
 
     match cli.subcmds {
-        Some(args::Subcmds::Cs { theme, quiet, skip_sequences }) => {
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences }) => {
             if ! quiet { println!("[{info}] Using a theme: {theme}"); }
             let colors = themes::built_in_theme(theme)?;
             if ! quiet { colors.print(); }
@@ -54,6 +54,28 @@ fn main() -> Result<()> {
                 template::write_template(&config_path, path, &s, &colors, quiet)?
             }
             if ! quiet { colors.done() }
+        },
+        Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
+            if ! quiet { println!("[{info}] Using a colorscheme from file: {}", file.display()); }
+            // read_scheme or try_all_schemes
+            let colors = match format {
+                Some(s) => themes::read_scheme(&file, s)?,
+                None => themes::try_all_schemes(&file)?,
+            };
+
+            if ! quiet { colors.print(); }
+            if ! skip_sequences {
+                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+                colors.sequences(&cache_path)?;
+            }
+            let path = std::path::Path::new("./foo/bar.txt");
+
+            if let Some(s) = &conf.entry {
+                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
+                template::write_template(&config_path, path, &s, &colors, quiet)?
+            }
+            if ! quiet { colors.done() }
+
         },
         None => (),
     }
