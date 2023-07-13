@@ -13,7 +13,6 @@ use std::path::PathBuf;
 use crate::colors::{Colors, HexConversion};
 
 use anyhow::Result;
-use anyhow::Context;
 use serde::{Serialize, Deserialize};
 
 #[cfg(feature = "themes")]
@@ -58,6 +57,7 @@ pub struct WalTheme {
     pub colors: WalColors,
 }
 
+/// Possible formats to read from
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Schemes {
     /// uses the wal colorscheme format
@@ -83,12 +83,15 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
     }
 }
 
+/// Try all possible [`Schemes`] for the file
+// TODO finish
 pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
     let ser: WalTheme = serde_json::from_str(&contents)?;
     ser.to_colors()
 }
 
+/// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct.
 #[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: String) -> Result<Colors> {
     let mut i = 0;
@@ -106,7 +109,8 @@ pub fn built_in_theme(theme_key: String) -> Result<Colors> {
         anyhow::bail!("Theme not found. Quitting...")
     }
 
-    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).with_context(|| "hi")?;
+    // use WalTheme, since these themes are gathered from pywal
+    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).expect("json format MUST be correct");
     ser.to_colors()
 }
 
