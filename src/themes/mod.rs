@@ -57,6 +57,16 @@ pub struct WalTheme {
     pub colors: WalColors,
 }
 
+/// Terminal-Sexy format
+#[derive(Serialize, Deserialize)]
+pub struct TerminalSexy {
+    pub name: String,
+    pub author: String,
+    pub color: Vec<String>,
+    pub foreground: String,
+    pub background: String,
+}
+
 /// Possible formats to read from
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Schemes {
@@ -78,7 +88,8 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
 
         },
         Schemes::TerminalSexy => {
-            todo!()
+            let ser: TerminalSexy = serde_json::from_str(&contents)?;
+            ser.to_colors()
         },
     }
 }
@@ -87,8 +98,17 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
 // TODO finish
 pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
-    let ser: WalTheme = serde_json::from_str(&contents)?;
-    ser.to_colors()
+    let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
+    match ser {
+        Ok(o) => return o.to_colors(),
+        Err(_) => {
+            let ser: Result<TerminalSexy, serde_json::Error> = serde_json::from_str(&contents);
+            match ser {
+                Ok(o) => return o.to_colors(),
+                Err(_) => anyhow::bail!("{} was not in the pywal or terminal-sexy format.", file.display())
+            }
+        }
+    }
 }
 
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct.
@@ -143,3 +163,33 @@ impl WalTheme {
     }
 }
 
+impl TerminalSexy {
+    fn to_colors(&self) -> Result<Colors> {
+        let c = &self.color;
+        let fg = &self.foreground;
+        let bg = &self.background;
+
+        Ok(
+            Colors {
+                background: bg.as_str().decode_hex()?.into(),
+                foreground: fg.as_str().decode_hex()?.into(),
+                color0 : c[0].as_str().decode_hex()?.into(),
+                color1 : c[1].as_str().decode_hex()?.into(),
+                color2 : c[2].as_str().decode_hex()?.into(),
+                color3 : c[3].as_str().decode_hex()?.into(),
+                color4 : c[4].as_str().decode_hex()?.into(),
+                color5 : c[5].as_str().decode_hex()?.into(),
+                color6 : c[6].as_str().decode_hex()?.into(),
+                color7 : c[7].as_str().decode_hex()?.into(),
+                color8 : c[8].as_str().decode_hex()?.into(),
+                color9 : c[9].as_str().decode_hex()?.into(),
+                color10: c[10].as_str().decode_hex()?.into(),
+                color11: c[11].as_str().decode_hex()?.into(),
+                color12: c[12].as_str().decode_hex()?.into(),
+                color13: c[13].as_str().decode_hex()?.into(),
+                color14: c[14].as_str().decode_hex()?.into(),
+                color15: c[15].as_str().decode_hex()?.into(),
+            }
+        )
+    }
+}
