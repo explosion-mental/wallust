@@ -33,5 +33,5 @@ clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
 [features]
-default = [ ]
-themes = [] # the built in themes
+default = [ "themes" ]
+themes = [] # include built-in themes at ./src/themes/colorschemes.rs (130K)
