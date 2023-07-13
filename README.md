@@ -38,6 +38,8 @@ wallust my_wallpaper.png
 	* backends, colorspaces and filters
 	* configurable threshold
 - Cache scheme palettes
+- Can read pywal colorschemes with `cs` subcommand
+- Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
 
 ### Terminal color sequences
 By default, `wallust` will send these sequences to all open terminals
