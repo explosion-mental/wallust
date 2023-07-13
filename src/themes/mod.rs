@@ -90,7 +90,6 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
 }
 
 /// Try all possible [`Schemes`] for the file
-// TODO finish
 pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
     let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
