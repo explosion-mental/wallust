@@ -48,7 +48,7 @@ fn main() -> Result<()> {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
             }
-            let path = std::path::Path::new("./foo/bar.txt");
+            let path = std::path::Path::new("");
 
             if let Some(s) = &conf.entry {
                 if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
