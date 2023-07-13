@@ -5,7 +5,6 @@ use clap::Parser;
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
-use std::ffi::OsStr;
 
 use wallust::{
     args,
@@ -33,24 +32,55 @@ fn main() -> Result<()> {
 
     // check config file or generate one if not one isn't found
     let conf = config::Config::new(&config_path)?;
+
+    match &cli.args {
+        Some(s) => no_subcomands(&conf, &config_path, &cache_path, &s)?,
+        None => (),
+    }
+
+    match cli.subcmds {
+        Some(args::Subcmds::Cs { theme, quiet, skip_sequences }) => {
+            if ! quiet { println!("[{info}] Using a theme: {theme}"); }
+            let colors = themes::built_in_theme(theme)?;
+            if ! quiet { colors.print(); }
+            if ! skip_sequences {
+                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+                colors.sequences(&cache_path)?;
+            }
+            let path = std::path::Path::new("./foo/bar.txt");
+
+            if let Some(s) = &conf.entry {
+                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
+                template::write_template(&config_path, path, &s, &colors, quiet)?
+            }
+            if ! quiet { colors.done() }
+        },
+        None => (),
+    }
+
+    Ok(())
+
+}
+
+fn no_subcomands(conf: &config::Config, config_path: &PathBuf, cache_path: &PathBuf, cli: &args::WallustArgs) -> Result<()> {
+
+    let info = "I".blue().bold().to_string();
+
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
-    let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") || cli.theme != None;
+    //let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") || cli.theme != None;
 
     // print some info that's gonna be used
     if ! cli.quiet {
-        let msg = if is_theme { "theme" } else { "image" };
-        println!("[{info}] {img}: {f}", f = cli.file.display(), img = msg.magenta().bold());
+        println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
         conf.print();
     }
 
     // Whether to load data from cache or to generate one from scratch
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
 
-    let colors = if is_theme {
-        themes::built_in_theme(cli.theme.unwrap())?
-    } else if !cli.overwrite_cache && cached_data.is_cached() {
+    let colors = if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {
@@ -88,7 +118,7 @@ fn main() -> Result<()> {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    if let Some(s) = conf.entry {
+    if let Some(s) = &conf.entry {
         if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
         template::write_template(&config_path, &cli.file, &s, &colors, cli.quiet)?
     }
