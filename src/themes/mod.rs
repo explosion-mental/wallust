@@ -1,13 +1,8 @@
 //! # Themes
 //! These module should be able to read terminal sexy templates, as well as the pywal colorschemes.
-//! The intended use case is to simply run this the same as with an image:
-//! ```shell
-//! wallust gruvbox.json
-//! ```
-//! The current workaround requires the file to have a `.json` extension, since it only reads those anyway.
-//!
-//! * TODO OPTIONALLY (with compile time features) integrate the classic `pywal`/terminal sexy
-//!        themes in the binary and access them with `-t/--theme` (e.g. `wallust --theme 3024`)
+//! Other formats could be added if needed and requested.
+//! For reading external colorschemes: `wallust cs my_colorscheme.json`
+//! For using the built in themes: `wallust theme zenburn`
 use std::path::PathBuf;
 
 use crate::colors::{Colors, HexConversion};
