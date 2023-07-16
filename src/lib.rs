@@ -6,3 +6,4 @@ pub mod colorspaces;
 pub mod config;
 pub mod filters;
 pub mod template;
+pub mod themes;

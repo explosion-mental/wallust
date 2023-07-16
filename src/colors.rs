@@ -12,7 +12,7 @@ use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
 /// This is how the scheme it's organized
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Copy, Clone)]
 pub struct Colors {
     pub background: Myrgb,
     pub foreground: Myrgb,
@@ -288,5 +288,12 @@ impl HexConversion for &str {
                 .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
                 .collect()
         }
+    }
+}
+
+/// From a vec to Myrgb
+impl From<Vec<u8>> for Myrgb {
+    fn from(v: Vec<u8>) -> Myrgb {
+        Myrgb(v[0], v[1], v[2])
     }
 }

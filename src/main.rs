@@ -15,6 +15,7 @@ use wallust::{
     config,
     filters,
     template,
+    themes,
 };
 
 fn main() -> Result<()> {
@@ -30,9 +31,73 @@ fn main() -> Result<()> {
     };
 
     // check config file or generate one if not one isn't found
-    let conf = config::Config::new(&config_path, cli.config_path.as_ref())?;
+    let config_cli = match &cli.args {
+        Some(s) => s.config_path.as_ref(),
+        None => None,
+    };
+
+    let conf = config::Config::new(&config_path, config_cli)?;
+
+    match &cli.args {
+        Some(s) => no_subcomands(&conf, &config_path, &cache_path, &s)?,
+        None => (),
+    }
+
+    match cli.subcmds {
+        #[cfg(feature = "themes")]
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences }) => {
+            if ! quiet { println!("[{info}] Using a theme: {theme}"); }
+            let colors = themes::built_in_theme(theme)?;
+            if ! quiet { colors.print(); }
+            if ! skip_sequences {
+                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+                colors.sequences(&cache_path)?;
+            }
+            let path = std::path::Path::new("");
+
+            if let Some(s) = &conf.entry {
+                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
+                template::write_template(&config_path, path, &s, &colors, quiet)?
+            }
+            if ! quiet { colors.done() }
+        },
+        Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
+            if ! quiet { println!("[{info}] Using a colorscheme from file: {}", file.display()); }
+            // read_scheme or try_all_schemes
+            let colors = match format {
+                Some(s) => themes::read_scheme(&file, s)?,
+                None => themes::try_all_schemes(&file)?,
+            };
+
+            if ! quiet { colors.print(); }
+            if ! skip_sequences {
+                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+                colors.sequences(&cache_path)?;
+            }
+            let path = std::path::Path::new("./foo/bar.txt");
+
+            if let Some(s) = &conf.entry {
+                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
+                template::write_template(&config_path, path, &s, &colors, quiet)?
+            }
+            if ! quiet { colors.done() }
+
+        },
+        None => (),
+    }
+
+    Ok(())
+
+}
+
+fn no_subcomands(conf: &config::Config, config_path: &PathBuf, cache_path: &PathBuf, cli: &args::WallustArgs) -> Result<()> {
+
+    let info = "I".blue().bold().to_string();
+
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
+
+    //let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") ||
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -42,6 +107,7 @@ fn main() -> Result<()> {
 
     // Whether to load data from cache or to generate one from scratch
     if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
+
     let colors = if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
@@ -80,7 +146,7 @@ fn main() -> Result<()> {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    if let Some(s) = conf.entry {
+    if let Some(s) = &conf.entry {
         if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
         template::write_template(&config_path, &cli.file, &s, &colors, cli.quiet)?
     }

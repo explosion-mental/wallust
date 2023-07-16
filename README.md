@@ -39,6 +39,8 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 	* backends, colorspaces and filters
 	* configurable threshold
 - Cache scheme palettes
+- Can read pywal colorschemes with `cs` subcommand
+- Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
 
 ### Backends
 This let's you choose a way to read the image, as in read a file and return
