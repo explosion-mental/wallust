@@ -6,6 +6,7 @@ use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
 
+use crate::args::WallustArgs;
 use crate::colors::Colors;
 use crate::template;
 
@@ -97,6 +98,21 @@ impl Config {
         }
 
         Ok(())
+    }
+
+    /// if the user provides this values in the cli, overwrite the [`Config`] configuration
+    pub fn customs_cli(&mut self, cli: &WallustArgs) {
+        if let Some(b) = cli.backend {
+            self.backend = b;
+        }
+
+        if let Some(col) = cli.colorspace {
+            self.color_space = col;
+        }
+
+        if let Some(f) = cli.filter {
+            self.filter = f;
+        }
     }
 
     /// thershold color for owo_colors

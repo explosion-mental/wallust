@@ -35,10 +35,11 @@ fn main() -> Result<()> {
         None => None,
     };
 
-    let conf = config::Config::new(&config_path, config_cli)?;
+    // this is mut only because the user could provide a `-C custom_config.toml`
+    let mut conf = config::Config::new(&config_path, config_cli)?;
 
     match &cli.args {
-        Some(s) => no_subcomands(&conf, &config_path, &cache_path, &s)?,
+        Some(s) => no_subcomands(&mut conf, &config_path, &cache_path, &s)?,
         None => (),
     }
 
@@ -85,11 +86,13 @@ fn main() -> Result<()> {
 
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn no_subcomands(conf: &config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
+fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
     let info = "I".blue().bold().to_string();
 
     // generate hash cache file name and cache dir to either read or write to it
     let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
+
+    conf.customs_cli(&cli);
 
     //let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") ||
 

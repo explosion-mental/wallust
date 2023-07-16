@@ -3,6 +3,12 @@
 
 use std::path::PathBuf;
 
+use crate::{
+    backends::Backend,
+    colorspaces::ColorSpaces,
+    filters::Filters,
+};
+
 use clap::Parser;
 
 use crate::themes;
@@ -86,4 +92,16 @@ pub struct WallustArgs {
     /// Use PATH as the config directory
     #[arg(short = 'C', long, value_name = "PATH")]
     pub config_path: Option<PathBuf>,
+
+    /// Custom backend (ignores config file)
+    #[arg(short, long, value_enum)]
+    pub backend: Option<Backend>,
+
+    /// Custom colorspace (ignores config file)
+    #[arg(short, long, value_enum)]
+    pub colorspace: Option<ColorSpaces>,
+
+    /// Custom filter (ignores config file)
+    #[arg(short, long, value_enum)]
+    pub filter: Option<Filters>,
 }
