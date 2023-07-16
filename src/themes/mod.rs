@@ -3,7 +3,7 @@
 //! Other formats could be added if needed and requested.
 //! For reading external colorschemes: `wallust cs my_colorscheme.json`
 //! For using the built in themes: `wallust theme zenburn`
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::colors::{Colors, HexConversion};
 
@@ -73,7 +73,7 @@ pub enum Schemes {
 }
 
 /// reads a $file with an specified $format
-pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
+pub fn read_scheme(file: &Path, format: Schemes) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
 
     match format {
@@ -90,7 +90,7 @@ pub fn read_scheme(file: &PathBuf, format: Schemes) -> Result<Colors> {
 }
 
 /// Try all possible [`Schemes`] for the file
-pub fn try_all_schemes(file: &PathBuf) -> Result<Colors> {
+pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
     let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
     match ser {

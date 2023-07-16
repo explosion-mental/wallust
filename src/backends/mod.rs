@@ -2,7 +2,7 @@
 //! A backend is the **how** to read the image, and get rgb, as a `Vec<u8>`, from that image. This
 //! is, all the colors present in the raw image file (so then it's used to find the most prominent
 //! colors).
-use std::path::PathBuf;
+use std::path::Path;
 use std::fmt;
 
 use image::io::Reader as ImageReader;
@@ -33,7 +33,7 @@ pub enum Backend {
 /// re export to shorten from `Backend::Full` to `Full`
 use self::Backend::*;
 
-pub fn main(backend: &Backend) -> fn(&PathBuf) -> Result<Vec<u8>> {
+pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
     match backend {
         Full    => full::full,
         Resized => resized::resized,

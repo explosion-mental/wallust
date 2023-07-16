@@ -1,5 +1,5 @@
 //! wallust - Generate a colorscheme based on an image
-use std::path::PathBuf;
+use std::path::Path;
 
 use clap::Parser;
 use anyhow::Result;
@@ -83,7 +83,7 @@ fn main() -> Result<()> {
 
 }
 
-fn no_subcomands(conf: &config::Config, config_path: &PathBuf, cache_path: &PathBuf, cli: &args::WallustArgs) -> Result<()> {
+fn no_subcomands(conf: &config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
 
     let info = "I".blue().bold().to_string();
 
@@ -154,7 +154,7 @@ fn no_subcomands(conf: &config::Config, config_path: &PathBuf, cache_path: &Path
 
 /// How [`Colors`] is filled, returns the colors itself and a bool that indicates whether
 /// [`backends`] had some warnings or not (ugly workaround ik)
-fn gen_colors(file: &PathBuf, c: &config::Config) -> Result<(colors::Colors, bool)> {
+fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)> {
     // choose how to sort colors, more on [`ColorOrder`]
     let sort_ord = filters::sort_ord(&c.filter);
 
