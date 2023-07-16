@@ -58,7 +58,7 @@ fn main() -> Result<()> {
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
-            if ! quiet { println!("[{info}] Using a colorscheme from file: {}", file.display()); }
+            if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
             let colors = match format {
                 Some(s) => themes::read_scheme(&file, s)?,

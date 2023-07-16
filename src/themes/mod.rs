@@ -3,6 +3,7 @@
 //! Other formats could be added if needed and requested.
 //! For reading external colorschemes: `wallust cs my_colorscheme.json`
 //! For using the built in themes: `wallust theme zenburn`
+use std::fmt;
 use std::path::Path;
 
 use crate::colors::{Colors, HexConversion};
@@ -89,23 +90,38 @@ pub fn read_scheme(file: &Path, format: Schemes) -> Result<Colors> {
     }
 }
 
-use owo_colors::OwoColorize;
+use owo_colors::{OwoColorize, AnsiColors};
 
 /// Try all possible [`Schemes`] for the file
 pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
     let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
+    let info = "I".blue().bold().to_string();
+    let cs = "colorscheme format".magenta().bold().to_string();
 
     match ser {
-        Ok(o) => o.to_colors(),
+        Ok(o) => {
+            let s = Schemes::Pywal;
+            println!("[{info}] {cs}: Using {}", s.to_string().to_ascii_lowercase().color(s.col()));
+            o.to_colors()
+        },
         Err(_) => {
+            let mut errs: Vec<String> = vec![];
             let warn = "W".red().bold().to_string();
-            eprintln!("[{warn}] {} is not in `pywal` format.", file.display());
+            errs.push(format!("[{warn}] {} is not in `pywal` format.", file.display()));
+
             let ser: Result<TerminalSexy, serde_json::Error> = serde_json::from_str(&contents);
             match ser {
-                Ok(o) => o.to_colors(),
+                Ok(o) => {
+                    let s = Schemes::TerminalSexy;
+                    println!("[{info}] {cs}: Using {}", s.to_string().to_ascii_lowercase().color(s.col()));
+                    o.to_colors()
+                },
                 Err(_) => {
-                    eprintln!("[{warn}] {} is not in `terminal-sexy` format.", file.display());
+                    errs.push(format!("[{warn}] {} is not in `terminal-sexy` format.", file.display()));
+                    for i in errs {
+                        eprintln!("{i}");
+                    }
                     anyhow::bail!("{} was not in the pywal or terminal-sexy format.", file.display())
                 },
             }
@@ -134,6 +150,25 @@ pub fn built_in_theme(theme_key: String) -> Result<Colors> {
     // use WalTheme, since these themes are gathered from pywal
     let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).expect("json format MUST be correct");
     ser.to_colors()
+}
+
+impl Schemes {
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            Schemes::Pywal => AnsiColors::Blue,
+            Schemes::TerminalSexy => AnsiColors::Magenta,
+        }
+    }
+}
+
+/// Add a simple `Display` for [`Schemes`]
+impl fmt::Display for Schemes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Schemes::Pywal => write!(f, "Pywal"),
+            Schemes::TerminalSexy => write!(f, "Terminal-Sexy"),
+        }
+    }
 }
 
 impl WalTheme {
