@@ -65,7 +65,7 @@ pub struct TerminalSexy {
 /// Possible formats to read from
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Schemes {
-    /// uses the wal colorscheme format
+    /// uses the wal colorscheme format,
     /// see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>
     Pywal,
     /// uses <https://terminal.sexy> JSON export
@@ -89,17 +89,25 @@ pub fn read_scheme(file: &Path, format: Schemes) -> Result<Colors> {
     }
 }
 
+use owo_colors::OwoColorize;
+
 /// Try all possible [`Schemes`] for the file
 pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
     let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
+
     match ser {
-        Ok(o) => return o.to_colors(),
+        Ok(o) => o.to_colors(),
         Err(_) => {
+            let warn = "W".red().bold().to_string();
+            eprintln!("[{warn}] {} is not in `pywal` format.", file.display());
             let ser: Result<TerminalSexy, serde_json::Error> = serde_json::from_str(&contents);
             match ser {
-                Ok(o) => return o.to_colors(),
-                Err(_) => anyhow::bail!("{} was not in the pywal or terminal-sexy format.", file.display())
+                Ok(o) => o.to_colors(),
+                Err(_) => {
+                    eprintln!("[{warn}] {} is not in `terminal-sexy` format.", file.display());
+                    anyhow::bail!("{} was not in the pywal or terminal-sexy format.", file.display())
+                },
             }
         }
     }
@@ -119,7 +127,7 @@ pub fn built_in_theme(theme_key: String) -> Result<Colors> {
         i += 1;
     }
 
-    if found == false {
+    if !found { // not found
         anyhow::bail!("Theme not found. Quitting...")
     }
 

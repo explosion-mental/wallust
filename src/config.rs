@@ -91,7 +91,7 @@ impl Config {
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(&config_path, img_path, &s, &colors, quiet)?;
+            template::write_template(config_path, img_path, s, colors, quiet)?;
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
         }
