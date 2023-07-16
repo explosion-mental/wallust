@@ -14,7 +14,6 @@ use wallust::{
     colorspaces,
     config,
     filters,
-    template,
     themes,
 };
 
@@ -55,10 +54,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            if let Some(s) = &conf.entry {
-                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-                template::write_template(&config_path, path, &s, &colors, quiet)?
-            }
+            conf.write_entry(&config_path, &path, &colors, quiet)?;
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
@@ -74,12 +70,9 @@ fn main() -> Result<()> {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
             }
-            let path = std::path::Path::new("./foo/bar.txt");
+            let path = std::path::Path::new("");
 
-            if let Some(s) = &conf.entry {
-                if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-                template::write_template(&config_path, path, &s, &colors, quiet)?
-            }
+            conf.write_entry(&config_path, &path, &colors, quiet)?;
             if ! quiet { colors.done() }
 
         },
@@ -145,11 +138,7 @@ fn no_subcomands(conf: &config::Config, config_path: &PathBuf, cache_path: &Path
         colors.sequences(&cache_path)?;
     }
 
-    // write entries `[[entry]]` of the config file (if any)
-    if let Some(s) = &conf.entry {
-        if ! cli.quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-        template::write_template(&config_path, &cli.file, &s, &colors, cli.quiet)?
-    }
+    conf.write_entry(&config_path, &cli.file, &colors, cli.quiet)?;
 
     // Cache colors
     if !cli.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
