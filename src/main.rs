@@ -83,8 +83,9 @@ fn main() -> Result<()> {
 
 }
 
+/// Usual `wallust image.png` call, without any subcommands.
+// This used to be old main()
 fn no_subcomands(conf: &config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
-
     let info = "I".blue().bold().to_string();
 
     // generate hash cache file name and cache dir to either read or write to it
