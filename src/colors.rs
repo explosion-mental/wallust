@@ -175,6 +175,7 @@ impl Colors {
     /// Source: https://goo.gl/KcoQgP
     /// 10 = foreground, 11 = background, 12 = cursor foreground
     /// 13 = mouse foreground, 708 = background border color.
+    /// TODO investigate about iTerm2
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
         let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
