@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::colors::{Colors, HexConversion};
 
 use anyhow::Result;
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 
 #[cfg(feature = "themes")]
 use colorschemes::COLS_VALUE;
@@ -19,14 +19,14 @@ pub use colorschemes::COLS_KEY;
 #[cfg(feature = "themes")]
 pub mod colorschemes;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct WalSpecial {
     pub background: String,
     pub foreground: String,
     pub cursor: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct WalColors {
     pub color0 : String,
     pub color1 : String,
@@ -47,14 +47,14 @@ pub struct WalColors {
 }
 
 /// Pywal colorscheme
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct WalTheme {
     pub special: WalSpecial,
     pub colors: WalColors,
 }
 
 /// Terminal-Sexy format
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct TerminalSexy {
     pub name: String,
     pub author: String,
