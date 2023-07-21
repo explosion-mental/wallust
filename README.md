@@ -194,6 +194,9 @@ nix-shell -p wallust
 [nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
 
 ## Contribute!
+**Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
+
+
 Show some of your taste by adding a
 [backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
 [colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces)
