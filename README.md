@@ -220,3 +220,4 @@ for more, grep the src for TODO `rg TODO`
 - [wal-theme-picker - pick the best theme for the image (_rather than generating one_)](https://github.com/drybalka/wal-theme-picker)
 - [pigmnts - 🎨Color palette generator from an image using WebAssesmbly and Rust](https://github.com/blenderskool/pigmnts)
 - [Chameleon - 🦎Theme your linux system to match any image](https://github.com/GideonWolfe/Chameleon)
+- using [vscode-wal-theme with `wallust`](https://github.com/dlasagno/vscode-wal-theme/issues/23)
