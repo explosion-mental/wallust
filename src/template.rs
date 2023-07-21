@@ -38,6 +38,17 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
     for (target, file_content, template_path) in &contents {
         if ! quiet { println!("  * Templating: {template_path}"); }
 
+        if let Some(p) = Path::new(shellexpand::tilde(target).as_ref()).parent() {
+            if let Err(e) = std::fs::create_dir_all(p) {
+                eprintln!("[{warn}] Failed to create parent directories from {target}: {e}");
+                continue;
+            }
+        } else {
+            eprintln!("[{warn}] Failed to find file parent from {target}");
+            continue;
+        }
+
+
         let rendered = Template::new(file_content).render_nofail(&values.to_hash(image_path));
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let mut buffer = match File::create(shellexpand::tilde(target).as_ref()) {
