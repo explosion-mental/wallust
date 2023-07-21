@@ -89,12 +89,11 @@ fn main() -> Result<()> {
 fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
     let info = "I".blue().bold().to_string();
 
-    // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
-
+    // apply --backend or --filter or --colorspace
     conf.customs_cli(&cli);
 
-    //let is_theme = cli.file.extension().and_then(OsStr::to_str) == Some("json") ||
+    // generate hash cache file name and cache dir to either read or write to it
+    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
