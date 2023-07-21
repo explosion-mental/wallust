@@ -137,8 +137,7 @@ Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`
 
 
 ## Installation
-Keep in mind that the git repo is constantly updated, if you wanna use git,
-`checkout` to a stable version.
+_The master branch **is** stable_
 
 ### Binary
 Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
