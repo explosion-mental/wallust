@@ -1,4 +1,6 @@
-/// Names of all the corresponding [`COLS_VALUE`]. The order matters, since they got the same index
+/// Names of all the corresponding [`COLS_VALUE`]. The order matters since they got the same index
+/// + 1, since this array has one more entry: "random", which acts as a keyword, a COLS_KEY without
+/// COLS_VALUE.
 pub const COLS_KEY: [&str; 258] = [
 "3024-dark",
 "3024-light",
