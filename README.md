@@ -172,13 +172,17 @@ cargo install wallust
 ```
 This will use the lastest version
 
-### NetBSD
+### Distributions' Packages
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/wallust.svg)](https://repology.org/project/wallust/versions)
+
+#### NetBSD
 If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
 ```
 pkgin install wallust
 ```
 
-### Nix
+#### Nix
 If you are using Nix, a native package is available for the [unstable channel][nix-search].
 
 Install it for your profile:
