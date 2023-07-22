@@ -1,5 +1,6 @@
 //! Cli flags
 //! * consider using the same flags as `pywal`, in order to be a drop-in replacement..
+//! TODO make sure this works properly with `clap_completions`, currently it doesn't.
 
 use std::path::PathBuf;
 
