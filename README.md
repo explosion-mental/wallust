@@ -137,12 +137,10 @@ Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`
 
 
 ## Installation
-_The master branch **is** stable_
-
+<a href="https://repology.org/project/wallust/versions">
+  <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
+</a>
 ### Distributions' Packages
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/wallust.svg)](https://repology.org/project/wallust/versions)
-
 #### NetBSD
 If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
 ```
@@ -175,6 +173,8 @@ tar -xf wallust-TARGET.tar.gz
 ```
 
 ### Build from source
+_The master branch **is** stable_
+
 #### From this repo
 Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
 page and download the `.zip` or `.tar.gz` repository. After extracting the contents,
