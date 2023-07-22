@@ -227,6 +227,7 @@ impl Colors {
         col15 = self.color15,
         );
 
+        //NOTE on WINDOWS: The glob never triggers, `glob::glob("/dev/pts/[0-9]*").unwrap().next()` is `None`.
         for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
             match entry {
                 Ok(path) => {
