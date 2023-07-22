@@ -17,16 +17,18 @@ use wallust::{
     themes,
 };
 
+const ISSUE: &str = "please report this at <https://codeberg.org/explosion-mental/wallust/issues>";
+
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
     let info = "I".blue().bold().to_string();
 
     // init directories
     let Some(config_path) = dirs::config_dir() else {
-        anyhow::bail!("Config path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        anyhow::bail!("Config path for the platform could not be found, {ISSUE}");
     };
     let Some(cache_path) = dirs::cache_dir() else {
-        anyhow::bail!("The cache path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
     // check config file or generate one if not one isn't found
