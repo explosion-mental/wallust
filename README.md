@@ -42,14 +42,13 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 - Can read pywal colorschemes with `cs` subcommand
 - Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
 
-[Backends](#Backends) | [ColorSpace](#ColorSpace) | [Filters](#Filters)
+Backends       | ColorSpace             | Filters
 ---------------|------------------------|-------------------------------
 How to extract | Get the most prominent | Makes a scheme palette
 the colors     | color, and sort them   | with the gathered colors,
 from the image.| according to the       | should make sense on sutff
 e.g. pywal uses| `Filter`, configurable | like the contrast and background
-convert [0]    | with a [threshold](#Threshold) |
-
+convert [0]    | with a [threshold](#threshold) |
 
 _For avaliable methods, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
 
