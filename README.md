@@ -24,7 +24,7 @@ wallust my_wallpaper.png
 _use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
 ## Features
-- Sets terminal colors sequences on all active terminals
+- Sets [terminal colors sequences](#Terminal-color-sequences) on all active terminals
 - Respects directory structure by platform:
     * Cache:
         - Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
@@ -42,28 +42,21 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 - Can read pywal colorschemes with `cs` subcommand
 - Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
 
-### Backends
-This let's you choose a way to read the image, as in read a file and return
-it's rgb8 bytes. This can be done the _usual_ way using imagemagick
-[convert](https://imagemagick.org/script/command-line-processing.php) tool,
-just like how
-[`pywal` does it](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14),
-which `wallust` can also do (this requires the actual CLI program `convert`
-installed), or other methods **dependency free**.
+[Backends](#Backends) | [ColorSpace](#ColorSpace) | [Filters](#Filters)
+---------------|------------------------|-------------------------------
+How to extract | Get the most prominent | Makes a scheme palette
+the colors     | color, and sort them   | with the gathered colors,
+from the image.| according to the       | should make sense on sutff
+e.g. pywal uses| `Filter`, configurable | like the contrast and background
+convert [0]    | with a [threshold](#Threshold) |
 
 
-### ColorSpace
-This takes the bytes read from the backend and returns the most prominent one
-and sorts them acording to the filter.
+_For avaliable methods, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
 
+[0]: https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14
 
-This is a picky configurable section, since there isn't much difference in
-between the generated palettes with diverging colorspaces. However I think it's
-interesting to use other color spaces like OkLab (a more precise hardcoded
-algo) or HSL (which pywal originally uses).
-
-#### Threshold
-This is used inside the colorspace itself, the usual **good** number is 11.
+### Threshold
+The usual **good** number is 11.
 
  Number  | Description
 ---------|------------
@@ -72,12 +65,6 @@ This is used inside the colorspace itself, the usual **good** number is 11.
  2 - 10  | Perceptible at a glance.
  11 - 49 | Colors are more similar than opposite
  100     | Colors are exact opposite
-
-### Filter
-This uses the colors returned by the colorspace and orders them in a way that
-makes sense, as in making sure that the contrast matches or the background is a
-certain type. All of these depend on the filter being used, each of them are
-described in the default config.
 
 ### Terminal color sequences
 By default, `wallust` will send these sequences to all open terminals
