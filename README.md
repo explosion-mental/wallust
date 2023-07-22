@@ -137,10 +137,12 @@ Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`
 
 
 ## Installation
+
 <a href="https://repology.org/project/wallust/versions">
   <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
 </a>
-### Distributions' Packages
+
+### Distros Packages
 #### NetBSD
 If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
 ```
