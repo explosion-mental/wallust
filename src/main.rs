@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     let info = "I".blue().bold().to_string();
 
     // init directories
-    let Some(config_path) = dirs::config_dir() else {
+    let Some(original_config_path) = dirs::config_dir() else {
         anyhow::bail!("Config path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
     };
     let Some(cache_path) = dirs::cache_dir() else {
@@ -34,6 +34,18 @@ fn main() -> Result<()> {
         Some(s) => s.config_path.as_ref(),
         None => None,
     };
+
+    // check config dir
+    let config_path =
+        match &cli.args {
+            Some(s) => {
+                match &s.config_dir {
+                    Some(path) => path,
+                    None => &original_config_path,
+                }
+            },
+            None => &original_config_path,
+        };
 
     // this is mut only because the user could provide a `-C custom_config.toml`
     let mut conf = config::Config::new(&config_path, config_cli)?;
