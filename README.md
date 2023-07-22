@@ -139,6 +139,32 @@ Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`
 ## Installation
 _The master branch **is** stable_
 
+### Distributions' Packages
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/wallust.svg)](https://repology.org/project/wallust/versions)
+
+#### NetBSD
+If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
+```
+pkgin install wallust
+```
+
+#### Nix
+If you are using Nix, a native package is available for the [unstable channel][nix-search].
+
+Install it for your profile:
+```
+nix-env -iA nixos.wallust # change `nixos` for `nixpkgs`, if on a non-NixOS system
+```
+
+Try it with `nix-shell`
+```
+nix-shell -p wallust
+```
+
+[nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
+
+
 ### Binary
 Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
 and download the `tar.gz` file, which contains a binary for musl, so it should
@@ -171,31 +197,6 @@ cp -f ./target/release/wallust /usr/local/bin
 cargo install wallust
 ```
 This will use the lastest version
-
-### Distributions' Packages
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/wallust.svg)](https://repology.org/project/wallust/versions)
-
-#### NetBSD
-If you are using NetBSD, a native package is available from the official repositories. To install it, simply run:
-```
-pkgin install wallust
-```
-
-#### Nix
-If you are using Nix, a native package is available for the [unstable channel][nix-search].
-
-Install it for your profile:
-```
-nix-env -iA nixos.wallust # change `nixos` for `nixpkgs`, if on a non-NixOS system
-```
-
-Try it with `nix-shell`
-```
-nix-shell -p wallust
-```
-
-[nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
 
 ## Contribute!
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
