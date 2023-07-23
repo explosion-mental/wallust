@@ -113,11 +113,11 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
         // generate colors
         if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
-            let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
 
             //ugly workaround for printing warning, gotta stop the spinner first
             match gen_colors(&cli.file, &conf) {
                 Ok((o, warn)) => {
+                    let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
                     o
                 }
