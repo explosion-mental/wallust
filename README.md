@@ -34,36 +34,32 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
         - Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
         - MacOs: `$HOME/Library/Application Support`
         - Windows: `{FOLDERID_RoamingAppData}`
-- Configuration file, documented at `wallust.toml` of this repo:
-	* optional templating integrated in a config file
-	* backends, colorspaces and filters
-	* configurable threshold
 - Cache scheme palettes
 - Can read pywal colorschemes with `cs` subcommand
 - Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
+- Configuration file, documented at `wallust.toml` of this repo:
+	* **optional** [templating](#templating) integrated in a config file
+	* backends, colorspaces and filters
+	* configurable threshold
 
-Backends       | ColorSpace             | Filters
----------------|------------------------|-------------------------------
-How to extract | Get the most prominent | Makes a scheme palette
-the colors     | color, and sort them   | with the gathered colors,
-from the image.| according to the       | should make sense on sutff
-e.g. pywal uses| `Filter`, configurable | like the contrast and background
-convert [0]    | with a [threshold](#threshold) |
+| Methods    | Description |
+|------------|-------------|
+| Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14) |
+| ColorSpace | Get the most prominent color, and sort them according to the `Filter`, configurablw with a [threshold](#threshold) |
+| Filter     | Makes a scheme palette with the gathered colors, (e.g makes the colors constrast nicely with the background) |
 
 _For avaliable methods, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
-
-[0]: https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14
 
 ### Threshold
 The usual **good** number is 11.
 
- Number  | Description
----------|------------
- <= 1    | Not perceptible by human eyes.
- 1 - 2   | Perceptible through close observation.
- 2 - 10  | Perceptible at a glance.
- 11 - 49 | Colors are more similar than opposite
- 100     | Colors are exact opposite
+| Number  | Description |
+|---------|-------------|
+| <= 1    | Not perceptible by human eyes. |
+| 1 - 2   | Perceptible through close observation. |
+| 2 - 10  | Perceptible at a glance. |
+| 11 - 49 | Colors are more similar than opposite |
+| 100     | Colors are exact opposite |
 
 ### Terminal color sequences
 By default, `wallust` will send these sequences to all open terminals
@@ -75,7 +71,10 @@ opens. `wallust` will store the sequences in the cache directory as a file
 called `sequences`, the usual way is to `cat ~/.cache/wallust/sequences` in
 your `.zshrc`, `.bashrc`, etc.
 
-### Templating [OPTIONAL]
+### Templating
+_OPTIONAL_
+
+
 You can use `wallust` generated colors in a program by _templating_ the colors
 in it's config file, like the following example:
 ```
