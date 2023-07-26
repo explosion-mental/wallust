@@ -21,7 +21,8 @@ const ISSUE: &str = "please report this at <https://codeberg.org/explosion-menta
 
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
-    let info = "I".blue().bold().to_string();
+    let info = "I".blue();
+    let info = info.bold();
 
     // init directories
     let Some(config_path) = dirs::config_dir() else {
@@ -89,7 +90,8 @@ fn main() -> Result<()> {
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
 fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
-    let info = "I".blue().bold().to_string();
+    let info = "I".blue();
+    let info = info.bold();
 
     // apply --backend or --filter or --colorspace
     conf.customs_cli(&cli);
