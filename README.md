@@ -44,11 +44,11 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 
 | Methods    | Description |
 |------------|-------------|
-| Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14) |
+| Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14)) |
 | ColorSpace | Get the most prominent color, and sort them according to the `Filter`, configurablw with a [threshold](#threshold) |
 | Filter     | Makes a scheme palette with the gathered colors, (e.g makes the colors constrast nicely with the background) |
 
-_For avaliable methods, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
+_To see what's avaliable under each method, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
 
 ### Threshold
 The usual **good** number is 11.
