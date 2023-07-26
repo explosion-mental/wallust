@@ -127,8 +127,7 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
                 },
             }
         } else {
-            let (c, _) = gen_colors(&cli.file, &conf)?;
-            c
+            gen_colors(&cli.file, &conf)?.0
         }
     };
 
