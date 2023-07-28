@@ -1,8 +1,9 @@
 //! # Themes
 //! These module should be able to read terminal sexy templates, as well as the pywal colorschemes.
-//! Other formats could be added if needed and requested.
-//! For reading external colorschemes: `wallust cs my_colorscheme.json`
-//! For using the built in themes: `wallust theme zenburn`
+//! Other formats could be added if needed and requested. A compiletime feature is used to `mod`
+//! and `use` the `colorschemes.rs` module and [`built_in_theme()`] function.
+//! For reading external colorschemes: `wallust cs my_colorscheme.json` \n
+//! For using the built in themes: `wallust theme zenburn` \n
 use std::fmt;
 use std::path::Path;
 
