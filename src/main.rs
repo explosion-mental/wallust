@@ -35,12 +35,17 @@ fn main() -> Result<()> {
         None => None,
     };
 
+    let mut is_config = true;
+
     // check config dir
     let config_path =
         match &cli.args {
             Some(s) => {
                 match &s.config_dir {
-                    Some(path) => path,
+                    Some(path) => {
+                        is_config = false;
+                        path
+                    },
                     None => &original_config_path,
                 }
             },
@@ -48,7 +53,7 @@ fn main() -> Result<()> {
         };
 
     // this is mut only because the user could provide a `-C custom_config.toml`
-    let mut conf = config::Config::new(&config_path, config_cli)?;
+    let mut conf = config::Config::new(&config_path, config_cli, is_config)?;
 
     match &cli.args {
         Some(s) => no_subcomands(&mut conf, &config_path, &cache_path, &s)?,

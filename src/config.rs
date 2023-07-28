@@ -41,10 +41,10 @@ pub struct Entries {
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(config: &Path, custom: Option<&PathBuf>) -> Result<Config> {
+    pub fn new(config: &Path, custom: Option<&PathBuf>, is_original: bool) -> Result<Config> {
 
         // init `.config/wallust/wallust.toml`
-        let config_dir = config.display().to_string() + "/wallust";
+        let config_dir = config.display().to_string() + if is_original { "/wallust" } else { "" };
         let def_conf = PathBuf::from(config_dir.to_owned() + "/wallust.toml");
 
         // is the user using `--config-path`
@@ -54,7 +54,7 @@ impl Config {
         };
 
         // Create cache dir (with all of it's parents) ONLY if the flag `--config-path` isn't in use
-        if ! Path::new(&config).exists() && default_path {
+        if ! Path::new(&config).exists() && default_path && is_original {
             let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
             eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
