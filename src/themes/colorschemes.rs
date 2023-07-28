@@ -1,3 +1,11 @@
+/// Checks that each [`COLS_VALUE`] json str slice is correct ([`WalTheme`]) and parseable.
+#[test]
+fn check_themes() {
+    for i in COLS_VALUE {
+        serde_json::from_str::<crate::themes::WalTheme>(i).expect("json format MUST be correct");
+    }
+}
+
 /// Names of all the corresponding [`COLS_VALUE`]. The order matters since they got the same index
 /// + 1, since this array has one more entry: "random", which acts as a keyword, a COLS_KEY without
 /// COLS_VALUE.
