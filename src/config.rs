@@ -87,12 +87,12 @@ impl Config {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    pub fn write_entry(&self, config_path: &Path, img_path: &Path, colors: &Colors, quiet: bool) -> Result<()> {
+    pub fn write_entry(&self, config_path: &Path, img_path: &Path, colors: &Colors, quiet: bool, is_original: bool) -> Result<()> {
         let info = "I".blue().bold().to_string();
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(config_path, img_path, s, colors, quiet)?;
+            template::write_template(config_path, img_path, s, colors, quiet, is_original)?;
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
         }

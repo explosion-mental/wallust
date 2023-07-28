@@ -13,8 +13,8 @@ use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
-pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
-    let config = config.display().to_string() + "/wallust/";
+pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool, is_original: bool) -> Result<()>{
+    let config = config.display().to_string() + if is_original { "/wallust/" } else { "/" };
     let warn = "W".red().bold().to_string();
 
     // contents of config files (basically a dict)
