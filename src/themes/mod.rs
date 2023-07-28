@@ -129,6 +129,14 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     }
 }
 
+#[cfg(feature = "themes")]
+#[test]
+fn keys_to_values_match() {
+    for i in COLS_KEY {
+        built_in_theme(i.to_string(), true).expect("{i} should find a match");
+    }
+}
+
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
 /// [`WalTheme`] format
 #[cfg(feature = "themes")]
