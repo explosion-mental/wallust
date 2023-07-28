@@ -17,11 +17,10 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
     let config = config.display().to_string() + "/wallust/";
     let warn = "W".red().bold().to_string();
 
-    // contents of config files (basically a dict)
-    let mut contents = vec![];
-
-    // gather `String`s of the contents of the entries (in order to cast it down to &str)
+    // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
+    // template and write the templated(?) file to entry.path
     for e in entries {
+
         let path = config.to_owned() + &e.template;
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
@@ -30,12 +29,11 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
                 continue;
             }
         };
-        contents.push( (&e.target, file_template, path) );
-    }
 
-    // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
-    // template and write the templated(?) file to entry.path
-    for (target, file_content, template_path) in &contents {
+        let target = &e.target;
+        let file_content = file_template;
+        let template_path = path;
+
         if ! quiet { println!("  * Templating: {template_path}"); }
 
         if let Some(p) = Path::new(shellexpand::tilde(target).as_ref()).parent() {
