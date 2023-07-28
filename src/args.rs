@@ -8,11 +8,11 @@ use crate::{
     backends::Backend,
     colorspaces::ColorSpaces,
     filters::Filters,
+    themes::Schemes,
+    themes::COLS_KEY,
 };
 
 use clap::Parser;
-
-use crate::themes;
 
 /// Overall cli type for clap
 #[derive(Parser, Debug)]
@@ -47,14 +47,14 @@ pub enum Subcmds {
         /// Specify a custom format. Without this option, wallust will sequentially try to decode
         /// it by trying one by one.
         #[arg(short, long)]
-        format: Option<themes::Schemes>,
+        format: Option<Schemes>,
     },
 
     /// Apply a custom built in theme
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
+        #[arg(value_parser = COLS_KEY, hide_possible_values(false))]
         theme: String,
 
         /// Don't print anything
