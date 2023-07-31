@@ -42,7 +42,7 @@ fn main() -> Result<()> {
         match &cli.args {
             Some(s) => {
                 match &s.config_dir {
-                    Some(path) => {
+                    Some(path) => { //only in this case, the config dir is altered
                         is_orig_conf = false;
                         path
                     },
