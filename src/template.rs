@@ -5,6 +5,7 @@ use std::io::Write;
 use std::path::Path;
 use std::collections::HashMap;
 
+use crate::config::Config;
 use crate::config::Entries;
 use crate::colors::Colors;
 
@@ -13,15 +14,16 @@ use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s
-pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
-    let config = config.display().to_string() + "/wallust/";
+pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
+    let config = &conf.path;
     let warn = "W".red().bold().to_string();
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for e in entries {
+        let path = config.join(&e.template);
+        let path = path.display().to_string();
 
-        let path = config.to_owned() + &e.template;
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
             Err(e) => {

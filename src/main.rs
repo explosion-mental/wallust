@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     let info = info.bold();
 
     // init directories
-    let Some(config_path) = dirs::config_dir() else {
+    let Some(original_config_path) = dirs::config_dir() else {
         anyhow::bail!("Config path for the platform could not be found, {ISSUE}");
     };
     let Some(cache_path) = dirs::cache_dir() else {
@@ -38,11 +38,28 @@ fn main() -> Result<()> {
         None => None,
     };
 
+    let mut is_orig_conf = true;
+
+    // check config dir
+    let config_path =
+        match &cli.args {
+            Some(s) => {
+                match &s.config_dir {
+                    Some(path) => { //only in this case, the config dir is altered
+                        is_orig_conf = false;
+                        path
+                    },
+                    None => &original_config_path,
+                }
+            },
+            None => &original_config_path,
+        };
+
     // this is mut only because the user could provide a `-C custom_config.toml`
-    let mut conf = config::Config::new(&config_path, config_cli)?;
+    let mut conf = config::Config::new(&config_path, config_cli, is_orig_conf)?;
 
     match &cli.args {
-        Some(s) => no_subcomands(&mut conf, &config_path, &cache_path, &s)?,
+        Some(s) => no_subcomands(&mut conf, &cache_path, &s)?,
         None => (),
     }
 
@@ -58,7 +75,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&config_path, &path, &colors, quiet)?;
+            conf.write_entry(&path, &colors, quiet)?;
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
@@ -76,7 +93,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&config_path, &path, &colors, quiet)?;
+            conf.write_entry(&path, &colors, quiet)?;
             if ! quiet { colors.done() }
 
         },
@@ -89,7 +106,7 @@ fn main() -> Result<()> {
 
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
+fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
     let info = "I".blue();
     let info = info.bold();
 
@@ -144,7 +161,7 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
         colors.sequences(&cache_path)?;
     }
 
-    conf.write_entry(&config_path, &cli.file, &colors, cli.quiet)?;
+    conf.write_entry(&cli.file, &colors, cli.quiet)?;
 
     // Cache colors
     if !cli.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }

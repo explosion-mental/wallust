@@ -90,9 +90,13 @@ pub struct WallustArgs {
     #[arg(short, long)]
     pub no_cache: bool,
 
-    /// Use PATH as the config directory
-    #[arg(short = 'C', long, value_name = "PATH")]
+    /// Use FILE as the config file
+    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
     pub config_path: Option<PathBuf>,
+
+    /// Use DIR as the config directory
+    #[arg(short = 'd', long, conflicts_with = "config_path")]
+    pub config_dir: Option<PathBuf>,
 
     /// Custom backend (ignores config file)
     #[arg(short, long, value_enum)]
