@@ -55,7 +55,7 @@ fn main() -> Result<()> {
             None => &original_config_path,
         };
 
-    // this is mut only because the user could provide a `-C custom_config.toml`
+    // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
     let mut conf = config::Config::new(&config_path, config_cli, is_orig_conf)?;
 
     match &cli.args {
