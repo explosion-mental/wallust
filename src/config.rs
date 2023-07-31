@@ -27,6 +27,15 @@ pub struct Config {
     pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
+
+    /// Config directory (wallust/) path
+    #[serde(skip)]
+    pub path: PathBuf,
+
+    /// Config file (wallust.toml) path
+    #[serde(skip)]
+    pub file: PathBuf,
+
 }
 
 /// An entry within the config file, toml table
@@ -44,8 +53,10 @@ impl Config {
     pub fn new(config: &Path, custom: Option<&PathBuf>, is_original: bool) -> Result<Config> {
 
         // init `.config/wallust/wallust.toml`
-        let config_dir = config.display().to_string() + if is_original { "/wallust" } else { "" };
-        let def_conf = PathBuf::from(config_dir.to_owned() + "/wallust.toml");
+        let join_dir = if is_original { "wallust" } else { "" };
+
+        let config_dir = config.join(join_dir);
+        let def_conf = config_dir.join("wallust.toml");
 
         // is the user using `--config-path`
         let (config, default_path) = match custom {
@@ -62,10 +73,15 @@ impl Config {
                 .write_all(include_str!("../wallust.toml").as_bytes())?;
         }
 
-        toml::from_str(
+        let mut ret: Config = toml::from_str(
             &read_to_string(config)
                 .with_context(|| format!("Failed to read file {}:", config.display()))?
-        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))
+        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))?;
+
+        ret.path = config_dir;
+        ret.file = config.to_path_buf();
+
+        Ok(ret)
     }
 
     pub fn print(&self) {
@@ -87,12 +103,12 @@ impl Config {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    pub fn write_entry(&self, config_path: &Path, img_path: &Path, colors: &Colors, quiet: bool, is_original: bool) -> Result<()> {
+    pub fn write_entry(&self, img_path: &Path, colors: &Colors, quiet: bool) -> Result<()> {
         let info = "I".blue().bold().to_string();
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(config_path, img_path, s, colors, quiet, is_original)?;
+            template::write_template(self, img_path, s, colors, quiet)?;
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
         }
