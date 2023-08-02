@@ -50,7 +50,33 @@ pub struct Entries {
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(config: &Path, custom: Option<&PathBuf>, is_original: bool) -> Result<Config> {
+    pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
+
+        // check config file or generate one if not one isn't found
+        let config_cli = match args {
+            Some(s) => s.config_path.as_ref(),
+            None => None,
+        };
+
+        let mut is_orig_conf = true;
+
+        // check config dir
+        let config_path = match args {
+            Some(s) => {
+                match &s.config_dir {
+                    Some(path) => { //only in this case, the config dir is altered
+                        is_orig_conf = false;
+                        path
+                    },
+                    None => &original_config_path,
+                }
+            },
+            None => &original_config_path,
+        };
+
+        let is_original = is_orig_conf;
+        let config = config_path;
+        let custom = config_cli;
 
         // init `.config/wallust/wallust.toml`
         let join_dir = if is_original { "wallust" } else { "" };

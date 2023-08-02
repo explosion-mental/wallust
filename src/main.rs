@@ -32,31 +32,8 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
-    // check config file or generate one if not one isn't found
-    let config_cli = match &cli.args {
-        Some(s) => s.config_path.as_ref(),
-        None => None,
-    };
-
-    let mut is_orig_conf = true;
-
-    // check config dir
-    let config_path =
-        match &cli.args {
-            Some(s) => {
-                match &s.config_dir {
-                    Some(path) => { //only in this case, the config dir is altered
-                        is_orig_conf = false;
-                        path
-                    },
-                    None => &original_config_path,
-                }
-            },
-            None => &original_config_path,
-        };
-
     // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
-    let mut conf = config::Config::new(&config_path, config_cli, is_orig_conf)?;
+    let mut conf = config::Config::new(&original_config_path, cli.args.as_ref())?;
 
     match &cli.args {
         Some(s) => no_subcomands(&mut conf, &cache_path, &s)?,
