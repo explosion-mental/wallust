@@ -13,16 +13,19 @@ use anyhow::Result;
 use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
-/// Writes `template`s into `target`s
-pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
+/// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
+/// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
+/// entries.
+pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
     let config = &conf.path;
-    let warn = "W".red().bold().to_string();
+
+    let warn = "W".red();
+    let warn = warn.bold();
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for e in entries {
-        let path = config.join(&e.template);
-        let path = path.display().to_string();
+        let path = config.join(&e.template).display().to_string();
 
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
@@ -36,6 +39,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
         let file_content = file_template;
         let template_path = path;
 
+        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
         let target_file = shellexpand::tilde(target);
 
         if ! quiet { println!("  * Templating: {template_path}"); }
@@ -51,7 +55,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
         }
 
         let rendered = Template::new(file_content).render_nofail(&values.to_hash(image_path));
-        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
+
         let mut buffer = match File::create(target_file.as_ref()) {
             Ok(o) => o,
             Err(e) => {
@@ -60,12 +64,9 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             }
         };
 
-        match buffer.write_all(rendered.as_bytes()) {
-            Ok(()) => (),
-            Err(e) => {
-                eprintln!("[{warn}] Failed to write to file {target}: {e}");
-                continue;
-            }
+        if let Err(e) = buffer.write_all(rendered.as_bytes()) {
+            eprintln!("[{warn}] Failed to write to file {target}: {e}");
+            continue;
         }
 
         if ! quiet { println!("      Created: {} ... OK", target); }
