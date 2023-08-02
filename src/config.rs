@@ -53,30 +53,28 @@ impl Config {
     pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
 
         // check config file or generate one if not one isn't found
-        let config_cli = match args {
+        let custom = match args {
             Some(s) => s.config_path.as_ref(),
             None => None,
         };
 
-        let mut is_orig_conf = true;
+        // true -> uses original_config_path
+        // false -> uses a custom path
+        let mut is_original = true;
 
         // check config dir
-        let config_path = match args {
+        let config = match args {
             Some(s) => {
                 match &s.config_dir {
                     Some(path) => { //only in this case, the config dir is altered
-                        is_orig_conf = false;
+                        is_original = false;
                         path
                     },
-                    None => &original_config_path,
+                    None => original_config_path,
                 }
             },
-            None => &original_config_path,
+            None => original_config_path,
         };
-
-        let is_original = is_orig_conf;
-        let config = config_path;
-        let custom = config_cli;
 
         // init `.config/wallust/wallust.toml`
         let join_dir = if is_original { "wallust" } else { "" };
@@ -134,12 +132,11 @@ impl Config {
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(self, img_path, s, colors, quiet)?;
+            template::write_template(self, img_path, s, colors, quiet)
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
+            Ok(())
         }
-
-        Ok(())
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration

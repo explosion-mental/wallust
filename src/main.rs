@@ -36,7 +36,7 @@ fn main() -> Result<()> {
     let mut conf = config::Config::new(&original_config_path, cli.args.as_ref())?;
 
     match &cli.args {
-        Some(s) => no_subcomands(&mut conf, &cache_path, &s)?,
+        Some(s) => no_subcomands(&mut conf, &cache_path, s)?,
         None => (),
     }
 
@@ -52,7 +52,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&path, &colors, quiet)?;
+            conf.write_entry(path, &colors, quiet)?;
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
@@ -70,7 +70,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&path, &colors, quiet)?;
+            conf.write_entry(path, &colors, quiet)?;
             if ! quiet { colors.done() }
 
         },
@@ -88,10 +88,10 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     let info = info.bold();
 
     // apply --backend or --filter or --colorspace
-    conf.customs_cli(&cli);
+    conf.customs_cli(cli);
 
     // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
+    let cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -111,7 +111,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
 
             //ugly workaround for printing warning, gotta stop the spinner first
-            match gen_colors(&cli.file, &conf) {
+            match gen_colors(&cli.file, conf) {
                 Ok((o, warn)) => {
                     let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
@@ -123,7 +123,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
                 },
             }
         } else {
-            gen_colors(&cli.file, &conf)?.0
+            gen_colors(&cli.file, conf)?.0
         }
     };
 
@@ -135,7 +135,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     // Set sequences
     if ! cli.skip_sequences {
         if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(&cache_path)?;
+        colors.sequences(cache_path)?;
     }
 
     conf.write_entry(&cli.file, &colors, cli.quiet)?;
