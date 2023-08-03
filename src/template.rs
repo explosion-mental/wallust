@@ -17,7 +17,7 @@ use owo_colors::OwoColorize;
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
 pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
-    let config = &conf.path;
+    let config = &conf.dir;
 
     let warn = "W".red();
     let warn = warn.bold();

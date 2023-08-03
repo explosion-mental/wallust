@@ -33,7 +33,7 @@ fn config_file() {
     let c = Config::new(&PathBuf::from(conf_dir), Some(&args)).expect("should deserialize wallust.toml");
 
     // config path directory should remain the same + an added `wallust/`
-    assert_eq!(c.path, PathBuf::from(conf_dir).join("wallust"));
+    assert_eq!(c.dir, PathBuf::from(conf_dir).join("wallust"));
 
     // c.file should be the new one provided
     assert_eq!(c.file, tmp.path().to_path_buf());
@@ -59,7 +59,7 @@ fn config_dir() {
     let c = Config::new(&PathBuf::from(original_conf), Some(&args)).expect("should deserialize wallust.toml");
 
     // config path directory should NOT remain the "original_conf", but changed to the one provided by the cli (args.config_dir)
-    assert_eq!(c.path, tmp.path().to_path_buf());
+    assert_eq!(c.dir, tmp.path().to_path_buf());
 
     // config file should be inside the new provided dir
     assert_eq!(c.file, tmp.path().join("wallust.toml").to_path_buf());

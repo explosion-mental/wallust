@@ -30,7 +30,7 @@ pub struct Config {
 
     /// Config directory (wallust/) path
     #[serde(skip)]
-    pub path: PathBuf,
+    pub dir: PathBuf,
 
     /// Config file (wallust.toml) path
     #[serde(skip)]
@@ -102,7 +102,7 @@ impl Config {
                 .with_context(|| format!("Failed to read file {}:", config.display()))?
         ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))?;
 
-        ret.path = config_dir;
+        ret.dir = config_dir;
         ret.file = config.to_path_buf();
 
         Ok(ret)
