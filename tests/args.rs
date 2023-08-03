@@ -5,16 +5,18 @@ use std::{
 
 use wallust::{
     args::Cli,
-    config::Config,
     args::WallustArgs,
+    config::Config,
 };
 
+/// clap assertions
 #[test]
 fn verify_cli() {
     use clap::CommandFactory;
     Cli::command().debug_assert()
 }
 
+/// test for a valid `--config_file` and for the provided file to be the new location
 #[test]
 fn config_file() {
     let mut tmp = tempfile::NamedTempFile::new().expect("init new temporal named pipe");
@@ -26,14 +28,20 @@ fn config_file() {
     args.config_path = Some(tmp.path().to_path_buf());
 
     let conf_dir = "~/.config";
-    let c = Config::new(&PathBuf::from(conf_dir), Some(&args)).expect("should deserialize wallust.toml");
 
-    tmp.close().expect("temporal named pipe should close successfully");
+    // serde + logic to find out the new config
+    let c = Config::new(&PathBuf::from(conf_dir), Some(&args)).expect("should deserialize wallust.toml");
 
     // config path directory should remain the same + an added `wallust/`
     assert_eq!(c.path, PathBuf::from(conf_dir).join("wallust"));
+
+    // c.file should be the new one provided
+    assert_eq!(c.file, tmp.path().to_path_buf());
+
+    tmp.close().expect("temporal named pipe should close successfully");
 }
 
+/// Test for `--config-dir` provided directory is used and should check `wallust.toml` inside it
 #[test]
 fn config_dir() {
     use std::fs::File;
@@ -52,6 +60,9 @@ fn config_dir() {
 
     // config path directory should NOT remain the "original_conf", but changed to the one provided by the cli (args.config_dir)
     assert_eq!(c.path, tmp.path().to_path_buf());
+
+    // config file should be inside the new provided dir
+    assert_eq!(c.file, tmp.path().join("wallust.toml").to_path_buf());
 
     tmp.close().expect("temporal directory should close successfully");
 }
