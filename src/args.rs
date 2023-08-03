@@ -68,7 +68,7 @@ pub enum Subcmds {
 }
 
 /// No subcommands, global arguments
-#[derive(Parser, Debug, Clone)]
+#[derive(Parser, Debug, Clone, Default)]
 pub struct WallustArgs {
     /// Path to an image or json theme to use
     pub file: PathBuf,
