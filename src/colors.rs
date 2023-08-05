@@ -169,17 +169,19 @@ impl Colors {
         );
     }
 
-    /// Sets terminal color sequences
+    /// Sets terminal colors
     /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
     /// ## Special colors.
     /// Source: https://goo.gl/KcoQgP
     /// 10 = foreground, 11 = background, 12 = cursor foreground
     /// 13 = mouse foreground, 708 = background border color.
-    /// TODO investigate about iTerm2
+    /// TODO investigate about iTerm2 (macOS/Darwin)
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
         let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
-        let sequences = format!(
+        let c = self;
+
+    let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
 \x1B]4;1;{col1}\x1B\\\
 \x1B]4;2;{col2}\x1B\\\
@@ -206,49 +208,48 @@ impl Colors {
 \x1B]4;256;{fg}\x1B\\\
 \x1B]4;257;{bg}\x1B\\\
 ",
-        bg = self.background,
-        fg = self.foreground,
-        cursor = self.foreground,
-        col0  = self.color0,
-        col1  = self.color1,
-        col2  = self.color2,
-        col3  = self.color3,
-        col4  = self.color4,
-        col5  = self.color5,
-        col6  = self.color6,
-        col7  = self.color7,
-        col8  = self.color8,
-        col9  = self.color9,
-        col10 = self.color10,
-        col11 = self.color11,
-        col12 = self.color12,
-        col13 = self.color13,
-        col14 = self.color14,
-        col15 = self.color15,
-        );
+    bg = c.background,
+    fg = c.foreground,
+    cursor = c.foreground,
+    col0  = c.color0,
+    col1  = c.color1,
+    col2  = c.color2,
+    col3  = c.color3,
+    col4  = c.color4,
+    col5  = c.color5,
+    col6  = c.color6,
+    col7  = c.color7,
+    col8  = c.color8,
+    col9  = c.color9,
+    col10 = c.color10,
+    col11 = c.color11,
+    col12 = c.color12,
+    col13 = c.color13,
+    col14 = c.color14,
+    col15 = c.color15,
+    );
 
-        //NOTE on WINDOWS: The glob never triggers, `glob::glob("/dev/pts/[0-9]*").unwrap().next()` is `None`.
-        for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
-            match entry {
-                Ok(path) => {
-                    match File::create(&path) {
-                        Ok(o) => o,
-                        Err(e) => { //ignore errors, but report them
-                            eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
-                            continue;
-                        },
-                    }.write_all(sequences.as_bytes())?
-                },
-                Err(e) => {
-                    anyhow::bail!("Error while sending sequences to terminals:\n{e}")
-                },
-            };
-        }
+    for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
+        match entry {
+            Ok(path) => {
+                match File::create(&path) {
+                    Ok(o) => o,
+                    Err(e) => { //ignore errors, but report them
+                        eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
+                        continue;
+                    },
+                }.write_all(sequences.as_bytes())?
+            },
+            Err(e) => {
+                anyhow::bail!("Error while sending sequences to terminals:\n{e}")
+            },
+        };
+    }
 
-        File::create(seq_file)?
-            .write_all(sequences.as_bytes())?;
+    File::create(seq_file)?
+        .write_all(sequences.as_bytes())?;
 
-        Ok(())
+    Ok(())
     }
 }
 
