@@ -169,17 +169,30 @@ impl Colors {
         );
     }
 
-    /// Sets terminal color sequences
-    /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
-    /// ## Special colors.
-    /// Source: https://goo.gl/KcoQgP
-    /// 10 = foreground, 11 = background, 12 = cursor foreground
-    /// 13 = mouse foreground, 708 = background border color.
-    /// TODO investigate about iTerm2
+    /// Sets terminal colors
+    /// TODO investigate about iTerm2 (macOS/Darwin)
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
-        let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+        #[cfg(target_family = "windows")]
+        return windows_term(self);
 
-        let sequences = format!(
+        #[cfg(target_family = "unix")]
+        return unix_term(self, cache_path);
+    }
+}
+
+use serde_json::Value;
+
+/// Uses terminal sequences to update terminal colors
+/// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
+/// ## Special colors.
+/// Source: https://goo.gl/KcoQgP
+/// 10 = foreground, 11 = background, 12 = cursor foreground
+/// 13 = mouse foreground, 708 = background border color.
+#[cfg(target_family = "unix")]
+fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
+    let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+
+    let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
 \x1B]4;1;{col1}\x1B\\\
 \x1B]4;2;{col2}\x1B\\\
@@ -206,49 +219,181 @@ impl Colors {
 \x1B]4;256;{fg}\x1B\\\
 \x1B]4;257;{bg}\x1B\\\
 ",
-        bg = self.background,
-        fg = self.foreground,
-        cursor = self.foreground,
-        col0  = self.color0,
-        col1  = self.color1,
-        col2  = self.color2,
-        col3  = self.color3,
-        col4  = self.color4,
-        col5  = self.color5,
-        col6  = self.color6,
-        col7  = self.color7,
-        col8  = self.color8,
-        col9  = self.color9,
-        col10 = self.color10,
-        col11 = self.color11,
-        col12 = self.color12,
-        col13 = self.color13,
-        col14 = self.color14,
-        col15 = self.color15,
-        );
+    bg = c.background,
+    fg = c.foreground,
+    cursor = c.foreground,
+    col0  = c.color0,
+    col1  = c.color1,
+    col2  = c.color2,
+    col3  = c.color3,
+    col4  = c.color4,
+    col5  = c.color5,
+    col6  = c.color6,
+    col7  = c.color7,
+    col8  = c.color8,
+    col9  = c.color9,
+    col10 = c.color10,
+    col11 = c.color11,
+    col12 = c.color12,
+    col13 = c.color13,
+    col14 = c.color14,
+    col15 = c.color15,
+    );
 
-        for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
-            match entry {
-                Ok(path) => {
-                    match File::create(&path) {
-                        Ok(o) => o,
-                        Err(e) => { //ignore errors, but report them
-                            eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
-                            continue;
-                        },
-                    }.write_all(sequences.as_bytes())?
-                },
-                Err(e) => {
-                    anyhow::bail!("Error while sending sequences to terminals:\n{e}")
-                },
-            };
+    for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
+        match entry {
+            Ok(path) => {
+                match File::create(&path) {
+                    Ok(o) => o,
+                    Err(e) => { //ignore errors, but report them
+                        eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
+                        continue;
+                    },
+                }.write_all(sequences.as_bytes())?
+            },
+            Err(e) => {
+                anyhow::bail!("Error while sending sequences to terminals:\n{e}")
+            },
+        };
+    }
+
+    File::create(seq_file)?
+        .write_all(sequences.as_bytes())?;
+
+    Ok(())
+}
+
+const SCHEME_NAME: &str = "wallust";
+
+/// searches for `settings.json` file to change the scheme in windows cli
+#[cfg(target_family = "windows")]
+fn windows_term(cols: &Colors) -> Result<()> {
+    let Some(dir) = dirs::data_local_dir() else {
+        anyhow::bail!("Couldn't get %LOCALAPPDATA%, quitting..");
+    };
+
+    let stable  = dir.join("Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json");
+    let preview = dir.join("Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json");
+    let unpkg   = dir.join("Microsoft/WindowsTerminal/settings.json");
+
+    let files = vec![stable, preview, unpkg];
+
+    for i in files {
+        let content = match std::fs::read_to_string(&i) {
+            Ok(o) => o,
+            Err(_) => continue,
+        };
+
+        let mut settings_json = match serde_json::from_str::<WinTerm>(&content) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{w}] Deserializing json failed {p}: {e}", p = i.display(), w = "W".red().bold());
+                continue;
+            }
+        };
+
+        let mut found = false;
+
+        for (i, s) in settings_json.schemes.iter().enumerate() {
+            if s.name == SCHEME_NAME {
+                settings_json.schemes[i] = cols.into();
+                found = true;
+                break; //only do this once, it should only be one "wal" scheme anyway
+            }
         }
 
-        File::create(seq_file)?
-            .write_all(sequences.as_bytes())?;
+        // a "wallust" scheme wasn't found, append it.
+        if found == false {
+            settings_json.schemes.push(cols.into());
+        }
 
-        Ok(())
+        let new_json = match serde_json::to_string_pretty(&settings_json) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{w}] Writing json failed {p}: {e}", p = i.display(), w = "W".red().bold());
+                continue;
+            }
+        };
+
+        File::create(&i)?
+            .write_all(new_json.as_bytes())?
     }
+
+    Ok(())
+
+}
+
+impl From<&Colors> for WinScheme {
+    fn from(c: &Colors) -> Self {
+        Self {
+            name                : SCHEME_NAME.to_string(),
+            cursor_color        : c.color8 .to_string(),
+            selection_background: c.color15.to_string(),
+            foreground          : c.foreground.to_string(),
+            background          : c.background.to_string(),
+            black               : c.color0 .to_string(),
+            blue                : c.color4 .to_string(),
+            cyan                : c.color5 .to_string(),
+            green               : c.color1 .to_string(),
+            purple              : c.color2 .to_string(),
+            red                 : c.color3 .to_string(),
+            white               : c.color15.to_string(),
+            yellow              : c.color6 .to_string(),
+            bright_black        : c.color8 .to_string(),
+            bright_blue         : c.color12.to_string(),
+            bright_cyan         : c.color13.to_string(),
+            bright_green        : c.color9 .to_string(),
+            bright_purple       : c.color10.to_string(),
+            bright_red          : c.color11.to_string(),
+            bright_white        : c.color7 .to_string(),
+            bright_yellow       : c.color14.to_string(),
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WinTerm {
+    #[serde(rename = "$help")]
+    pub help: String,
+    #[serde(rename = "$schema")]
+    pub schema: String,
+    pub actions: Value,
+    pub copy_formatting: String,
+    pub copy_on_select: bool,
+    pub default_profile: String,
+    pub new_tab_menu: Value,
+    pub profiles: Value,
+    pub themes: Value,
+    /// This is the only field we need
+    pub schemes: Vec<WinScheme>,
+}
+
+/// a WindowsTerminal Scheme
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WinScheme {
+    pub name: String,
+    pub cursor_color: String,
+    pub selection_background: String,
+    pub background: String,
+    pub foreground: String,
+    pub black: String,
+    pub blue: String,
+    pub cyan: String,
+    pub green: String,
+    pub purple: String,
+    pub red: String,
+    pub white: String,
+    pub yellow: String,
+    pub bright_black: String,
+    pub bright_blue: String,
+    pub bright_cyan: String,
+    pub bright_green: String,
+    pub bright_purple: String,
+    pub bright_red: String,
+    pub bright_white: String,
+    pub bright_yellow: String,
 }
 
 pub trait HexConversion {
