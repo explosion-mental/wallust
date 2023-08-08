@@ -170,6 +170,9 @@ impl Colors {
     }
 
     /// Sets terminal colors
+    /// ANSI escape codes tables and helpful guidelines:
+    /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
+    ///
     /// TODO investigate about iTerm2 (macOS/Darwin)
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
         #[cfg(target_family = "windows")]
@@ -182,6 +185,19 @@ impl Colors {
 
 use serde_json::Value;
 
+/// Set iTerm2 tab/window color
+/// `\a` is BELL in octal escape byte, `\x07` in hex
+#[cfg(target_os = "macos")]
+fn set_iterm_tab_color(c: &Colors) -> String {
+    let col = c.background.rgb();
+    format!(
+"\x1B]6;1;bg;red;brightness;{col}\x07\\\
+\x1B]6;1;bg;green;brightness;{col}\x07\\\
+\x1B]6;1;bg;blue;brightness;{col}\x07\\\
+"
+    )
+}
+
 /// Uses terminal sequences to update terminal colors
 /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
 /// ## Special colors.
@@ -193,10 +209,16 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
     #[cfg(target_os = "macos")]
+    let iterm = set_iterm_tab_color(c);
+
+    #[cfg(target_os = "macos")]
     let tty_pattern = "/dev/ttys00[0-9]*";
 
     #[cfg(not(target_os = "macos"))]
     let tty_pattern = "/dev/pts/[0-9]*";
+
+    #[cfg(not(target_os = "macos"))]
+    let iterm = "";
 
     let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
@@ -223,7 +245,7 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
 \x1B]19;{bg}\x1B\\\
 \x1B]4;232;{bg}\x1B\\\
 \x1B]4;256;{fg}\x1B\\\
-\x1B]4;257;{bg}\x1B\\\
+\x1B]4;257;{bg}\x1B{iterm}\\\
 ",
     bg = c.background,
     fg = c.foreground,
