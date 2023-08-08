@@ -202,8 +202,11 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
 /// ## Special colors.
 /// Source: https://goo.gl/KcoQgP
-/// 10 = foreground, 11 = background, 12 = cursor foreground
-/// 13 = mouse foreground, 708 = background border color.
+/// 10 = foreground, 11 = background, 12 = cursor foreground, 13 = mouse foreground,
+/// 708 = background border color.
+/// ## Format
+/// Escape sequences is "\033]4;%s;%s\033\\" but hex, note the escaped backslash at the end.
+/// A triple `\\\` is needed to remove the new line and print a single `\`.
 #[cfg(target_family = "unix")]
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
