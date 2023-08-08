@@ -192,6 +192,12 @@ use serde_json::Value;
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
+    #[cfg(target_os = "macos")]
+    let tty_pattern = "/dev/ttys00[0-9]*";
+
+    #[cfg(not(target_os = "macos"))]
+    let tty_pattern = "/dev/pts/[0-9]*";
+
     let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
 \x1B]4;1;{col1}\x1B\\\
@@ -240,7 +246,7 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     col15 = c.color15,
     );
 
-    for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
+    for entry in glob::glob(tty_pattern).expect("glob pattern is ok") {
         match entry {
             Ok(path) => {
                 match File::create(&path) {
