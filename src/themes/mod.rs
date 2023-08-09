@@ -4,6 +4,7 @@
 //! and `use` the `colorschemes.rs` module and [`built_in_theme()`] function.
 //! For reading external colorschemes: `wallust cs my_colorscheme.json` \n
 //! For using the built in themes: `wallust theme zenburn` \n
+//! Functions and const values are tested.
 use std::fmt;
 use std::path::Path;
 
