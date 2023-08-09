@@ -9,6 +9,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Result;
+use itertools::Itertools;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
@@ -338,17 +339,12 @@ use std::str;
         .stdout(Stdio::piped())
         .spawn()?;
 
-    let uniq = Command::new("uniq")
-        .stdin(Stdio::from(sort.stdout.expect("should be filled"))) // Pipe through.
-        .stdout(Stdio::piped())
-        .spawn()?;
-
     let mut paths = vec![];
 
-    let output = uniq.wait_with_output()?;
+    let output = sort.wait_with_output()?;
 
     //add every line
-    for line in str::from_utf8(&output.stdout)?.lines() {
+    for line in str::from_utf8(&output.stdout)?.lines().unique() {
         let p = PathBuf::try_from(line).map_err(anyhow::Error::from);
         paths.push(p);
     }
