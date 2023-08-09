@@ -6,10 +6,8 @@ use std::fmt;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::path::PathBuf;
 
 use anyhow::Result;
-use itertools::Itertools;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
@@ -316,8 +314,10 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
 /// ref: <https://github.com/dylanaraps/pywal/pull/510>
 #[cfg(target_os = "openbsd")]
 fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
-use std::process::{Command, Stdio};
-use std::str;
+    use itertools::Itertools;
+    use std::path::PathBuf;
+    use std::process::{Command, Stdio};
+    use std::str;
 
     let ps = Command::new("ps").arg("-o").arg("tty")
         .stdout(Stdio::piped())       // of which we will pipe the output.
