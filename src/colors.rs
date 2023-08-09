@@ -212,16 +212,10 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
 
     #[cfg(target_os = "macos")]
-    let iterm = set_iterm_tab_color(c);
-
-    #[cfg(target_os = "macos")]
     let tty_pattern = "/dev/ttys00[0-9]*";
 
     #[cfg(not(target_os = "macos"))]
     let tty_pattern = "/dev/pts/[0-9]*";
-
-    #[cfg(not(target_os = "macos"))]
-    let iterm = "";
 
     let sequences = format!(
 "\x1B]4;0;{col0}\x1B\\\
@@ -248,7 +242,7 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
 \x1B]19;{bg}\x1B\\\
 \x1B]4;232;{bg}\x1B\\\
 \x1B]4;256;{fg}\x1B\\\
-\x1B]4;257;{bg}\x1B{iterm}\\\
+\x1B]4;257;{bg}\x1B\\\
 ",
     bg = c.background,
     fg = c.foreground,
@@ -270,6 +264,10 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     col14 = c.color14,
     col15 = c.color15,
     );
+
+    // set iterm if macos
+    #[cfg(target_os = "macos")]
+    let sequences = sequences + &set_iterm_tab_color(c);
 
     for entry in glob::glob(tty_pattern).expect("glob pattern is ok") {
         match entry {
