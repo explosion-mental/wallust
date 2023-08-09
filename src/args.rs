@@ -64,6 +64,10 @@ pub enum Subcmds {
         /// Skip setting terminal sequences
         #[arg(short, long)]
         skip_sequences: bool,
+
+        /// Only preview the selected theme.
+        #[arg(short, long, conflicts_with = "quiet")]
+        preview: bool,
     },
 }
 

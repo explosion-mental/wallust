@@ -42,10 +42,13 @@ fn main() -> Result<()> {
 
     match cli.subcmds {
         #[cfg(feature = "themes")]
-        Some(args::Subcmds::Theme { theme, quiet, skip_sequences }) => {
-            if ! quiet { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, preview }) => {
+            if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(theme, quiet)?;
-            if ! quiet { colors.print(); }
+            if ! quiet {
+                    colors.print();
+                    if preview { return Ok(()); } //exit if preview
+            }
             if ! skip_sequences {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
