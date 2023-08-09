@@ -6,6 +6,7 @@ use std::fmt;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::path::PathBuf;
 
 use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
@@ -280,8 +281,13 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     #[cfg(target_os = "macos")]
     let sequences = sequences + &set_iterm_tab_color(c);
 
+    #[cfg(target_os = "openbsd")]
+    let devices = openbsd_ttys()?;
 
-    for entry in glob::glob(tty_pattern).expect("glob pattern is ok") {
+    #[cfg(not(target_os = "openbsd"))]
+    let devices = glob::glob(tty_pattern).expect("glob pattern is ok");
+
+    for entry in devices {
         match entry {
             Ok(path) => {
                 match File::create(&path) {
@@ -302,6 +308,52 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
         .write_all(sequences.as_bytes())?;
 
     Ok(())
+}
+
+/// Sets terminal colors on OpenBSD.
+/// Calls `ps -o tty | sed -e 1d -e s#^#/dev/# | sort | uniq`
+/// ref: <https://github.com/dylanaraps/pywal/pull/510>
+#[cfg(target_os = "openbsd")]
+fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
+use std::process::{Command, Stdio};
+use std::str;
+
+    let ps = Command::new("ps").arg("-o").arg("tty")
+        .stdout(Stdio::piped())       // of which we will pipe the output.
+        .spawn()?;
+
+    let ps_out = match ps.stdout {
+        Some(s) => s,
+        //return empty vec, to avoid quitting on an error.
+        None => return Ok(vec![]),
+    };
+
+    let sed = Command::new("sed").args(&["-e", "1d", "-e", "s#^#/dev/#"])
+        .stdin(Stdio::from(ps_out)) // Pipe through.
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let sort = Command::new("sort")
+        .stdin(Stdio::from(sed.stdout.expect("should be filled"))) // Pipe through.
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let uniq = Command::new("uniq")
+        .stdin(Stdio::from(sort.stdout.expect("should be filled"))) // Pipe through.
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let mut paths = vec![];
+
+    let output = uniq.wait_with_output()?;
+
+    //add every line
+    for line in str::from_utf8(&output.stdout)?.lines() {
+        let p = PathBuf::try_from(line).map_err(anyhow::Error::from);
+        paths.push(p);
+    }
+
+    Ok(paths)
 }
 
 const SCHEME_NAME: &str = "wallust";
