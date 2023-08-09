@@ -113,6 +113,33 @@ impl Myrgb {
     pub fn blue(&self) -> String {
         format!("{}", self.2)
     }
+
+    /// private fn that returns sequences
+    /// "Convert a hex color to a text color sequence"
+    fn set_color(&self, index: u32) -> String {
+        if cfg!(target_os = "macos") && index < 20 {
+            return format!("\x1B]P%1x{self}\x1B\\");
+        }
+
+        format!("\x1B]4;{index};{self}\x1B\\")
+    }
+
+    /// Convert a hex color to a special sequence.
+    /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
+    fn set_special(&self, index: u32, iterm_name: &str) -> String {
+        //let alpha = 100;
+
+        if cfg!(target_os = "macos") && !iterm_name.is_empty() {
+            return format!("\x1B]P{iterm_name}{}\x1B\\", self.strip());
+        }
+
+        // if (11..=708).contains(&index) && alpha != 100 {
+        //     return format!("\x1B]{index};[{alpha}]{self}\x1B\\");
+        // }
+
+        format!("\x1B]{index};{self}\x1B\\")
+    }
+
 }
 
 impl Colors {
@@ -206,7 +233,7 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 /// 708 = background border color.
 /// ## Format
 /// Escape sequences is "\033]4;%s;%s\033\\" but hex, note the escaped backslash at the end.
-/// A triple `\\\` is needed to remove the new line and print a single `\`.
+/// A triple `\\\` is needed to remove the new line and print a single `\`
 #[cfg(target_family = "unix")]
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
@@ -217,57 +244,42 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     #[cfg(not(target_os = "macos"))]
     let tty_pattern = "/dev/pts/[0-9]*";
 
-    let sequences = format!(
-"\x1B]4;0;{col0}\x1B\\\
-\x1B]4;1;{col1}\x1B\\\
-\x1B]4;2;{col2}\x1B\\\
-\x1B]4;3;{col3}\x1B\\\
-\x1B]4;4;{col4}\x1B\\\
-\x1B]4;5;{col5}\x1B\\\
-\x1B]4;6;{col6}\x1B\\\
-\x1B]4;7;{col7}\x1B\\\
-\x1B]4;8;{col8}\x1B\\\
-\x1B]4;9;{col9}\x1B\\\
-\x1B]4;10;{col10}\x1B\\\
-\x1B]4;11;{col11}\x1B\\\
-\x1B]4;12;{col12}\x1B\\\
-\x1B]4;13;{col13}\x1B\\\
-\x1B]4;14;{col14}\x1B\\\
-\x1B]4;15;{col15}\x1B\\\
-\x1B]10;{fg}\x1B\\\
-\x1B]11;{bg}\x1B\\\
-\x1B]12;{cursor}\x1B\\\
-\x1B]13;{fg}\x1B\\\
-\x1B]17;{fg}\x1B\\\
-\x1B]19;{bg}\x1B\\\
-\x1B]4;232;{bg}\x1B\\\
-\x1B]4;256;{fg}\x1B\\\
-\x1B]4;257;{bg}\x1B\\\
-",
-    bg = c.background,
-    fg = c.foreground,
-    cursor = c.foreground,
-    col0  = c.color0,
-    col1  = c.color1,
-    col2  = c.color2,
-    col3  = c.color3,
-    col4  = c.color4,
-    col5  = c.color5,
-    col6  = c.color6,
-    col7  = c.color7,
-    col8  = c.color8,
-    col9  = c.color9,
-    col10 = c.color10,
-    col11 = c.color11,
-    col12 = c.color12,
-    col13 = c.color13,
-    col14 = c.color14,
-    col15 = c.color15,
-    );
+    let sequences = vec![
+        // colors from 0-15
+        c.color0 .set_color(0 ),
+        c.color2 .set_color(1 ),
+        c.color2 .set_color(2 ),
+        c.color3 .set_color(3 ),
+        c.color4 .set_color(4 ),
+        c.color5 .set_color(5 ),
+        c.color6 .set_color(6 ),
+        c.color7 .set_color(7 ),
+        c.color8 .set_color(8 ),
+        c.color9 .set_color(9 ),
+        c.color10.set_color(10),
+        c.color11.set_color(11),
+        c.color12.set_color(12),
+        c.color13.set_color(13),
+        c.color14.set_color(14),
+        c.color15.set_color(15),
+
+        // special colors, see above the fn
+        c.foreground.set_special(10, "g"),
+        c.background.set_special(11, "h"),
+        c.foreground.set_special(12, "l"), //cursor
+        c.foreground.set_special(13, "j"), //mouse
+        c.foreground.set_special(17, "k"),
+        c.background.set_special(19, "m"),
+        c.background.set_color(232),
+        c.foreground.set_color(256),
+        c.background.set_color(257),
+        c.background.set_special(708, "")
+    ].join("");
 
     // set iterm if macos
     #[cfg(target_os = "macos")]
     let sequences = sequences + &set_iterm_tab_color(c);
+
 
     for entry in glob::glob(tty_pattern).expect("glob pattern is ok") {
         match entry {
