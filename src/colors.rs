@@ -313,9 +313,10 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
 /// Calls `ps -o tty | sed -e 1d -e s#^#/dev/# | sort | uniq`
 /// ref: <https://github.com/dylanaraps/pywal/pull/510>
 #[cfg(target_os = "openbsd")]
+use std::path::PathBuf;
+#[cfg(target_os = "openbsd")]
 fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
     use itertools::Itertools;
-    use std::path::PathBuf;
     use std::process::{Command, Stdio};
     use std::str;
 
@@ -329,7 +330,7 @@ fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
         None => return Ok(vec![]),
     };
 
-    let sed = Command::new("sed").args(&["-e", "1d", "-e", "s#^#/dev/#"])
+    let sed = Command::new("sed").args(["-e", "1d", "-e", "s#^#/dev/#"])
         .stdin(Stdio::from(ps_out)) // Pipe through.
         .stdout(Stdio::piped())
         .spawn()?;
