@@ -247,7 +247,7 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let sequences = vec![
         // colors from 0-15
         c.color0 .set_color(0 ),
-        c.color2 .set_color(1 ),
+        c.color1 .set_color(1 ),
         c.color2 .set_color(2 ),
         c.color3 .set_color(3 ),
         c.color4 .set_color(4 ),
