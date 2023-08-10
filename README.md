@@ -218,3 +218,4 @@ for more, grep the src for TODO `rg TODO`
 - [base16 - Framework for Tomorrow styled themes](https://github.com/chriskempson/base16)
 - [flavours -  🎨💧An easy to use base16 scheme manager that integrates with any workflow](https://github.com/Misterio77/flavours)
 - [oxidec - Eye-candy manager written in Rust](https://github.com/mrtnvgr/oxidec)
+- [raventhemer - A theme manager and switcher for desktop linux](https://git.sr.ht/~nicohman/raven)
