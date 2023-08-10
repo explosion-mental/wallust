@@ -10,7 +10,6 @@ use crate::config::Entries;
 use crate::colors::Colors;
 
 use anyhow::Result;
-use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
@@ -54,7 +53,9 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             continue;
         }
 
-        let rendered = Template::new(file_content).render_nofail(&values.to_hash(image_path));
+        let rendered =
+            new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path))
+        ;
 
         let mut buffer = match File::create(target_file.as_ref()) {
             Ok(o) => o,
