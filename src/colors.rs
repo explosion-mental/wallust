@@ -2,6 +2,9 @@
 //! Here [`Colors`] and [`Myrgb`] types are defined. These are simple enough used by backends,
 //! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
 //! the base has more structure (also because it's only 16 colors).
+//! **NOTE:** alpha value is hardcoded, pywal only uses alpha for urxvt sequences. I consider that
+//! too specific to open a new `--alpha` flag, since that value can easly hardcoded in the template
+//! itself. XXX maybe in v3 remove `rgba` and other alpha related code.
 use std::fmt;
 use std::fs::File;
 use std::io::Write;
@@ -85,10 +88,9 @@ impl Myrgb {
         format!("{},{},{}", self.0, self.1, self.2)
     }
 
-    //TODO alpha
     //.rgba output `235,235,235,1.0`
     pub fn rgba(&self) -> String {
-        let alpha = 1.0;
+        let alpha = 1.0; //see top of the file for alpha explanation
         format!("rgba({},{},{},{alpha})", self.0, self.1, self.2)
     }
 
