@@ -191,16 +191,16 @@ This will use the lastest version
 
 Show some of your taste by adding a
 [backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
-[colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces)
+[colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces),
+[filters](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/filters),
 and/or
-[filters](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/filters).
-
+[colorscheme](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/themes/colorschemes.rs).
 
 Having thoughts or suggestios is also very welcome.
 
 ## TODOs
 for more, grep the src for TODO `rg TODO`
-- release binaries with a CI, figure out woodkeeper codeberg CI
+- automate binary releases with a CI, figure out woodkeeper codeberg CI
 - Think about using [k means algo](https://en.wikipedia.org/wiki/K-means_clustering)
   similar to [pigmnts](https://github.com/blenderskool/pigmnts) (just without seg faulting :p)
 - use `thiserror` for errors in the modules (there aren't that many)
