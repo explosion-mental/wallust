@@ -103,7 +103,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     }
 
     // Whether to load data from cache or to generate one from scratch
-    if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
+    if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
     let colors = if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
