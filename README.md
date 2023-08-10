@@ -24,23 +24,23 @@ wallust my_wallpaper.png
 _use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
 ## Features
-- Sets [terminal colors sequences](#Terminal-color-sequences) on all active terminals
-- Respects directory structure by platform:
-    * Cache:
-        - Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
-        - MacOs: `$HOME/Library/Caches`
-        - Windows: `{FOLDERID_LocalAppData}`
-    * Config:
-        - Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
-        - MacOs: `$HOME/Library/Application Support`
-        - Windows: `{FOLDERID_RoamingAppData}`
+- Sets [terminal colors](#Terminal-color) on all active terminals
+    * *NIX: ASCII escape sequences
+    * MacOS: iTerm2 sequences
+    * Windows: Adds a [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
 - Cache scheme palettes
-- Can read pywal colorschemes with `cs` subcommand
-- Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features)
+    * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
+    * MacOs: `$HOME/Library/Caches`
+    * Windows: `{FOLDERID_LocalAppData}`
+- Read pywal/terminal-sexy colorschemes with `cs` subcommand
+- Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features) `wallust theme --help` to list possible themes
 - Configuration file, documented at `wallust.toml` of this repo:
 	* **optional** [templating](#templating) integrated in a config file
 	* backends, colorspaces and filters
 	* configurable threshold
+    * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
+    * MacOs: `$HOME/Library/Application Support`
+    * Windows: `{FOLDERID_RoamingAppData}`
 
 | Methods    | Description |
 |------------|-------------|
@@ -61,9 +61,15 @@ The usual **good** number is 11.
 | 11 - 49 | Colors are more similar than opposite |
 | 100     | Colors are exact opposite |
 
-### Terminal color sequences
-By default, `wallust` will send these sequences to all open terminals
-(/dev/pts/). You can skip this with the `-s` or `--skip-sequences` flag.
+### Terminal colors
+By default, `wallust` will send these sequences to all open terminals:
+    - `/dev/pts/` on Linux
+    - `/dev/ttys00` on MacOS
+    - [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
+    - Updates `settings.json` on Windows Terminal, to enable this scheme for
+      the first time you will have to selected it manually
+
+You can skip this with the `-s` or `--skip-sequences` flag.
 
 When opening new terminals you will notice that the color sequences are not
 applied. To solve this you can send the sequences yourself when your shell
