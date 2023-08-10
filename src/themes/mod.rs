@@ -1,8 +1,10 @@
 //! # Themes
 //! These module should be able to read terminal sexy templates, as well as the pywal colorschemes.
-//! Other formats could be added if needed and requested.
-//! For reading external colorschemes: `wallust cs my_colorscheme.json`
-//! For using the built in themes: `wallust theme zenburn`
+//! Other formats could be added if needed and requested. A compiletime feature is used to `mod`
+//! and `use` the `colorschemes.rs` module and [`built_in_theme()`] function.
+//! For reading external colorschemes: `wallust cs my_colorscheme.json` \n
+//! For using the built in themes: `wallust theme zenburn` \n
+//! Functions and const values are tested.
 use std::fmt;
 use std::path::Path;
 
@@ -129,27 +131,32 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     }
 }
 
-/// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct.
 #[cfg(feature = "themes")]
-pub fn built_in_theme(theme_key: String) -> Result<Colors> {
-    let mut i = 0;
-    let mut found = false;
-
-    for e in COLS_KEY {
-        if e == theme_key {
-            found = true;
-            break;
-        }
-        i += 1;
+#[test]
+fn keys_to_values_match() {
+    for i in COLS_KEY {
+        built_in_theme(i.to_string(), true).expect("{i} should find a match");
     }
+}
 
-    if !found { // not found
-        anyhow::bail!("Theme not found. Quitting...")
+/// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
+/// [`WalTheme`] format
+#[cfg(feature = "themes")]
+pub fn built_in_theme(theme_key: String, quiet: bool) -> Result<Colors> {
+    use rand::Rng;
+
+    let index = if theme_key == "random" {
+        let i = rand::thread_rng().gen_range(0..=COLS_VALUE.len() - 1); //ommit the last item, which is "random"
+        if ! quiet { println!("[{info}] {theme}: randomly selected {name}", theme = "theme".magenta().bold(), name = COLS_KEY[i], info = "I".blue().bold()); }
+        Some(i)
+    } else {
+        COLS_KEY.iter().position(|&x| x == theme_key)
+    };
+
+    match index {
+        Some(s) => serde_json::from_str::<WalTheme>(COLS_VALUE[s]).expect("json format MUST be correct").to_colors(),
+        None => anyhow::bail!("Theme not found. Quitting..."),
     }
-
-    // use WalTheme, since these themes are gathered from pywal
-    let ser: WalTheme = serde_json::from_str(COLS_VALUE[i]).expect("json format MUST be correct");
-    ser.to_colors()
 }
 
 impl Schemes {

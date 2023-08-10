@@ -1,11 +1,11 @@
 [package]
 name = "wallust"
 # name = "wal" # TODO drop in replacement for wal
-version = "2.5.1"
+version = "2.6.0"
 edition = "2021"
 license = "MIT"
 authors = [ "explosion-mental" ]
-keywords = [ "cli" ]
+keywords = [ "cli", "template", "colorscheme", "theme" ]
 categories = [ "command-line-utilities" ]
 description = "Generate a 16 color scheme based on an image."
 repository = "https://codeberg.org/explosion-mental/wallust"
@@ -26,12 +26,14 @@ new_string_template = "1.4"
 spinners = "4.1"
 dirs = "5.0"
 itertools = "0.11"
-include_dir = "0.7"
-lazy_static = "1.4"
 
+rand  = { version = "0.8", optional = true }
 clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
+[dev-dependencies]
+tempfile = "3"
+
 [features]
 default = [ "themes" ]
-themes = [] # include built-in themes at ./src/themes/colorschemes.rs (130K)
+themes = [ "dep:rand" ] # include built-in themes at ./src/themes/colorschemes.rs (130K)

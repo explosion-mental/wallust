@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 

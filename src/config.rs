@@ -27,6 +27,15 @@ pub struct Config {
     pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
+
+    /// Config directory (wallust/) path
+    #[serde(skip)]
+    pub dir: PathBuf,
+
+    /// Config file (wallust.toml) path
+    #[serde(skip)]
+    pub file: PathBuf,
+
 }
 
 /// An entry within the config file, toml table
@@ -41,11 +50,37 @@ pub struct Entries {
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(config: &Path, custom: Option<&PathBuf>) -> Result<Config> {
+    pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
+
+        // check config file or generate one if not one isn't found
+        let custom = match args {
+            Some(s) => s.config_path.as_ref(),
+            None => None,
+        };
+
+        // true -> uses original_config_path
+        // false -> uses a custom path
+        let mut is_original = true;
+
+        // check config dir
+        let config = match args {
+            Some(s) => {
+                match &s.config_dir {
+                    Some(path) => { //only in this case, the config dir is altered
+                        is_original = false;
+                        path
+                    },
+                    None => original_config_path,
+                }
+            },
+            None => original_config_path,
+        };
 
         // init `.config/wallust/wallust.toml`
-        let config_dir = config.display().to_string() + "/wallust";
-        let def_conf = PathBuf::from(config_dir.to_owned() + "/wallust.toml");
+        let join_dir = if is_original { "wallust" } else { "" };
+
+        let config_dir = config.join(join_dir);
+        let def_conf = config_dir.join("wallust.toml");
 
         // is the user using `--config-path`
         let (config, default_path) = match custom {
@@ -54,7 +89,7 @@ impl Config {
         };
 
         // Create cache dir (with all of it's parents) ONLY if the flag `--config-path` isn't in use
-        if ! Path::new(&config).exists() && default_path {
+        if ! Path::new(&config).exists() && default_path && is_original {
             let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
             eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
@@ -62,10 +97,15 @@ impl Config {
                 .write_all(include_str!("../wallust.toml").as_bytes())?;
         }
 
-        toml::from_str(
+        let mut ret: Config = toml::from_str(
             &read_to_string(config)
                 .with_context(|| format!("Failed to read file {}:", config.display()))?
-        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))
+        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))?;
+
+        ret.dir = config_dir;
+        ret.file = config.to_path_buf();
+
+        Ok(ret)
     }
 
     pub fn print(&self) {
@@ -87,17 +127,16 @@ impl Config {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    pub fn write_entry(&self, config_path: &Path, img_path: &Path, colors: &Colors, quiet: bool) -> Result<()> {
+    pub fn write_entry(&self, img_path: &Path, colors: &Colors, quiet: bool) -> Result<()> {
         let info = "I".blue().bold().to_string();
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(config_path, img_path, s, colors, quiet)?;
+            template::write_template(self, img_path, s, colors, quiet)
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
+            Ok(())
         }
-
-        Ok(())
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration

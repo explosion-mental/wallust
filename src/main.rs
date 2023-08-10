@@ -17,45 +17,45 @@ use wallust::{
     themes,
 };
 
+const ISSUE: &str = "please report this at <https://codeberg.org/explosion-mental/wallust/issues>";
+
 fn main() -> Result<()> {
     let cli = args::Cli::parse();
-    let info = "I".blue().bold().to_string();
+    let info = "I".blue();
+    let info = info.bold();
 
     // init directories
-    let Some(config_path) = dirs::config_dir() else {
-        anyhow::bail!("Config path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+    let Some(original_config_path) = dirs::config_dir() else {
+        anyhow::bail!("Config path for the platform could not be found, {ISSUE}");
     };
     let Some(cache_path) = dirs::cache_dir() else {
-        anyhow::bail!("The cache path for the platform could not be found, please report this at <https://codeberg.org/explosion-mental/wallust/issues>");
+        anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
-    // check config file or generate one if not one isn't found
-    let config_cli = match &cli.args {
-        Some(s) => s.config_path.as_ref(),
-        None => None,
-    };
-
-    // this is mut only because the user could provide a `-C custom_config.toml`
-    let mut conf = config::Config::new(&config_path, config_cli)?;
+    // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
+    let mut conf = config::Config::new(&original_config_path, cli.args.as_ref())?;
 
     match &cli.args {
-        Some(s) => no_subcomands(&mut conf, &config_path, &cache_path, &s)?,
+        Some(s) => no_subcomands(&mut conf, &cache_path, s)?,
         None => (),
     }
 
     match cli.subcmds {
         #[cfg(feature = "themes")]
-        Some(args::Subcmds::Theme { theme, quiet, skip_sequences }) => {
-            if ! quiet { println!("[{info}] Using a theme: {theme}"); }
-            let colors = themes::built_in_theme(theme)?;
-            if ! quiet { colors.print(); }
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, preview }) => {
+            if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
+            let colors = themes::built_in_theme(theme, quiet)?;
+            if ! quiet {
+                    colors.print();
+                    if preview { return Ok(()); } //exit if preview
+            }
             if ! skip_sequences {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&config_path, &path, &colors, quiet)?;
+            conf.write_entry(path, &colors, quiet)?;
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
@@ -73,7 +73,7 @@ fn main() -> Result<()> {
             }
             let path = std::path::Path::new("");
 
-            conf.write_entry(&config_path, &path, &colors, quiet)?;
+            conf.write_entry(path, &colors, quiet)?;
             if ! quiet { colors.done() }
 
         },
@@ -86,14 +86,15 @@ fn main() -> Result<()> {
 
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
-    let info = "I".blue().bold().to_string();
+fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
+    let info = "I".blue();
+    let info = info.bold();
 
     // apply --backend or --filter or --colorspace
-    conf.customs_cli(&cli);
+    conf.customs_cli(cli);
 
     // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, &conf, &cache_path)?;
+    let cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -102,7 +103,7 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
     }
 
     // Whether to load data from cache or to generate one from scratch
-    if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if one present, `-c` flag provided.", c = "cache".magenta().bold()); }
+    if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
     let colors = if !cli.overwrite_cache && cached_data.is_cached() {
         if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.path.italic(), c = "cache".magenta().bold()); }
@@ -111,11 +112,11 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
         // generate colors
         if ! cli.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
-            let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
 
             //ugly workaround for printing warning, gotta stop the spinner first
-            match gen_colors(&cli.file, &conf) {
+            match gen_colors(&cli.file, conf) {
                 Ok((o, warn)) => {
+                    let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
                     o
                 }
@@ -125,8 +126,7 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
                 },
             }
         } else {
-            let (c, _) = gen_colors(&cli.file, &conf)?;
-            c
+            gen_colors(&cli.file, conf)?.0
         }
     };
 
@@ -138,10 +138,10 @@ fn no_subcomands(conf: &mut config::Config, config_path: &Path, cache_path: &Pat
     // Set sequences
     if ! cli.skip_sequences {
         if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(&cache_path)?;
+        colors.sequences(cache_path)?;
     }
 
-    conf.write_entry(&config_path, &cli.file, &colors, cli.quiet)?;
+    conf.write_entry(&cli.file, &colors, cli.quiet)?;
 
     // Cache colors
     if !cli.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }

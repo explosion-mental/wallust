@@ -5,24 +5,27 @@ use std::io::Write;
 use std::path::Path;
 use std::collections::HashMap;
 
+use crate::config::Config;
 use crate::config::Entries;
 use crate::colors::Colors;
 
 use anyhow::Result;
-use new_string_template::template::Template;
 use owo_colors::OwoColorize;
 
-/// Writes `template`s into `target`s
-pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()>{
-    let config = config.display().to_string() + "/wallust/";
-    let warn = "W".red().bold().to_string();
+/// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
+/// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
+/// entries.
+pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
+    let config = &conf.dir;
 
-    // contents of config files (basically a dict)
-    let mut contents = vec![];
+    let warn = "W".red();
+    let warn = warn.bold();
 
-    // gather `String`s of the contents of the entries (in order to cast it down to &str)
+    // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
+    // template and write the templated(?) file to entry.path
     for e in entries {
-        let path = config.to_owned() + &e.template;
+        let path = config.join(&e.template).display().to_string();
+
         let file_template = match read_to_string(&path) {
             Ok(o) => o,
             Err(e) => {
@@ -30,17 +33,32 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
                 continue;
             }
         };
-        contents.push( (&e.target, file_template, path) );
-    }
 
-    // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
-    // template and write the templated(?) file to entry.path
-    for (target, file_content, template_path) in &contents {
-        if ! quiet { println!("  * Templating: {template_path}"); }
+        let target = &e.target;
+        let file_content = file_template;
 
-        let rendered = Template::new(file_content).render_nofail(&values.to_hash(image_path));
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let mut buffer = match File::create(shellexpand::tilde(target).as_ref()) {
+        let target_file = shellexpand::tilde(target);
+
+        if ! quiet { println!("  * Templating: {}", e.template); }
+
+        if let Some(p) = Path::new(target_file.as_ref()).parent() {
+            if let Err(e) = std::fs::create_dir_all(p) {
+                eprintln!("[{warn}] Failed to create parent directories from {target}: {e}");
+                continue;
+            }
+        } else {
+            eprintln!("[{warn}] Failed to find file parent from {target}");
+            continue;
+        }
+
+        let val = values.to_hash(image_path);
+
+        let rendered =
+            new_string_template::template::Template::new(file_content).render_nofail(&val)
+        ;
+
+        let mut buffer = match File::create(target_file.as_ref()) {
             Ok(o) => o,
             Err(e) => {
                 eprintln!("[{warn}] Failed to create file {target}: {e}");
@@ -48,12 +66,9 @@ pub fn write_template(config: &Path, image_path: &Path, entries: &[Entries], val
             }
         };
 
-        match buffer.write_all(rendered.as_bytes()) {
-            Ok(()) => (),
-            Err(e) => {
-                eprintln!("[{warn}] Failed to write to file {target}: {e}");
-                continue;
-            }
+        if let Err(e) = buffer.write_all(rendered.as_bytes()) {
+            eprintln!("[{warn}] Failed to write to file {target}: {e}");
+            continue;
         }
 
         if ! quiet { println!("      Created: {} ... OK", target); }

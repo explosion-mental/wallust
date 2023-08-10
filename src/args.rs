@@ -1,5 +1,6 @@
 //! Cli flags
 //! * consider using the same flags as `pywal`, in order to be a drop-in replacement..
+//! TODO make sure this works properly with `clap_completions`, currently it doesn't.
 
 use std::path::PathBuf;
 
@@ -7,11 +8,11 @@ use crate::{
     backends::Backend,
     colorspaces::ColorSpaces,
     filters::Filters,
+    themes::Schemes,
+    themes::COLS_KEY,
 };
 
 use clap::Parser;
-
-use crate::themes;
 
 /// Overall cli type for clap
 #[derive(Parser, Debug)]
@@ -46,14 +47,14 @@ pub enum Subcmds {
         /// Specify a custom format. Without this option, wallust will sequentially try to decode
         /// it by trying one by one.
         #[arg(short, long)]
-        format: Option<themes::Schemes>,
+        format: Option<Schemes>,
     },
 
     /// Apply a custom built in theme
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
+        #[arg(value_parser = COLS_KEY, hide_possible_values(false))]
         theme: String,
 
         /// Don't print anything
@@ -63,11 +64,15 @@ pub enum Subcmds {
         /// Skip setting terminal sequences
         #[arg(short, long)]
         skip_sequences: bool,
+
+        /// Only preview the selected theme.
+        #[arg(short, long, conflicts_with = "quiet")]
+        preview: bool,
     },
 }
 
 /// No subcommands, global arguments
-#[derive(Parser, Debug, Clone)]
+#[derive(Parser, Debug, Clone, Default)]
 pub struct WallustArgs {
     /// Path to an image or json theme to use
     pub file: PathBuf,
@@ -89,9 +94,13 @@ pub struct WallustArgs {
     #[arg(short, long)]
     pub no_cache: bool,
 
-    /// Use PATH as the config directory
-    #[arg(short = 'C', long, value_name = "PATH")]
+    /// Use FILE as the config file
+    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
     pub config_path: Option<PathBuf>,
+
+    /// Use DIR as the config directory
+    #[arg(short = 'd', long, conflicts_with = "config_path")]
+    pub config_dir: Option<PathBuf>,
 
     /// Custom backend (ignores config file)
     #[arg(short, long, value_enum)]

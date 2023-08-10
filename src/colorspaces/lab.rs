@@ -95,6 +95,7 @@ fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, th
     //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
     let mut palette: Vec<Myrgb> = vec![];
 
+    // cast to i16 to not overflow u8
     let jump_r = (f32::from(color_b.0 as i16 - color_a.0 as i16)) / (f32::from(n) - 1.0);
     let jump_g = (f32::from(color_b.1 as i16 - color_a.1 as i16)) / (f32::from(n) - 1.0);
     let jump_b = (f32::from(color_b.2 as i16 - color_a.2 as i16)) / (f32::from(n) - 1.0);

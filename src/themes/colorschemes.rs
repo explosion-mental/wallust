@@ -1,4 +1,15 @@
-pub static COLS_KEY: [&str; 257] = [
+/// Checks that each [`COLS_VALUE`] json str slice is correct ([`WalTheme`]) and parseable.
+#[test]
+fn check_themes() {
+    for i in COLS_VALUE {
+        serde_json::from_str::<crate::themes::WalTheme>(i).expect("json format MUST be correct");
+    }
+}
+
+/// Names of all the corresponding [`COLS_VALUE`]. The order matters since they got the same index
+/// + 1, since this array has one more entry: "random", which acts as a keyword, a COLS_KEY without
+/// COLS_VALUE.
+pub const COLS_KEY: [&str; 259] = [
 "3024-dark",
 "3024-light",
 "ashes-dark",
@@ -256,13 +267,15 @@ pub static COLS_KEY: [&str; 257] = [
 "tempus_winter",
 "vscode",
 "zenburn",
+"srcery",
+"random", //not an actual scheme but a keyword.
 ];
 
 
-pub static COLS_VALUE: [&str; 257] = [
+/// JSON as [`&str`]s of the colorschemes
+pub const COLS_VALUE: [&str; 258] = [
 "\
-{\"special\":{\"background\":\"#090300\",\"foreground\":\"#a5a2a2\",\"cursor\":\"#db2d20\"},\"colors\":{\"color0\":\"#090300\",\"color1\":\"#db2d20\",\"color2\":\"#01a252\",\"color3\":\"#fded02\",\"color4\":\"#01a0e4\",\"color5\":\"#a16a94\",\"color6\":\"#b5e4f4\",\"color7\":\"#a5a2a2\",\"color8\":\"#5c5855\",\"color9\":\"#db2d20\",\"color10\":\"#01a252\",\"color11\":\"#fded02\",\"color12\":\"#01a0e4\",\"color13\":\"#a16a94\",\"color14\":\"#b5e4f4\",\"color15\":\"#f7f7f7\"}}
-",
+{\"special\":{\"background\":\"#090300\",\"foreground\":\"#a5a2a2\",\"cursor\":\"#db2d20\"},\"colors\":{\"color0\":\"#090300\",\"color1\":\"#db2d20\",\"color2\":\"#01a252\",\"color3\":\"#fded02\",\"color4\":\"#01a0e4\",\"color5\":\"#a16a94\",\"color6\":\"#b5e4f4\",\"color7\":\"#a5a2a2\",\"color8\":\"#5c5855\",\"color9\":\"#db2d20\",\"color10\":\"#01a252\",\"color11\":\"#fded02\",\"color12\":\"#01a0e4\",\"color13\":\"#a16a94\",\"color14\":\"#b5e4f4\",\"color15\":\"#f7f7f7\"}}",
 
 
 "\
@@ -1289,5 +1302,7 @@ pub static COLS_VALUE: [&str; 257] = [
 
 "\
 {\"special\":{\"background\":\"#3f3f3f\",\"foreground\":\"#dcdccc\",\"cursor\":\"#cc9393\"},\"colors\":{\"color0\":\"#3f3f3f\",\"color1\":\"#cc9393\",\"color2\":\"#7f9f7f\",\"color3\":\"#d0bf8f\",\"color4\":\"#6ca0a3\",\"color5\":\"#dc8cc3\",\"color6\":\"#93e0e3\",\"color7\":\"#dcdccc\",\"color8\":\"#828282\",\"color9\":\"#cc9393\",\"color10\":\"#7f9f7f\",\"color11\":\"#d0bf8f\",\"color12\":\"#6ca0a3\",\"color13\":\"#dc8cc3\",\"color14\":\"#93e0e3\",\"color15\":\"#dcdccc\"}}",
+
+"{\"special\":{\"background\":\"#1c1b19\",\"foreground\":\"#d0bfa1\",\"cursor\":\"#fce8c3\"},\"colors\":{\"color0\":\"#1c1b19\",\"color1\":\"#ef2f27\",\"color2\":\"#519f50\",\"color3\":\"#fbb829\",\"color4\":\"#2c78bf\",\"color5\":\"#e02c6d\",\"color6\":\"#0aaeb3\",\"color7\":\"#d0bfa1\",\"color8\":\"#918175\",\"color9\":\"#f75341\",\"color10\":\"#98bc37\",\"color11\":\"#fed06e\",\"color12\":\"#68a8e4\",\"color13\":\"#ff5c8f\",\"color14\":\"#53fde9\",\"color15\":\"#fce8c3\"}}",
 
 ];

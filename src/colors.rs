@@ -2,6 +2,9 @@
 //! Here [`Colors`] and [`Myrgb`] types are defined. These are simple enough used by backends,
 //! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
 //! the base has more structure (also because it's only 16 colors).
+//! **NOTE:** alpha value is hardcoded, pywal only uses alpha for urxvt sequences. I consider that
+//! too specific to open a new `--alpha` flag, since that value can easly hardcoded in the template
+//! itself. XXX maybe in v3 remove `rgba` and other alpha related code.
 use std::fmt;
 use std::fs::File;
 use std::io::Write;
@@ -85,10 +88,9 @@ impl Myrgb {
         format!("{},{},{}", self.0, self.1, self.2)
     }
 
-    //TODO alpha
     //.rgba output `235,235,235,1.0`
     pub fn rgba(&self) -> String {
-        let alpha = 1.0;
+        let alpha = 1.0; //see top of the file for alpha explanation
         format!("rgba({},{},{},{alpha})", self.0, self.1, self.2)
     }
 
@@ -113,6 +115,33 @@ impl Myrgb {
     pub fn blue(&self) -> String {
         format!("{}", self.2)
     }
+
+    /// private fn that returns sequences
+    /// "Convert a hex color to a text color sequence"
+    fn set_color(&self, index: u32) -> String {
+        if cfg!(target_os = "macos") && index < 20 {
+            return format!("\x1B]P%1x{self}\x1B\\");
+        }
+
+        format!("\x1B]4;{index};{self}\x1B\\")
+    }
+
+    /// Convert a hex color to a special sequence.
+    /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
+    fn set_special(&self, index: u32, iterm_name: &str) -> String {
+        //let alpha = 100;
+
+        if cfg!(target_os = "macos") && !iterm_name.is_empty() {
+            return format!("\x1B]P{iterm_name}{}\x1B\\", self.strip());
+        }
+
+        // if (11..=708).contains(&index) && alpha != 100 {
+        //     return format!("\x1B]{index};[{alpha}]{self}\x1B\\");
+        // }
+
+        format!("\x1B]{index};{self}\x1B\\")
+    }
+
 }
 
 impl Colors {
@@ -169,86 +198,295 @@ impl Colors {
         );
     }
 
-    /// Sets terminal color sequences
-    /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
-    /// ## Special colors.
-    /// Source: https://goo.gl/KcoQgP
-    /// 10 = foreground, 11 = background, 12 = cursor foreground
-    /// 13 = mouse foreground, 708 = background border color.
-    /// TODO investigate about iTerm2
+    /// # Sets terminal colors
+    /// ANSI escape codes tables and helpful guidelines:
+    /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
+    /// As well as support for iTerm2 (macOS) and windows terminal, depending on the OS.
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
-        let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+        #[cfg(target_family = "windows")]
+        return windows_term(self);
 
-        let sequences = format!(
-"\x1B]4;0;{col0}\x1B\\\
-\x1B]4;1;{col1}\x1B\\\
-\x1B]4;2;{col2}\x1B\\\
-\x1B]4;3;{col3}\x1B\\\
-\x1B]4;4;{col4}\x1B\\\
-\x1B]4;5;{col5}\x1B\\\
-\x1B]4;6;{col6}\x1B\\\
-\x1B]4;7;{col7}\x1B\\\
-\x1B]4;8;{col8}\x1B\\\
-\x1B]4;9;{col9}\x1B\\\
-\x1B]4;10;{col10}\x1B\\\
-\x1B]4;11;{col11}\x1B\\\
-\x1B]4;12;{col12}\x1B\\\
-\x1B]4;13;{col13}\x1B\\\
-\x1B]4;14;{col14}\x1B\\\
-\x1B]4;15;{col15}\x1B\\\
-\x1B]10;{fg}\x1B\\\
-\x1B]11;{bg}\x1B\\\
-\x1B]12;{cursor}\x1B\\\
-\x1B]13;{fg}\x1B\\\
-\x1B]17;{fg}\x1B\\\
-\x1B]19;{bg}\x1B\\\
-\x1B]4;232;{bg}\x1B\\\
-\x1B]4;256;{fg}\x1B\\\
-\x1B]4;257;{bg}\x1B\\\
-",
-        bg = self.background,
-        fg = self.foreground,
-        cursor = self.foreground,
-        col0  = self.color0,
-        col1  = self.color1,
-        col2  = self.color2,
-        col3  = self.color3,
-        col4  = self.color4,
-        col5  = self.color5,
-        col6  = self.color6,
-        col7  = self.color7,
-        col8  = self.color8,
-        col9  = self.color9,
-        col10 = self.color10,
-        col11 = self.color11,
-        col12 = self.color12,
-        col13 = self.color13,
-        col14 = self.color14,
-        col15 = self.color15,
-        );
+        #[cfg(target_family = "unix")]
+        return unix_term(self, cache_path);
+    }
+}
 
-        for entry in glob::glob("/dev/pts/[0-9]*").expect("glob pattern is ok") {
-            match entry {
-                Ok(path) => {
-                    match File::create(&path) {
-                        Ok(o) => o,
-                        Err(e) => { //ignore errors, but report them
-                            eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
-                            continue;
-                        },
-                    }.write_all(sequences.as_bytes())?
-                },
-                Err(e) => {
-                    anyhow::bail!("Error while sending sequences to terminals:\n{e}")
-                },
-            };
+/// Set iTerm2 tab/window color
+/// `\a` is BELL in octal escape byte, `\x07` in hex
+#[cfg(target_os = "macos")]
+fn set_iterm_tab_color(c: &Colors) -> String {
+    let col = c.background.rgb();
+    format!(
+"\x1B]6;1;bg;red;brightness;{col}\x07\\\
+\x1B]6;1;bg;green;brightness;{col}\x07\\\
+\x1B]6;1;bg;blue;brightness;{col}\x07\\\
+"
+    )
+}
+
+/// Uses terminal sequences to update terminal colors
+/// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
+/// ## Special colors.
+/// Source: https://goo.gl/KcoQgP
+/// 10 = foreground, 11 = background, 12 = cursor foreground, 13 = mouse foreground,
+/// 708 = background border color.
+/// ## Format
+/// Escape sequences is "\033]4;%s;%s\033\\" but hex, note the escaped backslash at the end.
+/// A triple `\\\` is needed to remove the new line and print a single `\`
+#[cfg(target_family = "unix")]
+fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
+    let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+
+    let sequences = vec![
+        // colors from 0-15
+        c.color0 .set_color(0 ),
+        c.color1 .set_color(1 ),
+        c.color2 .set_color(2 ),
+        c.color3 .set_color(3 ),
+        c.color4 .set_color(4 ),
+        c.color5 .set_color(5 ),
+        c.color6 .set_color(6 ),
+        c.color7 .set_color(7 ),
+        c.color8 .set_color(8 ),
+        c.color9 .set_color(9 ),
+        c.color10.set_color(10),
+        c.color11.set_color(11),
+        c.color12.set_color(12),
+        c.color13.set_color(13),
+        c.color14.set_color(14),
+        c.color15.set_color(15),
+
+        // special colors, see above the fn
+        c.foreground.set_special(10, "g"),
+        c.background.set_special(11, "h"),
+        c.foreground.set_special(12, "l"), //cursor
+        c.foreground.set_special(13, "j"), //mouse
+        c.foreground.set_special(17, "k"),
+        c.background.set_special(19, "m"),
+        c.background.set_color(232),
+        c.foreground.set_color(256),
+        c.background.set_color(257),
+        c.background.set_special(708, "")
+    ].join("");
+
+    // set iterm on mac
+    #[cfg(target_os = "macos")]
+    let sequences = sequences + &set_iterm_tab_color(c);
+
+    #[cfg(target_os = "macos")]
+    let tty_pattern = "/dev/ttys00[0-9]*";
+
+    #[cfg(not(target_os = "macos"))]
+    let tty_pattern = "/dev/pts/[0-9]*";
+
+    // set custom devices on bsd
+    #[cfg(target_os = "openbsd")]
+    let devices = openbsd_ttys()?;
+
+    // usually at /dev/pts/*
+    #[cfg(not(target_os = "openbsd"))]
+    let devices = glob::glob(tty_pattern).expect("glob pattern is ok");
+
+    for entry in devices {
+        match entry {
+            Ok(path) => {
+                match File::create(&path) {
+                    Ok(o) => o,
+                    Err(e) => { //ignore errors, but report them
+                        eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
+                        continue;
+                    },
+                }.write_all(sequences.as_bytes())?
+            },
+            Err(e) => {
+                anyhow::bail!("Error while sending sequences to terminals:\n{e}")
+            },
+        };
+    }
+
+    File::create(seq_file)?
+        .write_all(sequences.as_bytes())?;
+
+    Ok(())
+}
+
+/// Sets terminal colors on OpenBSD.
+/// Calls `ps -o tty | sed -e 1d -e s#^#/dev/# | sort | uniq`
+/// ref: <https://github.com/dylanaraps/pywal/pull/510>
+#[cfg(target_os = "openbsd")]
+use std::path::PathBuf;
+#[cfg(target_os = "openbsd")]
+fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
+    use itertools::Itertools;
+    use std::process::{Command, Stdio};
+    use std::str;
+
+    let ps = Command::new("ps").arg("-o").arg("tty")
+        .stdout(Stdio::piped())       // of which we will pipe the output.
+        .spawn()?;
+
+    let ps_out = match ps.stdout {
+        Some(s) => s,
+        //return empty vec, to avoid quitting on an error.
+        None => return Ok(vec![]),
+    };
+
+    let sed = Command::new("sed").args(["-e", "1d", "-e", "s#^#/dev/#"])
+        .stdin(Stdio::from(ps_out)) // Pipe through.
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let sort = Command::new("sort")
+        .stdin(Stdio::from(sed.stdout.expect("should be filled"))) // Pipe through.
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    let mut paths = vec![];
+
+    let output = sort.wait_with_output()?;
+
+    //add every line
+    for line in str::from_utf8(&output.stdout)?.lines().unique() {
+        let p = PathBuf::try_from(line).map_err(anyhow::Error::from);
+        paths.push(p);
+    }
+
+    Ok(paths)
+}
+
+const SCHEME_NAME: &str = "wallust";
+
+/// searches for `settings.json` file to change the scheme in windows cli
+#[cfg(target_family = "windows")]
+fn windows_term(cols: &Colors) -> Result<()> {
+    let Some(dir) = dirs::data_local_dir() else {
+        anyhow::bail!("Couldn't get %LOCALAPPDATA%, quitting..");
+    };
+
+    let stable  = dir.join("Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json");
+    let preview = dir.join("Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json");
+    let unpkg   = dir.join("Microsoft/WindowsTerminal/settings.json");
+
+    let files = vec![stable, preview, unpkg];
+
+    for i in files {
+        let content = match std::fs::read_to_string(&i) {
+            Ok(o) => o,
+            Err(_) => continue,
+        };
+
+        let mut settings_json = match serde_json::from_str::<WinTerm>(&content) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{w}] Deserializing json failed {p}: {e}", p = i.display(), w = "W".red().bold());
+                continue;
+            }
+        };
+
+        let mut found = false;
+
+        for (i, s) in settings_json.schemes.iter().enumerate() {
+            if s.name == SCHEME_NAME {
+                settings_json.schemes[i] = cols.into();
+                found = true;
+                break; //only do this once, it should only be one "wal" scheme anyway
+            }
         }
 
-        File::create(seq_file)?
-            .write_all(sequences.as_bytes())?;
+        // a "wallust" scheme wasn't found, append it.
+        if found == false {
+            settings_json.schemes.push(cols.into());
+        }
 
-        Ok(())
+        let new_json = match serde_json::to_string_pretty(&settings_json) {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("[{w}] Writing json failed {p}: {e}", p = i.display(), w = "W".red().bold());
+                continue;
+            }
+        };
+
+        File::create(&i)?
+            .write_all(new_json.as_bytes())?
     }
+
+    Ok(())
+
+}
+
+impl From<&Colors> for WinScheme {
+    fn from(c: &Colors) -> Self {
+        Self {
+            name                : SCHEME_NAME.to_string(),
+            cursor_color        : c.color8 .to_string(),
+            selection_background: c.color15.to_string(),
+            foreground          : c.foreground.to_string(),
+            background          : c.background.to_string(),
+            black               : c.color0 .to_string(),
+            blue                : c.color4 .to_string(),
+            cyan                : c.color5 .to_string(),
+            green               : c.color1 .to_string(),
+            purple              : c.color2 .to_string(),
+            red                 : c.color3 .to_string(),
+            white               : c.color15.to_string(),
+            yellow              : c.color6 .to_string(),
+            bright_black        : c.color8 .to_string(),
+            bright_blue         : c.color12.to_string(),
+            bright_cyan         : c.color13.to_string(),
+            bright_green        : c.color9 .to_string(),
+            bright_purple       : c.color10.to_string(),
+            bright_red          : c.color11.to_string(),
+            bright_white        : c.color7 .to_string(),
+            bright_yellow       : c.color14.to_string(),
+        }
+    }
+}
+
+use serde_json::Value;
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WinTerm {
+    #[serde(rename = "$help")]
+    pub help: String,
+    #[serde(rename = "$schema")]
+    pub schema: String,
+    pub actions: Value,
+    pub copy_formatting: String,
+    pub copy_on_select: bool,
+    pub default_profile: String,
+    pub new_tab_menu: Value,
+    pub profiles: Value,
+    pub themes: Value,
+    /// This is the only field we need
+    pub schemes: Vec<WinScheme>,
+}
+
+/// a WindowsTerminal Scheme
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WinScheme {
+    pub name: String,
+    pub cursor_color: String,
+    pub selection_background: String,
+    pub background: String,
+    pub foreground: String,
+    pub black: String,
+    pub blue: String,
+    pub cyan: String,
+    pub green: String,
+    pub purple: String,
+    pub red: String,
+    pub white: String,
+    pub yellow: String,
+    pub bright_black: String,
+    pub bright_blue: String,
+    pub bright_cyan: String,
+    pub bright_green: String,
+    pub bright_purple: String,
+    pub bright_red: String,
+    pub bright_white: String,
+    pub bright_yellow: String,
 }
 
 pub trait HexConversion {
