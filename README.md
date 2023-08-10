@@ -215,3 +215,4 @@ for more, grep the src for TODO `rg TODO`
 - [lule_bash - Genretare all 255 colors from wallpapers](https://github.com/warpwm/lule_bash)
 - [lule - `lule_bash` rewriten for efficiency](https://github.com/warpwm/lule)
 - using [vscode-wal-theme with `wallust`](https://github.com/dlasagno/vscode-wal-theme/issues/23)
+- [base16 - Framework for Tomorrow styled themes](https://github.com/chriskempson/base16)
