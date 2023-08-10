@@ -198,11 +198,10 @@ impl Colors {
         );
     }
 
-    /// Sets terminal colors
+    /// # Sets terminal colors
     /// ANSI escape codes tables and helpful guidelines:
     /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
-    ///
-    /// TODO investigate about iTerm2 (macOS/Darwin)
+    /// As well as support for iTerm2 (macOS) and windows terminal, depending on the OS.
     pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
         #[cfg(target_family = "windows")]
         return windows_term(self);
@@ -211,8 +210,6 @@ impl Colors {
         return unix_term(self, cache_path);
     }
 }
-
-use serde_json::Value;
 
 /// Set iTerm2 tab/window color
 /// `\a` is BELL in octal escape byte, `\x07` in hex
@@ -239,12 +236,6 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 #[cfg(target_family = "unix")]
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.display().to_string() + "/wallust/sequences";
-
-    #[cfg(target_os = "macos")]
-    let tty_pattern = "/dev/ttys00[0-9]*";
-
-    #[cfg(not(target_os = "macos"))]
-    let tty_pattern = "/dev/pts/[0-9]*";
 
     let sequences = vec![
         // colors from 0-15
@@ -278,13 +269,21 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
         c.background.set_special(708, "")
     ].join("");
 
-    // set iterm if macos
+    // set iterm on mac
     #[cfg(target_os = "macos")]
     let sequences = sequences + &set_iterm_tab_color(c);
 
+    #[cfg(target_os = "macos")]
+    let tty_pattern = "/dev/ttys00[0-9]*";
+
+    #[cfg(not(target_os = "macos"))]
+    let tty_pattern = "/dev/pts/[0-9]*";
+
+    // set custom devices on bsd
     #[cfg(target_os = "openbsd")]
     let devices = openbsd_ttys()?;
 
+    // usually at /dev/pts/*
     #[cfg(not(target_os = "openbsd"))]
     let devices = glob::glob(tty_pattern).expect("glob pattern is ok");
 
@@ -442,6 +441,8 @@ impl From<&Colors> for WinScheme {
         }
     }
 }
+
+use serde_json::Value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
