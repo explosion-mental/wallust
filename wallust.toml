@@ -1,4 +1,4 @@
-# wallust 2.5.0
+# wallust 2.5.*
 # -- global space -- #
 
 # How the image is parse, in order to get the colors:
@@ -31,7 +31,7 @@ threshold = 11
 #  * softlight - counterpart of `harddark`
 filter = "dark16"
 
-# OPTIONAL: Example entries, which are just a file you wish to apply `wallust` generated colors to.
+# Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
 # [[entry]]
 # # a relative path to a file where wallust.toml is (~/.config/wallust/)
 # template = "dunstrc"
