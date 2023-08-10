@@ -53,8 +53,10 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             continue;
         }
 
+        let val = values.to_hash(image_path);
+
         let rendered =
-            new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path))
+            new_string_template::template::Template::new(file_content).render_nofail(&val)
         ;
 
         let mut buffer = match File::create(target_file.as_ref()) {
