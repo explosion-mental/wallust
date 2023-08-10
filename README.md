@@ -10,12 +10,7 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-2.6.gif "wallust gif")
 > sources: [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg)
 
-**It is recommended to clean the cache in a new major and minor release** _but is not required_
 
-
-If you don't have a config file, `wallust` will generate the
-[default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
-for you.
 
 ## Usage
 ```
@@ -35,9 +30,10 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 - Read pywal/terminal-sexy colorschemes with `cs` subcommand
 - Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features) `wallust theme --help` to list possible themes
 - Configuration file, documented at `wallust.toml` of this repo:
-	* **optional** [templating](#templating) integrated in a config file
+    * When no config file, the [default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml) will be generated
+	* **Optional** [templating](#templating) integrated in a config file
 	* backends, colorspaces and filters
-	* configurable threshold
+	* configurable [threshold](#threshold)
     * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
     * MacOs: `$HOME/Library/Application Support`
     * Windows: `{FOLDERID_RoamingAppData}`
@@ -63,11 +59,11 @@ The usual **good** number is 11.
 
 ### Terminal colors
 By default, `wallust` will send these sequences to all open terminals:
-    - `/dev/pts/` on Linux
-    - `/dev/ttys00` on MacOS
-    - [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
-    - Updates `settings.json` on Windows Terminal, to enable this scheme for
-      the first time you will have to selected it manually
+- `/dev/pts/` on Linux
+- `/dev/ttys00` on MacOS
+- [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
+- Updates `settings.json` on Windows Terminal, to enable this scheme for
+  the first time you will have to selected it manually
 
 You can skip this with the `-s` or `--skip-sequences` flag.
 
