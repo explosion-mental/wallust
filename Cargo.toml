@@ -1,7 +1,7 @@
 [package]
 name = "wallust"
 # name = "wal" # TODO drop in replacement for wal
-version = "2.5.1"
+version = "2.6.0"
 edition = "2021"
 license = "MIT"
 authors = [ "explosion-mental" ]
