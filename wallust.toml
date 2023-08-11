@@ -20,7 +20,7 @@ color_space = "labmixed"
 #  2 - 10     Perceptible at a glance.
 #  11 - 49    Colors are more similar than opposite
 #  100        Colors are exact opposite
-threshold = 11
+threshold = 20
 
 # Use the most prominent colors in a way that makes sense, a scheme:
 #  * dark      - 8 dark colors, color0 darkest - color7 lightest, dark background light contrast

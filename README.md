@@ -45,11 +45,11 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 _To see what's avaliable under each method, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
 
 ### Threshold
-The usual **good** number is 11.
+Default is `20` with a more colorful approach, `19` is also suggested.
 
 | Number  | Description |
 |---------|-------------|
-| <= 1    | Not perceptible by human eyes. |
+| 1       | Not perceptible by human eyes. |
 | 1 - 2   | Perceptible through close observation. |
 | 2 - 10  | Perceptible at a glance. |
 | 11 - 49 | Colors are more similar than opposite |
