@@ -18,7 +18,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     /// threshold to use to differentiate colors
-    pub threshold: u32,
+    pub threshold: u8,
     /// Which backend to use, see backends.rs
     pub backend: crate::backends::Backend,
     /// Which filter to use, see filters.rs

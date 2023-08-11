@@ -45,7 +45,7 @@ pub enum ColorSpaces {
 /// re export to shorten from `ColorSpaces::Lab` to `Lab`
 use self::ColorSpaces::*;
 
-pub fn main(c: ColorSpaces, cols: &[u8], th: u32, sort_ord: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
+pub fn main(c: ColorSpaces, cols: &[u8], th: u8, sort_ord: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
     match c {
         Lab      => lab::lab(cols, th, false, sort_ord),
         LabMixed => lab::lab(cols, th, true, sort_ord),

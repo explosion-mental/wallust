@@ -20,7 +20,7 @@ const MIN_COLS: u8 = 6;
 /// the top MAX_COLS lab colors.
 const MAX_COLS: u8 = 16;
 
-pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
+pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
     let labs = rgb_bytes_to_labs(cols);
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
@@ -91,7 +91,7 @@ pub fn lab(cols: &[u8], threshold: u32, mix: bool, sort: ColorOrder) -> Result<(
 /// converting into and from just for this operation (which should not overhead the program since
 /// at max is only 5 values in combination)
 /// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
-fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, threshold: u32) {
+fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, threshold: u8) {
     //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
     let mut palette: Vec<Myrgb> = vec![];
 
@@ -158,10 +158,10 @@ impl From<Lab> for Myrgb {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool) -> bool {
+fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u8, mix: bool) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < threshold {
+        if delta_e(color, e.color) < threshold.into() {
             if mix { e.mix(color); }
             e.count += 1;
             return true;
@@ -175,7 +175,7 @@ fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u32, mix: bool)
 /// ref: <https://www.easyrgb.com/en/math.php>
 #[inline]
 fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
-    delta_2000(lab_0, lab_1).round() as u32
+    delta_2000(lab_0, lab_1) as u32
 }
 
 /// the 1994 simple euclidean formula
