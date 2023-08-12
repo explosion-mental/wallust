@@ -152,6 +152,10 @@ impl Config {
         if let Some(f) = cli.filter {
             self.filter = f;
         }
+
+        if let Some(t) = cli.threshold {
+            self.threshold = t as u32; //t is [1..=100]
+        }
     }
 
     /// thershold color for owo_colors

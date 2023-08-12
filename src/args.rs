@@ -110,6 +110,10 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum)]
     pub colorspace: Option<ColorSpaces>,
 
+    /// Custom threshold (ignores config file)
+    #[arg(short, long, value_parser = 1..=100)]
+    pub threshold: Option<i64>,
+
     /// Custom filter (ignores config file)
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
