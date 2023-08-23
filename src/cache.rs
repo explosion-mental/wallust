@@ -1,8 +1,10 @@
 //! Cache functions, serde + serde_json
+use std::fmt;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::path::PathBuf;
 
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
@@ -18,7 +20,14 @@ use anyhow::{Result, Context};
 /// Used to manage cache, rather than passing arguments in main() a lot
 pub struct Cache {
     /// Path of the cache
-    pub path: String,
+    pub path: PathBuf,
+}
+
+/// Simply print the path when trying to display the [`Cache`] struct
+impl fmt::Display for Cache {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.path.display())
+    }
 }
 
 const CACHE_VER: &str = "1.0";
@@ -59,7 +68,7 @@ impl Cache {
             version = CACHE_VER,
         );
 
-        Ok(Self { path: format!("{cachepath}/{hash_name}") })
+        Ok(Self { path: PathBuf::from(cachepath + &hash_name) })
     }
 
     /// Fetches values from a file present in cache
@@ -73,7 +82,7 @@ impl Cache {
         Ok(File::create(&self.path)?
             .write_all(
                 serde_json::to_string(colors)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self.path))?
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
                 .as_bytes()
             )?
         )

@@ -12,7 +12,7 @@ fn parse_cache() {
     let mut tmp = tempfile::NamedTempFile::new().expect("init new temporal named pipe");
     write!(tmp, "{sample}").unwrap();
 
-    let c = cache::Cache { path: tmp.path().display().to_string() };
+    let c = cache::Cache { path: tmp.path().into() };
 
     c.read().expect("sample format is OK, shouldn't fail");
 
