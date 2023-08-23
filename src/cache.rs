@@ -52,11 +52,11 @@ impl Cache {
         let num = md.file_attributes() ;
 
         // The following generates a hash name from a filename and it's `stat` attrs
-        let hash_name = format!("{}_{}_{}_{}.json",
-            name.to_string_lossy(),
-            md.len(),
-            num,
-            CACHE_VER,
+        let hash_name = format!("{base}_{size}_{magic}_{version}.json",
+            base = name.to_string_lossy(),
+            size = md.len(),
+            magic = num,
+            version = CACHE_VER,
         );
 
         Ok(Self { path: format!("{cachepath}/{hash_name}") })
