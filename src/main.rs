@@ -53,9 +53,9 @@ fn main() -> Result<()> {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
             }
-            let path = std::path::Path::new("");
 
-            conf.write_entry(path, &colors, quiet)?;
+            //empty image_path cuz it's not used
+            conf.write_entry(Path::new(""), &colors, quiet)?;
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
@@ -71,9 +71,9 @@ fn main() -> Result<()> {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
             }
-            let path = std::path::Path::new("");
 
-            conf.write_entry(path, &colors, quiet)?;
+            //empty image_path cuz it's not used
+            conf.write_entry(Path::new(""), &colors, quiet)?;
             if ! quiet { colors.done() }
 
         },
