@@ -154,7 +154,7 @@ impl Config {
         }
 
         if let Some(t) = cli.threshold {
-            self.threshold = t as u32; //t is [1..=100]
+            self.threshold = t as u8; //t is [1..=100]
         }
     }
 
