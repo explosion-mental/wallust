@@ -10,6 +10,9 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
+/// rename [`Backend`] so it's shorter to type
+use self::Backend as B;
+
 mod full;
 mod resized;
 mod wal;
@@ -30,15 +33,12 @@ pub enum Backend {
     Thumb,
 }
 
-/// re export to shorten from `Backend::Full` to `Full`
-use self::Backend::*;
-
 pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
     match backend {
-        Full    => full::full,
-        Resized => resized::resized,
-        Wal     => wal::wal,
-        Thumb   => thumb::thumb,
+        B::Full    => full::full,
+        B::Resized => resized::resized,
+        B::Wal     => wal::wal,
+        B::Thumb   => thumb::thumb,
     }
 }
 
@@ -46,10 +46,10 @@ impl Backend {
     /// This assigns a colors for a backend, used when printing
     pub fn col(&self) -> AnsiColors {
         match self {
-            Full => AnsiColors::Blue,
-            Resized => AnsiColors::Cyan,
-            Wal => AnsiColors::Red,
-            Thumb => AnsiColors::Magenta,
+            B::Full => AnsiColors::Blue,
+            B::Resized => AnsiColors::Cyan,
+            B::Wal => AnsiColors::Red,
+            B::Thumb => AnsiColors::Magenta,
         }
     }
 }
@@ -58,10 +58,10 @@ impl Backend {
 impl fmt::Display for Backend {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Full    => write!(f, "Full"),
-            Resized => write!(f, "Resized"),
-            Wal     => write!(f, "Wal"),
-            Thumb   => write!(f, "Thumb"),
+            B::Full    => write!(f, "Full"),
+            B::Resized => write!(f, "Resized"),
+            B::Wal     => write!(f, "Wal"),
+            B::Thumb   => write!(f, "Thumb"),
         }
     }
 }

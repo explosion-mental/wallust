@@ -15,8 +15,9 @@ use serde::{Serialize, Deserialize};
 
 use crate::colors::{Colors, Myrgb};
 
-/// re export to shorten from `Filters::Dark` to `Dark`
-use self::Filters::*;
+
+/// rename [`Filters`] so it's shorter to type
+use self::Filters as F;
 
 mod dark;
 mod dark16;
@@ -45,23 +46,23 @@ pub enum Filters {
 
 pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
     match f {
-        Dark    => dark::dark,
-        Dark16  => dark16::dark16,
-        HardDark => harddark::harddark,
-        Light   => light::light,
-        Light16 => light16::light16,
-        SoftLight => softlight::softlight,
+        F::Dark    => dark::dark,
+        F::Dark16  => dark16::dark16,
+        F::HardDark => harddark::harddark,
+        F::Light   => light::light,
+        F::Light16 => light16::light16,
+        F::SoftLight => softlight::softlight,
     }
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
-        SoftLight |
-        Dark  | Dark16  => crate::colorspaces::ColorOrder::LightFirst,
+        F::SoftLight |
+        F::Dark  | F::Dark16  => crate::colorspaces::ColorOrder::LightFirst,
 
-        HardDark |
-        Light | Light16 => crate::colorspaces::ColorOrder::DarkFirst,
+        F::HardDark |
+        F::Light | F::Light16 => crate::colorspaces::ColorOrder::DarkFirst,
     }
 }
 
@@ -69,12 +70,12 @@ impl Filters {
     /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
         match self {
-            Dark => AnsiColors::Blue,
-            Dark16 => AnsiColors::Green,
-            HardDark => AnsiColors::Magenta,
-            Light => AnsiColors::Yellow,
-            Light16 => AnsiColors::Cyan,
-            SoftLight => AnsiColors::BrightYellow,
+            F::Dark => AnsiColors::Blue,
+            F::Dark16 => AnsiColors::Green,
+            F::HardDark => AnsiColors::Magenta,
+            F::Light => AnsiColors::Yellow,
+            F::Light16 => AnsiColors::Cyan,
+            F::SoftLight => AnsiColors::BrightYellow,
         }
     }
 }
@@ -83,12 +84,12 @@ impl Filters {
 impl fmt::Display for Filters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Dark => write!(f, "Dark"),
-            Dark16 => write!(f, "Dark16"),
-            HardDark => write!(f, "HardDark"),
-            Light => write!(f, "Light"),
-            Light16 => write!(f, "Light16"),
-            SoftLight => write!(f, "SoftLight"),
+            F::Dark => write!(f, "Dark"),
+            F::Dark16 => write!(f, "Dark16"),
+            F::HardDark => write!(f, "HardDark"),
+            F::Light => write!(f, "Light"),
+            F::Light16 => write!(f, "Light16"),
+            F::SoftLight => write!(f, "SoftLight"),
         }
     }
 }

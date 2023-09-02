@@ -10,6 +10,9 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 
+/// rename [`ColorSpaces`] so it's shorter to type
+use self::ColorSpaces as C;
+
 mod lab;
 
 const NOT_ENOUGH_COLS: &str =
@@ -42,13 +45,10 @@ pub enum ColorSpaces {
     LabMixed,
 }
 
-/// re export to shorten from `ColorSpaces::Lab` to `Lab`
-use self::ColorSpaces::*;
-
 pub fn main(c: ColorSpaces, cols: &[u8], th: u8, sort_ord: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
     match c {
-        Lab      => lab::lab(cols, th, false, sort_ord),
-        LabMixed => lab::lab(cols, th, true, sort_ord),
+        C::Lab      => lab::lab(cols, th, false, sort_ord),
+        C::LabMixed => lab::lab(cols, th, true, sort_ord),
     }
 }
 
@@ -56,8 +56,8 @@ impl ColorSpaces {
     /// Assign a color for the ColorSpaces
     pub fn col(&self) -> AnsiColors {
         match self {
-            Lab => AnsiColors::Blue,
-            LabMixed => AnsiColors::Green,
+            C::Lab => AnsiColors::Blue,
+            C::LabMixed => AnsiColors::Green,
         }
     }
 }
@@ -66,8 +66,8 @@ impl ColorSpaces {
 impl fmt::Display for ColorSpaces {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Lab => write!(f, "Lab"),
-            LabMixed => write!(f, "LabMixed"),
+            C::Lab => write!(f, "Lab"),
+            C::LabMixed => write!(f, "LabMixed"),
         }
     }
 }
