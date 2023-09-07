@@ -5,7 +5,6 @@
 use std::path::Path;
 use std::fmt;
 
-use image::io::Reader as ImageReader;
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
