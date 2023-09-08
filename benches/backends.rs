@@ -2,8 +2,6 @@ use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use wallust::backends::{self, Backend};
 use std::path::Path;
 
-
-
 const SRC: [&str; 4] = [
     "pexels-photo-356036.jpeg",
     "pexels-photo-1146708.jpeg",
@@ -33,30 +31,27 @@ fn backends(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("backends");
 
+    let possible_cases = [
+        Backend::Full,
+        Backend::Resized,
+        Backend::Thumb,
+        Backend::Wal,
+    ];
+
+    //iterate over all images
     for i in SRC {
+        let name = i;
         let i = Path::new(i);
-        let name = i.to_string_lossy();
 
-        group.bench_with_input(
-            BenchmarkId::new("full", &name),
-            i,
-            |b, i| b.iter(|| backends::main(&Backend::Full)(i).expect("Download the images"))
+        //with all possible backends
+        for j in possible_cases {
+            group.bench_with_input(
+                BenchmarkId::new(j.to_string(), &name),
+                i,
+                |b, i| b.iter(|| backends::main(&j)(i).expect("Download the images"))
 
-        );
-
-        group.bench_with_input(
-            BenchmarkId::new("resized", &name),
-            i,
-            |b, i| b.iter(|| backends::main(&Backend::Resized)(i).expect("Download the images"))
-
-        );
-
-        group.bench_with_input(
-            BenchmarkId::new("thumb", &name),
-            i,
-            |b, i| b.iter(|| backends::main(&Backend::Thumb)(i).expect("Download the images"))
-
-        );
+            );
+        }
     }
 
     group.finish();

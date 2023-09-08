@@ -40,5 +40,9 @@ default = [ "themes" ]
 themes = [ "dep:rand" ] # include built-in themes at ./src/themes/colorschemes.rs (130K)
 
 [[bench]]
-name = "image"
+name = "backends"
+harness = false
+
+[[bench]]
+name = "colorspaces"
 harness = false
