@@ -21,7 +21,9 @@ const MIN_COLS: u8 = 6;
 const MAX_COLS: u8 = 16;
 
 pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
-    let labs = rgb_bytes_to_labs(cols);
+    let mut labs = rgb_bytes_to_labs(cols);
+    labs.dedup();
+
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
