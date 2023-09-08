@@ -187,21 +187,20 @@ fn delta_1994(current: Lab, previous: Lab) -> f32 {
     +   ((previous.b - current.b).powf(2.0)) ).sqrt()
 }
 
-/// helper for the 2000 version
-#[inline]
-fn get_h_prime(a: f32, b: f32) -> f32 {
-    let h_prime = b.atan2(a).to_degrees();
-    if h_prime < 0.0 {
-        h_prime + 360.0
-    } else {
-        h_prime
-    }
-}
-
-
 /// the 2000 delta method, from <https://github.com/ryanobeirne/deltae>
+#[allow(dead_code)]
 #[inline]
 fn delta_2000(lab_0: Lab, lab_1: Lab) -> f32 {
+
+    let get_h_prime = |a: f32, b: f32| -> f32 {
+        let h_prime = b.atan2(a).to_degrees();
+        if h_prime < 0.0 {
+            h_prime + 360.0
+        } else {
+            h_prime
+        }
+    };
+
     let chroma_0 = (lab_0.a.powi(2) + lab_0.b.powi(2)).sqrt();
     let chroma_1 = (lab_1.a.powi(2) + lab_1.b.powi(2)).sqrt();
 
