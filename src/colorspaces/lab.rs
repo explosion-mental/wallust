@@ -204,10 +204,12 @@ fn is_present_no_mut(color: Lab, histogram: &[Histo], threshold: u8) -> bool {
 /// Returns how much the colors differ
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
+/// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
+/// (by criterion),
 #[inline]
 fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
-    delta_2000(lab_0, lab_1) as u32
-    //delta_1994(lab_0, lab_1) as u32
+    //delta_2000(lab_0, lab_1) as u32
+    delta_1994(lab_0, lab_1) as u32
 }
 
 /// the 1994 simple euclidean formula
