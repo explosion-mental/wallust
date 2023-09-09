@@ -160,7 +160,7 @@ impl From<Lab> for Myrgb {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut Vec<Histo>, threshold: u8, mix: bool) -> bool {
+fn is_present(color: Lab, histogram: &mut [Histo], threshold: u8, mix: bool) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold.into() {
