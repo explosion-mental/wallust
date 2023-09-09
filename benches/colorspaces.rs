@@ -13,11 +13,6 @@ const SRC: [&str; 4] = [
 ];
 
 fn colorspaces(c: &mut Criterion) {
-
-    println!("Reading image first..");
-    let sample = backends::main(&Backend::Resized)(Path::new(SRC[0])).expect("Download the image {SRC[0]}");
-    println!("Done.");
-
     let mut group = c.benchmark_group("color-spaces");
 
     let possible_cases = [
@@ -25,9 +20,12 @@ fn colorspaces(c: &mut Criterion) {
         ColorSpaces::LabMixed,
     ];
 
-    //for i in SRC {
-        let name = SRC[0];
-        //let i = Path::new(i);
+    for i in SRC {
+        let name = i;
+
+        println!("Reading image first.. {i}");
+        let sample = backends::main(&Backend::Resized)(Path::new(i)).expect(&format!("Download the image {i}"));
+        println!("Done.\n");
 
         for j in possible_cases {
             group.bench_with_input(
@@ -37,6 +35,7 @@ fn colorspaces(c: &mut Criterion) {
 
             );
         }
+    }
 
     group.finish();
 }
