@@ -29,8 +29,11 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
 
     let mut histo: Vec<Histo> = vec![];
 
+    let darkest_lab = f32::from(threshold) * 0.3;
+    let lightest_lab = 100.0 - darkest_lab;
+
     for lab in labs {
-        if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
+        if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
         if is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {
