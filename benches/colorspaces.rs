@@ -33,7 +33,7 @@ fn colorspaces(c: &mut Criterion) {
             group.bench_with_input(
                 BenchmarkId::new(j.to_string(), &name),
                 &sample,
-                |b, i| b.iter(|| colorspaces::main(j, i, 20, ColorOrder::DarkFirst).expect("Download the images"))
+                |b, i| b.iter(|| colorspaces::main(j, i, 20, ColorOrder::DarkFirst))
 
             );
         }
