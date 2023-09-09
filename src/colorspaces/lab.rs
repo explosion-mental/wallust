@@ -25,7 +25,7 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
     labs.dedup();
 
     // This is to indicate if there were any warnings, since we can't print them directly
-    let mut warn = false;
+    let warn;
 
     let mut histo: Vec<Histo> = vec![];
 
@@ -38,14 +38,13 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
         }
     }
 
-    // sort vec by count, most used colors
-    histo.sort_by(|a, b| b.count.cmp(&a.count));
-
-    // take the *necessary* most used colors
-    let mut histo: Vec<Histo> = histo.into_iter().take(MAX_COLS.into()).collect();
-
     if histo.len() < 2 {
         anyhow::bail!("Image should at least have two different pixel colors.");
+    } else {
+        // sort vec by count, most used colors
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
+        // take the *necessary* most used colors
+        histo.truncate(MAX_COLS.into());
     }
 
     // Artificially generate colors with linear interpolation in between the colors that we already
@@ -53,18 +52,38 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
     // another check below
     if histo.len() < MIN_COLS.into() {
         warn = true;
-        // copy the vector and combine over it.
-        let combination = histo.clone().into_iter().combinations(2);
+
+        //new vector with new colors, later to be `.append()`ed
+        let mut new_cols = vec![];
+
         // try to generate new colors with interpolation in between the already gathered colors
-        for comb in combination {
+        for comb in histo.iter().combinations(2) {
             let color_a: Myrgb = comb[0].color.into();
             let color_b: Myrgb = comb[1].color.into();
 
-            interpolate(&mut histo, color_a, color_b, MAX_COLS, threshold);
-            if histo.len() >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+            let new = interpolate(color_a, color_b, MAX_COLS);
+
+            //similar to how it's done at the start of `lab()`
+            // save the new colors, or discard them if similar enough
+            for i in new {
+                let lab: Lab = i.into();
+                if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
+                                                             // We can't mix colors given that there aren't many.
+                if is_present_no_mut(lab, &histo, threshold) {
+                    continue;
+                } else {
+                    new_cols.push(Histo { color: lab, count: 1 });
+                }
+            }
+
+            let len = histo.len() + new_cols.len();
+            if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
         }
         // take again, just to be sure
-        histo = histo.into_iter().take(MAX_COLS.into()).collect();
+        histo.append(&mut new_cols);
+        histo.truncate(MAX_COLS.into());
+    } else {
+        warn = false;
     }
 
     // not enough colors, even after making new colors (if any)
@@ -93,7 +112,7 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
 /// converting into and from just for this operation (which should not overhead the program since
 /// at max is only 5 values in combination)
 /// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
-fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, threshold: u8) {
+fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb>{
     //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
     let mut palette: Vec<Myrgb> = vec![];
 
@@ -114,31 +133,24 @@ fn interpolate(histo: &mut Vec<Histo>, color_a: Myrgb, color_b: Myrgb, n: u8, th
         curr_r += jump_r;
         curr_g += jump_g;
         curr_b += jump_b;
-
     }
 
-    //similar to how it's done at the start of `lab()`
-    for c in palette {
-        let lab = Lab::from_rgb(&[c.0, c.1, c.2]);
-        if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
-        // We can't mix colors given that there aren't many.
-        if is_present(lab, histo, threshold, false) {
-            continue;
-        } else {
-            histo.push(Histo { color: lab, count: 1 });
-        }
-    }
+    palette
 }
 
 /// Simple Histogram
 /// TODO think about a better generic way of storing (ColorSpace, count)
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 struct Histo {
     /// LAB colors
     color: ::lab::Lab,
     /// number of times it has appeared
     count: usize,
 }
+
+//use std::rc::Rc;
+//#[derive(Debug, Clone, PartialEq)]
+//struct HistoG(Rc<(::lab::Lab, usize)>);
 
 impl Histo {
     /// Mix similar Lab colors, to catch most similars ones.
@@ -157,6 +169,12 @@ impl From<Lab> for Myrgb {
     }
 }
 
+impl From<Myrgb> for Lab {
+    fn from(c: Myrgb) -> Self {
+        Lab::from_rgb(&[c.0, c.1, c.2])
+    }
+}
+
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
@@ -172,12 +190,24 @@ fn is_present(color: Lab, histogram: &mut [Histo], threshold: u8, mix: bool) -> 
     false
 }
 
+/// This doesn't `Histo.mix()`, so no need for mutability
+fn is_present_no_mut(color: Lab, histogram: &[Histo], threshold: u8) -> bool {
+    for e in histogram {
+        // if any lab value is between a threshold, count it up
+        if delta_e(color, e.color) < threshold.into() {
+            return true;
+        }
+    }
+    false
+}
+
 /// Returns how much the colors differ
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
 #[inline]
 fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
     delta_2000(lab_0, lab_1) as u32
+    //delta_1994(lab_0, lab_1) as u32
 }
 
 /// the 1994 simple euclidean formula
