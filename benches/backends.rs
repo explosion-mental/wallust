@@ -2,6 +2,7 @@ use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use wallust::backends::{self, Backend};
 use std::path::Path;
 
+const OUT: &str = "../target/benchimg";
 const SRC: [&str; 1] = [
     "pexels-photo-356036.jpeg",
     //"pexels-photo-1146708.jpeg",
@@ -22,7 +23,7 @@ fn backends(c: &mut Criterion) {
     //iterate over all images
     for i in SRC {
         let name = i;
-        let i = Path::new(i);
+        let i = &Path::new(OUT).join(i);
 
         //with all possible backends
         for j in possible_cases {

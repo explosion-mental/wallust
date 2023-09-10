@@ -2,9 +2,16 @@
 
 # Simple script to fetch some **large** images to test with
 
-curl "https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg" --output pexels-photo-356036.jpeg
-curl "https://images.pexels.com/photos/1146708/pexels-photo-1146708.jpeg" --output pexels-photo-1146708.jpeg
-curl "https://images.pexels.com/photos/1567069/pexels-photo-1567069.jpeg" --output pexels-photo-1567069.jpeg
-curl "https://images.pexels.com/photos/1089194/pexels-photo-1089194.jpeg" --output pexels-photo-1089194.jpeg
+out="../target/benchimg"
 
+image1="356036"
+image2="1146708"
+image3="1567069"
+image4="1089194"
 
+[ ! -d "$out" ] && mkdir -p "$out"
+
+curl "https://images.pexels.com/photos/$image1/pexels-photo-$image1.jpeg" --output "$out/pexels-photo-$image1.jpeg"
+curl "https://images.pexels.com/photos/$image2/pexels-photo-$image2.jpeg" --output "$out/pexels-photo-$image2.jpeg"
+curl "https://images.pexels.com/photos/$image3/pexels-photo-$image3.jpeg" --output "$out/pexels-photo-$image3.jpeg"
+curl "https://images.pexels.com/photos/$image4/pexels-photo-$image4.jpeg" --output "$out/pexels-photo-$image4.jpeg"
