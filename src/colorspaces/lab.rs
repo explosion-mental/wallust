@@ -20,7 +20,31 @@ const MIN_COLS: u8 = 6;
 /// the top MAX_COLS lab colors.
 const MAX_COLS: u8 = 16;
 
-use std::rc::Rc;
+/// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
+type Hist = Histo<Lab>;
+
+impl Hist {
+    /// Mix similar Lab colors, to catch most similars ones.
+    /// NOTE: This reduces color quantity
+    fn mix(&mut self, new: Lab) {
+        self.color.l = self.color.l * 0.5 + new.l * 0.5;
+        //self.color.a = self.color.a * 0.5 + new.a * 0.5;
+        //self.color.b = self.color.b * 0.5 + new.b * 0.5;
+    }
+}
+
+impl From<Lab> for Myrgb {
+    fn from(lab: Lab) -> Self {
+        let a = lab.to_rgb();
+        Self(a[0], a[1], a[2])
+    }
+}
+
+impl From<Myrgb> for Lab {
+    fn from(c: Myrgb) -> Self {
+        Lab::from_rgb(&[c.0, c.1, c.2])
+    }
+}
 
 pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
     let mut labs = rgb_bytes_to_labs(cols);
@@ -29,7 +53,7 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
-    let mut histo: Vec<Histo> = vec![];
+    let mut histo: Vec<Hist> = vec![];
 
     let darkest_lab = f32::from(threshold) * 0.3;
     let lightest_lab = 100.0 - darkest_lab;
@@ -112,80 +136,9 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
     Ok((histo, warn))
 }
 
-/// Combines some colors to generate new ones
-/// Using something similar to <https://github.com/ndavd/colinterp>
-/// I didn't find anything about interpolating CIE L,a*b* colors, only RGB ones, so I'm accepting
-/// converting into and from just for this operation (which should not overhead the program since
-/// at max is only 5 values in combination)
-/// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
-/// `n` is the number of jumps, colors to generate (or at least to aim for that)
-fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
-    //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
-    let mut palette: Vec<Myrgb> = vec![];
-
-    // cast to i16 to not overflow u8
-    let jump_r = (f32::from(color_b.0 as i16 - color_a.0 as i16)) / (f32::from(n) - 1.0);
-    let jump_g = (f32::from(color_b.1 as i16 - color_a.1 as i16)) / (f32::from(n) - 1.0);
-    let jump_b = (f32::from(color_b.2 as i16 - color_a.2 as i16)) / (f32::from(n) - 1.0);
-
-    let mut curr_r = f32::from(color_a.0);
-    let mut curr_g = f32::from(color_a.1);
-    let mut curr_b = f32::from(color_a.2);
-
-    for _ in 0..n {
-        let r = curr_r.round() as u8;
-        let g = curr_g.round() as u8;
-        let b = curr_b.round() as u8;
-        palette.push(Myrgb(r, g, b));
-        curr_r += jump_r;
-        curr_g += jump_g;
-        curr_b += jump_b;
-    }
-
-    palette
-}
-
-/// Simple Histogram
-/// TODO think about a better generic way of storing (ColorSpace, count)
-#[derive(Debug, Copy, Clone, PartialEq)]
-struct Histo {
-    /// LAB colors
-    color: ::lab::Lab,
-    /// number of times it has appeared
-    count: usize,
-}
-
-//use std::rc::Rc;
-//#[derive(Debug, Clone, PartialEq)]
-//struct HistoG(Rc<(::lab::Lab, usize)>);
-
-impl Histo {
-    /// Mix similar Lab colors, to catch most similars ones.
-    /// NOTE: This reduces color quantity
-    fn mix(&mut self, new: Lab) {
-        self.color.l = self.color.l * 0.5 + new.l * 0.5;
-        //self.color.a = self.color.a * 0.5 + new.a * 0.5;
-        //self.color.b = self.color.b * 0.5 + new.b * 0.5;
-    }
-}
-
-impl From<Lab> for Myrgb {
-    fn from(lab: Lab) -> Self {
-        let a = lab.to_rgb();
-        Self(a[0], a[1], a[2])
-    }
-}
-
-impl From<Myrgb> for Lab {
-    fn from(c: Myrgb) -> Self {
-        Lab::from_rgb(&[c.0, c.1, c.2])
-    }
-}
-
-
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut [Histo], threshold: u8, mix: bool) -> bool {
+fn is_present(color: Lab, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold.into() {
@@ -198,7 +151,7 @@ fn is_present(color: Lab, histogram: &mut [Histo], threshold: u8, mix: bool) -> 
 }
 
 /// This doesn't `Histo.mix()`, so no need for mutability
-fn is_present_no_mut(color: Lab, histogram: &[Histo], threshold: u8) -> bool {
+fn is_present_no_mut(color: Lab, histogram: &[Hist], threshold: u8) -> bool {
     histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
 }
 
