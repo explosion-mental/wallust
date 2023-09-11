@@ -8,40 +8,34 @@ use fast_image_resize as fir;
 pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
 
+    let shrink = |x| if x > 512 { x / 4 } else { x };
+
     let def = NonZeroU32::new(512).expect("NON ZERO");
-    let w = NonZeroU32::new(true_w / 4).unwrap_or(def);
-    let h = NonZeroU32::new(true_h / 4).unwrap_or(def);
+    let w = NonZeroU32::new(shrink(true_w)).unwrap_or(def);
+    let h = NonZeroU32::new(shrink(true_h)).unwrap_or(def);
 
-
-    //source
+    //read the image
     let img = image::open(f)?;
-    let src_image = fir::Image::from_vec_u8(
+
+    // source image
+    let src = fir::Image::from_vec_u8(
         NonZeroU32::new(true_w).unwrap_or(def),
         NonZeroU32::new(true_h).unwrap_or(def),
-        img.to_rgba8().into_raw(),
+        img.into_rgba8().into_raw(),
         fir::PixelType::U8,
     )?;
 
-    //destination
-    let mut dst_image = fir::Image::new(
+    //destination (where to write new resized image)
+    let mut dest = fir::Image::new(
         w,
         h,
-        src_image.pixel_type(),
+        src.pixel_type(),
     );
 
-
     //resize
-    let mut resizer = fir::Resizer::new(fir::ResizeAlg::Nearest);
-    resizer.resize(&src_image.view(), &mut dst_image.view_mut())?;
+    fir::Resizer::new(fir::ResizeAlg::Nearest)
+        .resize(&src.view(), &mut dest.view_mut())?;
 
-    //alpha_mul_div.divide_alpha_inplace(&mut dst_view).unwrap();
-
-    // Read source image from file
-    //let img = ImageReader::open("./data/nasa-4928x3279.png")
-     //   .unwrap()
-     //   .decode()
-     //   .unwrap();
-
-    Ok(dst_image.into_vec())
+    Ok(dest.into_vec())
 }
 
