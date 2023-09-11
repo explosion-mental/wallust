@@ -43,6 +43,7 @@ pub enum ColorOrder {
 pub enum ColorSpaces {
     /// Uses Cie L*a*b color space
     Lab,
+    #[serde(alias = "lab-mixed")]
     /// Same as `lab` but mixes the colors gathered
     LabMixed,
 }

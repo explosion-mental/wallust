@@ -34,12 +34,14 @@ pub enum Filters {
     Dark,
     /// Dark bg and fg with some opaque variations, making 16 colors
     Dark16,
+    #[serde(alias = "hard-dark")]
     /// Dark with hard hue colors
     HardDark,
     /// Light bg, dark fg
     Light,
     /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
+    #[serde(alias = "soft-light")]
     /// Light with soft pastel colors
     SoftLight,
 }
