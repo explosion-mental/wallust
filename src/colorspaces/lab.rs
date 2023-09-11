@@ -46,32 +46,45 @@ impl From<Myrgb> for Lab {
     }
 }
 
-pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
-    let mut labs = rgb_bytes_to_labs(cols);
-    labs.dedup();
+impl ColSpace for [Hist] {
+    fn sort_cols(&mut self, method: &ColorOrder) {
+        self.sort_by(|a, b|
+            match method {
+                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            }
+        );
+    }
+}
 
+pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
     let mut histo: Vec<Hist> = vec![];
-
     let darkest_lab = f32::from(threshold) * 0.3;
     let lightest_lab = 100.0 - darkest_lab;
 
-    for lab in labs {
-        if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
-        if is_present(lab, &mut histo, threshold, mix) {
-            continue;
-        } else {
-            histo.push(Histo { color: lab, count: 1 });
+    {
+        let mut labs = rgb_bytes_to_labs(cols);
+        labs.dedup();
+        for lab in labs {
+            if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
+            if is_present(lab, &mut histo, threshold, mix) {
+                continue;
+            } else {
+                histo.push(Histo { color: lab, count: 1 });
+            }
         }
     }
 
     if histo.len() < 2 {
-        anyhow::bail!("Image should at least have two different pixel colors.");
+        anyhow::bail!(ERR_TWO_COLS);
     } else {
-        // sort vec by count, most used colors
-        histo.sort_by(|a, b| b.count.cmp(&a.count));
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        if histo.len() > MAX_COLS.into() {
+            histo.sort_by(|a, b| b.count.cmp(&a.count));
+        }
         // take the *necessary* most used colors
         histo.truncate(MAX_COLS.into());
     }
@@ -122,16 +135,9 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
     }
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    // TODO: read more about partial_cmp and float arithmetic
-    // XXX: inverting these will create a pseudo light scheme
-    histo.sort_by(|a, b|
-        match &sort {
-            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
-            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
-        }
-    );
+    histo.sort_cols(&sort);
 
-    let histo: Rc<[Myrgb]> = histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
+    let histo = histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
 
     Ok((histo, warn))
 }

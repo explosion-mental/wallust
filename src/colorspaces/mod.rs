@@ -24,6 +24,8 @@ It may very well be that the image doesn't have enough colors.
 Quitting...\
 ";
 
+const ERR_TWO_COLS: &str = "Image should at least have two different pixel colors.";
+
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
 /// Using these with [`full`] or [`resize`] backends, the LightFirst will give a more pastel
@@ -94,6 +96,12 @@ fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
     }
 
     palette
+}
+
+/// Trait to encapsulate common colorspaces operations, this should be applied to `[Histo<T>]`
+trait ColSpace {
+    /// sort a vec of Hist
+    fn sort_cols(&mut self, method: &ColorOrder);
 }
 
 impl ColorSpaces {
