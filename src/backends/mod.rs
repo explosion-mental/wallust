@@ -16,6 +16,7 @@ mod full;
 mod resized;
 mod wal;
 mod thumb;
+mod fast_resize;
 
 /// This indicates what 'parser' method to use, defined in the config file.
 /// Corresponds to the modules inside this module
@@ -30,6 +31,8 @@ pub enum Backend {
     Wal,
     /// Faster algo than the `resized` module, hardcoded to 512x512
     Thumb,
+    /// A much faster resize algo that uses SIMD
+    FastResize
 }
 
 pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
@@ -38,6 +41,7 @@ pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
         B::Resized => resized::resized,
         B::Wal     => wal::wal,
         B::Thumb   => thumb::thumb,
+        B::FastResize => fast_resize::fast_resize,
     }
 }
 
@@ -49,6 +53,7 @@ impl Backend {
             B::Resized => AnsiColors::Cyan,
             B::Wal => AnsiColors::Red,
             B::Thumb => AnsiColors::Magenta,
+            B::FastResize => AnsiColors::Green,
         }
     }
 }
@@ -61,6 +66,7 @@ impl fmt::Display for Backend {
             B::Resized => write!(f, "Resized"),
             B::Wal     => write!(f, "Wal"),
             B::Thumb   => write!(f, "Thumb"),
+            B::FastResize => write!(f, "FastResize"),
         }
     }
 }
