@@ -2,7 +2,7 @@
 
 # Simple script to fetch some **large** images to test with
 
-out="../target/benchimg"
+out="$(dirname "$(cargo locate-project | jq -r .root)")/target/benchimg"
 
 image1="356036"
 image2="1146708"

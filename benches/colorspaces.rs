@@ -5,6 +5,7 @@ use wallust::colorspaces::{self, ColorSpaces, ColorOrder};
 
 use std::path::Path;
 
+const OUT: &str = "../target/benchimg";
 const SRC: [&str; 4] = [
     "pexels-photo-356036.jpeg",
     "pexels-photo-1146708.jpeg",
@@ -24,7 +25,8 @@ fn colorspaces(c: &mut Criterion) {
         let name = i;
 
         println!("Reading image first.. {i}");
-        let sample = backends::main(&Backend::Resized)(Path::new(i)).expect(&format!("Download the image {i}"));
+        let p = &Path::new(OUT).join(i);
+        let sample = backends::main(&Backend::Resized)(Path::new(p)).expect(&format!("Download the image {i}"));
         println!("Done.\n");
 
         for j in possible_cases {
