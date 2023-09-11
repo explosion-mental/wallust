@@ -18,6 +18,7 @@ fn backends(c: &mut Criterion) {
         Backend::Resized,
         Backend::Thumb,
         Backend::Wal,
+        Backend::FastResize,
     ];
 
     //iterate over all images
