@@ -20,7 +20,9 @@ const MIN_COLS: u8 = 6;
 /// the top MAX_COLS lab colors.
 const MAX_COLS: u8 = 16;
 
-pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
+use std::rc::Rc;
+
+pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
     let mut labs = rgb_bytes_to_labs(cols);
     labs.dedup();
 
@@ -70,8 +72,8 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
             // save the new colors, or discard them if similar enough
             for i in new {
                 let lab: Lab = i.into();
-                if lab.l < 1.0 || lab.l > 99.0 { continue; } //ignore really dark/light colors
-                                                             // We can't mix colors given that there aren't many.
+                if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
+
                 if is_present_no_mut(lab, &histo, threshold) {
                     continue;
                 } else {
@@ -80,10 +82,11 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
             }
 
             let len = histo.len() + new_cols.len();
+
             if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
         }
-        // take again, just to be sure
-        histo.append(&mut new_cols);
+        //join `new_cols` to histo
+        histo.extend(new_cols);
         histo.truncate(MAX_COLS.into());
     } else {
         warn = false;
@@ -99,12 +102,12 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
     // XXX: inverting these will create a pseudo light scheme
     histo.sort_by(|a, b|
         match &sort {
-            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap(),
-            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap(),
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
         }
     );
 
-    let histo: Vec<Myrgb> = histo.iter().map(|x| x.color.into()).collect();
+    let histo: Rc<[Myrgb]> = histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
 
     Ok((histo, warn))
 }
@@ -115,7 +118,8 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(V
 /// converting into and from just for this operation (which should not overhead the program since
 /// at max is only 5 values in combination)
 /// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
-fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb>{
+/// `n` is the number of jumps, colors to generate (or at least to aim for that)
+fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
     //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
     let mut palette: Vec<Myrgb> = vec![];
 
@@ -195,13 +199,7 @@ fn is_present(color: Lab, histogram: &mut [Histo], threshold: u8, mix: bool) -> 
 
 /// This doesn't `Histo.mix()`, so no need for mutability
 fn is_present_no_mut(color: Lab, histogram: &[Histo], threshold: u8) -> bool {
-    for e in histogram {
-        // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < threshold.into() {
-            return true;
-        }
-    }
-    false
+    histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
 }
 
 /// Returns how much the colors differ

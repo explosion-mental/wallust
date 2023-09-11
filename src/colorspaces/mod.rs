@@ -3,6 +3,7 @@
 //! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
 //! so this deserved it's own module.
 use std::fmt;
+use std::rc::Rc;
 
 use crate::colors::Myrgb;
 
@@ -45,7 +46,7 @@ pub enum ColorSpaces {
     LabMixed,
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], th: u8, sort_ord: ColorOrder) -> Result<(Vec<Myrgb>, bool)> {
+pub fn main(c: ColorSpaces, cols: &[u8], th: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
     match c {
         C::Lab      => lab::lab(cols, th, false, sort_ord),
         C::LabMixed => lab::lab(cols, th, true, sort_ord),
