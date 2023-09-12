@@ -30,7 +30,7 @@ impl fmt::Display for Cache {
     }
 }
 
-const CACHE_VER: &str = "1.0";
+const CACHE_VER: &str = "1.1";
 
 impl Cache {
     /// init cache
@@ -40,13 +40,15 @@ impl Cache {
             anyhow::bail!("Using '..' as a parameter is not supported");
         };
 
-        let cachepath = format!("{root}/wallust/{back}/{th}/{cs}/{filter}",
-            root = cache_path.display(), // ~/.cache/
-            back = c.backend,
-            th = c.threshold,
-            cs = c.color_space,
-            filter = c.filter,
-        );
+
+        //format!("{root}/wallust/{back}/{th}/{cs}/{filter}",
+        let cachepath = Path::new(cache_path)
+            .join("wallust")
+            .join(c.backend.to_string())
+            .join(c.color_space.to_string())
+            .join(c.filter.to_string())
+            .join(c.threshold.to_string())
+        ;
 
         // Create cache dir (with all of it's parents)
         fs::create_dir_all(&cachepath)?;
@@ -68,7 +70,10 @@ impl Cache {
             version = CACHE_VER,
         );
 
-        Ok(Self { path: PathBuf::from(cachepath + &hash_name) })
+        Ok(Self {
+            path:
+                cachepath.join(hash_name)
+        })
     }
 
     /// Fetches values from a file present in cache
