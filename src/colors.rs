@@ -235,9 +235,9 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 /// A triple `\\\` is needed to remove the new line and print a single `\`
 #[cfg(target_family = "unix")]
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
-    let seq_file = cache_path.display().to_string() + "/wallust/sequences";
+    let seq_file = cache_path.join("wallust/sequences");
 
-    let sequences = vec![
+    let sequences = [
         // colors from 0-15
         c.color0 .set_color(0 ),
         c.color1 .set_color(1 ),
@@ -367,7 +367,7 @@ fn windows_term(cols: &Colors) -> Result<()> {
     let preview = dir.join("Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json");
     let unpkg   = dir.join("Microsoft/WindowsTerminal/settings.json");
 
-    let files = vec![stable, preview, unpkg];
+    let files = [stable, preview, unpkg];
 
     for i in files {
         let content = match std::fs::read_to_string(&i) {
