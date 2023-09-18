@@ -36,6 +36,26 @@ impl From<Myrgb> for Lab {
     }
 }
 
+/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
+/// colors are similar enough, using the [`Config.threshold`]
+fn is_present(color: Lab, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
+    for e in histogram {
+        // if any lab value is between a threshold, count it up
+        if delta_e(color, e.color) < threshold.into() {
+            if mix { e.mix(color); }
+            e.count += 1;
+            return true;
+        }
+    }
+    false
+}
+
+/// This doesn't `Histo.mix()`, so no need for mutability
+fn is_present_no_mut(color: Lab, histogram: &[Hist], threshold: u8) -> bool {
+    histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
+}
+
+/// ColorSpaces for the [`Lab`] with floating numbers (more precise)
 impl CSpaces for Cols<Lab, f32> {
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
         let darkest_lab = f32::from(threshold) * 0.3;
@@ -86,9 +106,9 @@ impl CSpaces for Cols<Lab, f32> {
             // save the new colors, or discard them if similar enough
             for i in new {
                 let lab: Lab = i.into();
-                if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
-
-                if is_present_no_mut(lab, &histo, threshold) {
+                if lab.l <  darkest_lab
+                || lab.l > lightest_lab
+                || is_present_no_mut(lab, &histo, threshold) {
                     continue;
                 } else {
                     new_cols.push(Histo { color: lab, count: 1 });
@@ -106,6 +126,7 @@ impl CSpaces for Cols<Lab, f32> {
     }
 }
 
+/// ColorSpaces for the [`Lab`] with unsigned integers (faster but more margin of error)
 impl CSpaces for Cols<Lab, u32> {
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
         let darkest_lab = f32::from(threshold) * 0.3;
@@ -158,10 +179,10 @@ impl CSpaces for Cols<Lab, u32> {
             // save the new colors, or discard them if similar enough
             for i in new {
                 let lab: Lab = i.into();
+                //ignore really dark/light colors
                 if (lab.l as u32) < darkest_lab
-                || (lab.l as u32) > lightest_lab { continue; } //ignore really dark/light colors
-
-                if is_present_no_mut(lab, &histo, threshold) {
+                || (lab.l as u32) > lightest_lab
+                || is_present_no_mut(lab, &histo, threshold) {
                     continue;
                 } else {
                     new_cols.push(Histo { color: lab, count: 1 });
@@ -173,29 +194,9 @@ impl CSpaces for Cols<Lab, u32> {
             if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
         }
 
-
         //join `new_cols` to histo
         self.histo.extend(new_cols);
     }
-}
-
-/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
-/// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
-    for e in histogram {
-        // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < threshold.into() {
-            if mix { e.mix(color); }
-            e.count += 1;
-            return true;
-        }
-    }
-    false
-}
-
-/// This doesn't `Histo.mix()`, so no need for mutability
-fn is_present_no_mut(color: Lab, histogram: &[Hist], threshold: u8) -> bool {
-    histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
 }
 
 /// Returns how much the colors differ

@@ -81,16 +81,44 @@ pub struct Cols<T, E> {
     threshold: u8,
 }
 
+/// Simple functions that allows acomodating and select the most prominent colors.
+/// [`Self`] should be [`Cols`]
 pub trait CSpaces {
+    /// Creates a new [`Cols`]
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self;
+    /// Sort the colors, this depends on the colorspace being used
     fn sort_colors(&mut self, method: &ColorOrder);
+    /// This function is called when the colors gathered are not enough. Usually implies calling
+    /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
+    /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
+    /// than [`MAX_COLS`])
     fn new_cols(&mut self);
 }
 
-///shadow lab name
-type Lab = ::lab::Lab;
+impl ColorSpaces {
+    /// Assign a color for the ColorSpaces
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            C::Lab => AnsiColors::Blue,
+            C::LabMixed => AnsiColors::Green,
+            C::LabFast => AnsiColors::Yellow,
+        }
+    }
+}
+
+/// Display what [`ColorSpaces`] is in use. Used in cache and main.
+impl fmt::Display for ColorSpaces {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            C::Lab => write!(f, "Lab"),
+            C::LabMixed => write!(f, "LabMixed"),
+            C::LabFast => write!(f, "LabFast"),
+        }
+    }
+}
 
 pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
+    type Lab = ::lab::Lab; //shadow lab name
     match c {
         C::Lab => gen_cs::<Lab, f32>(cols, threshold, sort_ord, true),
         C::LabMixed => gen_cs::<Lab, f32>(cols, threshold, sort_ord, true),
@@ -185,26 +213,4 @@ fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
     }
 
     palette
-}
-
-impl ColorSpaces {
-    /// Assign a color for the ColorSpaces
-    pub fn col(&self) -> AnsiColors {
-        match self {
-            C::Lab => AnsiColors::Blue,
-            C::LabMixed => AnsiColors::Green,
-            C::LabFast => AnsiColors::Yellow,
-        }
-    }
-}
-
-/// Display what [`ColorSpaces`] is in use. Used in cache and main.
-impl fmt::Display for ColorSpaces {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            C::Lab => write!(f, "Lab"),
-            C::LabMixed => write!(f, "LabMixed"),
-            C::LabFast => write!(f, "LabFast"),
-        }
-    }
 }
