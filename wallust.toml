@@ -9,9 +9,11 @@
 backend = "thumb"
 
 # What color space to use to produce and select the most prominent colors:
-#  * lab      - use CIEL*a*b color space
-#  * labmixed - variant of lab that mixes colors, if not enough colors it fallbacks to usual lab,
-# for that reason is not recommended in small images
+#  * lab      - Use CIEL*a*b color space
+#  * labmixed - Variant of lab that mixes colors, if not enough colors it fallbacks
+#               to usual lab, for that reason is not recommended in small images
+#  * labfast  - Variant of lab which ignores decimals, leading to faster result
+#               but might not precise (could generate not enough colors)
 color_space = "labmixed"
 
 # Difference between similar colors, used by the colorspace:
