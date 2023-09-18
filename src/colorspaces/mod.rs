@@ -10,6 +10,7 @@ use crate::colors::Myrgb;
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
+use itertools::Itertools;
 
 /// rename [`ColorSpaces`] so it's shorter to type
 use self::ColorSpaces as C;
@@ -25,6 +26,14 @@ Quitting...\
 ";
 
 const ERR_TWO_COLS: &str = "Image should at least have two different pixel colors.";
+
+/// Currently this works in function with the filters methods, which currently only needs 6 colors.
+/// Let's make sure the colorspace backend send at least these number of colors.
+const MIN_COLS: u8 = 6;
+
+/// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
+/// the top MAX_COLS lab colors.
+const MAX_COLS: u8 = 16;
 
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
@@ -57,11 +66,71 @@ struct Histo<T> {
     count: usize,
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], th: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
-    match c {
-        C::Lab      => lab::lab(cols, th, false, sort_ord),
-        C::LabMixed => lab::lab(cols, th, true, sort_ord),
+/// Histogram and other info
+struct Cols<T, E> {
+    /// a vec of histograms
+    histo: Vec<Histo<T>>,
+    /// darkest color to tolerate
+    darkest: E,
+    /// lightest color to tolerate
+    lightest: E,
+    /// explained in config.rs
+    threshold: u8,
+}
+
+pub trait CSpaces {
+    fn new(cols: &[u8], threshold: u8, mix: bool) -> Self;
+    fn sort_colors(&mut self, method: &ColorOrder);
+    fn new_cols(&mut self);
+}
+
+///shadow lab name
+type Lab = ::lab::Lab;
+
+pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
+    // This is to indicate if there were any warnings, since we can't print them directly
+    let warn;
+
+    let mut cols = match c {
+        C::Lab => Cols::<Lab, f32>::new(cols, threshold, false),
+        C::LabMixed => Cols::<Lab, f32>::new(cols, threshold, true),
+    };
+
+    if cols.histo.len() < 2 {
+        anyhow::bail!(ERR_TWO_COLS);
+    } else {
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        if cols.histo.len() > MAX_COLS.into() {
+            cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
+        }
+        // take the *necessary* most used colors
+        cols.histo.truncate(MAX_COLS.into());
     }
+
+    // Artificially generate colors with linear interpolation in between the colors that we already
+    // have. However even this can even fail and not generate enough different colors, so there is
+    // another check below
+    if cols.histo.len() < MIN_COLS.into() {
+        warn = true;
+
+        //new vector with new colors, later to be `.append()`ed
+        cols.new_cols();
+        cols.histo.truncate(MAX_COLS.into());
+    } else {
+        warn = false;
+    }
+
+    // not enough colors, even after making new colors (if any)
+    if cols.histo.len() < MIN_COLS.into() {
+        anyhow::bail!(NOT_ENOUGH_COLS);
+    }
+
+    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
+    cols.sort_colors(&sort_ord);
+
+    let histo = cols.histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
+
+    Ok((histo, warn))
 }
 
 /// Combines some colors to generate new ones
@@ -96,12 +165,6 @@ fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
     }
 
     palette
-}
-
-/// Trait to encapsulate common colorspaces operations, this should be applied to `[Histo<T>]`
-trait ColSpace {
-    /// sort a vec of Hist
-    fn sort_cols(&mut self, method: &ColorOrder);
 }
 
 impl ColorSpaces {

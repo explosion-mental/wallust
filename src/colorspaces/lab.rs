@@ -9,15 +9,6 @@ use crate::colorspaces::*;
 
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
-use itertools::Itertools;
-
-/// Currently this works in function with the filters methods, which currently only needs 6 colors.
-/// Let's make sure the colorspace backend send at least these number of colors.
-const MIN_COLS: u8 = 6;
-
-/// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
-/// the top MAX_COLS lab colors.
-const MAX_COLS: u8 = 16;
 
 /// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
 type Hist = Histo<Lab>;
@@ -45,26 +36,11 @@ impl From<Myrgb> for Lab {
     }
 }
 
-impl ColSpace for [Hist] {
-    fn sort_cols(&mut self, method: &ColorOrder) {
-        self.sort_by(|a, b|
-            match method {
-                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
-                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
-            }
-        );
-    }
-}
-
-pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
-    // This is to indicate if there were any warnings, since we can't print them directly
-    let warn;
-
-    let mut histo: Vec<Hist> = vec![];
-    let darkest_lab = f32::from(threshold) * 0.3;
-    let lightest_lab = 100.0 - darkest_lab;
-
-    {
+impl CSpaces for Cols<Lab, f32> {
+    fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
+        let darkest_lab = f32::from(threshold) * 0.3;
+        let lightest_lab = 100.0 - darkest_lab;
+        let mut histo: Vec<Hist> = vec![];
         let mut labs = rgb_bytes_to_labs(cols);
         labs.dedup();
 
@@ -77,28 +53,28 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
                 histo.push(Histo { color: lab, count: 1 });
             }
         }
-    }
-
-    if histo.len() < 2 {
-        anyhow::bail!(ERR_TWO_COLS);
-    } else {
-        // sort vec by count, most used colors first (if they are more than the MAX)
-        if histo.len() > MAX_COLS.into() {
-            histo.sort_by(|a, b| b.count.cmp(&a.count));
+        //histo
+        Self { histo, threshold,
+            darkest: darkest_lab,
+            lightest: lightest_lab,
         }
-        // take the *necessary* most used colors
-        histo.truncate(MAX_COLS.into());
     }
+    fn sort_colors(&mut self, method: &ColorOrder) {
+        self.histo.sort_by(|a, b|
+            match method {
+                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            }
+        );
+    }
+    fn new_cols(&mut self) {
+        let threshold = self.threshold;
+        let histo = &self.histo;
 
-    // Artificially generate colors with linear interpolation in between the colors that we already
-    // have. However even this can even fail and not generate enough different colors, so there is
-    // another check below
-    if histo.len() < MIN_COLS.into() {
-        warn = true;
+        let darkest_lab = self.darkest;
+        let lightest_lab = self.lightest;
 
-        //new vector with new colors, later to be `.append()`ed
         let mut new_cols = vec![];
-
         // try to generate new colors with interpolation in between the already gathered colors
         for comb in histo.iter().combinations(2) {
             let color_a: Myrgb = comb[0].color.into();
@@ -123,24 +99,12 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
 
             if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
         }
+
+
         //join `new_cols` to histo
-        histo.extend(new_cols);
-        histo.truncate(MAX_COLS.into());
-    } else {
-        warn = false;
+        self.histo.extend(new_cols);
     }
 
-    // not enough colors, even after making new colors (if any)
-    if histo.len() < MIN_COLS.into() {
-        anyhow::bail!(NOT_ENOUGH_COLS);
-    }
-
-    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    histo.sort_cols(&sort);
-
-    let histo = histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
-
-    Ok((histo, warn))
 }
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
