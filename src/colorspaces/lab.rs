@@ -67,9 +67,11 @@ pub fn lab(cols: &[u8], threshold: u8, mix: bool, sort: ColorOrder) -> Result<(R
     {
         let mut labs = rgb_bytes_to_labs(cols);
         labs.dedup();
+
         for lab in labs {
-            if lab.l < darkest_lab || lab.l > lightest_lab { continue; } //ignore really dark/light colors
-            if is_present(lab, &mut histo, threshold, mix) {
+            if lab.l <  darkest_lab //ignore really dark colors
+            || lab.l > lightest_lab //ignore really light colors
+            || is_present(lab, &mut histo, threshold, mix) {
                 continue;
             } else {
                 histo.push(Histo { color: lab, count: 1 });
