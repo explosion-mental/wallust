@@ -1246,6 +1246,7 @@ dependencies = [
  "itertools 0.11.0",
  "lab",
  "new_string_template",
+ "num-traits",
  "owo-colors",
  "rand",
  "serde",
