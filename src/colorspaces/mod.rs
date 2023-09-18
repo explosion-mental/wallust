@@ -55,6 +55,9 @@ pub enum ColorSpaces {
     #[serde(alias = "lab-mixed")]
     /// Same as `lab` but mixes the colors gathered
     LabMixed,
+    #[serde(alias = "lab-fast")]
+    /// Avoids floating arithmetic, thus, faster operations
+    LabFast,
 }
 
 /// Simple Histogram
@@ -190,6 +193,7 @@ impl ColorSpaces {
         match self {
             C::Lab => AnsiColors::Blue,
             C::LabMixed => AnsiColors::Green,
+            C::LabFast => AnsiColors::Yellow,
         }
     }
 }
@@ -200,6 +204,7 @@ impl fmt::Display for ColorSpaces {
         match self {
             C::Lab => write!(f, "Lab"),
             C::LabMixed => write!(f, "LabMixed"),
+            C::LabFast => write!(f, "LabFast"),
         }
     }
 }

@@ -104,7 +104,79 @@ impl CSpaces for Cols<Lab, f32> {
         //join `new_cols` to histo
         self.histo.extend(new_cols);
     }
+}
 
+impl CSpaces for Cols<Lab, u32> {
+    fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
+        let darkest_lab = f32::from(threshold) * 0.3;
+        let lightest_lab = (100.0 - darkest_lab) as u32;
+        let darkest_lab = darkest_lab as u32;
+
+        let mut histo: Vec<Hist> = vec![];
+        let mut labs = rgb_bytes_to_labs(cols);
+        labs.dedup();
+
+        for lab in labs {
+            if (lab.l as u32) <  darkest_lab //ignore really dark colors
+            || (lab.l as u32) > lightest_lab //ignore really light colors
+            || is_present(lab, &mut histo, threshold, mix) {
+                continue;
+            } else {
+                histo.push(Histo { color: lab, count: 1 });
+            }
+        }
+        //histo
+        Self { histo, threshold,
+            darkest: darkest_lab,
+            lightest: lightest_lab,
+        }
+    }
+    fn sort_colors(&mut self, method: &ColorOrder) {
+        self.histo.sort_by(|a, b|
+            match method {
+                ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+                ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            }
+        );
+    }
+    fn new_cols(&mut self) {
+        let threshold = self.threshold;
+        let histo = &self.histo;
+
+        let darkest_lab = self.darkest;
+        let lightest_lab = self.lightest;
+
+        let mut new_cols = vec![];
+        // try to generate new colors with interpolation in between the already gathered colors
+        for comb in histo.iter().combinations(2) {
+            let color_a: Myrgb = comb[0].color.into();
+            let color_b: Myrgb = comb[1].color.into();
+
+            let new = interpolate(color_a, color_b, MAX_COLS);
+
+            //similar to how it's done at the start of `lab()`
+            // save the new colors, or discard them if similar enough
+            for i in new {
+                let lab: Lab = i.into();
+                if (lab.l as u32) < darkest_lab
+                || (lab.l as u32) > lightest_lab { continue; } //ignore really dark/light colors
+
+                if is_present_no_mut(lab, &histo, threshold) {
+                    continue;
+                } else {
+                    new_cols.push(Histo { color: lab, count: 1 });
+                }
+            }
+
+            let len = histo.len() + new_cols.len();
+
+            if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+        }
+
+
+        //join `new_cols` to histo
+        self.histo.extend(new_cols);
+    }
 }
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
