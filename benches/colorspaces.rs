@@ -19,6 +19,7 @@ fn colorspaces(c: &mut Criterion) {
     let possible_cases = [
         ColorSpaces::Lab,
         ColorSpaces::LabMixed,
+        ColorSpaces::LabFast,
     ];
 
     for i in SRC {
