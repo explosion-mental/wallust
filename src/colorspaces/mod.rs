@@ -49,7 +49,6 @@ pub enum ColorSpaces {
 }
 
 /// Simple Histogram
-/// TODO think about a better generic way of storing (ColorSpace, count)
 #[derive(Debug, Copy, Clone, PartialEq)]
 struct Histo<T> {
     /// SOME colorspace color

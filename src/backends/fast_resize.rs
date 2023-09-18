@@ -3,8 +3,7 @@ use std::num::NonZeroU32;
 
 use fast_image_resize as fir;
 
-/// Resize it, then get read the image
-//TODO don't resize if image is X by X large
+/// Resize it, then get read the image, with an optimized algorithm that uses SIMD operations.
 pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
 
