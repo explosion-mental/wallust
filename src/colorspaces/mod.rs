@@ -121,8 +121,8 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) ->
     type Lab = ::lab::Lab; //shadow lab name
     match c {
         C::Lab => gen_cs::<Lab, f32>(cols, threshold, sort_ord, true),
-        C::LabMixed => gen_cs::<Lab, f32>(cols, threshold, sort_ord, true),
-        C::LabFast => gen_cs::<Lab, u32>(cols, threshold, sort_ord, true),
+        C::LabMixed => gen_cs::<Lab, f32>(cols, threshold, sort_ord, false),
+        C::LabFast => gen_cs::<Lab, u32>(cols, threshold, sort_ord, false),
     }
 
 }
