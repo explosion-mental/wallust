@@ -119,10 +119,12 @@ impl fmt::Display for ColorSpaces {
 
 pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
     type Lab = ::lab::Lab; //shadow lab name
+    type Float = f32;
+    type Whole = u32;
     match c {
-        C::Lab => gen_cs::<Lab, f32>(cols, threshold, sort_ord, true),
-        C::LabMixed => gen_cs::<Lab, f32>(cols, threshold, sort_ord, false),
-        C::LabFast => gen_cs::<Lab, u32>(cols, threshold, sort_ord, false),
+        C::Lab      => gen_cs::<Lab, Float>(cols, threshold, sort_ord, true),
+        C::LabMixed => gen_cs::<Lab, Float>(cols, threshold, sort_ord, false),
+        C::LabFast  => gen_cs::<Lab, Whole>(cols, threshold, sort_ord, false),
     }
 
 }
