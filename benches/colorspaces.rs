@@ -20,7 +20,7 @@ fn colorspaces(c: &mut Criterion) {
     let root: serde_json::Value = serde_json::from_str(home).unwrap();
     let root = root.pointer("/root").unwrap();
     let root: String = serde_json::from_value(root.clone()).unwrap();
-    let root = &root[0..root.len() - 10];
+    let root = &root[0..root.len() - "Cargo.toml".len()];
 
     let possible_cases = [
         ColorSpaces::Lab,
