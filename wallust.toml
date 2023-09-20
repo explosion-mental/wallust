@@ -2,18 +2,21 @@
 # -- global space -- #
 
 # How the image is parse, in order to get the colors:
-#  * full    - reads the whole image (more precision, slower)
-#  * resized - resizes the image to 1/4th of the original, before parsing it (more color mixing, faster)
-#  * thumb   - fast algo hardcoded to 512x512 (faster than resized)
-#  * wal     - uses image magick `convert` to read the image (less colors)
+#  * full       - Reads the whole image (more precision, slower).
+#  * resized    - Resizes the image to 1/4th of the original, before parsing it (more color mixing, faster).
+#  * thumb      - Fast algo hardcoded to 512x512 (faster than resized).
+#  * wal        - Uses image magick `convert` to read the image (less colors).
+#  * fastresize - Much faster algo that uses SIMD. For some reason it fails on some images
+#                  where `resized` doesn't, for this reason is not replaced, but a new method.
 backend = "thumb"
 
 # What color space to use to produce and select the most prominent colors:
 #  * lab      - Use CIEL*a*b color space
 #  * labmixed - Variant of lab that mixes colors, if not enough colors it fallbacks
-#               to usual lab, for that reason is not recommended in small images
-#  * labfast  - Variant of lab which ignores decimals, leading to faster result
-#               but might not precise (could generate not enough colors)
+#                to usual lab, for that reason is not recommended in small images
+#  * labfast  - Variant of lab which ignores decimals, leading to a faster but not
+#                that much precise result. Images that work on lab/labmixed could
+#                not have "enough colors" for labfast.
 color_space = "labmixed"
 
 # Difference between similar colors, used by the colorspace:
