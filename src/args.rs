@@ -44,6 +44,10 @@ pub enum Subcmds {
         #[arg(short, long)]
         skip_sequences: bool,
 
+        /// Skip templating process
+        #[arg(short = 'T', long)]
+        skip_templates: bool,
+
         /// Specify a custom format. Without this option, wallust will sequentially try to decode
         /// it by trying one by one.
         #[arg(short, long)]
@@ -65,6 +69,10 @@ pub enum Subcmds {
         #[arg(short, long)]
         skip_sequences: bool,
 
+        /// Skip templating process
+        #[arg(short = 'T', long)]
+        skip_templates: bool,
+
         /// Only preview the selected theme.
         #[arg(short, long, conflicts_with = "quiet")]
         preview: bool,
@@ -84,6 +92,10 @@ pub struct WallustArgs {
     /// Skip setting terminal sequences
     #[arg(short, long)]
     pub skip_sequences: bool,
+
+    /// Skip templating process
+    #[arg(short = 'T', long)]
+    pub skip_templates: bool,
 
     /// Generates colors even if there is a cache version of it
     //ref: <https://github.com/dylanaraps/pywal/issues/692>

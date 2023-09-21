@@ -42,7 +42,7 @@ fn main() -> Result<()> {
 
     match cli.subcmds {
         #[cfg(feature = "themes")]
-        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, preview }) => {
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview }) => {
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(theme, quiet)?;
             if ! quiet {
@@ -55,10 +55,12 @@ fn main() -> Result<()> {
             }
 
             //empty image_path cuz it's not used
-            conf.write_entry(Path::new(""), &colors, quiet)?;
+            if ! skip_templates {
+                conf.write_entry(Path::new(""), &colors, quiet)?;
+            }
             if ! quiet { colors.done() }
         },
-        Some(args::Subcmds::Cs { file, quiet, skip_sequences, format }) => {
+        Some(args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format }) => {
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
             let colors = match format {
@@ -73,7 +75,9 @@ fn main() -> Result<()> {
             }
 
             //empty image_path cuz it's not used
-            conf.write_entry(Path::new(""), &colors, quiet)?;
+            if ! skip_templates {
+                conf.write_entry(Path::new(""), &colors, quiet)?;
+            }
             if ! quiet { colors.done() }
 
         },
@@ -141,7 +145,9 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
         colors.sequences(cache_path)?;
     }
 
-    conf.write_entry(&cli.file, &colors, cli.quiet)?;
+    if ! cli.skip_templates {
+        conf.write_entry(&cli.file, &colors, cli.quiet)?;
+    }
 
     // Cache colors
     if !cli.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
