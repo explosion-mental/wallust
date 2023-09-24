@@ -10,27 +10,31 @@ use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
+/// Shadow the colorspace type (Spectrum)
+type Spec = Lab;
+
 /// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
-type Hist = Histo<Lab>;
+type Hist = Histo<Spec>;
+
 
 impl Hist {
     /// Mix similar Lab colors, to catch most similars ones.
     /// NOTE: This reduces color quantity
-    fn mix(&mut self, new: Lab) {
+    fn mix(&mut self, new: Spec) {
         self.color.l = self.color.l * 0.5 + new.l * 0.5;
         //self.color.a = self.color.a * 0.5 + new.a * 0.5;
         //self.color.b = self.color.b * 0.5 + new.b * 0.5;
     }
 }
 
-impl From<Lab> for Myrgb {
-    fn from(lab: Lab) -> Self {
+impl From<Spec> for Myrgb {
+    fn from(lab: Spec) -> Self {
         let a = lab.to_rgb();
         Self(a[0], a[1], a[2])
     }
 }
 
-impl From<Myrgb> for Lab {
+impl From<Myrgb> for Spec {
     fn from(c: Myrgb) -> Self {
         Lab::from_rgb(&[c.0, c.1, c.2])
     }
@@ -38,7 +42,7 @@ impl From<Myrgb> for Lab {
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Lab, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
+fn is_present(color: Spec, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
     for e in histogram {
         // if any lab value is between a threshold, count it up
         if delta_e(color, e.color) < threshold.into() {
@@ -51,12 +55,12 @@ fn is_present(color: Lab, histogram: &mut [Hist], threshold: u8, mix: bool) -> b
 }
 
 /// This doesn't `Histo.mix()`, so no need for mutability
-fn is_present_no_mut(color: Lab, histogram: &[Hist], threshold: u8) -> bool {
+fn is_present_no_mut(color: Spec, histogram: &[Hist], threshold: u8) -> bool {
     histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
 }
 
 /// ColorSpaces for the [`Lab`] with floating numbers (more precise)
-impl CSpaces for Cols<Lab, f32> {
+impl CSpaces for Cols<Spec, f32> {
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
         let darkest_lab = f32::from(threshold) * 0.3;
         let lightest_lab = 100.0 - darkest_lab;
@@ -105,7 +109,7 @@ impl CSpaces for Cols<Lab, f32> {
             //similar to how it's done at the start of `lab()`
             // save the new colors, or discard them if similar enough
             for i in new {
-                let lab: Lab = i.into();
+                let lab: Spec = i.into();
                 if lab.l <  darkest_lab
                 || lab.l > lightest_lab
                 || is_present_no_mut(lab, &histo, threshold) {
@@ -127,7 +131,7 @@ impl CSpaces for Cols<Lab, f32> {
 }
 
 /// ColorSpaces for the [`Lab`] with unsigned integers (faster but more margin of error)
-impl CSpaces for Cols<Lab, u32> {
+impl CSpaces for Cols<Spec, u32> {
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {
         let darkest_lab = f32::from(threshold) * 0.3;
         let lightest_lab = (100.0 - darkest_lab) as u32;
@@ -178,7 +182,7 @@ impl CSpaces for Cols<Lab, u32> {
             //similar to how it's done at the start of `lab()`
             // save the new colors, or discard them if similar enough
             for i in new {
-                let lab: Lab = i.into();
+                let lab: Spec = i.into();
                 //ignore really dark/light colors
                 if (lab.l as u32) < darkest_lab
                 || (lab.l as u32) > lightest_lab
@@ -205,7 +209,7 @@ impl CSpaces for Cols<Lab, u32> {
 /// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
 /// (by criterion),
 #[inline]
-fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
+fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
     //delta_2000(lab_0, lab_1) as u32
     delta_1994(lab_0, lab_1) as u32
 }
@@ -213,7 +217,7 @@ fn delta_e(lab_0: Lab, lab_1: Lab) -> u32 {
 /// the 1994 simple euclidean formula
 #[allow(dead_code)]
 #[inline]
-fn delta_1994(current: Lab, previous: Lab) -> f32 {
+fn delta_1994(current: Spec, previous: Spec) -> f32 {
     (   ((previous.l - current.l).powf(2.0))
     +   ((previous.a - current.a).powf(2.0))
     +   ((previous.b - current.b).powf(2.0)) ).sqrt()
@@ -222,7 +226,7 @@ fn delta_1994(current: Lab, previous: Lab) -> f32 {
 /// the 2000 delta method, from <https://github.com/ryanobeirne/deltae>
 #[allow(dead_code)]
 #[inline]
-fn delta_2000(lab_0: Lab, lab_1: Lab) -> f32 {
+fn delta_2000(lab_0: Spec, lab_1: Spec) -> f32 {
 
     let get_h_prime = |a: f32, b: f32| -> f32 {
         let h_prime = b.atan2(a).to_degrees();
