@@ -14,8 +14,9 @@ use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
-/// This is how the scheme it's organized
-#[derive(Serialize, Deserialize, Copy, Clone)]
+/// This is how the scheme it's organized, the `cursor` field it's the same as the foreground (only
+/// put to be compatible with pywal)
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct Colors {
     pub background: Myrgb,
     pub foreground: Myrgb,
@@ -38,7 +39,7 @@ pub struct Colors {
 }
 
 /// Type that every backend should return
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Myrgb(pub u8, pub u8, pub u8);
 
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
