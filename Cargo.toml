@@ -1,6 +1,5 @@
 [package]
 name = "wallust"
-# name = "wal" # TODO drop in replacement for wal
 version = "2.6.2"
 edition = "2021"
 license = "MIT"
