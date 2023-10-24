@@ -27,6 +27,8 @@ pub struct Config {
     pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
+    /// Optional alpha value
+    pub alpha: Option<u8>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]
@@ -35,7 +37,6 @@ pub struct Config {
     /// Config file (wallust.toml) path
     #[serde(skip)]
     pub file: PathBuf,
-
 }
 
 /// An entry within the config file, toml table
@@ -155,6 +156,10 @@ impl Config {
 
         if let Some(t) = cli.threshold {
             self.threshold = t as u8; //t is [1..=100]
+        }
+
+        if let Some(a) = cli.alpha {
+            self.alpha = Some(a as u8);
         }
     }
 

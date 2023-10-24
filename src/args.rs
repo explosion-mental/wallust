@@ -129,4 +129,8 @@ pub struct WallustArgs {
     /// Custom filter (ignores config file)
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
+
+    /// Alpha value (default is 100)
+    #[arg(short, long, value_parser = 0..=100)]
+    pub alpha: Option<i64>,
 }

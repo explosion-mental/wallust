@@ -52,7 +52,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             continue;
         }
 
-        let val = values.to_hash(image_path);
+        let val = values.to_hash(image_path, conf.alpha.unwrap_or(100));
 
         let rendered =
             new_string_template::template::Template::new(file_content).render_nofail(&val)
@@ -77,13 +77,13 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
 }
 
 impl Colors {
-    pub fn to_hash(&self, image_path: &Path) -> HashMap<&str, String> {
+    pub fn to_hash(&self, image_path: &Path, alpha: u8) -> HashMap<&str, String> {
         let mut map = HashMap::new();
         //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
         //full path to the image
         map.insert("wallpaper", image_path.display().to_string());
-        map.insert("alpha", 100.to_string());
+        map.insert("alpha", alpha.to_string());
 
         // normal output `#EEEEEE`
         map.insert("color0" , self.color0 .to_string());
