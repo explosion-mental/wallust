@@ -112,6 +112,7 @@ color15='#0F0000'
         filter: wallust::filters::Filters::Dark,
         backend: wallust::backends::Backend::Thumb,
         color_space: wallust::colorspaces::ColorSpaces::Lab,
+        alpha: None,
     };
 
     let e = c.entry.as_ref().unwrap();
