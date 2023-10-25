@@ -84,6 +84,8 @@ impl Colors {
         //full path to the image
         map.insert("wallpaper", image_path.display().to_string());
         map.insert("alpha", alpha.to_string());
+        map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
+        //map.insert("alpha_hex", format!("{:.02x}",  ((f32::from(alpha) / 100.0)  * 255.0) as i32 ));
 
         // normal output `#EEEEEE`
         map.insert("color0" , self.color0 .to_string());
