@@ -1,5 +1,6 @@
 # wallust 2.7.*
 # -- global space -- #
+# values below can be overwritten by command line flags
 
 # How the image is parse, in order to get the colors:
 #  * full       - Reads the whole image (more precision, slower).
@@ -35,6 +36,9 @@ threshold = 20
 #  * light16   - same as light but displays 16 colors
 #  * softlight - counterpart of `harddark`
 filter = "dark16"
+
+# Hardcoded value for `alpha` in templates, in case you use it. Optional
+#alpha = 100
 
 # Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
 # [[entry]]
