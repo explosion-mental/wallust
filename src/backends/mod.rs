@@ -31,6 +31,7 @@ pub enum Backend {
     Wal,
     /// Faster algo than the `resized` module, hardcoded to 512x512
     Thumb,
+    #[clap(alias = "fast-resize")]
     #[serde(alias = "fast-resize")]
     /// A much faster resize algo that uses SIMD
     FastResize
