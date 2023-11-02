@@ -185,6 +185,17 @@ cargo install wallust
 ```
 This will use the lastest version
 
+## Packaging
+
+Binary-based distros can grab the latest pre-compiled binary from the [releases
+page](https://codeberg.org/explosion-mental/wallust/releases).
+
+Source-based distros, if they wish to build `wallust` from source, must ensure
+that the following dependencies are available:
+
+- Build Dependencies:
+	1. Rust (`cargo`, `rustc`)
+
 ## Contribute!
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
 
