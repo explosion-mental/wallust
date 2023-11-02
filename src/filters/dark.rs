@@ -2,24 +2,29 @@
 //! Default method to generate colors. Sorted by [`LightFirst`]
 use crate::filters::*;
 
+/// This parser only needs 6 colors [0..=5]
 pub fn dark(c: &[Myrgb]) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
-    // This parser only needs 6 colors [0..=5]
+    // this corresponds to [`LightFirst`] [`ColorOrder`]
     let lightest = c.first().expect("not empty");
     let darkest = c.last().expect("not empty");
 
     let bg = darkest.darken(0.8);
     let fg = lightest.lighten(0.65);
 
-    let col7  = lightest.blend(ee);
-    let col15 = lightest.blend(ee).darken(0.2);
-
-    let col8  = col7.darken(0.30); //color 8 needs to be a bit brighter to contrast color0 and background
-
-    // darken the background color slightly, just like pywal
+    // get the first char of the darkest color
     let f = format!("{:02x}", darkest.0).chars().last().expect("garanted to have 2 elements by the fmt");
+
+    // Darken the background color slightly, just like pywal
     let col0  = if f != '0' { bg } else { darkest.darken(0.4) };
+
+    let col7  = lightest.blend(ee);
+
+    //color 8 needs to be a bit brighter to contrast color0 and background
+    let col8  = col7.darken(0.30);
+
+    let col15 = lightest.blend(ee).darken(0.2);
 
     Colors {
         background : bg, // background
