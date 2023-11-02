@@ -24,7 +24,7 @@ pub fn dark(c: &[Myrgb]) -> Colors {
     //color 8 needs to be a bit brighter to contrast color0 and background
     let col8  = col7.darken(0.30);
 
-    let col15 = lightest.blend(ee).darken(0.2);
+    let col15 = lightest.blend(ee);
 
     Colors {
         background : bg, // background
