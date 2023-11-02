@@ -537,3 +537,54 @@ impl From<Vec<u8>> for Myrgb {
         Myrgb(v[0], v[1], v[2])
     }
 }
+
+
+/// Make [`Colors`] possible to `.iter()` into it.
+/// The order of the index is simple and will always be:
+/// * [0]-[15] => colors from 0 to 15
+/// * [16] => background
+/// * [17] => foreground
+impl IntoIterator for Colors {
+    type Item = Myrgb;
+    type IntoIter = ColorsIntoIter;
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter {
+            me: self,
+            index: 0,
+        }
+    }
+}
+
+pub struct ColorsIntoIter {
+    me: Colors,
+    index: usize,
+}
+
+impl Iterator for ColorsIntoIter {
+    type Item = Myrgb;
+    fn next(&mut self) -> Option<Myrgb> {
+        let result = match self.index {
+            0  => self.me.color0,
+            1  => self.me.color1,
+            2  => self.me.color2,
+            3  => self.me.color3,
+            4  => self.me.color4,
+            5  => self.me.color5,
+            6  => self.me.color6,
+            7  => self.me.color7,
+            8  => self.me.color8,
+            9  => self.me.color9,
+            10 => self.me.color10,
+            11 => self.me.color11,
+            12 => self.me.color12,
+            13 => self.me.color13,
+            14 => self.me.color14,
+            15 => self.me.color15,
+            16 => self.me.background,
+            17 => self.me.foreground,
+            _ => return None,
+        };
+        self.index += 1;
+        Some(result)
+    }
+}
