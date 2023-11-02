@@ -1,8 +1,8 @@
 //! # dark
-//! Default method to generate colors. Sorted by [`LightFirst`]
+//! Default method to generate colors.
 use crate::filters::*;
 
-/// This parser only needs 6 colors [0..=5]
+/// This parser only needs 6 colors [0..=5]. Sorted by [`LightFirst`]
 pub fn dark(c: &[Myrgb]) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
