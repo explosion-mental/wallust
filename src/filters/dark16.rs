@@ -1,52 +1,20 @@
 //! # dark16
-//! Variation of dark with 16 colors. From <https://github.com/eylles/pywal16>
-//! **tldr; darkens the first row a bit.**
-//! The first row (color 0 - 7) is darker, and the later (color 8 - 15) are left alone.
-//! This is to make constranst between those (they got the same hue).
-//! Sorted by [`LightFirst`]
 use crate::filters::*;
 
+/// **tldr; darkens the first row a bit.**
+/// The first row (color 0 - 7) is darker, and the later (color 8 - 15) are left alone.
+/// This is to make constranst between those (they got the same hue).
+/// Sorted by [`LightFirst`]
+/// Variation of dark with 16 colors. From <https://github.com/eylles/pywal16>
 pub fn dark16(c: &[Myrgb]) -> Colors {
-    let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
+    let mut c = super::dark::dark(c);
 
-    // This parser only needs 6 colors [0..=5]
-    let lightest = c.first().expect("not empty");
-    let darkest = c.last().expect("not empty");
+    c.color1 = c.color1.darken(0.25);
+    c.color2 = c.color2.darken(0.25);
+    c.color3 = c.color3.darken(0.25);
+    c.color4 = c.color4.darken(0.25);
+    c.color5 = c.color5.darken(0.25);
+    c.color6 = c.color6.darken(0.25);
 
-    let bg = darkest.darken(0.8);
-    let fg = lightest.lighten(0.65);
-
-    let col7  = lightest.blend(ee);
-    let col15 = lightest.blend(ee).darken(0.2);
-
-    let col8  = col7.darken(0.30); //color 8 needs to be a bit brighter to contrast color0 and background
-
-    // darken the background color slightly, just like pywal
-    let f = format!("{:02x}", darkest.0).chars().last().expect("garanted to have 2 elements by the fmt");
-    let col0  = if f != '0' { bg } else { darkest.darken(0.4) };
-
-    Colors {
-        background : bg, // background
-        foreground : fg,
-
-        /* First row */
-        color0 : col0, // background
-        color1 : c[5].darken(0.25),
-        color2 : c[4].darken(0.25),
-        color3 : c[3].darken(0.25),
-        color4 : c[2].darken(0.25),
-        color5 : c[1].darken(0.25),
-        color6 : c[0].darken(0.25),
-        color7 : col7, // fg
-
-        /* Second row */
-        color8 : col8, // brighter than col0
-        color9 : c[5],
-        color10: c[4],
-        color11: c[3],
-        color12: c[2],
-        color13: c[1],
-        color14: c[0],
-        color15: col15, //a little darken than col7
-    }
+    c
 }
