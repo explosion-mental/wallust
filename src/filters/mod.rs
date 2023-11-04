@@ -5,6 +5,13 @@
 //! code. The scenario in which an image has less than those colors is possible and already handled in
 //! the [`colorspaces`] module, so don't bother with that.
 //!
+//! # Adding a new filter
+//! To integrate a new filter you have in mind, there are X rules:
+//!  1. The name of the filter should be as the filename and function name.
+//!  2. Comments indicating the [`ColorOrder`], what does the filter do and how it does it, should
+//!     be in a doc comment of the function itself.
+//!  3. If it's a variation of an already existing filter, it should be indicated as a comment.
+//!
 //! * TODO maybe on v3.0.0 change name to scheme, which sounds better.
 //! * XXX would other filters need more than 6 (or even 8) colors? if so, change the return type to
 //!   `Result<Colors>` or just fallback to a scheme
