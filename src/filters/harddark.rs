@@ -1,8 +1,8 @@
 //! # harddark
-//! dark background, light foreground, with dark hard hued colors.
-//! Sorted by [`DarkFirst`]
 use crate::filters::*;
 
+/// dark background, light foreground, with dark hard hued colors.
+/// Sorted by [`DarkFirst`]
 pub fn harddark(c: &[Myrgb]) -> Colors {
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 

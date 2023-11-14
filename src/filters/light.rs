@@ -1,7 +1,7 @@
 //! # light
-//! light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 use crate::filters::*;
 
+/// light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 pub fn light(c: &[Myrgb]) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");

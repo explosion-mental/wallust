@@ -1,9 +1,9 @@
 //! # softlight
-//! light background, dark foreground. Uses the lightest colors, might not give enough contrast.
-//! Sorted by [`LightFirst`]
 
 use crate::filters::*;
 
+/// light background, dark foreground. Uses the lightest colors, might not give enough contrast.
+/// Sorted by [`LightFirst`]
 pub fn softlight(c: &[Myrgb]) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");

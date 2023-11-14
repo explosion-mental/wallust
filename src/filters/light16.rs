@@ -1,8 +1,8 @@
 //! # light16
-//! Variation of the [`light`] scheme, but with a 16 variation, similar to how [`dark16`] does it.
-//! Sorted by [`DarkFirst`]
 use crate::filters::*;
 
+/// Variation of the [`light`] scheme, but with a 16 variation, similar to how [`dark16`] does it.
+/// Sorted by [`DarkFirst`]
 pub fn light16(c: &[Myrgb]) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");
