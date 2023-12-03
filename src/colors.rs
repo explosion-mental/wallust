@@ -199,6 +199,43 @@ impl Colors {
         );
     }
 
+    /// Return the colors into sequences.
+    pub fn to_seq(&self) -> String {
+        let c = self;
+
+        [
+            // colors from 0-15
+            c.color0 .set_color(0 ),
+            c.color1 .set_color(1 ),
+            c.color2 .set_color(2 ),
+            c.color3 .set_color(3 ),
+            c.color4 .set_color(4 ),
+            c.color5 .set_color(5 ),
+            c.color6 .set_color(6 ),
+            c.color7 .set_color(7 ),
+            c.color8 .set_color(8 ),
+            c.color9 .set_color(9 ),
+            c.color10.set_color(10),
+            c.color11.set_color(11),
+            c.color12.set_color(12),
+            c.color13.set_color(13),
+            c.color14.set_color(14),
+            c.color15.set_color(15),
+
+            // special colors, see above the fn
+            c.foreground.set_special(10, "g"),
+            c.background.set_special(11, "h"),
+            c.foreground.set_special(12, "l"), //cursor
+            c.foreground.set_special(13, "j"), //mouse
+            c.foreground.set_special(17, "k"),
+            c.background.set_special(19, "m"),
+            c.background.set_color(232),
+            c.foreground.set_color(256),
+            c.background.set_color(257),
+            c.background.set_special(708, "")
+        ].join("")
+    }
+
     /// # Sets terminal colors
     /// ANSI escape codes tables and helpful guidelines:
     /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
@@ -238,37 +275,7 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
     let seq_file = cache_path.join("wallust/sequences");
 
-    let sequences = [
-        // colors from 0-15
-        c.color0 .set_color(0 ),
-        c.color1 .set_color(1 ),
-        c.color2 .set_color(2 ),
-        c.color3 .set_color(3 ),
-        c.color4 .set_color(4 ),
-        c.color5 .set_color(5 ),
-        c.color6 .set_color(6 ),
-        c.color7 .set_color(7 ),
-        c.color8 .set_color(8 ),
-        c.color9 .set_color(9 ),
-        c.color10.set_color(10),
-        c.color11.set_color(11),
-        c.color12.set_color(12),
-        c.color13.set_color(13),
-        c.color14.set_color(14),
-        c.color15.set_color(15),
-
-        // special colors, see above the fn
-        c.foreground.set_special(10, "g"),
-        c.background.set_special(11, "h"),
-        c.foreground.set_special(12, "l"), //cursor
-        c.foreground.set_special(13, "j"), //mouse
-        c.foreground.set_special(17, "k"),
-        c.background.set_special(19, "m"),
-        c.background.set_color(232),
-        c.foreground.set_color(256),
-        c.background.set_color(257),
-        c.background.set_special(708, "")
-    ].join("");
+    let sequences = c.to_seq();
 
     // set iterm on mac
     #[cfg(target_os = "macos")]

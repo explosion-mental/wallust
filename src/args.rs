@@ -90,7 +90,7 @@ pub struct WallustArgs {
     pub quiet: bool,
 
     /// Skip setting terminal sequences
-    #[arg(short, long)]
+    #[arg(short, long, conflicts_with = "update_current")]
     pub skip_sequences: bool,
 
     /// Skip templating process
@@ -133,4 +133,8 @@ pub struct WallustArgs {
     /// Alpha value (default is 100)
     #[arg(short, long, value_parser = 0..=100)]
     pub alpha: Option<i64>,
+
+    /// Only update the current terminal
+    #[arg(short, long, conflicts_with = "skip_sequences")]
+    pub update_current: bool,
 }

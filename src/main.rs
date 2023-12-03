@@ -140,9 +140,14 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     }
 
     // Set sequences
-    if ! cli.skip_sequences {
+    if ! cli.skip_sequences && ! cli.update_current {
         if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
         colors.sequences(cache_path)?;
+    }
+
+    if cli.update_current {
+        if ! cli.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+        print!("{}", colors.to_seq());
     }
 
     if ! cli.skip_templates {
