@@ -11,8 +11,10 @@ use super::softlight::softlight;
 pub fn softdark(c: &[Myrgb]) -> Colors {
 
     let mut ret = softlight(c);
-    let fg = ret.background;
-    let bg = ret.foreground;
+
+    //lighten fg to maintain a good contrast and darken a bit the bg (super safe)
+    let fg = ret.background.lighten(0.35);
+    let bg = ret.foreground.darken(0.2);
 
     ret.background = bg;
     ret.foreground = fg;
