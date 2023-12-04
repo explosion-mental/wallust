@@ -173,7 +173,9 @@ impl Config {
             self.alpha = Some(a as u8);
         }
 
-        self.check_contrast = Some(cli.check_contrast);
+        if cli.check_contrast {
+            self.check_contrast = Some(cli.check_contrast);
+        }
     }
 
     /// thershold color for owo_colors
