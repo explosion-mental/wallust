@@ -113,11 +113,19 @@ impl Config {
     }
 
     pub fn print(&self) {
+
+        let k = if self.check_contrast.unwrap_or(false) {
+            format!("\n[{}] {}: Doing extra calculations to ensure a good contrast",
+                "I".blue().bold(),
+                "contrast".magenta().bold()
+                )
+        } else { "".to_string() };
+
         println!(
 "[{i}] {back_f}: Using {back} backend parser
 [{i}] {th_f}: Using delta of {th} in between colors
 [{i}] {cs_f}: Using {cs} colorspace variation
-[{i}] {filter_f}: Using {filter} scheme filter",
+[{i}] {filter_f}: Using {filter} scheme filter{k}",
             back     = self.backend.bold().color(self.backend.col()),
             th       = self.threshold.bold().color(self.threshold_col()),
             filter   = self.filter.bold().color(self.filter.col()),
@@ -164,6 +172,8 @@ impl Config {
         if let Some(a) = cli.alpha {
             self.alpha = Some(a as u8);
         }
+
+        self.check_contrast = Some(cli.check_contrast);
     }
 
     /// thershold color for owo_colors

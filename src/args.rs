@@ -126,6 +126,10 @@ pub struct WallustArgs {
     #[arg(short, long, value_parser = 1..=100)]
     pub threshold: Option<i64>,
 
+    /// Custom check_contrast (ignores config file)
+    #[arg(short = 'k', long)]
+    pub check_contrast: bool,
+
     /// Custom filter (ignores config file)
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
