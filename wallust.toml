@@ -40,6 +40,13 @@ filter = "dark16"
 # Hardcoded value for `alpha` in templates, in case you use it. Optional
 #alpha = 100
 
+# ONLY ENABLE IF YOU NEEDED (adds extra operations)
+# Ensures a "readable contrast" between background and foreground, meaning it
+# alters these values until it's "readable" enough.
+# Should only be enables when you notice an unreadable contrast frequently happening with your images.
+# (disabled by default)
+#check_contrast = true
+
 # Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
 # [[entry]]
 # # a relative path to a file where wallust.toml is (~/.config/wallust/)

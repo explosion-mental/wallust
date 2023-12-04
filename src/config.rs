@@ -29,6 +29,9 @@ pub struct Config {
     pub entry: Option<Vec<Entries>>,
     /// Optional alpha value
     pub alpha: Option<u8>,
+    /// This flags ensures good contrast between images, by doing some w3m calculations.
+    /// However it isn't required and should only be turn on when you notice bad contrast between many images.
+    pub check_contrast: Option<bool>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]

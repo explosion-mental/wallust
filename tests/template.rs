@@ -102,6 +102,7 @@ color15='#0F0000'
 
     // usual config
     let c = config::Config {
+        check_contrast: None,
         dir: tmpdir.path().into(),
         entry: Some(vec![config::Entries {
             template: template_path.display().to_string(),

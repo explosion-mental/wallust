@@ -180,7 +180,15 @@ fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)>
     let (top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, sort_ord)?;
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
-    let colors = filters::main(&c.filter)(&top);
+    let mut colors = filters::main(&c.filter)(&top);
+
+    if c.check_contrast.unwrap_or(false) {
+        // loop until it's a good contrast
+        while colors.check_contrast() == false {
+            colors.background = colors.background.darken(0.15);
+            colors.foreground = colors.foreground.lighten(0.15);
+        }
+    }
 
     Ok((colors, warn))
 }

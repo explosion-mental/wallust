@@ -11,6 +11,7 @@ use std::io::Write;
 use std::path::Path;
 
 use anyhow::Result;
+use num_traits::Pow;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
@@ -197,6 +198,48 @@ impl Colors {
         "E ".color(self.color1 .col()).bold().blink(),
         "! ".color(self.color0 .col()).bold().blink(),
         );
+    }
+
+    /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
+    /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
+    pub fn check_contrast(&self) -> bool {
+        const C1: f32 = 0.03928;
+        const GAMMA: f32 = 2.4;
+        const RED: f32 = 0.2126;
+        const GREEN: f32 = 0.7152;
+        const BLUE: f32 = 0.0722;
+
+        fn luminance(a: Myrgb) -> f32 {
+            //       r     g     b
+            let orig = [a.0, a.1, a.2];
+            let mut new = [0.0, 0.0, 0.0];
+
+            for (i, v) in orig.into_iter().enumerate() {
+                new[i] = f32::from(v) / 255.0;
+
+                if new[i] <= C1 {
+                    new[i] = new[i] / 12.02
+                } else {
+                    new[i] = (new[i] + 0.055 / 1.055).pow(GAMMA)
+                }
+            }
+            new[0] * RED +
+            new[1] * GREEN +
+            new[2] * BLUE
+        }
+
+        let lum1 = luminance(self.background);
+        let lum2 = luminance(self.foreground);
+        let brightest = f32::max(lum1, lum2);
+        let darkest = f32::min(lum1, lum2);
+        let ratio = (brightest + 0.05) / (darkest + 0.05);
+
+        // Currently the threshold is hardcoded
+        if ratio < 4.5 {
+            false
+        } else {
+            true
+        }
     }
 
     /// Return the colors into sequences.
