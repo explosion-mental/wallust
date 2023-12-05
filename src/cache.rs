@@ -33,8 +33,29 @@ impl fmt::Display for Cache {
 const CACHE_VER: &str = "1.1";
 
 impl Cache {
-    /// init cache
+    /// # Cache directory structure
+    /// 1. Root, determined by OS
+    /// 2. "wallust"
+    /// 3. backend
+    /// 4. colorspace
+    /// 5. filter
+    /// 6. threshold
+    /// # File structure:
+    /// 1. filename (no extentions)
+    /// 2. size
+    /// 3. inode number on Linux, file attributes on Windows
+    /// 4. check-contrast -> "C" if true, "" if false
+    /// 5. [`CACHE_VER`]
     pub fn new(filename: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
+
+
+        // A possible solution to caching a checked/unchecked contrast without cache duplication and
+        // possible efficiency loss
+        // enum Contrast {
+        //     Checked,
+        //     Unchecked,
+        //     UncheckedAndGood,
+        // }
 
         let Some(name) = filename.file_name() else {
             anyhow::bail!("Using '..' as a parameter is not supported");
@@ -63,10 +84,11 @@ impl Cache {
         let num = md.file_attributes() ;
 
         // The following generates a hash name from a filename and it's `stat` attrs
-        let hash_name = format!("{base}_{size}_{magic}_{version}.json",
+        let hash_name = format!("{base}_{size}_{magic}_{con}{version}.json",
             base = name.to_string_lossy(),
             size = md.len(),
             magic = num,
+            con = if c.check_contrast.unwrap_or(false) { "C_" } else { "" },
             version = CACHE_VER,
         );
 
