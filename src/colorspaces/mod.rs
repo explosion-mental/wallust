@@ -52,11 +52,11 @@ pub enum ColorOrder {
 pub enum ColorSpaces {
     /// Uses Cie L*a*b color space
     Lab,
-    #[clap(alias = "lab-mixed")]
+    #[clap(alias = "lab-mixed", name = "labmixed")] //claps prefers this-name
     #[serde(alias = "lab-mixed")]
     /// Same as `lab` but mixes the colors gathered
     LabMixed,
-    #[clap(alias = "lab-fast")]
+    #[clap(alias = "lab-fast", name = "labfast")]
     #[serde(alias = "lab-fast")]
     /// Avoids floating arithmetic, thus, faster operations
     LabFast,

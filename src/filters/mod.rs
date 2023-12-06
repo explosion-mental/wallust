@@ -42,7 +42,7 @@ pub enum Filters {
     Dark,
     /// Dark bg and fg with some opaque variations, making 16 colors
     Dark16,
-    #[clap(alias = "hard-dark")]
+    #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
     #[serde(alias = "hard-dark")]
     /// Dark with hard hue colors
     HardDark,
@@ -50,11 +50,11 @@ pub enum Filters {
     Light,
     /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
-    #[clap(alias = "soft-light")]
+    #[clap(alias  = "soft-light", name = "softlight")]
     #[serde(alias = "soft-light")]
     /// Light with soft pastel colors
     SoftLight,
-    #[clap(alias = "soft-dark")]
+    #[clap(alias  = "soft-dark", name = "softdark")]
     #[serde(alias = "soft-dark")]
     /// Similar to [`Dark`] but with the colors inversed
     SoftDark,
