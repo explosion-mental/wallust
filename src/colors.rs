@@ -144,6 +144,30 @@ impl Myrgb {
         format!("\x1B]{index};{self}\x1B\\")
     }
 
+    fn luminance(&self) -> f32 {
+        const GAMMA: f32 = 2.4;
+        const RED: f32 = 0.2126;
+        const GREEN: f32 = 0.7152;
+        const BLUE: f32 = 0.0722;
+        let a = self;
+
+        let a = [
+            f32::from(a.0), //r
+            f32::from(a.1), //g
+            f32::from(a.2), //b
+        ].map(|mut x| {
+            x /= 255.0;
+            return if x <= 0.03928 {
+                x / 12.92
+            } else {
+                (x + 0.055 / 1.055).pow(GAMMA)
+            }
+        });
+
+        a[0] * RED +
+            a[1] * GREEN +
+            a[2] * BLUE
+    }
 }
 
 impl Colors {
@@ -216,41 +240,17 @@ impl Colors {
         }
     }
 
+    /// Currently the ratio is hardcoded
+    const RATIO: f32 = 4.5;
+
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
     pub fn check_contrast(&self) -> bool {
-        const GAMMA: f32 = 2.4;
-        const RED: f32 = 0.2126;
-        const GREEN: f32 = 0.7152;
-        const BLUE: f32 = 0.0722;
+        if contrast(self.background, self.foreground) < Self::RATIO { false } else { true }
+    }
 
-        fn luminance(a: Myrgb) -> f32 {
-            let a = [
-                f32::from(a.0), //r
-                f32::from(a.1), //g
-                f32::from(a.2), //b
-            ].map(|mut x| {
-                x /= 255.0;
-                return if x <= 0.03928 {
-                    x / 12.92
-                } else {
-                    (x + 0.055 / 1.055).pow(GAMMA)
-                }
-            });
-
-            a[0] * RED +
-            a[1] * GREEN +
-            a[2] * BLUE
-        }
-
-        let lum1 = luminance(self.background);
-        let lum2 = luminance(self.foreground);
-        let brightest = f32::max(lum1, lum2);
-        let darkest   = f32::min(lum1, lum2);
-        let ratio = (brightest + 0.05) / (darkest + 0.05);
-
-        // Currently the threshold is hardcoded
-        if ratio < 4.5 { false } else { true }
+    pub fn check_contrast_bold(&self) -> bool {
+        if contrast(self.background, self.color6) < Self::RATIO { false } else { true }
     }
 
     /// Return the colors into sequences.
@@ -301,6 +301,17 @@ impl Colors {
         #[cfg(target_family = "unix")]
         return unix_term(self, cache_path);
     }
+}
+
+/// returns the ratio between the two colors
+fn contrast(a: Myrgb, b: Myrgb) -> f32 {
+        let lum1 = a.luminance();
+        let lum2 = b.luminance();
+
+        let brightest = f32::max(lum1, lum2);
+        let darkest   = f32::min(lum1, lum2);
+
+        (brightest + 0.05) / (darkest + 0.05)
 }
 
 /// Set iTerm2 tab/window color
