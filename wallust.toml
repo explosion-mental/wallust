@@ -28,14 +28,20 @@ color_space = "labfast"
 #  100        Colors are exact opposite
 threshold = 20
 
+# NOTE: All filters will fill 16 colors (from color0 to color15), 16 color
+#       variations are the 'ilusion' of more colors by opaquing color1 to color5.
 # Use the most prominent colors in a way that makes sense, a scheme:
-#  * dark      - 8 dark colors, color0 darkest - color7 lightest, dark background light contrast
-#  * dark16    - same as dark but it displays 16 colors
-#  * harddark  - same as dark but with darker hard hue colors
-#  * light     - 8 light colors, color0 lightest - color7 darkest, light background dark contrast
-#  * light16   - same as light but displays 16 colors
-#  * softlight - counterpart of `harddark`
-filter = "dark16"
+#  * dark        - 8 dark colors, color0 darkest - color7 lightest, dark background light contrast
+#  * dark16      - same as dark but it displays 16 colors
+#  * harddark    - same as dark but with darker hard hue colors
+#  * harddark16  - same as dark but with darker hard hue colors
+#  * light       - 8 light colors, color0 lightest - color7 darkest, light background dark contrast
+#  * light16     - same as light but displays 16 colors
+#  * softdark    - variant of softlight, uses the lightest colors and a dark background (inversed dark)
+#  * softdark16  - softdark with 16 color variations
+#  * softlight   - counterpart of `harddark`
+#  * softlight16 - softlight with 16 color variations
+filter = "softdark16"
 
 # Hardcoded value for `alpha` in templates, in case you use it. Optional
 #alpha = 100
