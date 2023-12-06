@@ -108,7 +108,11 @@ file could be named `sample.conf`, and thus the entry would have `template =
 
 #### Variables and Methods
 - `{wallpaper}`: The full path to the current wallpaper.
-- `{alpha}`: displays 100, this is here to be compatible with pywal templates.
+- `{backend}`: Current **backend** being used.
+- `{colorspace}`: Current **colorspace** being used.
+- `{filter}`: Current **filter** being used.
+- `{alpha}`: Default to 100, can be modified in the config file or with `--alpha`/`-a`.
+- `{alpha_dec}`: instead of [0..=100], displays it from 0.00 to 1.00.
 - `{var}`: Output the color in `hex`.
 - `{var.rgb}`: Output the color in `rgb`.
 - `{var.rgba}`: Output the color in `rgba`.
@@ -118,7 +122,7 @@ file could be named `sample.conf`, and thus the entry would have `template =
 - `{var.green}`: Output the green value.
 - `{var.blue}`: Output the blue value.
 
-Where `var` can be `color0` - `color15`, `background`, `foreground` and `cursor`.
+Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
 
 
 ## Installation
