@@ -200,6 +200,22 @@ impl Colors {
         );
     }
 
+    /// A simple variation that follows the steps below, making the 'ilusion' of "more colors"
+    /// ref1: https://github.com/dylanaraps/pywal/pull/662
+    /// ref2: https://github.com/eylles/pywal16
+    pub fn to_16col(self) -> Self {
+        let c = self;
+        Self {
+            color1: c.color1.darken(0.25),
+            color2: c.color2.darken(0.25),
+            color3: c.color3.darken(0.25),
+            color4: c.color4.darken(0.25),
+            color5: c.color5.darken(0.25),
+            color6: c.color6.darken(0.25),
+            ..c
+        }
+    }
+
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
     pub fn check_contrast(&self) -> bool {
