@@ -218,7 +218,7 @@ impl Colors {
                 new[i] = f32::from(v) / 255.0;
 
                 if new[i] <= C1 {
-                    new[i] = new[i] / 12.02
+                    new[i] /= 12.02
                 } else {
                     new[i] = (new[i] + 0.055 / 1.055).pow(GAMMA)
                 }
@@ -235,11 +235,7 @@ impl Colors {
         let ratio = (brightest + 0.05) / (darkest + 0.05);
 
         // Currently the threshold is hardcoded
-        if ratio < 4.5 {
-            false
-        } else {
-            true
-        }
+        if ratio < 4.5 { false } else { true }
     }
 
     /// Return the colors into sequences.

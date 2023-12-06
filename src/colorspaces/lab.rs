@@ -112,7 +112,7 @@ impl CSpaces for Cols<Spec, f32> {
                 let lab: Spec = i.into();
                 if lab.l <  darkest_lab
                 || lab.l > lightest_lab
-                || is_present_no_mut(lab, &histo, threshold) {
+                || is_present_no_mut(lab, histo, threshold) {
                     continue;
                 } else {
                     new_cols.push(Histo { color: lab, count: 1 });
@@ -186,7 +186,7 @@ impl CSpaces for Cols<Spec, u32> {
                 //ignore really dark/light colors
                 if (lab.l as u32) < darkest_lab
                 || (lab.l as u32) > lightest_lab
-                || is_present_no_mut(lab, &histo, threshold) {
+                || is_present_no_mut(lab, histo, threshold) {
                     continue;
                 } else {
                     new_cols.push(Histo { color: lab, count: 1 });
