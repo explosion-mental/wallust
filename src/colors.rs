@@ -219,35 +219,34 @@ impl Colors {
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
     pub fn check_contrast(&self) -> bool {
-        const C1: f32 = 0.03928;
         const GAMMA: f32 = 2.4;
         const RED: f32 = 0.2126;
         const GREEN: f32 = 0.7152;
         const BLUE: f32 = 0.0722;
 
         fn luminance(a: Myrgb) -> f32 {
-            //       r     g     b
-            let orig = [a.0, a.1, a.2];
-            let mut new = [0.0, 0.0, 0.0];
-
-            for (i, v) in orig.into_iter().enumerate() {
-                new[i] = f32::from(v) / 255.0;
-
-                if new[i] <= C1 {
-                    new[i] /= 12.02
+            let a = [
+                f32::from(a.0), //r
+                f32::from(a.1), //g
+                f32::from(a.2), //b
+            ].map(|mut x| {
+                x /= 255.0;
+                return if x <= 0.03928 {
+                    x / 12.92
                 } else {
-                    new[i] = (new[i] + 0.055 / 1.055).pow(GAMMA)
+                    (x + 0.055 / 1.055).pow(GAMMA)
                 }
-            }
-            new[0] * RED +
-            new[1] * GREEN +
-            new[2] * BLUE
+            });
+
+            a[0] * RED +
+            a[1] * GREEN +
+            a[2] * BLUE
         }
 
         let lum1 = luminance(self.background);
         let lum2 = luminance(self.foreground);
         let brightest = f32::max(lum1, lum2);
-        let darkest = f32::min(lum1, lum2);
+        let darkest   = f32::min(lum1, lum2);
         let ratio = (brightest + 0.05) / (darkest + 0.05);
 
         // Currently the threshold is hardcoded
