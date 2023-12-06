@@ -9,7 +9,7 @@
 #  * wal        - Uses image magick `convert` to read the image (less colors).
 #  * fastresize - Much faster algo that uses SIMD. For some reason it fails on some images
 #                  where `resized` doesn't, for this reason is not replaced, but a new method.
-backend = "fastresize"
+backend = "resized"
 
 # What color space to use to produce and select the most prominent colors:
 #  * lab      - Use CIEL*a*b color space
@@ -18,7 +18,7 @@ backend = "fastresize"
 #  * labfast  - Variant of lab which ignores decimals, leading to a faster but not
 #                that much precise result. Images that work on lab/labmixed could
 #                not have "enough colors" for labfast.
-color_space = "labfast"
+color_space = "labmixed"
 
 # Difference between similar colors, used by the colorspace:
 #  1          Not perceptible by human eyes.
