@@ -29,10 +29,13 @@ use self::Filters as F;
 mod dark;
 mod dark16;
 mod harddark;
+mod harddark16;
 mod light;
 mod light16;
-mod softlight;
 mod softdark;
+mod softdark16;
+mod softlight;
+mod softlight16;
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
@@ -42,22 +45,34 @@ pub enum Filters {
     Dark,
     /// Dark bg and fg with some opaque variations, making 16 colors
     Dark16,
+    /// Dark with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
     #[serde(alias = "hard-dark")]
-    /// Dark with hard hue colors
     HardDark,
+    /// Harddark with 16 color variation
+    #[clap(alias  = "hard-dark16", name = "harddark16")] //clap prefers this-name
+    #[serde(alias = "hard-dark16")]
+    HardDark16,
     /// Light bg, dark fg
     Light,
     /// Same as [`Light`] but with 8 color variations, making 16 in total
     Light16,
-    #[clap(alias  = "soft-light", name = "softlight")]
-    #[serde(alias = "soft-light")]
-    /// Light with soft pastel colors
-    SoftLight,
+    /// Similar to [`Dark`] but with the colors inversed
     #[clap(alias  = "soft-dark", name = "softdark")]
     #[serde(alias = "soft-dark")]
-    /// Similar to [`Dark`] but with the colors inversed
     SoftDark,
+    /// softdark with 16 color variation
+    #[clap(alias  = "soft-dark16", name = "softdark16")]
+    #[serde(alias = "soft-dark16")]
+    SoftDark16,
+    /// Light with soft pastel colors
+    #[clap(alias  = "soft-light", name = "softlight")]
+    #[serde(alias = "soft-light")]
+    SoftLight,
+    /// softlight with 16 color variation
+    #[clap(alias  = "soft-light16", name = "softlight16")]
+    #[serde(alias = "soft-light16")]
+    SoftLight16,
 }
 
 pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
@@ -65,22 +80,25 @@ pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
         F::Dark    => dark::dark,
         F::Dark16  => dark16::dark16,
         F::HardDark => harddark::harddark,
+        F::HardDark16 => harddark16::harddark16,
         F::Light   => light::light,
         F::Light16 => light16::light16,
-        F::SoftLight => softlight::softlight,
         F::SoftDark => softdark::softdark,
+        F::SoftDark16 => softdark16::softdark16,
+        F::SoftLight => softlight::softlight,
+        F::SoftLight16 => softlight16::softlight16,
     }
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
-        F::SoftLight |
         F::Dark  | F::Dark16 |
-        F::SoftDark
+        F::SoftDark | F::SoftDark16 |
+        F::SoftLight | F::SoftLight16
         => crate::colorspaces::ColorOrder::LightFirst,
 
-        F::HardDark |
+        F::HardDark | F::HardDark16 |
         F::Light | F::Light16 => crate::colorspaces::ColorOrder::DarkFirst,
     }
 }
@@ -92,10 +110,13 @@ impl Filters {
             F::Dark => AnsiColors::Blue,
             F::Dark16 => AnsiColors::Green,
             F::HardDark => AnsiColors::Magenta,
+            F::HardDark16 => AnsiColors::Magenta,
             F::Light => AnsiColors::Yellow,
             F::Light16 => AnsiColors::Cyan,
-            F::SoftLight => AnsiColors::BrightYellow,
             F::SoftDark => AnsiColors::BrightCyan,
+            F::SoftDark16 => AnsiColors::BrightCyan,
+            F::SoftLight => AnsiColors::BrightYellow,
+            F::SoftLight16 => AnsiColors::BrightYellow,
         }
     }
 }
@@ -107,10 +128,13 @@ impl fmt::Display for Filters {
             F::Dark => write!(f, "Dark"),
             F::Dark16 => write!(f, "Dark16"),
             F::HardDark => write!(f, "HardDark"),
+            F::HardDark16 => write!(f, "HardDark16"),
             F::Light => write!(f, "Light"),
             F::Light16 => write!(f, "Light16"),
-            F::SoftLight => write!(f, "SoftLight"),
             F::SoftDark => write!(f, "SoftDark"),
+            F::SoftDark16 => write!(f, "SoftDark16"),
+            F::SoftLight => write!(f, "SoftLight"),
+            F::SoftLight16 => write!(f, "SoftLight16"),
         }
     }
 }
