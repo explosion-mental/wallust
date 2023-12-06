@@ -52,6 +52,10 @@ pub enum Subcmds {
         /// it by trying one by one.
         #[arg(short, long)]
         format: Option<Schemes>,
+
+        /// Only update the current terminal
+        #[arg(short, long, conflicts_with = "skip_sequences")]
+        update_current: bool,
     },
 
     /// Apply a custom built in theme
@@ -76,6 +80,10 @@ pub enum Subcmds {
         /// Only preview the selected theme.
         #[arg(short, long, conflicts_with = "quiet")]
         preview: bool,
+
+        /// Only update the current terminal
+        #[arg(short, long, conflicts_with = "skip_sequences")]
+        update_current: bool,
     },
 }
 

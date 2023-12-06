@@ -42,16 +42,21 @@ fn main() -> Result<()> {
 
     match cli.subcmds {
         #[cfg(feature = "themes")]
-        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview }) => {
+        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current }) => {
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(theme, quiet)?;
             if ! quiet {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview
             }
-            if ! skip_sequences {
+            if ! skip_sequences && ! update_current {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
+            }
+
+            if update_current {
+                if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+                print!("{}", colors.to_seq());
             }
 
             //empty image_path cuz it's not used
@@ -60,18 +65,23 @@ fn main() -> Result<()> {
             }
             if ! quiet { colors.done() }
         },
-        Some(args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format }) => {
+        Some(args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format, update_current }) => {
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
             let colors = match format {
-                Some(s) => themes::read_scheme(&file, s)?,
+                Some(s) => themes::read_scheme(&file, &s)?,
                 None => themes::try_all_schemes(&file)?,
             };
 
             if ! quiet { colors.print(); }
-            if ! skip_sequences {
+            if ! skip_sequences && ! update_current {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
                 colors.sequences(&cache_path)?;
+            }
+
+            if update_current {
+                if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+                print!("{}", colors.to_seq());
             }
 
             //empty image_path cuz it's not used

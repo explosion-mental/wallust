@@ -73,10 +73,12 @@ pub enum Schemes {
     Pywal,
     /// uses <https://terminal.sexy> JSON export
     TerminalSexy,
+    /// cached wallust files
+    Wallust,
 }
 
 /// reads a $file with an specified $format
-pub fn read_scheme(file: &Path, format: Schemes) -> Result<Colors> {
+pub fn read_scheme(file: &Path, format: &Schemes) -> Result<Colors> {
     let contents = std::fs::read_to_string(file)?;
 
     match format {
@@ -89,6 +91,10 @@ pub fn read_scheme(file: &Path, format: Schemes) -> Result<Colors> {
             let ser: TerminalSexy = serde_json::from_str(&contents)?;
             ser.to_colors()
         },
+        Schemes::Wallust => {
+            let ser: Colors = serde_json::from_str(&contents)?;
+            Ok(ser)
+        },
     }
 }
 
@@ -96,39 +102,31 @@ use owo_colors::{OwoColorize, AnsiColors};
 
 /// Try all possible [`Schemes`] for the file
 pub fn try_all_schemes(file: &Path) -> Result<Colors> {
-    let contents = std::fs::read_to_string(file)?;
-    let ser: Result<WalTheme, serde_json::Error> = serde_json::from_str(&contents);
     let info = "I".blue().bold().to_string();
     let cs = "colorscheme format".magenta().bold().to_string();
+    let warn = "W".red().bold().to_string();
 
-    match ser {
-        Ok(o) => {
-            let s = Schemes::Pywal;
-            println!("[{info}] {cs}: Using {}", s.to_string().to_ascii_lowercase().color(s.col()));
-            o.to_colors()
-        },
-        Err(_) => {
-            let mut errs: Vec<String> = vec![];
-            let warn = "W".red().bold().to_string();
-            errs.push(format!("[{warn}] {} is not in `pywal` format.", file.display()));
+    let a = [
+        Schemes::Pywal,
+        Schemes::TerminalSexy,
+        Schemes::Wallust,
+    ];
 
-            let ser: Result<TerminalSexy, serde_json::Error> = serde_json::from_str(&contents);
-            match ser {
-                Ok(o) => {
-                    let s = Schemes::TerminalSexy;
-                    println!("[{info}] {cs}: Using {}", s.to_string().to_ascii_lowercase().color(s.col()));
-                    o.to_colors()
-                },
-                Err(_) => {
-                    errs.push(format!("[{warn}] {} is not in `terminal-sexy` format.", file.display()));
-                    for i in errs {
-                        eprintln!("{i}");
-                    }
-                    anyhow::bail!("{} was not in the pywal or terminal-sexy format.", file.display())
-                },
-            }
+    for i in a {
+        match read_scheme(file, &i) {
+            Ok(o) => {
+                println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col()));
+                return Ok(o);
+            },
+            Err(_) => {
+                //TODO is this too annoying?
+                println!("[{warn}] {} is not in `{i}` format.", file.display());
+            },
         }
     }
+
+    //unreacheable
+    anyhow::bail!("{} was not in the pywal, terminal-sexy or wallust format.", file.display())
 }
 
 #[cfg(feature = "themes")]
@@ -164,6 +162,7 @@ impl Schemes {
         match self {
             Schemes::Pywal => AnsiColors::Blue,
             Schemes::TerminalSexy => AnsiColors::Magenta,
+            Schemes::Wallust => AnsiColors::Red,
         }
     }
 }
@@ -174,6 +173,7 @@ impl fmt::Display for Schemes {
         match self {
             Schemes::Pywal => write!(f, "Pywal"),
             Schemes::TerminalSexy => write!(f, "Terminal-Sexy"),
+            Schemes::Wallust => write!(f, "Wallust"),
         }
     }
 }
