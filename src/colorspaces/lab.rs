@@ -10,13 +10,6 @@ use crate::colorspaces::*;
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
 
-/// Shadow the colorspace type (Spectrum)
-type Spec = Lab;
-
-/// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
-type Hist = Histo<Spec>;
-
-
 impl Hist {
     /// Mix similar Lab colors, to catch most similars ones.
     /// NOTE: This reduces color quantity
@@ -39,6 +32,19 @@ impl From<Myrgb> for Spec {
         Lab::from_rgb(&[c.0, c.1, c.2])
     }
 }
+
+/// Shadow the colorspace type (Spectrum)
+type Spec = Lab;
+
+/// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
+type Hist = Histo<Spec>;
+
+/// Miminum Luminance (from L ab) required for a color to be accepted
+pub const DARKEST: f32 = 4.5;
+
+/// Maximuum Luminance (from L ab) required for a color to be accepted
+pub const LIGHTEST: f32 = 95.5;
+
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
@@ -69,14 +75,13 @@ pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
 }
 
 pub fn histo(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
-
     let mut histo: Vec<Hist> = vec![];
     let mut labs = rgb_bytes_to_labs(cols);
     labs.dedup();
 
     for lab in labs {
-        if lab.l <  GatheredCols::DARKEST //ignore really dark colors
-        || lab.l > GatheredCols::LIGHTEST //ignore really light colors
+        if lab.l <  DARKEST //ignore really dark colors
+        || lab.l > LIGHTEST //ignore really light colors
         || is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {
@@ -100,8 +105,8 @@ pub fn new_cols(histo: &mut Vec<Hist>, threshold: u8) {
         // save the new colors, or discard them if similar enough
         for i in new {
             let lab: Spec = i.into();
-            if lab.l <  GatheredCols::DARKEST
-            || lab.l > GatheredCols::LIGHTEST
+            if lab.l <  DARKEST
+            || lab.l > LIGHTEST
             || is_present_no_mut(lab, histo, threshold) {
                 continue;
             } else {
@@ -124,8 +129,8 @@ pub fn histo_lazy(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
     labs.dedup();
 
     for lab in labs {
-        if (lab.l as u32) < (GatheredCols::DARKEST as u32) //ignore really dark colors
-        || (lab.l as u32) > (GatheredCols::LIGHTEST as u32) //ignore really light colors
+        if (lab.l as u32) < (DARKEST as u32) //ignore really dark colors
+        || (lab.l as u32) > (LIGHTEST as u32) //ignore really light colors
         || is_present(lab, &mut histo, threshold, mix) {
             continue;
         } else {
@@ -150,8 +155,8 @@ pub fn new_cols_lazy(histo: &mut Vec<Hist>, threshold: u8) {
         for i in new {
             let lab: Spec = i.into();
             //ignore really dark/light colors
-            if (lab.l as u32) < (GatheredCols::DARKEST as u32)
-            || (lab.l as u32) > (GatheredCols::LIGHTEST as u32)
+            if (lab.l as u32) < (DARKEST as u32)
+            || (lab.l as u32) > (LIGHTEST as u32)
             || is_present_no_mut(lab, histo, threshold) {
                 continue;
             } else {

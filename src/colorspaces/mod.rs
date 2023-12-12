@@ -93,11 +93,6 @@ fn test() {
 }
 
 impl GatheredCols {
-    /// Miminum Luminance (from L ab) required for a color to be accepted
-    pub const DARKEST: f32 = 4.5;
-    /// Maximuum Luminance (from L ab) required for a color to be accepted
-    pub const LIGHTEST: f32 = 95.5;
-
     pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
 
         let mix = match c {
@@ -173,7 +168,6 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) ->
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
-    //let mut cols: Cols<T, U> = Cols::new(cols, threshold, mix);
     let mut cols = GatheredCols::new(cols, threshold, &c);
 
     if cols.histo.len() < 2 {
