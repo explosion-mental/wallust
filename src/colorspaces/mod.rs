@@ -76,7 +76,7 @@ struct Histo<T> {
 /// 1. Get configs (threshold and mix)
 /// 2. Get labs (from u8 -> Lab)
 /// 3. return
-pub struct GatheredCols {
+pub struct Cols {
     /// The histogram
     histo: Vec<Histo<::lab::Lab>>,
     /// explained in config.rs
@@ -92,7 +92,7 @@ pub struct GatheredCols {
 fn test() {
 }
 
-impl GatheredCols {
+impl Cols {
     /// Creates a new [`Cols`]
     pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
         let mix = match c {
@@ -159,7 +159,7 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) ->
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
-    let mut cols = GatheredCols::new(cols, threshold, &c);
+    let mut cols = Cols::new(cols, threshold, &c);
 
     if cols.histo.len() < 2 {
         anyhow::bail!(ERR_TWO_COLS);
