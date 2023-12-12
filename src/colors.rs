@@ -149,24 +149,23 @@ impl Myrgb {
         const RED: f32 = 0.2126;
         const GREEN: f32 = 0.7152;
         const BLUE: f32 = 0.0722;
-        let a = self;
 
         let a = [
-            f32::from(a.0), //r
-            f32::from(a.1), //g
-            f32::from(a.2), //b
+            f32::from(self.0), //r
+            f32::from(self.1), //g
+            f32::from(self.2), //b
         ].map(|mut x| {
             x /= 255.0;
-            return if x <= 0.03928 {
+            if x <= 0.03928 {
                 x / 12.92
             } else {
                 (x + 0.055 / 1.055).pow(GAMMA)
             }
         });
 
-        a[0] * RED +
-            a[1] * GREEN +
-            a[2] * BLUE
+        a[0] * RED   +
+        a[1] * GREEN +
+        a[2] * BLUE
     }
 }
 
