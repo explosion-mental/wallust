@@ -93,8 +93,8 @@ fn test() {
 }
 
 impl GatheredCols {
+    /// Creates a new [`Cols`]
     pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
-
         let mix = match c {
             ColorSpaces::LabMixed => true,
             _ => false,
@@ -113,12 +113,17 @@ impl GatheredCols {
         }
     }
 
+    /// Sort the colors, this depends on the colorspace being used
     pub fn sort_colors(&mut self, method: &ColorOrder) {
         match self.c {
             ColorSpaces::Lab | ColorSpaces::LabMixed | ColorSpaces::LabFast => lab::sort_colors(&mut self.histo, method),
         }
     }
 
+    /// This function is called when the colors gathered are not enough. Usually implies calling
+    /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
+    /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
+    /// than [`MAX_COLS`])
     pub fn new_cols(&mut self) {
         match self.c {
             ColorSpaces::Lab | ColorSpaces::LabMixed => lab::new_cols(&mut self.histo, self.threshold),
@@ -126,20 +131,6 @@ impl GatheredCols {
         }
     }
 
-}
-
-/// Simple functions that allows acomodating and select the most prominent colors.
-/// [`Self`] should be [`Cols`]
-pub trait CSpaces {
-    /// Creates a new [`Cols`]
-    fn new(cols: &[u8], threshold: u8, mix: bool) -> Self;
-    /// Sort the colors, this depends on the colorspace being used
-    fn sort_colors(&mut self, method: &ColorOrder);
-    /// This function is called when the colors gathered are not enough. Usually implies calling
-    /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
-    /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
-    /// than [`MAX_COLS`])
-    fn new_cols(&mut self);
 }
 
 impl ColorSpaces {
