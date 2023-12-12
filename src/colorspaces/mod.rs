@@ -71,25 +71,20 @@ struct Histo<T> {
     count: usize,
 }
 
-#[allow(dead_code)]
 /// Type that stores and abstracts away the colorspace
 /// 1. Get configs (threshold and mix)
 /// 2. Get labs (from u8 -> Lab)
 /// 3. return
+/// TODO Find a way to make this `colorspace` agnostic, in the sense that it should not require to
+///      store the `histo` per se, as this requires the [`Cols`] type to add a generic argument,
+///      threshold and colorspace doesn't seem to be useful in the `filters` stage.
 pub struct Cols {
     /// The histogram
     histo: Vec<Histo<::lab::Lab>>,
     /// explained in config.rs
     threshold: u8,
-    /// whether to mix colors or not
-    mix: bool,
     /// what are we using?
     c: ColorSpaces,
-}
-
-
-#[allow(dead_code)]
-fn test() {
 }
 
 impl Cols {
@@ -109,7 +104,6 @@ impl Cols {
             c: *c,
             histo,
             threshold,
-            mix,
         }
     }
 
@@ -129,6 +123,11 @@ impl Cols {
             ColorSpaces::Lab | ColorSpaces::LabMixed => lab::new_cols(&mut self.histo, self.threshold),
             ColorSpaces::LabFast => lab::new_cols_lazy(&mut self.histo, self.threshold),
         }
+    }
+
+    /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
+    pub fn to_rgb(self) -> Vec<Myrgb> {
+        self.histo.iter().map(|x| x.color.into()).collect::<Vec<_>>()
     }
 
 }
