@@ -130,6 +130,115 @@ impl CSpaces for Cols<Spec, f32> {
     }
 }
 
+pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
+    histo.sort_by(|a, b|
+        match method {
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+        }
+    );
+}
+
+pub fn histo(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
+
+    let mut histo: Vec<Hist> = vec![];
+    let mut labs = rgb_bytes_to_labs(cols);
+    labs.dedup();
+
+    for lab in labs {
+        if lab.l <  GatheredCols::DARKEST //ignore really dark colors
+        || lab.l > GatheredCols::LIGHTEST //ignore really light colors
+        || is_present(lab, &mut histo, threshold, mix) {
+            continue;
+        } else {
+            histo.push(Histo { color: lab, count: 1 });
+        }
+    }
+
+    histo
+}
+
+pub fn new_cols(histo: &mut Vec<Hist>, threshold: u8) {
+    let mut new_cols = vec![];
+    // try to generate new colors with interpolation in between the already gathered colors
+    for comb in histo.iter().combinations(2) {
+        let color_a: Myrgb = comb[0].color.into();
+        let color_b: Myrgb = comb[1].color.into();
+
+        let new = interpolate(color_a, color_b, MAX_COLS);
+
+        //similar to how it's done at the start of `lab()`
+        // save the new colors, or discard them if similar enough
+        for i in new {
+            let lab: Spec = i.into();
+            if lab.l <  GatheredCols::DARKEST
+            || lab.l > GatheredCols::LIGHTEST
+            || is_present_no_mut(lab, histo, threshold) {
+                continue;
+            } else {
+                new_cols.push(Histo { color: lab, count: 1 });
+            }
+        }
+
+        let len = histo.len() + new_cols.len();
+
+        if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+    }
+
+    //join `new_cols` to histo
+    histo.extend(new_cols);
+}
+
+pub fn histo_lazy(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
+    let mut histo: Vec<Hist> = vec![];
+    let mut labs = rgb_bytes_to_labs(cols);
+    labs.dedup();
+
+    for lab in labs {
+        if (lab.l as u32) < (GatheredCols::DARKEST as u32) //ignore really dark colors
+        || (lab.l as u32) > (GatheredCols::LIGHTEST as u32) //ignore really light colors
+        || is_present(lab, &mut histo, threshold, mix) {
+            continue;
+        } else {
+            histo.push(Histo { color: lab, count: 1 });
+        }
+    }
+
+    histo
+}
+
+pub fn new_cols_lazy(histo: &mut Vec<Hist>, threshold: u8) {
+    let mut new_cols = vec![];
+    // try to generate new colors with interpolation in between the already gathered colors
+    for comb in histo.iter().combinations(2) {
+        let color_a: Myrgb = comb[0].color.into();
+        let color_b: Myrgb = comb[1].color.into();
+
+        let new = interpolate(color_a, color_b, MAX_COLS);
+
+        //similar to how it's done at the start of `lab()`
+        // save the new colors, or discard them if similar enough
+        for i in new {
+            let lab: Spec = i.into();
+            //ignore really dark/light colors
+            if (lab.l as u32) < (GatheredCols::DARKEST as u32)
+            || (lab.l as u32) > (GatheredCols::LIGHTEST as u32)
+            || is_present_no_mut(lab, histo, threshold) {
+                continue;
+            } else {
+                new_cols.push(Histo { color: lab, count: 1 });
+            }
+        }
+
+        let len = histo.len() + new_cols.len();
+
+        if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+    }
+
+    //join `new_cols` to histo
+    histo.extend(new_cols);
+}
+
 /// ColorSpaces for the [`Lab`] with unsigned integers (faster but more margin of error)
 impl CSpaces for Cols<Spec, u32> {
     fn new(cols: &[u8], threshold: u8, mix: bool) -> Self {

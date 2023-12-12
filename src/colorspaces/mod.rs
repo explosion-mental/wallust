@@ -83,6 +83,68 @@ pub struct Cols<T, E> {
     threshold: u8,
 }
 
+#[allow(dead_code)]
+/// Type that stores and abstracts away the colorspace
+/// 1. Get configs (threshold and mix)
+/// 2. Get labs (from u8 -> Lab)
+/// 3. return
+pub struct GatheredCols {
+    /// The histogram
+    histo: Vec<Histo<::lab::Lab>>,
+    /// explained in config.rs
+    threshold: u8,
+    /// whether to mix colors or not
+    mix: bool,
+    /// what are we using?
+    c: ColorSpaces,
+}
+
+
+#[allow(dead_code)]
+fn test() {
+}
+
+impl GatheredCols {
+    /// Miminum Luminance (from L ab) required for a color to be accepted
+    pub const DARKEST: f32 = 4.5;
+    /// Maximuum Luminance (from L ab) required for a color to be accepted
+    pub const LIGHTEST: f32 = 95.5;
+
+    pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
+
+        let mix = match c {
+            ColorSpaces::LabMixed => true,
+            _ => false,
+        };
+
+        let histo = match c {
+            ColorSpaces::Lab | ColorSpaces::LabMixed => lab::histo(cols, threshold, mix),
+            ColorSpaces::LabFast => lab::histo_lazy(cols, threshold, mix),
+        };
+
+        Self {
+            c: *c,
+            histo,
+            threshold,
+            mix,
+        }
+    }
+
+    pub fn sort_colors(&mut self, method: &ColorOrder) {
+        match self.c {
+            ColorSpaces::Lab | ColorSpaces::LabMixed | ColorSpaces::LabFast => lab::sort_colors(&mut self.histo, method),
+        }
+    }
+
+    pub fn new_cols(&mut self) {
+        match self.c {
+            ColorSpaces::Lab | ColorSpaces::LabMixed => lab::new_cols(&mut self.histo, self.threshold),
+            ColorSpaces::LabFast => lab::new_cols_lazy(&mut self.histo, self.threshold),
+        }
+    }
+
+}
+
 /// Simple functions that allows acomodating and select the most prominent colors.
 /// [`Self`] should be [`Cols`]
 pub trait CSpaces {
@@ -147,6 +209,7 @@ where
     let warn;
 
     let mut cols: Cols<T, U> = Cols::new(cols, threshold, mix);
+    //let mut cols = GatheredCols::new(cols, threshold, c);
 
     if cols.histo.len() < 2 {
         anyhow::bail!(ERR_TWO_COLS);
