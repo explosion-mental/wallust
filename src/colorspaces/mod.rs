@@ -71,18 +71,6 @@ struct Histo<T> {
     count: usize,
 }
 
-/// Histogram and other info
-pub struct Cols<T, E> {
-    /// a vec of histograms
-    histo: Vec<Histo<T>>,
-    /// darkest color to tolerate
-    darkest: E,
-    /// lightest color to tolerate
-    lightest: E,
-    /// explained in config.rs
-    threshold: u8,
-}
-
 #[allow(dead_code)]
 /// Type that stores and abstracts away the colorspace
 /// 1. Get configs (threshold and mix)
@@ -182,34 +170,11 @@ impl fmt::Display for ColorSpaces {
 }
 
 pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
-    type Lab = ::lab::Lab; //shadow lab name
-    type Float = f32;
-    type Whole = u32;
-    match c {
-        C::Lab      => gen_cs::<Lab, Float>(cols, threshold, sort_ord, true),
-        C::LabMixed => gen_cs::<Lab, Float>(cols, threshold, sort_ord, false),
-        C::LabFast  => gen_cs::<Lab, Whole>(cols, threshold, sort_ord, false),
-    }
-
-}
-
-/// Main function of how colorspaces work. This accepts two generics:
-/// `T` is the colorspace, handmade or from a crate
-/// `E` is a number type, used to compared lighter/darker colors and thus, avoiding complete black
-///     or complete white.
-/// `T` needs to be able to convert from and to [`Myrgb`], a custom RGB tuple.
-pub fn gen_cs<T, U>(cols: &[u8], threshold: u8, sort_ord: ColorOrder, mix: bool) -> Result<(Rc<[Myrgb]>, bool)>
-where
-    T: From<Myrgb> + Copy,
-    U: num_traits::Num,
-    Cols<T, U>: CSpaces,
-    Myrgb: From<T>,
-{
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
-    let mut cols: Cols<T, U> = Cols::new(cols, threshold, mix);
-    //let mut cols = GatheredCols::new(cols, threshold, c);
+    //let mut cols: Cols<T, U> = Cols::new(cols, threshold, mix);
+    let mut cols = GatheredCols::new(cols, threshold, &c);
 
     if cols.histo.len() < 2 {
         anyhow::bail!(ERR_TWO_COLS);
