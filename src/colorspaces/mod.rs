@@ -89,6 +89,13 @@ pub struct Cols {
 
 impl Cols {
     /// Creates a new [`Cols`]
+    /// TODO in the future, to allow to work with other colorspaces, and thus working with
+    ///      generics, a whole new type should be created. A wrapper type that only stores the
+    ///      histo and it's methods (which will be traits) like `.sort_colors` and the like. This
+    ///      would require [`Cols`] to also be a generic, however, to avoid that, the histo should
+    ///      be defined in another function similar to the old `gen_cs` or directly on main,
+    ///      returning the wrapper type like `ColSp` which includes different methods by trait
+    ///      according to their colorspace.
     pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
         let mix = match c {
             ColorSpaces::LabMixed => true,
