@@ -205,15 +205,7 @@ fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)>
             i += 1;
         }
 
-        // check color6 (bold) colors as well
-        i = 0;
-        while !colors.check_contrast_bold() && i < 10 {
-            if !bg_already_dark {
-                colors.background = colors.background.darken(0.15);
-            }
-            colors.color6 = colors.color6.lighten(0.15);
-            i += 1;
-        }
+        colors.check_contrast_all(bg_already_dark);
     }
 
     Ok((colors, warn))

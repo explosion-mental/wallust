@@ -252,6 +252,46 @@ impl Colors {
         if contrast(self.background, self.color6) < Self::RATIO { false } else { true }
     }
 
+    pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
+        if contrast(a, b) < 3.0 { false } else { true }
+    }
+
+    /// Checks the contrast for all colors, pywal seems to ignore color0, color7, color8 and
+    /// color15, mainly because or they are too bright or to dark.
+    pub fn check_contrast_all(&mut self, mut bg_already_dark: bool) {
+        let a = [
+            //&mut self.color0,
+            &mut self.color1,
+            &mut self.color2,
+            &mut self.color3,
+            &mut self.color4,
+            &mut self.color5,
+            &mut self.color6,
+            //&mut self.color7,
+            //&mut self.color8,
+            &mut self.color9,
+            &mut self.color10,
+            &mut self.color11,
+            &mut self.color12,
+            &mut self.color13,
+            &mut self.color14,
+            //&mut self.color15,
+        ];
+
+        let mut i: u32;
+        for col in a {
+            i = 0;
+            while !Self::contrast_well(self.background, *col) && i < 5 {
+                if !bg_already_dark {
+                    self.background = self.background.darken(0.15);
+                    bg_already_dark = true;
+                }
+                *col = col.lighten(0.05);
+                i += 1;
+            }
+        }
+    }
+
     /// Return the colors into sequences.
     pub fn to_seq(&self) -> String {
         let c = self;
