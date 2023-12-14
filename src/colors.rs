@@ -244,21 +244,18 @@ impl Colors {
 
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
-    pub fn check_contrast(&self) -> bool {
-        if contrast(self.background, self.foreground) < Self::RATIO { false } else { true }
-    }
-
-    pub fn check_contrast_bold(&self) -> bool {
-        if contrast(self.background, self.color6) < Self::RATIO { false } else { true }
-    }
-
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
-        if contrast(a, b) < 3.0 { false } else { true }
+        /// Currently the ratio is hardcoded
+        /// > `4.5` is standard, could be decreased at `3.0` for bigger fonts.
+        /// Testing the above, is true. A more allround solution is `4.5` tho.
+        const RATIO: f32 = 4.5;
+
+        if contrast(a, b) < RATIO { false } else { true }
     }
 
     /// Checks the contrast for all colors, pywal seems to ignore color0, color7, color8 and
     /// color15, mainly because or they are too bright or to dark.
-    pub fn check_contrast_all(&mut self, mut bg_already_dark: bool) {
+    pub fn check_contrast_all(&mut self) {
         let a = [
             //&mut self.color0,
             &mut self.color1,
@@ -278,7 +275,21 @@ impl Colors {
             //&mut self.color15,
         ];
 
-        let mut i: u32;
+        let mut i: u32 = 0;
+        let mut bg_already_dark = false;
+
+        // 1. loop until it's a good contrast
+        // 2. at max, 10 iteration should be good enough, since it will probably cap out to
+        //    white/black (avoiding infinite loops; which shouldn't, and hasn't, happen anyway)
+        while !Self::contrast_well(self.background, self.foreground) && i < 10 {
+            self.background = self.background.darken(0.15);
+            self.foreground = self.foreground.lighten(0.15);
+            bg_already_dark = true;
+            i += 1;
+        }
+
+        // do the same with all other colors, except the mentioned above
+        // max 5 iteration, otherwise the color usually loses it's saturation
         for col in a {
             i = 0;
             while !Self::contrast_well(self.background, *col) && i < 5 {

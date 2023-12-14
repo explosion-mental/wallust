@@ -193,19 +193,7 @@ fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)>
     let mut colors = filters::main(&c.filter)(&top);
 
     if c.check_contrast.unwrap_or(false) {
-        let mut i: u32 = 0;
-        let mut bg_already_dark = false;
-        // 1. loop until it's a good contrast
-        // 2. at max, 10 iteration should be good enough, since it will probably cap out to
-        //    white/black (avoiding infinite loops; which shouldn't, and hasn't, happen anyway)
-        while !colors.check_contrast() && i < 10 {
-            colors.background = colors.background.darken(0.15);
-            colors.foreground = colors.foreground.lighten(0.15);
-            bg_already_dark = true;
-            i += 1;
-        }
-
-        colors.check_contrast_all(bg_already_dark);
+        colors.check_contrast_all();
     }
 
     Ok((colors, warn))
