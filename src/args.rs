@@ -93,34 +93,9 @@ pub struct WallustArgs {
     /// Path to an image or json theme to use
     pub file: PathBuf,
 
-    /// Don't print anything
-    #[arg(short, long)]
-    pub quiet: bool,
-
-    /// Skip setting terminal sequences
-    #[arg(short, long, conflicts_with = "update_current")]
-    pub skip_sequences: bool,
-
-    /// Skip templating process
-    #[arg(short = 'T', long)]
-    pub skip_templates: bool,
-
-    /// Generates colors even if there is a cache version of it
-    //ref: <https://github.com/dylanaraps/pywal/issues/692>
-    #[arg(short = 'w', long)]
-    pub overwrite_cache: bool,
-
-    /// Don't cache the results
-    #[arg(short, long)]
-    pub no_cache: bool,
-
-    /// Use FILE as the config file
-    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
-    pub config_path: Option<PathBuf>,
-
-    /// Use DIR as the config directory
-    #[arg(short = 'd', long, conflicts_with = "config_path")]
-    pub config_dir: Option<PathBuf>,
+    /// Alpha value (default is 100)
+    #[arg(short, long, value_parser = 0..=100)]
+    pub alpha: Option<i64>,
 
     /// Custom backend (ignores config file)
     #[arg(short, long, value_enum)]
@@ -130,27 +105,52 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum)]
     pub colorspace: Option<ColorSpaces>,
 
-    /// Custom threshold (ignores config file)
-    #[arg(short, long, value_parser = 1..=100)]
-    pub threshold: Option<i64>,
+    /// Use FILE as the config file
+    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
+    pub config_path: Option<PathBuf>,
 
-    /// Custom check_contrast (ignores config file)
-    #[arg(short = 'k', long)]
-    pub check_contrast: bool,
+    /// Use DIR as the config directory
+    #[arg(short = 'd', long, conflicts_with = "config_path")]
+    pub config_dir: Option<PathBuf>,
 
     /// Custom filter (ignores config file)
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
 
+    /// Custom check_contrast (ignores config file)
+    #[arg(short = 'k', long)]
+    pub check_contrast: bool,
+
+    /// Don't cache the results
+    #[arg(short, long)]
+    pub no_cache: bool,
+
+    /// Don't print anything
+    #[arg(short, long)]
+    pub quiet: bool,
+
+    /// Skip setting terminal sequences
+    #[arg(short, long, conflicts_with = "update_current")]
+    pub skip_sequences: bool,
+
     /// Custom saturation (ignores config file)
     #[arg(long, value_parser = 1..=100)]
     pub saturation: Option<i64>,
 
-    /// Alpha value (default is 100)
-    #[arg(short, long, value_parser = 0..=100)]
-    pub alpha: Option<i64>,
+    /// Custom threshold (ignores config file)
+    #[arg(short, long, value_parser = 1..=100)]
+    pub threshold: Option<i64>,
+
+    /// Skip templating process
+    #[arg(short = 'T', long)]
+    pub skip_templates: bool,
 
     /// Only update the current terminal
     #[arg(short, long, conflicts_with = "skip_sequences")]
     pub update_current: bool,
+
+    /// Generates colors even if there is a cache version of it
+    //ref: <https://github.com/dylanaraps/pywal/issues/692>
+    #[arg(short = 'w', long)]
+    pub overwrite_cache: bool,
 }
