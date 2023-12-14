@@ -142,6 +142,10 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
 
+    /// Custom saturation (ignores config file)
+    #[arg(long, value_parser = 1..=100)]
+    pub saturation: Option<i64>,
+
     /// Alpha value (default is 100)
     #[arg(short, long, value_parser = 0..=100)]
     pub alpha: Option<i64>,

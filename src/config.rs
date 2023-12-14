@@ -33,6 +33,8 @@ pub struct Config {
     /// This flags ensures good contrast between images, by doing some w3m calculations.
     /// However it isn't required and should only be turn on when you notice bad contrast between many images.
     pub check_contrast: Option<bool>,
+    /// Maybe the user requires more vivid colors
+    pub saturation: Option<u8>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]
@@ -122,11 +124,20 @@ impl Config {
                 )
         } else { "".to_string() };
 
+        let sat = if let Some(s) = self.saturation {
+            format!("\n[{}] {}: Adding saturation to existing palette by {s}%",
+                "I".blue().bold(),
+                "saturation".magenta().bold()
+                )
+        } else {
+            "".to_string()
+        };
+
         println!(
 "[{i}] {back_f}: Using {back} backend parser
 [{i}] {th_f}: Using delta of {th} in between colors
 [{i}] {cs_f}: Using {cs} colorspace variation
-[{i}] {filter_f}: Using {filter} scheme filter{k}",
+[{i}] {filter_f}: Using {filter} scheme filter{k}{sat}",
             back     = self.backend.bold().color(self.backend.col()),
             th       = self.threshold.bold().color(self.threshold_col()),
             filter   = self.filter.bold().color(self.filter.col()),
@@ -176,6 +187,10 @@ impl Config {
 
         if cli.check_contrast {
             self.check_contrast = Some(cli.check_contrast);
+        }
+
+        if let Some(sat) = cli.saturation {
+            self.saturation = Some(sat as u8);
         }
     }
 

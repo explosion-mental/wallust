@@ -196,5 +196,9 @@ fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)>
         colors.check_contrast_all();
     }
 
+    if let Some(s) = c.saturation {
+        colors.saturate_colors(f32::from(s) / 100.0);
+    }
+
     Ok((colors, warn))
 }
