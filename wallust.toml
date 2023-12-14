@@ -53,6 +53,11 @@ filter = "softdark16"
 # (disabled by default)
 #check_contrast = true
 
+# Color saturation, between [1 and 100] (OPTIONAL, disabled by default)
+# usually something higher than 50 increases the saturation and below
+# decreases it (on a scheme with strong and vivid colors)
+#saturation = 40
+
 # Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
 # [[entry]]
 # # a relative path to a file where wallust.toml is (~/.config/wallust/)
