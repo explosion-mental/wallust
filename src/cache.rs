@@ -34,18 +34,19 @@ const CACHE_VER: &str = "1.1";
 
 impl Cache {
     /// # Cache directory structure
-    /// 1. Root, determined by OS
-    /// 2. "wallust"
-    /// 3. backend
-    /// 4. colorspace
-    /// 5. filter
-    /// 6. threshold
+    ///   1. Root, determined by OS
+    ///   2. "wallust"
+    ///   3. backend
+    ///   4. colorspace
+    ///   5. filter
+    ///   6. threshold
+    ///   7. saturation percentage (OPTIONAL)
     /// # File structure:
-    /// 1. filename (no extentions)
-    /// 2. size
-    /// 3. inode number on Linux, file attributes on Windows
-    /// 4. check-contrast -> "C" if true, "" if false
-    /// 5. [`CACHE_VER`]
+    ///   1. filename (no extentions)
+    ///   2. size
+    ///   3. inode number on Linux, file attributes on Windows
+    ///   4. check-contrast -> "C_" if true, "" if false
+    ///   5. [`CACHE_VER`]
     pub fn new(filename: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
 
 
@@ -61,6 +62,12 @@ impl Cache {
             anyhow::bail!("Using '..' as a parameter is not supported");
         };
 
+        let sat = if let Some(s) = c.saturation {
+            format!("saturation-{s}")
+        } else {
+            "".to_string()
+        };
+
 
         //format!("{root}/wallust/{back}/{th}/{cs}/{filter}",
         let cachepath = Path::new(cache_path)
@@ -69,6 +76,7 @@ impl Cache {
             .join(c.color_space.to_string())
             .join(c.filter.to_string())
             .join(c.threshold.to_string())
+            .join(sat)
         ;
 
         // Create cache dir (with all of it's parents)
