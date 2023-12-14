@@ -235,8 +235,6 @@ impl Colors {
         "E ".color(self.color1 .col()).bold().blink(),
         "! ".color(self.color0 .col()).bold().blink(),
         );
-
-        self.test();
     }
 
     /// A simple variation that follows the steps below, making the 'ilusion' of "more colors"
@@ -253,44 +251,6 @@ impl Colors {
             color6: c.color6.darken(0.25),
             ..c
         }
-    }
-
-    pub fn test(&self) {
-        println!(
-"
-\n\n\n
-{c0}
-{c1}
-{c2}
-{c3}
-{c4}
-{c5}
-{c6}
-{c7}
-{c8}
-{c9}
-{c10}
-{c11}
-{c12}
-{c13}
-{c14}
-",
-c0  = "COLOR 0" .color(self.color1 .col()),
-c1  = "COLOR 1" .color(self.color2 .col()),
-c2  = "COLOR 2" .color(self.color3 .col()),
-c3  = "COLOR 3" .color(self.color4 .col()),
-c4  = "COLOR 4" .color(self.color5 .col()),
-c5  = "COLOR 5" .color(self.color6 .col()),
-c6  = "COLOR 6" .color(self.color7 .col()),
-c7  = "COLOR 7" .color(self.color8 .col()),
-c8  = "COLOR 8" .color(self.color9 .col()),
-c9  = "COLOR 9" .color(self.color10.col()),
-c10 = "COLOR 10".color(self.color11.col()),
-c11 = "COLOR 11".color(self.color12.col()),
-c12 = "COLOR 12".color(self.color13.col()),
-c13 = "COLOR 13".color(self.color14.col()),
-c14 = "COLOR 14".color(self.color15.col()),
-);
     }
 
     pub fn saturate_colors(&mut self, amount: f32) {
