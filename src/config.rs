@@ -18,6 +18,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     /// threshold to use to differentiate colors
+    #[serde(deserialize_with = "validate_threshold")]
     pub threshold: u8,
     /// Which backend to use, see backends.rs
     pub backend: crate::backends::Backend,
@@ -189,4 +190,16 @@ impl Config {
             _ => AnsiColors::Red,
         }
     }
+}
+
+fn validate_threshold<'de, D>(d: D) -> Result<u8, D::Error>
+    where D: serde::de::Deserializer<'de>
+{
+    use serde::de;
+
+    let value = u8::deserialize(d)?;
+
+    if value <= 100 { return Ok(value); }
+
+    Err(de::Error::invalid_value(de::Unexpected::Unsigned(value as u64), &"a value between 0 and 100."))
 }
