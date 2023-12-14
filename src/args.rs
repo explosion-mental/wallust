@@ -36,6 +36,11 @@ pub enum Subcmds {
         /// Path to the file that has a colorscheme
         file: PathBuf,
 
+        /// Specify a custom format. Without this option, wallust will sequentially try to decode
+        /// it by trying one by one.
+        #[arg(short, long)]
+        format: Option<Schemes>,
+
         /// Don't print anything
         #[arg(short, long)]
         quiet: bool,
@@ -47,11 +52,6 @@ pub enum Subcmds {
         /// Skip templating process
         #[arg(short = 'T', long)]
         skip_templates: bool,
-
-        /// Specify a custom format. Without this option, wallust will sequentially try to decode
-        /// it by trying one by one.
-        #[arg(short, long)]
-        format: Option<Schemes>,
 
         /// Only update the current terminal
         #[arg(short, long, conflicts_with = "skip_sequences")]
@@ -65,6 +65,10 @@ pub enum Subcmds {
         #[arg(value_parser = COLS_KEY, hide_possible_values(false))]
         theme: String,
 
+        /// Only preview the selected theme.
+        #[arg(short, long, conflicts_with = "quiet")]
+        preview: bool,
+
         /// Don't print anything
         #[arg(short, long)]
         quiet: bool,
@@ -76,10 +80,6 @@ pub enum Subcmds {
         /// Skip templating process
         #[arg(short = 'T', long)]
         skip_templates: bool,
-
-        /// Only preview the selected theme.
-        #[arg(short, long, conflicts_with = "quiet")]
-        preview: bool,
 
         /// Only update the current terminal
         #[arg(short, long, conflicts_with = "skip_sequences")]
