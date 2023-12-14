@@ -43,20 +43,18 @@ threshold = 20
 #  * softlight16 - softlight with 16 color variations
 filter = "softdark16"
 
-# Hardcoded value for `alpha` in templates, in case you use it. Optional
-#alpha = 100
-
-# ONLY ENABLE IF YOU NEEDED (adds extra operations)
-# Ensures a "readable contrast" between background and foreground, meaning it
-# alters these values until it's "readable" enough.
-# Should only be enables when you notice an unreadable contrast frequently happening with your images.
-# (disabled by default)
+# Ensures a "readable contrast" (OPTIONAL, disabled by default)
+# Should only be enables when you notice an unreadable contrast frequently happening
+# with your images. The reference color for the contrast is the background color.
 #check_contrast = true
 
 # Color saturation, between [1 and 100] (OPTIONAL, disabled by default)
 # usually something higher than 50 increases the saturation and below
 # decreases it (on a scheme with strong and vivid colors)
 #saturation = 40
+
+# Alpha value for templating, by default 100 (no other use whatsoever)
+#alpha = 100
 
 # Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
 # [[entry]]
