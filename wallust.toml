@@ -56,18 +56,14 @@ filter = "softdark16"
 # Alpha value for templating, by default 100 (no other use whatsoever)
 #alpha = 100
 
-# Templates (OPTIONAL) example entries, which are just a file you wish to apply `wallust` generated colors to.
-# [[entry]]
-# # a relative path to a file where wallust.toml is (~/.config/wallust/)
-# template = "dunstrc"
-#
-# # absolute path to the file to write the template (after templating)
-# target = "~/.config/dunst/dunstrc"
-#
+# -- templating -- # (OPTIONAL)
+# An `entry` requires two files:
+# 1. template: A relative path that points to a file where wallust.toml is located, usually at `~/.config/wallust/`
+# 2. target: Absolute path in which to place a file with generated templated values
+
+# This is the most common way of integrating `wallust` generated palette to some program.
+# Below a simple example that searches for `config-path/zathurarc` and puts the newly created file to `~/.config/zathura/zathurarc`
+
 # [[entry]]
 # template = "zathurarc"
 # target = "~/.config/zathura/zathurarc"
-#
-# [[entry]]
-# template = "glava_bars"
-# target = "~/.config/glava/bars.glsl"
