@@ -239,9 +239,6 @@ impl Colors {
         }
     }
 
-    /// Currently the ratio is hardcoded
-    const RATIO: f32 = 4.5;
-
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
