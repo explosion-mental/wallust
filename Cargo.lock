@@ -316,6 +316,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "easy_color"
+version = "0.1.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a2ec16030997bd7c0592b6c530bbbaaa2c3330d1abbbdce427cd175c03ca8d0"
+dependencies = [
+ "rand",
+]
+
+[[package]]
 name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1153,6 +1162,7 @@ dependencies = [
  "clap",
  "criterion",
  "dirs",
+ "easy_color",
  "fast_image_resize",
  "glob",
  "image",

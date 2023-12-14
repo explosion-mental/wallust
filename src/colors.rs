@@ -167,6 +167,20 @@ impl Myrgb {
         a[1] * GREEN +
         a[2] * BLUE
     }
+
+    /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)
+    /// XXX easy_color seems to be an OK crate, however is there a more suitable crate for this?
+    /// XXX think about using palette crate (still looks too complicated for me and my use case)
+    fn saturate(&mut self, amount: f32) {
+        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().unwrap();
+        let mut hsl: easy_color::HSL = initial.into();
+        hsl.set_saturation((amount * 100.0) as u32);
+        let rgb: easy_color::RGB = hsl.into();
+
+        self.0 = rgb.red();
+        self.1 = rgb.green();
+        self.2 = rgb.blue();
+    }
 }
 
 impl Colors {
@@ -221,6 +235,8 @@ impl Colors {
         "E ".color(self.color1 .col()).bold().blink(),
         "! ".color(self.color0 .col()).bold().blink(),
         );
+
+        self.test();
     }
 
     /// A simple variation that follows the steps below, making the 'ilusion' of "more colors"
@@ -236,6 +252,71 @@ impl Colors {
             color5: c.color5.darken(0.25),
             color6: c.color6.darken(0.25),
             ..c
+        }
+    }
+
+    pub fn test(&self) {
+        println!(
+"
+\n\n\n
+{c0}
+{c1}
+{c2}
+{c3}
+{c4}
+{c5}
+{c6}
+{c7}
+{c8}
+{c9}
+{c10}
+{c11}
+{c12}
+{c13}
+{c14}
+",
+c0  = "COLOR 0" .color(self.color1 .col()),
+c1  = "COLOR 1" .color(self.color2 .col()),
+c2  = "COLOR 2" .color(self.color3 .col()),
+c3  = "COLOR 3" .color(self.color4 .col()),
+c4  = "COLOR 4" .color(self.color5 .col()),
+c5  = "COLOR 5" .color(self.color6 .col()),
+c6  = "COLOR 6" .color(self.color7 .col()),
+c7  = "COLOR 7" .color(self.color8 .col()),
+c8  = "COLOR 8" .color(self.color9 .col()),
+c9  = "COLOR 9" .color(self.color10.col()),
+c10 = "COLOR 10".color(self.color11.col()),
+c11 = "COLOR 11".color(self.color12.col()),
+c12 = "COLOR 12".color(self.color13.col()),
+c13 = "COLOR 13".color(self.color14.col()),
+c14 = "COLOR 14".color(self.color15.col()),
+);
+    }
+
+    pub fn saturate_colors(&mut self, amount: f32) {
+        if amount <= 1.0 {
+            let a = [
+                //&mut self.color0,
+                &mut self.color1,
+                &mut self.color2,
+                &mut self.color3,
+                &mut self.color4,
+                &mut self.color5,
+                &mut self.color6,
+                //&mut self.color7,
+                //&mut self.color8,
+                &mut self.color9,
+                &mut self.color10,
+                &mut self.color11,
+                &mut self.color12,
+                &mut self.color13,
+                &mut self.color14,
+                //&mut self.color15,
+            ];
+
+            for i in a {
+                i.saturate(amount);
+            }
         }
     }
 

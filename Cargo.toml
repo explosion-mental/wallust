@@ -27,6 +27,7 @@ dirs = "5.0"
 itertools = "0.12"
 fast_image_resize = "2.7"
 num-traits = "0.2"
+easy_color = "0.1"
 
 rand  = { version = "0.8", optional = true }
 clap  = { version = "4.3", features = ["derive"] }
