@@ -104,7 +104,6 @@ use owo_colors::{OwoColorize, AnsiColors};
 pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     let info = "I".blue().bold().to_string();
     let cs = "colorscheme format".magenta().bold().to_string();
-    let warn = "W".red().bold().to_string();
 
     let a = [
         Schemes::Pywal,
@@ -118,10 +117,7 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
                 println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col()));
                 return Ok(o);
             },
-            Err(_) => {
-                //TODO is this too annoying?
-                println!("[{warn}] {} is not in `{i}` format.", file.display());
-            },
+            Err(_) => { continue; },
         }
     }
 
