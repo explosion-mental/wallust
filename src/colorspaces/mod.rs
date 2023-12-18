@@ -3,7 +3,6 @@
 //! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
 //! so this deserved it's own module.
 use std::fmt;
-use std::rc::Rc;
 
 use crate::colors::Myrgb;
 
