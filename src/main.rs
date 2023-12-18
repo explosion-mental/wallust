@@ -179,15 +179,15 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
 /// How [`Colors`] is filled, returns the colors itself and a bool that indicates whether
 /// [`backends`] had some warnings or not (ugly workaround ik)
 fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)> {
-    // choose how to sort colors, more on [`ColorOrder`]
-    let sort_ord = filters::sort_ord(&c.filter);
-
     // read image as raw rgb8 vecs
     let rgb8s = backends::main(&c.backend)(file)?;
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let (top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, sort_ord)?;
+    let (mut top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold)?;
+
+    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
+    top.sort_colors(&filters::sort_ord(&c.filter));
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
     let mut colors = filters::main(&c.filter)(top);

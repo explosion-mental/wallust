@@ -169,7 +169,7 @@ impl fmt::Display for ColorSpaces {
     }
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Cols, bool)> {
+pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
@@ -203,9 +203,6 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) ->
     if cols.histo.len() < MIN_COLS.into() {
         anyhow::bail!(NOT_ENOUGH_COLS);
     }
-
-    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    cols.sort_colors(&sort_ord);
 
     //let histo = cols.histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
 
