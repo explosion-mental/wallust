@@ -16,7 +16,7 @@ pub fn softdark(c: Cols) -> Colors {
     //lighten fg to maintain a good contrast and darken a bit the bg (super safe)
     let fg = ret.background.lighten(0.35);
     //let bg = ret.foreground.darken(0.2);
-    let bg = orig[0].lighten(0.25);
+    let bg = orig[0].blend(ret.foreground).darken(0.4);
 
     ret.background = bg;
     ret.foreground = fg;
