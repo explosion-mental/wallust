@@ -82,6 +82,8 @@ pub struct Histo<T> {
 pub struct Cols {
     /// The histogram
     pub histo: Vec<Histo<::lab::Lab>>,
+    /// Histogram without any custom sorting, so it stays from most prominent color `[0]` to the least one `.last()`
+    pub orig_histo: Vec<Histo<::lab::Lab>>,
     /// explained in config.rs
     pub threshold: u8,
     /// what are we using?
@@ -109,6 +111,7 @@ impl Cols {
         };
 
         Self {
+            orig_histo: histo.clone(),
             c: *c,
             histo,
             threshold,
@@ -134,10 +137,14 @@ impl Cols {
     }
 
     /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
-    pub fn to_rgb(self) -> Vec<Myrgb> {
+    pub fn to_rgb(&self) -> Vec<Myrgb> {
         self.histo.iter().map(|x| x.color.into()).collect::<Vec<_>>()
     }
 
+    /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
+    pub fn to_rgb_orig(&self) -> Vec<Myrgb> {
+        self.orig_histo.iter().map(|x| x.color.into()).collect::<Vec<_>>()
+    }
 }
 
 impl ColorSpaces {
