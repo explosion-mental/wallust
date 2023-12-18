@@ -20,7 +20,7 @@ use std::fmt;
 use owo_colors::AnsiColors;
 use serde::{Serialize, Deserialize};
 
-use crate::colors::{Colors, Myrgb};
+use crate::{colors::{Colors, Myrgb}, colorspaces::Cols};
 
 
 /// rename [`Filters`] so it's shorter to type
@@ -75,7 +75,7 @@ pub enum Filters {
     SoftLight16,
 }
 
-pub fn main(f: &Filters) -> fn(&[Myrgb]) -> Colors {
+pub fn main(f: &Filters) -> fn(Cols) -> Colors {
     match f {
         F::Dark    => dark::dark,
         F::Dark16  => dark16::dark16,

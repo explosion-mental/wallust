@@ -64,7 +64,7 @@ pub enum ColorSpaces {
 
 /// Simple Histogram
 #[derive(Debug, Copy, Clone, PartialEq)]
-struct Histo<T> {
+pub struct Histo<T> {
     /// SOME colorspace color
     color: T,
     /// number of times it has appeared
@@ -78,13 +78,14 @@ struct Histo<T> {
 /// TODO Find a way to make this `colorspace` agnostic, in the sense that it should not require to
 ///      store the `histo` per se, as this requires the [`Cols`] type to add a generic argument,
 ///      threshold and colorspace doesn't seem to be useful in the `filters` stage.
+#[derive(Debug, Clone, PartialEq)]
 pub struct Cols {
     /// The histogram
-    histo: Vec<Histo<::lab::Lab>>,
+    pub histo: Vec<Histo<::lab::Lab>>,
     /// explained in config.rs
-    threshold: u8,
+    pub threshold: u8,
     /// what are we using?
-    c: ColorSpaces,
+    pub c: ColorSpaces,
 }
 
 impl Cols {
@@ -161,7 +162,7 @@ impl fmt::Display for ColorSpaces {
     }
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Rc<[Myrgb]>, bool)> {
+pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let warn;
 
@@ -199,9 +200,9 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, sort_ord: ColorOrder) ->
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
     cols.sort_colors(&sort_ord);
 
-    let histo = cols.histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
+    //let histo = cols.histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
 
-    Ok((histo, warn))
+    Ok((cols, warn))
 }
 
 /// Combines some colors to generate new ones

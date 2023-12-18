@@ -6,6 +6,6 @@ use crate::filters::*;
 /// This is to make constranst between those (they got the same hue).
 /// Sorted by [`LightFirst`]
 /// Variation of dark with 16 colors. From <https://github.com/eylles/pywal16>
-pub fn dark16(c: &[Myrgb]) -> Colors {
+pub fn dark16(c: Cols) -> Colors {
     super::dark::dark(c).to_16col()
 }

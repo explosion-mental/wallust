@@ -3,7 +3,8 @@
 use crate::filters::*;
 
 /// This parser only needs 6 colors [0..=5]. Sorted by [`LightFirst`]
-pub fn dark(c: &[Myrgb]) -> Colors {
+pub fn dark(cols: Cols) -> Colors {
+    let c = cols.to_rgb();
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // this corresponds to [`LightFirst`] [`ColorOrder`]

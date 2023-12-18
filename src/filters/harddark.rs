@@ -3,7 +3,8 @@ use crate::filters::*;
 
 /// dark background, light foreground, with dark hard hued colors.
 /// Sorted by [`DarkFirst`]
-pub fn harddark(c: &[Myrgb]) -> Colors {
+pub fn harddark(co: Cols) -> Colors {
+    let c = co.clone().to_rgb();
     Colors {
         /* First row */
         color1 : c[0],
@@ -20,6 +21,6 @@ pub fn harddark(c: &[Myrgb]) -> Colors {
         color12: c[3],
         color13: c[4],
         color14: c[5],
-        ..super::dark::dark(c)
+        ..super::dark::dark(co)
     }
 }

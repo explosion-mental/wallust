@@ -8,7 +8,7 @@ use super::softlight::softlight;
 /// Uses the lightest colors and a dark background, as opposed to usual [`dark()`].
 /// Similar to [`dark()`] but colors in *inversed* order.
 /// Sorted by [`LightFirst`],
-pub fn softdark(c: &[Myrgb]) -> Colors {
+pub fn softdark(c: Cols) -> Colors {
 
     let mut ret = softlight(c);
 

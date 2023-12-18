@@ -190,7 +190,7 @@ fn gen_colors(file: &Path, c: &config::Config) -> Result<(colors::Colors, bool)>
     let (top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, sort_ord)?;
 
     // Apply a [`Filters`] that returns the [`Colors`] struct
-    let mut colors = filters::main(&c.filter)(&top);
+    let mut colors = filters::main(&c.filter)(top);
 
     if c.check_contrast.unwrap_or(false) {
         colors.check_contrast_all();
