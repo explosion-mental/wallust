@@ -4,8 +4,12 @@ use crate::filters::*;
 /// dark background, light foreground, with dark hard hued colors.
 /// Sorted by [`DarkFirst`]
 pub fn harddark(co: Cols) -> Colors {
-    let c = co.clone().to_rgb();
+    let c = co.to_rgb();
+    let orig = co.to_rgb_orig();
+    let bg = orig[0].darken(0.65);
+
     Colors {
+        background : bg,
         /* First row */
         color1 : c[0],
         color2 : c[1],

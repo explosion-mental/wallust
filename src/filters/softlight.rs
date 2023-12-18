@@ -5,7 +5,7 @@ use crate::filters::*;
 /// light background, dark foreground. Uses the lightest colors, might not give enough contrast.
 /// Sorted by [`LightFirst`]
 pub fn softlight(co: Cols) -> Colors {
-    let c = co.clone().to_rgb();
+    let c = co.to_rgb();
     Colors {
         /* First row */
         color1 : c[0],
