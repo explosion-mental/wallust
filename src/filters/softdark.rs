@@ -9,14 +9,17 @@ use super::softlight::softlight;
 /// Similar to [`dark()`] but colors in *inversed* order.
 /// Modifies the background to match the most prominent color.
 /// Sorted by [`LightFirst`],
-pub fn softdark(c: Cols) -> Colors {
+pub fn softdark(mut c: Cols) -> Colors {
+    c.orig_histo[0].set_luminance(0.3);
     let orig = c.to_rgb_orig();
+
     let mut ret = softlight(c);
 
     //lighten fg to maintain a good contrast and darken a bit the bg (super safe)
     let fg = ret.background.lighten(0.35);
+
     //let bg = ret.foreground.darken(0.2);
-    let bg = orig[0].blend(ret.foreground).darken(0.4);
+    let bg = orig[0];//.blend(ret.foreground);
 
     ret.background = bg;
     ret.foreground = fg;
