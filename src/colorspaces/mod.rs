@@ -177,12 +177,10 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> 
     if cols.histo.len() < 2 {
         anyhow::bail!(ERR_TWO_COLS);
     } else {
-        // sort vec by count, most used colors first (if they are more than the MAX)
-        if cols.histo.len() > MAX_COLS.into() {
-            cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
-        }
         // take the *necessary* most used colors
         cols.histo.truncate(MAX_COLS.into());
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
     }
 
     // Artificially generate colors with linear interpolation in between the colors that we already
@@ -193,7 +191,12 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> 
 
         //new vector with new colors, later to be `.append()`ed
         cols.new_cols();
+
+        // take the *necessary* most used colors
         cols.histo.truncate(MAX_COLS.into());
+
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
     } else {
         warn = false;
     }
