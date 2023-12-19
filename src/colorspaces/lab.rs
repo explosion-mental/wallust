@@ -118,20 +118,12 @@ pub fn new_cols(histo: &mut Vec<Hist>, threshold: u8) {
         let color_a: Myrgb = comb[0].color.into();
         let color_b: Myrgb = comb[1].color.into();
 
-        let new = interpolate(color_a, color_b, MAX_COLS);
+        let new = interpolate(color_a, color_b, MAX_COLS).iter().map(|&x| Spec::from(x)).collect();
 
         //similar to how it's done at the start of `lab()`
         // save the new colors, or discard them if similar enough
-        for i in new {
-            let lab: Spec = i.into();
-            if lab.l <  DARKEST
-            || lab.l > LIGHTEST
-            || is_present_no_mut(lab, histo, threshold) {
-                continue;
-            } else {
-                new_cols.push(Histo { color: lab, count: 1 });
-            }
-        }
+        // no more color mixing, we don't have much colors left.
+        new_cols = gather_cols(new, threshold, false);
 
         let len = histo.len() + new_cols.len();
 
