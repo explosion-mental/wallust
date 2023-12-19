@@ -96,14 +96,6 @@ fn gather_cols(labs: Vec<Spec>, threshold: u8, mix: bool) -> Vec<Hist> {
         || lab.l <= LIGHTEST //ignore really light colors
         {
             // Check if whether the color is new or is already in the vec
-            // NOTE the use of index base iteration to avoid mutability and multiple mutable reference problem
-            // for i in 0..histo.len() {
-            //     if delta_e(lab, histo[i].color) < threshold.into() {
-            //         if mix { histo[i].mix(lab); }
-            //         histo[i].count += 1;
-            //         continue 'outter;
-            //     }
-            // }
             for col in &mut histo {
                 // if any lab value is between a threshold, count it up
                 if delta_e(lab, col.color) < threshold.into() {
