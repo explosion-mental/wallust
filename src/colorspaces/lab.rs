@@ -52,6 +52,18 @@ pub const DARKEST: f32 = 4.5;
 /// Maximuum Luminance (from L ab) required for a color to be accepted
 pub const LIGHTEST: f32 = 95.5;
 
+/// Mixed all field of a LAB colorspace into one.
+/// While the proper way to do that is by converting lab to rgb and then mixing rgb (.blend) and
+/// then back to lab, I'm doing this hacky way in the meantime
+/// TODO check if it overflows, and fix it, and make sure the luminance is in the correct range
+fn mixed(color1: Spec, color2: Spec) -> Spec {
+    let mut new = Spec::default();
+
+    new.l = ((color1.l + color2.l) / 2.0) - 1.0;
+    new.a = ((color1.a + color2.a) / 2.0) - 1.0;
+    new.b = ((color1.b + color2.b) / 2.0) - 1.0;
+    new
+}
 
 /// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
 /// colors are similar enough, using the [`Config.threshold`]
@@ -99,7 +111,7 @@ fn gather_cols(labs: Vec<Spec>, threshold: u8, mix: bool) -> Vec<Hist> {
             for col in &mut histo {
                 // if any lab value is between a threshold, count it up
                 if delta_e(lab, col.color) < threshold.into() {
-                    if mix { col.mix(lab); }
+                    if mix { col.color = mixed(lab, col.color); }
                     col.count += 1;
                     continue 'outter;
                 }
