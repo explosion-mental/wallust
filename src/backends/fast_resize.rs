@@ -4,15 +4,18 @@ use std::num::NonZeroU32;
 use fast_image_resize as fir;
 
 /// Resize it, then get read the image, with an optimized algorithm that uses SIMD operations.
+/// TODO for some reason this method likes really small sizes. Working with 512 or more creates
+/// `green` "glitched" colors, that's why we don't use `shrink()` from `resized` module in here
 pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     let (true_w, true_h) = image::image_dimensions(f)?;
 
-    let shrink = |x| if x > 512 { x / 4 } else { x };
+    //custom shrink
+    let s = |x| if x > 512 { x / 4 } else { x };
 
     let def_w = NonZeroU32::new(1024).expect("NON ZERO");
     let def_h = NonZeroU32::new(768).expect("NON ZERO");
-    let w = NonZeroU32::new(shrink(true_w)).unwrap_or(def_w);
-    let h = NonZeroU32::new(shrink(true_h)).unwrap_or(def_h);
+    let w = NonZeroU32::new(s(true_w)).unwrap_or(def_w);
+    let h = NonZeroU32::new(s(true_h)).unwrap_or(def_h);
 
     //read the image
     let img = image::open(f)?;
