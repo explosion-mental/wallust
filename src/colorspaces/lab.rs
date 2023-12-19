@@ -82,16 +82,36 @@ pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
 }
 
 pub fn histo(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
-    let mut histo: Vec<Hist> = vec![];
     let mut labs = rgb_bytes_to_labs(cols);
     labs.dedup();
 
-    for lab in labs {
-        if lab.l <  DARKEST //ignore really dark colors
-        || lab.l > LIGHTEST //ignore really light colors
-        || is_present(lab, &mut histo, threshold, mix) {
-            continue;
-        } else {
+    gather_cols(labs, threshold, mix)
+}
+
+fn gather_cols(labs: Vec<Spec>, threshold: u8, mix: bool) -> Vec<Hist> {
+    let mut histo: Vec<Hist> = vec![];
+
+    'outter: for lab in labs {
+        if lab.l >=  DARKEST //ignore really dark colors
+        || lab.l <= LIGHTEST //ignore really light colors
+        {
+            // Check if whether the color is new or is already in the vec
+            // NOTE the use of index base iteration to avoid mutability and multiple mutable reference problem
+            // for i in 0..histo.len() {
+            //     if delta_e(lab, histo[i].color) < threshold.into() {
+            //         if mix { histo[i].mix(lab); }
+            //         histo[i].count += 1;
+            //         continue 'outter;
+            //     }
+            // }
+            for col in &mut histo {
+                // if any lab value is between a threshold, count it up
+                if delta_e(lab, col.color) < threshold.into() {
+                    if mix { col.mix(lab); }
+                    col.count += 1;
+                    continue 'outter;
+                }
+            }
             histo.push(Histo { color: lab, count: 1 });
         }
     }
