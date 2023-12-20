@@ -55,13 +55,20 @@ pub const LIGHTEST: f32 = 95.5;
 /// Mixed all field of a LAB colorspace into one.
 /// While the proper way to do that is by converting lab to rgb and then mixing rgb (.blend) and
 /// then back to lab, I'm doing this hacky way in the meantime
-/// TODO check if it overflows, and fix it, and make sure the luminance is in the correct range
 fn mixed(color1: Spec, color2: Spec) -> Spec {
-    let mut new = Spec::default();
+    let rgb1: Myrgb = color1.into();
+    let rgb2: Myrgb = color2.into();
+    let mut new: Spec = rgb1.blend(rgb2).into();
 
-    new.l = ((color1.l + color2.l) / 2.0) - 1.0;
-    new.a = ((color1.a + color2.a) / 2.0) - 1.0;
-    new.b = ((color1.b + color2.b) / 2.0) - 1.0;
+    if new.l > LIGHTEST {
+        new.l = new.l - (LIGHTEST - new.l) - 1.0;
+    } else if new.l < DARKEST {
+        new.l = new.l + (DARKEST - new.l) + 1.0;
+    }
+
+    // new.l = ((color1.l + color2.l) / 2.0) - 1.0;
+    // new.a = ((color1.a + color2.a) / 2.0) - 1.0;
+    // new.b = ((color1.b + color2.b) / 2.0) - 1.0;
     new
 }
 
