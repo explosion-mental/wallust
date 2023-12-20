@@ -20,9 +20,9 @@ fn main() {
     let version = &version[0..version.len() - 2]; // crop patch
 
     // default values
-    let def_backend    = Backend::Resized.to_string();
-    let def_colorspace = ColorSpaces::Lab.to_string();
-    let def_filter     = Filters::SoftDark16.to_string();
+    let def_backend    = Backend::Resized.to_string().to_ascii_lowercase();
+    let def_colorspace = ColorSpaces::Lab.to_string().to_ascii_lowercase();
+    let def_filter     = Filters::SoftDark16.to_string().to_ascii_lowercase();
     let def_threshold  = "20";
 
     fn ul_comment<T>() -> String
