@@ -25,6 +25,9 @@ fn main() {
     let def_filter     = Filters::SoftDark16.to_string().to_ascii_lowercase();
     let def_threshold  = "20";
 
+    // const MAX: usize = 90;
+    // const SP: usize = "#      ".len();
+
     fn ul_comment<T>() -> String
         where T: documented::DocumentedFields + std::fmt::Display + IntoEnumIterator
     {
@@ -43,6 +46,15 @@ fn main() {
                 start.push_str(&" ".repeat(largest - start.len()));
             }
             start = format!("#  * {start} - {}\n", T::get_field_comment(i.to_string()).unwrap());
+            // TODO make the text wrap, respecting words (wrap on a whitespace)
+            // let mut comment = T::get_field_comment(i.to_string()).unwrap().to_string();
+            //let len = comment.len() + start.len();
+            // if len > MAX {
+            //     let (first, second) = comment.split_at(MAX);
+            //     let second = format!("#    {}  {second}", " ".repeat(largest));
+            //     comment = format!("{first}\n{second}");
+            // }
+            // start = format!("#  * {start} - {}\n", comment);
             whole.push_str(&start);
         }
         whole.trim_end().into()
