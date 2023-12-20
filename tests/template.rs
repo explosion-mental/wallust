@@ -114,6 +114,7 @@ color15='#0F0000'
         backend: wallust::backends::Backend::Thumb,
         color_space: wallust::colorspaces::ColorSpaces::Lab,
         alpha: None,
+        saturation: None,
     };
 
     let e = c.entry.as_ref().unwrap();
