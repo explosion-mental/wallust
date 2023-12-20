@@ -21,6 +21,7 @@ mod fast_resize;
 /// This indicates what 'parser' method to use, defined in the config file.
 /// Corresponds to the modules inside this module
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
+#[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
     /// Read and return the whole image pixels

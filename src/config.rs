@@ -16,6 +16,7 @@ use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
     /// threshold to use to differentiate colors
     #[serde(deserialize_with = "validate_threshold")]

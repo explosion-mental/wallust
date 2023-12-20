@@ -47,6 +47,7 @@ pub enum ColorOrder {
 
 /// Corresponds to the modules inside this module and `color_space` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
+#[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpaces {
     /// Uses Cie L*a*b color space

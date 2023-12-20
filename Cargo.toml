@@ -29,9 +29,13 @@ fast_image_resize = "2.7"
 num-traits = "0.2"
 easy_color = "0.1"
 
-rand  = { version = "0.8", optional = true }
 clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
+
+# optionals
+documented = { version = "0.2.0", optional = true }
+rand  = { version = "0.8", optional = true }
+strum = { version = "0.25", features = ["derive"], optional = true }
 
 [dev-dependencies]
 tempfile = "3"
@@ -40,6 +44,7 @@ criterion = { version = "0.5", features = ["html_reports"] }
 [features]
 default = [ "themes" ]
 themes = [ "dep:rand" ] # include built-in themes at ./src/themes/colorschemes.rs (130K)
+makeconfig = [ "dep:documented", "dep:strum", "clap/cargo" ]
 
 [[bench]]
 name = "backends"
