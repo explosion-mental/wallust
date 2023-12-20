@@ -42,11 +42,11 @@ mod softlight16;
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
-    /// Dark bg, light fg
+    /// 8 dark colors, dark background and light contrast
     Dark,
-    /// Dark bg and fg with some opaque variations, making 16 colors
+    /// Same as `dark` but uses the 16 colors trick
     Dark16,
-    /// Dark with hard hue colors
+    /// Same as `dark` with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
     #[serde(alias = "hard-dark")]
     HardDark,
@@ -56,9 +56,9 @@ pub enum Filters {
     HardDark16,
     /// Light bg, dark fg
     Light,
-    /// Same as [`Light`] but with 8 color variations, making 16 in total
+    /// Same as `light` but uses the 16 color trick
     Light16,
-    /// Similar to [`Dark`] but with the colors inversed
+    /// Variant of softlight, uses the lightest colors and a dark background (could be interpreted as `dark` inversed)
     #[clap(alias  = "soft-dark", name = "softdark")]
     #[serde(alias = "soft-dark")]
     SoftDark,
@@ -66,7 +66,7 @@ pub enum Filters {
     #[clap(alias  = "soft-dark16", name = "softdark16")]
     #[serde(alias = "soft-dark16")]
     SoftDark16,
-    /// Light with soft pastel colors
+    /// Light with soft pastel colors, counterpart of `harddark`
     #[clap(alias  = "soft-light", name = "softlight")]
     #[serde(alias = "soft-light")]
     SoftLight,

@@ -24,17 +24,17 @@ mod fast_resize;
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
-    /// Read and return the whole image pixels
+    /// Read and return the whole image pixels (more precision, slower)
     Full,
-    /// Resize it, then get read the image
+    /// Resizes the image before parsing, mantaining it's aspect ratio
     Resized,
-    /// Uses image magick to generate the colors, like pywal
+    /// Uses image magick `convert` to generate the colors, like pywal
     Wal,
-    /// Faster algo than the `resized` module, hardcoded to 512x512
+    /// Faster algo hardcoded to 512x512 (no ratio respected)
     Thumb,
     #[clap(alias  = "fast-resize", name = "fastresize")] //claps prefers this-name
     #[serde(alias = "fast-resize")]
-    /// A much faster resize algo that uses SIMD
+    /// A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
     FastResize
 }
 

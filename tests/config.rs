@@ -106,7 +106,6 @@ filter = \"{def_filter}\"
 "
 );
 
-    std::fs::File::create("wallust-test.toml").unwrap()
+    std::fs::File::create("wallust.toml").unwrap()
         .write_all(template.as_bytes()).unwrap()
-
 }

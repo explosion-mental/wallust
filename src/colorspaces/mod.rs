@@ -54,11 +54,12 @@ pub enum ColorSpaces {
     Lab,
     #[clap(alias = "lab-mixed", name = "labmixed")] //claps prefers this-name
     #[serde(alias = "lab-mixed")]
-    /// Same as `lab` but mixes the colors gathered
+    /// Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)
     LabMixed,
     #[clap(alias = "lab-fast", name = "labfast")]
     #[serde(alias = "lab-fast")]
-    /// Avoids floating arithmetic, thus, faster operations
+    /// Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have "enough colors" for labfast.
+
     LabFast,
 }
 
