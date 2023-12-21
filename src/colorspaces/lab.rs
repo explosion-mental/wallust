@@ -13,6 +13,7 @@ use ::lab::Lab;
 impl Hist {
     /// Mix similar Lab colors, to catch most similars ones.
     /// NOTE: This reduces color quantity
+    #[allow(dead_code)]
     fn mix(&mut self, new: Spec) {
         self.color.l = self.color.l * 0.5 + new.l * 0.5;
         //self.color.a = self.color.a * 0.5 + new.a * 0.5;
@@ -72,25 +73,6 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
     new
 }
 
-/// determines whether a Lab color is present in our histogram, by using [`delta_e`] we compare if
-/// colors are similar enough, using the [`Config.threshold`]
-fn is_present(color: Spec, histogram: &mut [Hist], threshold: u8, mix: bool) -> bool {
-    for e in histogram {
-        // if any lab value is between a threshold, count it up
-        if delta_e(color, e.color) < threshold.into() {
-            if mix { e.mix(color); }
-            e.count += 1;
-            return true;
-        }
-    }
-    false
-}
-
-/// This doesn't `Histo.mix()`, so no need for mutability
-fn is_present_no_mut(color: Spec, histogram: &[Hist], threshold: u8) -> bool {
-    histogram.iter().any(|&x| delta_e(color, x.color) < threshold.into())
-}
-
 pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
     histo.sort_by(|a, b|
         match method {
@@ -142,7 +124,7 @@ pub fn new_cols(histo: &mut Vec<Hist>, threshold: u8) {
         //similar to how it's done at the start of `lab()`
         // save the new colors, or discard them if similar enough
         // no more color mixing, we don't have much colors left.
-        new_cols = gather_cols(new, threshold, false);
+        new_cols.append(&mut gather_cols(new, threshold, false));
 
         let len = histo.len() + new_cols.len();
 
@@ -154,22 +136,35 @@ pub fn new_cols(histo: &mut Vec<Hist>, threshold: u8) {
 }
 
 pub fn histo_lazy(cols: &[u8], threshold: u8, mix: bool) -> Vec<Hist> {
-    let mut histo: Vec<Hist> = vec![];
     let mut labs = rgb_bytes_to_labs(cols);
     labs.dedup();
 
-    for lab in labs {
-        if (lab.l as u32) < (DARKEST as u32) //ignore really dark colors
-        || (lab.l as u32) > (LIGHTEST as u32) //ignore really light colors
-        || is_present(lab, &mut histo, threshold, mix) {
-            continue;
-        } else {
+    gather_cols_lazy(labs, threshold, mix)
+}
+
+fn gather_cols_lazy(labs: Vec<Spec>, threshold: u8, mix: bool) -> Vec<Hist> {
+    let mut histo: Vec<Hist> = vec![];
+
+    'outter: for lab in labs {
+        if (lab.l as u32) >= ( DARKEST as u32) //ignore really dark colors
+        || (lab.l as u32) <= (LIGHTEST as u32) //ignore really light colors
+        {
+            // Check if whether the color is new or is already in the vec
+            for col in &mut histo {
+                // if any lab value is between a threshold, count it up
+                if delta_e(lab, col.color) < threshold.into() {
+                    if mix { col.color = mixed(lab, col.color); }
+                    col.count += 1;
+                    continue 'outter;
+                }
+            }
             histo.push(Histo { color: lab, count: 1 });
         }
     }
 
     histo
 }
+
 
 pub fn new_cols_lazy(histo: &mut Vec<Hist>, threshold: u8) {
     let mut new_cols = vec![];
@@ -178,21 +173,11 @@ pub fn new_cols_lazy(histo: &mut Vec<Hist>, threshold: u8) {
         let color_a: Myrgb = comb[0].color.into();
         let color_b: Myrgb = comb[1].color.into();
 
-        let new = interpolate(color_a, color_b, MAX_COLS);
+        let new = interpolate(color_a, color_b, MAX_COLS).iter().map(|&x| Spec::from(x)).collect();
 
         //similar to how it's done at the start of `lab()`
         // save the new colors, or discard them if similar enough
-        for i in new {
-            let lab: Spec = i.into();
-            //ignore really dark/light colors
-            if (lab.l as u32) < (DARKEST as u32)
-            || (lab.l as u32) > (LIGHTEST as u32)
-            || is_present_no_mut(lab, histo, threshold) {
-                continue;
-            } else {
-                new_cols.push(Histo { color: lab, count: 1 });
-            }
-        }
+        new_cols = gather_cols_lazy(new, threshold, false);
 
         let len = histo.len() + new_cols.len();
 
