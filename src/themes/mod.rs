@@ -133,13 +133,14 @@ fn keys_to_values_match() {
     }
 }
 
+const RAND: &str = "random";
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
 /// [`WalTheme`] format
 #[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: String, quiet: bool) -> Result<Colors> {
     use rand::Rng;
 
-    let index = if theme_key == "random" {
+    let index = if theme_key == RAND {
         let i = rand::thread_rng().gen_range(0..=COLS_VALUE.len() - 1); //ommit the last item, which is "random"
         if ! quiet { println!("[{info}] {theme}: randomly selected {name}", theme = "theme".magenta().bold(), name = COLS_KEY[i], info = "I".blue().bold()); }
         Some(i)

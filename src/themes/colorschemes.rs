@@ -268,7 +268,7 @@ pub const COLS_KEY: [&str; 259] = [
 "vscode",
 "zenburn",
 "srcery",
-"random", //not an actual scheme but a keyword.
+super::RAND, //not an actual scheme but a keyword.
 ];
 
 
