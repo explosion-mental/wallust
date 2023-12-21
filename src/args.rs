@@ -85,6 +85,7 @@ pub enum Subcmds {
         #[arg(short, long, conflicts_with = "skip_sequences")]
         update_current: bool,
     },
+    Debug,
 }
 
 /// No subcommands, global arguments
