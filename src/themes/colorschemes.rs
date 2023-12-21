@@ -6,10 +6,13 @@ fn check_themes() {
     }
 }
 
+///This indicates how many themes are currently. When adding/deleting a theme, make sure to add/subtract it here.
+const LEN: usize = 259;
+
 /// Names of all the corresponding [`COLS_VALUE`]. The order matters since they got the same index
 /// + 1, since this array has one more entry: "random", which acts as a keyword, a COLS_KEY without
 /// COLS_VALUE.
-pub const COLS_KEY: [&str; 259 + 1] = [
+pub const COLS_KEY: [&str; LEN + 1] = [
 "3024-dark",
 "3024-light",
 "ashes-dark",
@@ -274,7 +277,7 @@ super::RAND, //not an actual scheme but a keyword.
 
 
 /// JSON as [`&str`]s of the colorschemes
-pub const COLS_VALUE: [&str; 259] = [
+pub const COLS_VALUE: [&str; LEN] = [
 "\
 {\"special\":{\"background\":\"#090300\",\"foreground\":\"#a5a2a2\",\"cursor\":\"#db2d20\"},\"colors\":{\"color0\":\"#090300\",\"color1\":\"#db2d20\",\"color2\":\"#01a252\",\"color3\":\"#fded02\",\"color4\":\"#01a0e4\",\"color5\":\"#a16a94\",\"color6\":\"#b5e4f4\",\"color7\":\"#a5a2a2\",\"color8\":\"#5c5855\",\"color9\":\"#db2d20\",\"color10\":\"#01a252\",\"color11\":\"#fded02\",\"color12\":\"#01a0e4\",\"color13\":\"#a16a94\",\"color14\":\"#b5e4f4\",\"color15\":\"#f7f7f7\"}}",
 
