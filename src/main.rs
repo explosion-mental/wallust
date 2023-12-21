@@ -120,8 +120,8 @@ Configuration options:
     saturation     = {:?}
     alpha          = {:?}
 Templates:
-{entry}
-",
+{entry}\n
+ ~ make sure to report any issue at <https://codeberg.org/explosion-mental/wallust/issues> ~ ",
         cache::CACHE_VER,
         cache_path.display(),
         conf.file.display(),
@@ -133,8 +133,7 @@ Templates:
         conf.check_contrast,
         conf.saturation,
         conf.alpha,
-
-);
+            );
         },
         None => (),
     }
