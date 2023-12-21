@@ -93,15 +93,15 @@ pub struct WallustArgs {
     /// Path to an image or json theme to use
     pub file: PathBuf,
 
-    /// Alpha value (default is 100)
+    /// Alpha *template variable* value, used only for templating (default is 100)
     #[arg(short, long, value_parser = 0..=100)]
     pub alpha: Option<i64>,
 
-    /// Custom backend (ignores config file)
+    /// Choose which backend to use (overwrites config)
     #[arg(short, long, value_enum)]
     pub backend: Option<Backend>,
 
-    /// Custom colorspace (ignores config file)
+    /// Choose which colorspace to use (overwrites config)
     #[arg(short, long, value_enum)]
     pub colorspace: Option<ColorSpaces>,
 
@@ -113,11 +113,11 @@ pub struct WallustArgs {
     #[arg(short = 'd', long, conflicts_with = "config_path")]
     pub config_dir: Option<PathBuf>,
 
-    /// Custom filter (ignores config file)
+    /// Choose which filter to use (overwrites config)
     #[arg(short, long, value_enum)]
     pub filter: Option<Filters>,
 
-    /// Custom check_contrast (ignores config file)
+    /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
     #[arg(short = 'k', long)]
     pub check_contrast: bool,
 
@@ -133,19 +133,19 @@ pub struct WallustArgs {
     #[arg(short, long, conflicts_with = "update_current")]
     pub skip_sequences: bool,
 
-    /// Custom saturation (ignores config file)
+    /// Add saturation from 1% to 100% (overwrites config)
     #[arg(long, value_parser = 1..=100)]
     pub saturation: Option<i64>,
 
-    /// Custom threshold (ignores config file)
+    /// Choose a custom threshold (overwrites config)
     #[arg(short, long, value_parser = 1..=100)]
     pub threshold: Option<i64>,
 
-    /// Skip templating process
+    /// Skip the templating process
     #[arg(short = 'T', long)]
     pub skip_templates: bool,
 
-    /// Only update the current terminal
+    /// Only update the current terminal colros
     #[arg(short, long, conflicts_with = "skip_sequences")]
     pub update_current: bool,
 
