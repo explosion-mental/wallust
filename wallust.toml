@@ -7,13 +7,18 @@
 #  * resized    - Resizes the image before parsing, mantaining it's aspect ratio
 #  * wal        - Uses image magick `convert` to generate the colors, like pywal
 #  * thumb      - Faster algo hardcoded to 512x512 (no ratio respected)
-#  * fastresize - A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
+#  * fastresize - A much faster resize algo that uses SIMD. For some reason it
+#                  fails on some images where `resized` doesn't, for this reason
+#                  it does not *replace* but rather it's a new option.
 backend = "resized"
 
 # What color space to use to produce and select the most prominent colors:
 #  * lab      - Uses Cie L*a*b color space
-#  * labmixed - Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)
-#  * labfast  - Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have "enough colors" for labfast.
+#  * labmixed - Variant of `lab` that mixes the colors gathered, if not enough
+#                colors it fallbacks to usual lab (not recommended in small images)
+#  * labfast  - Variant of `lab` that avoids floating arithmetic, thus, faster
+#                operations but not that much precise result. Images that work on
+#                lab/labmixed could not have "enough colors" for labfast.
 color_space = "lab"
 
 # Difference between similar colors, used by the colorspace:
@@ -33,7 +38,8 @@ threshold = 20
 #  * harddark16  - Harddark with 16 color variation
 #  * light       - Light bg, dark fg
 #  * light16     - Same as `light` but uses the 16 color trick
-#  * softdark    - Variant of softlight, uses the lightest colors and a dark background (could be interpreted as `dark` inversed)
+#  * softdark    - Variant of softlight, uses the lightest colors and a dark
+#                   background (could be interpreted as `dark` inversed)
 #  * softdark16  - softdark with 16 color variation
 #  * softlight   - Light with soft pastel colors, counterpart of `harddark`
 #  * softlight16 - softlight with 16 color variation
