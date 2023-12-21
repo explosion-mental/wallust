@@ -117,20 +117,20 @@ filter = \"{def_filter}\"
 # target = \"~/.config/zathura/zathurarc\"
 
 # REMINDER Variables and methods that can be used with templating:
-#  {{wallpaper}}  The full path to the current wallpaper.
-#  {{backend}}    Current **backend** being used.
-#  {{colorspace}} Current **colorspace** being used.
-#  {{filter}}     Current **filter** being used.
-#  {{alpha}}      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
-#  {{alpha_dec}}  Instead of [0..=100], displays it from 0.00 to 1.00.
-#  {{var}}        Output the color in `hex`.
-#  {{var.rgb}}    Output the color in `rgb`.
-#  {{var.rgba}}   Output the color in `rgba`.
-#  {{var.xrgba}}  Output the color in `xrgb`.
-#  {{var.strip}}  Output the color in `hex` (without a `#`).
-#  {{var.red}}    Output the red value.
-#  {{var.green}}  Output the green value.
-#  {{var.blue}}   Output the blue value.
+#  wallpaper  The full path to the current wallpaper.
+#  backend    Current **backend** being used.
+#  colorspace Current **colorspace** being used.
+#  filter     Current **filter** being used.
+#  alpha      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
+#  alpha_dec  Instead of [0..=100], displays it from 0.00 to 1.00.
+#  var        Output the color in `hex`.
+#  var.rgb    Output the color in `rgb`.
+#  var.rgba   Output the color in `rgba`.
+#  var.xrgba  Output the color in `xrgb`.
+#  var.strip  Output the color in `hex` (without a `#`).
+#  var.red    Output the red value.
+#  var.green  Output the green value.
+#  var.blue   Output the blue value.
 #
 # Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
 "
