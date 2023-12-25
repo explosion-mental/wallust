@@ -111,7 +111,7 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
         Schemes::Wallust,
     ];
 
-    for i in a {
+    for i in &a {
         match read_scheme(file, &i) {
             Ok(o) => {
                 println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col()));
@@ -121,8 +121,10 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
         }
     }
 
-    //unreacheable
-    anyhow::bail!("{} was not in the pywal, terminal-sexy or wallust format.", file.display())
+    //no theme found
+    let (themes, last) = a.split_at(a.len() - 1);
+    let themes = themes.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ");
+    anyhow::bail!("{} was not in the {themes} or {} format.", file.display(), last[0].to_string())
 }
 
 #[cfg(feature = "themes")]
@@ -133,7 +135,10 @@ fn keys_to_values_match() {
     }
 }
 
+/// string that is inside the "theme" collection but acts as a keyword. The "random" theme is not a
+/// theme itself, but a selected random one.
 const RAND: &str = "random";
+
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
 /// [`WalTheme`] format
 #[cfg(feature = "themes")]
