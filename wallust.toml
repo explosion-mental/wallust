@@ -63,12 +63,18 @@ filter = "softdark16"
 # 1. template: A relative path that points to a file where wallust.toml is located, usually at `~/.config/wallust/`
 # 2. target: Absolute path in which to place a file with generated templated values
 
+# OPTIONALLY It can accept `new_engine = true`: usual templating uses one bracket around the variable; enabling `new_engine` requires two brackets, making it more versatile with file formats that use brackets (like json). In
+
+# OPTIONALLY It can accept `new_engine = true`: This "new engine" difers by using double brackets like `{{variable}}` instead of one like usual, which helps with file formats that use brackets like json. With the `new_engine` enabled you can escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
+
 # This is the most common way of integrating `wallust` generated palette to some program.
-# Below a simple example that searches for `config-path/zathurarc` and puts the newly created file to `~/.config/zathura/zathurarc`
+# Below a simple example that searches for `config-path/zathurarc` and puts the
+# newly created file to `~/.config/zathura/zathurarc` and it uses the `new_engine` flag for double brackets.
 
 # [[entry]]
 # template = "zathurarc"
 # target = "~/.config/zathura/zathurarc"
+# new_engine = true
 
 # REMINDER Variables and methods that can be used with templating:
 #  wallpaper:  The full path to the current wallpaper.
