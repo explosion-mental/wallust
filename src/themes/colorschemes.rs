@@ -1303,12 +1303,11 @@ pub const COLS_VALUE: [&str; LEN] = [
 "\
 {\"special\":{\"background\":\"#1e1e1e\",\"foreground\":\"#d4d4d4\",\"cursor\":\"#f44747\"},\"colors\":{\"color0\":\"#1e1e1e\",\"color1\":\"#f44747\",\"color2\":\"#d7ba7d\",\"color3\":\"#608b4e\",\"color4\":\"#569cd6\",\"color5\":\"#4ec9b0\",\"color6\":\"#c586c0\",\"color7\":\"#d4d4d4\",\"color8\":\"#808080\",\"color9\":\"#f44747\",\"color10\":\"#d7ba7d\",\"color11\":\"#608b4e\",\"color12\":\"#569cd6\",\"color13\":\"#4ec9b0\",\"color14\":\"#c586c0\",\"color15\":\"#d4d4d4\"}}",
 
-
 "\
 {\"special\":{\"background\":\"#3f3f3f\",\"foreground\":\"#dcdccc\",\"cursor\":\"#cc9393\"},\"colors\":{\"color0\":\"#3f3f3f\",\"color1\":\"#cc9393\",\"color2\":\"#7f9f7f\",\"color3\":\"#d0bf8f\",\"color4\":\"#6ca0a3\",\"color5\":\"#dc8cc3\",\"color6\":\"#93e0e3\",\"color7\":\"#dcdccc\",\"color8\":\"#828282\",\"color9\":\"#cc9393\",\"color10\":\"#7f9f7f\",\"color11\":\"#d0bf8f\",\"color12\":\"#6ca0a3\",\"color13\":\"#dc8cc3\",\"color14\":\"#93e0e3\",\"color15\":\"#dcdccc\"}}",
 
 "{\"special\":{\"background\":\"#1c1b19\",\"foreground\":\"#d0bfa1\",\"cursor\":\"#fce8c3\"},\"colors\":{\"color0\":\"#1c1b19\",\"color1\":\"#ef2f27\",\"color2\":\"#519f50\",\"color3\":\"#fbb829\",\"color4\":\"#2c78bf\",\"color5\":\"#e02c6d\",\"color6\":\"#0aaeb3\",\"color7\":\"#d0bfa1\",\"color8\":\"#918175\",\"color9\":\"#f75341\",\"color10\":\"#98bc37\",\"color11\":\"#fed06e\",\"color12\":\"#68a8e4\",\"color13\":\"#ff5c8f\",\"color14\":\"#53fde9\",\"color15\":\"#fce8c3\"}}",
 
-"{\"special\":{\"background\": \"#191724\", \"foreground\": \"#e0def4\", \"cursor\": \"#e0def4\"}, \"colors\": {\"color0\": \"#1f1d2e\", \"color8\": \"#26233a\", \"color1\": \"#eb6f92\", \"color9\": \"#eb6f92\", \"color2\": \"#f6c177\", \"color10\": \"#f6c177\", \"color3\": \"#ebbcba\", \"color11\": \"#ebbcba\", \"color4\": \"#31748f\", \"color12\": \"#31748f\", \"color5\": \"#c4a7e7\", \"color13\": \"#c4a7e7\", \"color6\": \"#9ccfd8\", \"color14\": \"#9ccfd8\", \"color7\": \"#6e6a86\", \"color15\": \"#908caa\"}}",
+r##"{"special":{"background": "#191724", \"foreground\": \"#e0def4\", \"cursor\": \"#e0def4\"}, \"colors\": {\"color0\": \"#1f1d2e\", \"color8\": \"#26233a\", \"color1\": \"#eb6f92\", \"color9\": \"#eb6f92\", \"color2\": \"#f6c177\", \"color10\": \"#f6c177\", \"color3\": \"#ebbcba\", \"color11\": \"#ebbcba\", \"color4\": \"#31748f\", \"color12\": \"#31748f\", \"color5\": \"#c4a7e7\", \"color13\": \"#c4a7e7\", \"color6\": \"#9ccfd8\", \"color14\": \"#9ccfd8\", \"color7\": \"#6e6a86\", \"color15\": \"#908caa\"}}"##,
 
 ];
