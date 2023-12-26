@@ -106,6 +106,7 @@ color15='#0F0000'
         entry: Some(vec![config::Entries {
             template: template_path.display().to_string(),
             target: target_path.display().to_string(),
+            new_engine: Some(false),
         }]),
         ..config::Config::default()
     };
