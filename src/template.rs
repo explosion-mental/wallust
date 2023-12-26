@@ -52,11 +52,11 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             continue;
         }
 
-        let val = values.to_hash(image_path, conf);
-
-        let rendered =
-            new_string_template::template::Template::new(file_content).render_nofail(&val)
-        ;
+        let rendered = if conf.new_engine.unwrap_or(false) {
+            far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: &image_path, conf })
+        } else {
+            new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path, conf))
+        };
 
         let mut buffer = match File::create(target_file.as_ref()) {
             Ok(o) => o,
@@ -76,191 +76,372 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
     Ok(())
 }
 
+struct Myt<'a> {
+    cols: &'a Colors,
+    img: &'a std::path::Path,
+    conf: &'a Config,
+}
+
+impl<'a> far::Render for Myt<'a> {
+    fn render(&self) -> HashMap<&'static str, String> {
+        to_hash(&self.cols, &self.img, &self.conf)
+
+    }
+    fn keys() -> Box<dyn Iterator<Item = &'static str>> {
+        Box::new([
+            "wallpaper",
+            "alpha",
+            "alpha_dec",
+            "backend",
+            "colorspace",
+            "filter",
+            "color0" ,
+            "color1" ,
+            "color2" ,
+            "color3" ,
+            "color4" ,
+            "color5" ,
+            "color6" ,
+            "color7" ,
+            "color8" ,
+            "color9" ,
+            "color10",
+            "color11",
+            "color12",
+            "color13",
+            "color14",
+            "color15",
+            "cursor",
+            "foreground",
+            "background",
+            "color0.rgb" ,
+            "color1.rgb" ,
+            "color2.rgb" ,
+            "color3.rgb" ,
+            "color4.rgb" ,
+            "color5.rgb" ,
+            "color6.rgb" ,
+            "color7.rgb" ,
+            "color8.rgb" ,
+            "color9.rgb" ,
+            "color10.rgb",
+            "color11.rgb",
+            "color12.rgb",
+            "color13.rgb",
+            "color14.rgb",
+            "color15.rgb",
+            "cursor.rgb",
+            "foreground.rgb",
+            "background.rgb",
+            "color0.rgba" ,
+            "color1.rgba" ,
+            "color2.rgba" ,
+            "color3.rgba" ,
+            "color4.rgba" ,
+            "color5.rgba" ,
+            "color6.rgba" ,
+            "color7.rgba" ,
+            "color8.rgba" ,
+            "color9.rgba" ,
+            "color10.rgba",
+            "color11.rgba",
+            "color12.rgba",
+            "color13.rgba",
+            "color14.rgba",
+            "color15.rgba",
+            "cursor.rgba",
+            "foreground.rgba",
+            "background.rgba",
+            "color0.xrgba" ,
+            "color1.xrgba" ,
+            "color2.xrgba" ,
+            "color3.xrgba" ,
+            "color4.xrgba" ,
+            "color5.xrgba" ,
+            "color6.xrgba" ,
+            "color7.xrgba" ,
+            "color8.xrgba" ,
+            "color9.xrgba" ,
+            "color10.xrgba",
+            "color11.xrgba",
+            "color12.xrgba",
+            "color13.xrgba",
+            "color14.xrgba",
+            "color15.xrgba",
+            "cursor.xrgba",
+            "foreground.xrgba",
+            "background.xrgba",
+            "color0.strip" ,
+            "color1.strip" ,
+            "color2.strip" ,
+            "color3.strip" ,
+            "color4.strip" ,
+            "color5.strip" ,
+            "color6.strip" ,
+            "color7.strip" ,
+            "color8.strip" ,
+            "color9.strip" ,
+            "color10.strip",
+            "color11.strip",
+            "color12.strip",
+            "color13.strip",
+            "color14.strip",
+            "color15.strip",
+            "cursor.strip",
+            "foreground.strip",
+            "background.strip",
+            "color0.red" ,
+            "color1.red" ,
+            "color2.red" ,
+            "color3.red" ,
+            "color4.red" ,
+            "color5.red" ,
+            "color6.red" ,
+            "color7.red" ,
+            "color8.red" ,
+            "color9.red" ,
+            "color10.red",
+            "color11.red",
+            "color12.red",
+            "color13.red",
+            "color14.red",
+            "color15.red",
+            "cursor.red",
+            "foreground.red",
+            "background.red",
+            "color0.green" ,
+            "color1.green" ,
+            "color2.green" ,
+            "color3.green" ,
+            "color4.green" ,
+            "color5.green" ,
+            "color6.green" ,
+            "color7.green" ,
+            "color8.green" ,
+            "color9.green" ,
+            "color10.green",
+            "color11.green",
+            "color12.green",
+            "color13.green",
+            "color14.green",
+            "color15.green",
+            "cursor.green",
+            "foreground.green",
+            "background.green",
+            "color0.blue" ,
+            "color1.blue" ,
+            "color2.blue" ,
+            "color3.blue" ,
+            "color4.blue" ,
+            "color5.blue" ,
+            "color6.blue" ,
+            "color7.blue" ,
+            "color8.blue" ,
+            "color9.blue" ,
+            "color10.blue",
+            "color11.blue",
+            "color12.blue",
+            "color13.blue",
+            "color14.blue",
+            "color15.blue",
+            "cursor.blue",
+            "foreground.blue",
+            "background.blue",
+            ].into_iter())
+    }
+
+}
+
+pub fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a str, String> {
+    let mut map = HashMap::new();
+    let alpha = conf.alpha.unwrap_or(100);
+    //XXX instead of multiple `.method()` maybe using enums and match with a single method
+
+    //full path to the image
+    map.insert("wallpaper", image_path.display().to_string());
+    map.insert("alpha", alpha.to_string());
+    map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
+    //map.insert("alpha_hex", format!("{:.02x}",  ((f32::from(alpha) / 100.0)  * 255.0) as i32 ));
+
+    // Include backend, colorspace and filter
+    map.insert("backend", conf.backend.to_string());
+    map.insert("colorspace", conf.color_space.to_string());
+    map.insert("filter", conf.filter.to_string());
+
+    // normal output `#EEEEEE`
+    map.insert("color0" , col.color0 .to_string());
+    map.insert("color1" , col.color1 .to_string());
+    map.insert("color2" , col.color2 .to_string());
+    map.insert("color3" , col.color3 .to_string());
+    map.insert("color4" , col.color4 .to_string());
+    map.insert("color5" , col.color5 .to_string());
+    map.insert("color6" , col.color6 .to_string());
+    map.insert("color7" , col.color7 .to_string());
+    map.insert("color8" , col.color8 .to_string());
+    map.insert("color9" , col.color9 .to_string());
+    map.insert("color10", col.color10.to_string());
+    map.insert("color11", col.color11.to_string());
+    map.insert("color12", col.color12.to_string());
+    map.insert("color13", col.color13.to_string());
+    map.insert("color14", col.color14.to_string());
+    map.insert("color15", col.color15.to_string());
+    map.insert("cursor", col.foreground.to_string());
+    map.insert("foreground", col.foreground.to_string());
+    map.insert("background", col.background.to_string());
+
+    //.rgb output `235,235,235`
+    map.insert("color0.rgb" , col.color0 .rgb());
+    map.insert("color1.rgb" , col.color1 .rgb());
+    map.insert("color2.rgb" , col.color2 .rgb());
+    map.insert("color3.rgb" , col.color3 .rgb());
+    map.insert("color4.rgb" , col.color4 .rgb());
+    map.insert("color5.rgb" , col.color5 .rgb());
+    map.insert("color6.rgb" , col.color6 .rgb());
+    map.insert("color7.rgb" , col.color7 .rgb());
+    map.insert("color8.rgb" , col.color8 .rgb());
+    map.insert("color9.rgb" , col.color9 .rgb());
+    map.insert("color10.rgb", col.color10.rgb());
+    map.insert("color11.rgb", col.color11.rgb());
+    map.insert("color12.rgb", col.color12.rgb());
+    map.insert("color13.rgb", col.color13.rgb());
+    map.insert("color14.rgb", col.color14.rgb());
+    map.insert("color15.rgb", col.color15.rgb());
+    map.insert("cursor.rgb", col.foreground.rgb());
+    map.insert("foreground.rgb", col.foreground.rgb());
+    map.insert("background.rgb", col.background.rgb());
+
+    //.rgba output `235,235,235,1.0`
+    map.insert("color0.rgba" , col.color0 .rgba());
+    map.insert("color1.rgba" , col.color1 .rgba());
+    map.insert("color2.rgba" , col.color2 .rgba());
+    map.insert("color3.rgba" , col.color3 .rgba());
+    map.insert("color4.rgba" , col.color4 .rgba());
+    map.insert("color5.rgba" , col.color5 .rgba());
+    map.insert("color6.rgba" , col.color6 .rgba());
+    map.insert("color7.rgba" , col.color7 .rgba());
+    map.insert("color8.rgba" , col.color8 .rgba());
+    map.insert("color9.rgba" , col.color9 .rgba());
+    map.insert("color10.rgba", col.color10.rgba());
+    map.insert("color11.rgba", col.color11.rgba());
+    map.insert("color12.rgba", col.color12.rgba());
+    map.insert("color13.rgba", col.color13.rgba());
+    map.insert("color14.rgba", col.color14.rgba());
+    map.insert("color15.rgba", col.color15.rgba());
+    map.insert("cursor.rgba", col.foreground.rgba());
+    map.insert("foreground.rgba", col.foreground.rgba());
+    map.insert("background.rgba", col.background.rgba());
+
+    //.xrgba output `ee/ee/ee/ff`
+    map.insert("color0.xrgba" , col.color0 .xrgba());
+    map.insert("color1.xrgba" , col.color1 .xrgba());
+    map.insert("color2.xrgba" , col.color2 .xrgba());
+    map.insert("color3.xrgba" , col.color3 .xrgba());
+    map.insert("color4.xrgba" , col.color4 .xrgba());
+    map.insert("color5.xrgba" , col.color5 .xrgba());
+    map.insert("color6.xrgba" , col.color6 .xrgba());
+    map.insert("color7.xrgba" , col.color7 .xrgba());
+    map.insert("color8.xrgba" , col.color8 .xrgba());
+    map.insert("color9.xrgba" , col.color9 .xrgba());
+    map.insert("color10.xrgba", col.color10.xrgba());
+    map.insert("color11.xrgba", col.color11.xrgba());
+    map.insert("color12.xrgba", col.color12.xrgba());
+    map.insert("color13.xrgba", col.color13.xrgba());
+    map.insert("color14.xrgba", col.color14.xrgba());
+    map.insert("color15.xrgba", col.color15.xrgba());
+    map.insert("cursor.xrgba", col.foreground.xrgba());
+    map.insert("foreground.xrgba", col.foreground.xrgba());
+    map.insert("background.xrgba", col.background.xrgba());
+
+    //.strip output `EEEEEE`
+    map.insert("color0.strip" , col.color0 .strip());
+    map.insert("color1.strip" , col.color1 .strip());
+    map.insert("color2.strip" , col.color2 .strip());
+    map.insert("color3.strip" , col.color3 .strip());
+    map.insert("color4.strip" , col.color4 .strip());
+    map.insert("color5.strip" , col.color5 .strip());
+    map.insert("color6.strip" , col.color6 .strip());
+    map.insert("color7.strip" , col.color7 .strip());
+    map.insert("color8.strip" , col.color8 .strip());
+    map.insert("color9.strip" , col.color9 .strip());
+    map.insert("color10.strip", col.color10.strip());
+    map.insert("color11.strip", col.color11.strip());
+    map.insert("color12.strip", col.color12.strip());
+    map.insert("color13.strip", col.color13.strip());
+    map.insert("color14.strip", col.color14.strip());
+    map.insert("color15.strip", col.color15.strip());
+    map.insert("cursor.strip", col.foreground.strip());
+    map.insert("foreground.strip", col.foreground.strip());
+    map.insert("background.strip", col.background.strip());
+
+    //.red output `235`
+    map.insert("color0.red" , col.color0 .red());
+    map.insert("color1.red" , col.color1 .red());
+    map.insert("color2.red" , col.color2 .red());
+    map.insert("color3.red" , col.color3 .red());
+    map.insert("color4.red" , col.color4 .red());
+    map.insert("color5.red" , col.color5 .red());
+    map.insert("color6.red" , col.color6 .red());
+    map.insert("color7.red" , col.color7 .red());
+    map.insert("color8.red" , col.color8 .red());
+    map.insert("color9.red" , col.color9 .red());
+    map.insert("color10.red", col.color10.red());
+    map.insert("color11.red", col.color11.red());
+    map.insert("color12.red", col.color12.red());
+    map.insert("color13.red", col.color13.red());
+    map.insert("color14.red", col.color14.red());
+    map.insert("color15.red", col.color15.red());
+    map.insert("cursor.red", col.foreground.red());
+    map.insert("foreground.red", col.foreground.red());
+    map.insert("background.red", col.background.red());
+
+    //.green output `235`
+    map.insert("color0.green" , col.color0 .green());
+    map.insert("color1.green" , col.color1 .green());
+    map.insert("color2.green" , col.color2 .green());
+    map.insert("color3.green" , col.color3 .green());
+    map.insert("color4.green" , col.color4 .green());
+    map.insert("color5.green" , col.color5 .green());
+    map.insert("color6.green" , col.color6 .green());
+    map.insert("color7.green" , col.color7 .green());
+    map.insert("color8.green" , col.color8 .green());
+    map.insert("color9.green" , col.color9 .green());
+    map.insert("color10.green", col.color10.green());
+    map.insert("color11.green", col.color11.green());
+    map.insert("color12.green", col.color12.green());
+    map.insert("color13.green", col.color13.green());
+    map.insert("color14.green", col.color14.green());
+    map.insert("color15.green", col.color15.green());
+    map.insert("cursor.green", col.foreground.green());
+    map.insert("foreground.green", col.foreground.green());
+    map.insert("background.green", col.background.green());
+
+    //.blue output `235`
+    map.insert("color0.blue" , col.color0 .blue());
+    map.insert("color1.blue" , col.color1 .blue());
+    map.insert("color2.blue" , col.color2 .blue());
+    map.insert("color3.blue" , col.color3 .blue());
+    map.insert("color4.blue" , col.color4 .blue());
+    map.insert("color5.blue" , col.color5 .blue());
+    map.insert("color6.blue" , col.color6 .blue());
+    map.insert("color7.blue" , col.color7 .blue());
+    map.insert("color8.blue" , col.color8 .blue());
+    map.insert("color9.blue" , col.color9 .blue());
+    map.insert("color10.blue", col.color10.blue());
+    map.insert("color11.blue", col.color11.blue());
+    map.insert("color12.blue", col.color12.blue());
+    map.insert("color13.blue", col.color13.blue());
+    map.insert("color14.blue", col.color14.blue());
+    map.insert("color15.blue", col.color15.blue());
+    map.insert("cursor.blue", col.foreground.blue());
+    map.insert("foreground.blue", col.foreground.blue());
+    map.insert("background.blue", col.background.blue());
+
+    map
+}
+
+
 impl Colors {
     pub fn to_hash(&self, image_path: &Path, conf: &Config) -> HashMap<&str, String> {
-        let mut map = HashMap::new();
-        let alpha = conf.alpha.unwrap_or(100);
-        //XXX instead of multiple `.method()` maybe using enums and match with a single method
-
-        //full path to the image
-        map.insert("wallpaper", image_path.display().to_string());
-        map.insert("alpha", alpha.to_string());
-        map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
-        //map.insert("alpha_hex", format!("{:.02x}",  ((f32::from(alpha) / 100.0)  * 255.0) as i32 ));
-
-        // Include backend, colorspace and filter
-        map.insert("backend", conf.backend.to_string());
-        map.insert("colorspace", conf.color_space.to_string());
-        map.insert("filter", conf.filter.to_string());
-
-        // normal output `#EEEEEE`
-        map.insert("color0" , self.color0 .to_string());
-        map.insert("color1" , self.color1 .to_string());
-        map.insert("color2" , self.color2 .to_string());
-        map.insert("color3" , self.color3 .to_string());
-        map.insert("color4" , self.color4 .to_string());
-        map.insert("color5" , self.color5 .to_string());
-        map.insert("color6" , self.color6 .to_string());
-        map.insert("color7" , self.color7 .to_string());
-        map.insert("color8" , self.color8 .to_string());
-        map.insert("color9" , self.color9 .to_string());
-        map.insert("color10", self.color10.to_string());
-        map.insert("color11", self.color11.to_string());
-        map.insert("color12", self.color12.to_string());
-        map.insert("color13", self.color13.to_string());
-        map.insert("color14", self.color14.to_string());
-        map.insert("color15", self.color15.to_string());
-        map.insert("cursor", self.foreground.to_string());
-        map.insert("foreground", self.foreground.to_string());
-        map.insert("background", self.background.to_string());
-
-        //.rgb output `235,235,235`
-        map.insert("color0.rgb" , self.color0 .rgb());
-        map.insert("color1.rgb" , self.color1 .rgb());
-        map.insert("color2.rgb" , self.color2 .rgb());
-        map.insert("color3.rgb" , self.color3 .rgb());
-        map.insert("color4.rgb" , self.color4 .rgb());
-        map.insert("color5.rgb" , self.color5 .rgb());
-        map.insert("color6.rgb" , self.color6 .rgb());
-        map.insert("color7.rgb" , self.color7 .rgb());
-        map.insert("color8.rgb" , self.color8 .rgb());
-        map.insert("color9.rgb" , self.color9 .rgb());
-        map.insert("color10.rgb", self.color10.rgb());
-        map.insert("color11.rgb", self.color11.rgb());
-        map.insert("color12.rgb", self.color12.rgb());
-        map.insert("color13.rgb", self.color13.rgb());
-        map.insert("color14.rgb", self.color14.rgb());
-        map.insert("color15.rgb", self.color15.rgb());
-        map.insert("cursor.rgb", self.foreground.rgb());
-        map.insert("foreground.rgb", self.foreground.rgb());
-        map.insert("background.rgb", self.background.rgb());
-
-        //.rgba output `235,235,235,1.0`
-        map.insert("color0.rgba" , self.color0 .rgba());
-        map.insert("color1.rgba" , self.color1 .rgba());
-        map.insert("color2.rgba" , self.color2 .rgba());
-        map.insert("color3.rgba" , self.color3 .rgba());
-        map.insert("color4.rgba" , self.color4 .rgba());
-        map.insert("color5.rgba" , self.color5 .rgba());
-        map.insert("color6.rgba" , self.color6 .rgba());
-        map.insert("color7.rgba" , self.color7 .rgba());
-        map.insert("color8.rgba" , self.color8 .rgba());
-        map.insert("color9.rgba" , self.color9 .rgba());
-        map.insert("color10.rgba", self.color10.rgba());
-        map.insert("color11.rgba", self.color11.rgba());
-        map.insert("color12.rgba", self.color12.rgba());
-        map.insert("color13.rgba", self.color13.rgba());
-        map.insert("color14.rgba", self.color14.rgba());
-        map.insert("color15.rgba", self.color15.rgba());
-        map.insert("cursor.rgba", self.foreground.rgba());
-        map.insert("foreground.rgba", self.foreground.rgba());
-        map.insert("background.rgba", self.background.rgba());
-
-        //.xrgba output `ee/ee/ee/ff`
-        map.insert("color0.xrgba" , self.color0 .xrgba());
-        map.insert("color1.xrgba" , self.color1 .xrgba());
-        map.insert("color2.xrgba" , self.color2 .xrgba());
-        map.insert("color3.xrgba" , self.color3 .xrgba());
-        map.insert("color4.xrgba" , self.color4 .xrgba());
-        map.insert("color5.xrgba" , self.color5 .xrgba());
-        map.insert("color6.xrgba" , self.color6 .xrgba());
-        map.insert("color7.xrgba" , self.color7 .xrgba());
-        map.insert("color8.xrgba" , self.color8 .xrgba());
-        map.insert("color9.xrgba" , self.color9 .xrgba());
-        map.insert("color10.xrgba", self.color10.xrgba());
-        map.insert("color11.xrgba", self.color11.xrgba());
-        map.insert("color12.xrgba", self.color12.xrgba());
-        map.insert("color13.xrgba", self.color13.xrgba());
-        map.insert("color14.xrgba", self.color14.xrgba());
-        map.insert("color15.xrgba", self.color15.xrgba());
-        map.insert("cursor.xrgba", self.foreground.xrgba());
-        map.insert("foreground.xrgba", self.foreground.xrgba());
-        map.insert("background.xrgba", self.background.xrgba());
-
-        //.strip output `EEEEEE`
-        map.insert("color0.strip" , self.color0 .strip());
-        map.insert("color1.strip" , self.color1 .strip());
-        map.insert("color2.strip" , self.color2 .strip());
-        map.insert("color3.strip" , self.color3 .strip());
-        map.insert("color4.strip" , self.color4 .strip());
-        map.insert("color5.strip" , self.color5 .strip());
-        map.insert("color6.strip" , self.color6 .strip());
-        map.insert("color7.strip" , self.color7 .strip());
-        map.insert("color8.strip" , self.color8 .strip());
-        map.insert("color9.strip" , self.color9 .strip());
-        map.insert("color10.strip", self.color10.strip());
-        map.insert("color11.strip", self.color11.strip());
-        map.insert("color12.strip", self.color12.strip());
-        map.insert("color13.strip", self.color13.strip());
-        map.insert("color14.strip", self.color14.strip());
-        map.insert("color15.strip", self.color15.strip());
-        map.insert("cursor.strip", self.foreground.strip());
-        map.insert("foreground.strip", self.foreground.strip());
-        map.insert("background.strip", self.background.strip());
-
-        //.red output `235`
-        map.insert("color0.red" , self.color0 .red());
-        map.insert("color1.red" , self.color1 .red());
-        map.insert("color2.red" , self.color2 .red());
-        map.insert("color3.red" , self.color3 .red());
-        map.insert("color4.red" , self.color4 .red());
-        map.insert("color5.red" , self.color5 .red());
-        map.insert("color6.red" , self.color6 .red());
-        map.insert("color7.red" , self.color7 .red());
-        map.insert("color8.red" , self.color8 .red());
-        map.insert("color9.red" , self.color9 .red());
-        map.insert("color10.red", self.color10.red());
-        map.insert("color11.red", self.color11.red());
-        map.insert("color12.red", self.color12.red());
-        map.insert("color13.red", self.color13.red());
-        map.insert("color14.red", self.color14.red());
-        map.insert("color15.red", self.color15.red());
-        map.insert("cursor.red", self.foreground.red());
-        map.insert("foreground.red", self.foreground.red());
-        map.insert("background.red", self.background.red());
-
-        //.green output `235`
-        map.insert("color0.green" , self.color0 .green());
-        map.insert("color1.green" , self.color1 .green());
-        map.insert("color2.green" , self.color2 .green());
-        map.insert("color3.green" , self.color3 .green());
-        map.insert("color4.green" , self.color4 .green());
-        map.insert("color5.green" , self.color5 .green());
-        map.insert("color6.green" , self.color6 .green());
-        map.insert("color7.green" , self.color7 .green());
-        map.insert("color8.green" , self.color8 .green());
-        map.insert("color9.green" , self.color9 .green());
-        map.insert("color10.green", self.color10.green());
-        map.insert("color11.green", self.color11.green());
-        map.insert("color12.green", self.color12.green());
-        map.insert("color13.green", self.color13.green());
-        map.insert("color14.green", self.color14.green());
-        map.insert("color15.green", self.color15.green());
-        map.insert("cursor.green", self.foreground.green());
-        map.insert("foreground.green", self.foreground.green());
-        map.insert("background.green", self.background.green());
-
-        //.blue output `235`
-        map.insert("color0.blue" , self.color0 .blue());
-        map.insert("color1.blue" , self.color1 .blue());
-        map.insert("color2.blue" , self.color2 .blue());
-        map.insert("color3.blue" , self.color3 .blue());
-        map.insert("color4.blue" , self.color4 .blue());
-        map.insert("color5.blue" , self.color5 .blue());
-        map.insert("color6.blue" , self.color6 .blue());
-        map.insert("color7.blue" , self.color7 .blue());
-        map.insert("color8.blue" , self.color8 .blue());
-        map.insert("color9.blue" , self.color9 .blue());
-        map.insert("color10.blue", self.color10.blue());
-        map.insert("color11.blue", self.color11.blue());
-        map.insert("color12.blue", self.color12.blue());
-        map.insert("color13.blue", self.color13.blue());
-        map.insert("color14.blue", self.color14.blue());
-        map.insert("color15.blue", self.color15.blue());
-        map.insert("cursor.blue", self.foreground.blue());
-        map.insert("foreground.blue", self.foreground.blue());
-        map.insert("background.blue", self.background.blue());
-
-        map
+        to_hash(self, image_path, conf)
     }
 }
