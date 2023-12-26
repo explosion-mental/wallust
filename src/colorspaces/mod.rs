@@ -46,11 +46,12 @@ pub enum ColorOrder {
 }
 
 /// Corresponds to the modules inside this module and `color_space` parameter in the config file.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpaces {
     /// Uses Cie L*a*b color space
+    #[default]
     Lab,
     #[clap(alias = "lab-mixed", name = "labmixed")] //claps prefers this-name
     #[serde(alias = "lab-mixed")]

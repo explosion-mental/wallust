@@ -15,7 +15,7 @@ use owo_colors::{AnsiColors, OwoColorize};
 use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
     /// threshold to use to differentiate colors

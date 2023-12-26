@@ -20,13 +20,14 @@ mod fast_resize;
 
 /// This indicates what 'parser' method to use, defined in the config file.
 /// Corresponds to the modules inside this module
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
     /// Read and return the whole image pixels (more precision, slower)
     Full,
     /// Resizes the image before parsing, mantaining it's aspect ratio
+    #[default]
     Resized,
     /// Uses image magick `convert` to generate the colors, like pywal
     Wal,

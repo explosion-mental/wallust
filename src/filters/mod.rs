@@ -38,11 +38,12 @@ mod softlight;
 mod softlight16;
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, clap::ValueEnum)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
 pub enum Filters {
     /// 8 dark colors, dark background and light contrast
+    #[default]
     Dark,
     /// Same as `dark` but uses the 16 colors trick
     Dark16,
