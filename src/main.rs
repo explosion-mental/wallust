@@ -96,8 +96,14 @@ fn main() -> Result<()> {
             let entry = if let Some(e) = conf.entry {
                 let mut s = String::new();
                 for i in e {
+                    let new_engine = if let Some(s) = i.new_engine {
+                        format!("{sp}{sp}new_engine = {s}\n")
+                    } else {
+                        "".into()
+                    };
+
                     s.push_str(
-                        &format!("{sp}[[entry]]\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n",
+                        &format!("{sp}[[entry]]\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
                                 i.template, i.target)
                         );
                 }
