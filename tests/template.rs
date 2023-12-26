@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::path::PathBuf;
 
 use wallust::colors::Colors;
 //use wallust::colors::HexConversion;
@@ -108,13 +107,7 @@ color15='#0F0000'
             template: template_path.display().to_string(),
             target: target_path.display().to_string(),
         }]),
-        threshold: 0,
-        file: PathBuf::new(),
-        filter: wallust::filters::Filters::Dark,
-        backend: wallust::backends::Backend::Thumb,
-        color_space: wallust::colorspaces::ColorSpaces::Lab,
-        alpha: None,
-        saturation: None,
+        ..config::Config::default()
     };
 
     let e = c.entry.as_ref().unwrap();
