@@ -52,7 +52,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
             continue;
         }
 
-        let rendered = if conf.new_engine.unwrap_or(false) {
+        let rendered = if e.new_engine.unwrap_or(false) {
             far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: &image_path, conf })
         } else {
             new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path, conf))

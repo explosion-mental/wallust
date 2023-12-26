@@ -36,9 +36,6 @@ pub struct Config {
     pub check_contrast: Option<bool>,
     /// Maybe the user requires more vivid colors
     pub saturation: Option<u8>,
-    /// Whether to use the new method or not
-    pub new_engine: Option<bool>,
-
     /// Config directory (wallust/) path
     #[serde(skip)]
     pub dir: PathBuf,
@@ -56,6 +53,8 @@ pub struct Entries {
     pub template: String,
     /// Where to write the template
     pub target: String,
+    /// Whether to use the new method or not
+    pub new_engine: Option<bool>,
 }
 
 impl Config {
