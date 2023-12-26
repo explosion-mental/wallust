@@ -9,7 +9,7 @@ fn check_themes() {
 }
 
 ///This indicates how many themes are currently. When adding/deleting a theme, make sure to add/subtract it here.
-const LEN: usize = 259;
+const LEN: usize = 261;
 
 /// Names of all the corresponding [`COLS_VALUE`]. The order matters since they got the same index
 /// + 1, since this array has one more entry: "random", which acts as a keyword, a COLS_KEY without
@@ -274,6 +274,8 @@ pub const COLS_KEY: [&str; LEN + 1] = [
     "zenburn",
     "srcery",
     "rose-pine",
+    "rose-pine-dawn",
+    "rose-pine-moon",
     super::RAND, //not an actual scheme but a keyword.
 ];
 
@@ -1312,4 +1314,7 @@ pub const COLS_VALUE: [&str; LEN] = [
 
 r##"{"special":{"background": "#191724", "foreground": "#e0def4", "cursor": "#e0def4"}, "colors": {"color0": "#1f1d2e", "color8": "#26233a", "color1": "#eb6f92", "color9": "#eb6f92", "color2": "#f6c177", "color10": "#f6c177", "color3": "#ebbcba", "color11": "#ebbcba", "color4": "#31748f", "color12": "#31748f", "color5": "#c4a7e7", "color13": "#c4a7e7", "color6": "#9ccfd8", "color14": "#9ccfd8", "color7": "#6e6a86", "color15": "#908caa"}}"##,
 
+r##"{"special": {"foreground": "#575279", "background": "#faf4ed", "cursor": "#575279"}, "colors": { "color0": "#fffaf3", "color8": "#f2e9e1", "color1": "#b4637a", "color9": "#b4637a", "color2": "#ea9d34", "color3": "#d7827e", "color4": "#286983", "color5": "#907aa9", "color6": "#56949f", "color7": "#9893a5", "color10": "#ea9d34", "color11": "#d7827e", "color12": "#286983", "color13": "#907aa9", "color14": "#56949f", "color15": "#797593"} }"##,
+
+r##"{"special": {"foreground": "#e0def4", "background": "#232136", "cursor": "#e0def4"}, "colors": { "color0": "#2a273f", "color8": "#393552", "color1": "#eb6f92", "color9": "#eb6f92", "color2": "#f6c177", "color3": "#ea9a97", "color4": "#3e8fb0", "color5": "#c4a7e7", "color6": "#9ccfd8", "color7": "#6e6a86", "color10": "#f6c177", "color11": "#ea9a97", "color12": "#3e8fb0", "color13": "#c4a7e7", "color14": "#9ccfd8", "color15": "#908caa"} }"##,
 ];
