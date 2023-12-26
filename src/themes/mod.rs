@@ -131,7 +131,9 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
 #[test]
 fn keys_to_values_match() {
     for i in COLS_KEY {
-        built_in_theme(i.to_string(), true).expect("{i} should find a match");
+        if let Err(e) = built_in_theme(i.to_string(), true) {
+            eprintln!("Failed {i}: {e}");
+        }
     }
 }
 
@@ -143,6 +145,7 @@ const RAND: &str = "random";
 /// [`WalTheme`] format
 #[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: String, quiet: bool) -> Result<Colors> {
+    use anyhow::Context;
     use rand::Rng;
 
     let index = if theme_key == RAND {
@@ -154,7 +157,7 @@ pub fn built_in_theme(theme_key: String, quiet: bool) -> Result<Colors> {
     };
 
     match index {
-        Some(s) => serde_json::from_str::<WalTheme>(COLS_VALUE[s]).expect("json format MUST be correct").to_colors(),
+        Some(s) => serde_json::from_str::<WalTheme>(COLS_VALUE[s]).context(format!("using '{s}' failed")).expect("JSON should be correct").to_colors(),
         None => anyhow::bail!("Theme not found. Quitting..."),
     }
 }

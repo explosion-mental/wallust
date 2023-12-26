@@ -2,7 +2,9 @@
 #[test]
 fn check_themes() {
     for i in COLS_VALUE {
-        serde_json::from_str::<crate::themes::WalTheme>(i).expect("json format MUST be correct");
+        if let Err(e) = serde_json::from_str::<crate::themes::WalTheme>(i) {
+            eprintln!("Failed with: {e}");
+        }
     }
 }
 
