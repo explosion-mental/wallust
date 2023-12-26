@@ -75,6 +75,12 @@ your `.zshrc`, `.bashrc`, etc.
 _OPTIONAL_
 
 
+**NOTE**: You can enable a new method by using `new_engine = true` inside an `[[entry]]`.
+This "new engine" difers by using double brackets like `{{variable}}` instead of one like
+`{variable}` (_as in the example below_), which helps with file formats that use brackets
+like json. With the `new_engine` enabled you can escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
+
+
 You can use `wallust` generated colors in a program by _templating_ the colors
 in it's config file, like the following example:
 ```
@@ -102,28 +108,23 @@ You can find examples at
 or
 [wpgtk templates](https://github.com/deviantfero/wpgtk-templates)
 
-**NOTE:** The template name doesn't have to match the target name: e.g. the
-file could be named `sample.conf`, and thus the entry would have `template =
-"sample.conf"`, but the target can remain the same, e.g. `target = "~/.config/zathurarc"`.
-
 #### Variables and Methods
-- `{wallpaper}`: The full path to the current wallpaper.
-- `{backend}`: Current **backend** being used.
-- `{colorspace}`: Current **colorspace** being used.
-- `{filter}`: Current **filter** being used.
-- `{alpha}`: Default to 100, can be modified in the config file or with `--alpha`/`-a`.
-- `{alpha_dec}`: instead of [0..=100], displays it from 0.00 to 1.00.
-- `{var}`: Output the color in `hex`.
-- `{var.rgb}`: Output the color in `rgb`.
-- `{var.rgba}`: Output the color in `rgba`.
-- `{var.xrgba}`: Output the color in `xrgb`.
-- `{var.strip}`: Output the color in `hex` (without a `#`).
-- `{var.red}`: Output the red value.
-- `{var.green}`: Output the green value.
-- `{var.blue}`: Output the blue value.
+- `wallpaper`: The full path to the current wallpaper.
+- `backend`: Current **backend** being used.
+- `colorspace`: Current **colorspace** being used.
+- `filter`: Current **filter** being used.
+- `alpha`: Default to 100, can be modified in the config file or with `--alpha`/`-a`.
+- `alpha_dec`: instead of [0..=100], displays it from 0.00 to 1.00.
+- `var`: Output the color in `hex`.
+- `var.rgb`: Output the color in `rgb`.
+- `var.rgba`: Output the color in `rgba`.
+- `var.xrgba`: Output the color in `xrgb`.
+- `var.strip`: Output the color in `hex` (without a `#`).
+- `var.red`: Output the red value.
+- `var.green`: Output the green value.
+- `var.blue`: Output the blue value.
 
 Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
-
 
 ## Installation
 
