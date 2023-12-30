@@ -255,10 +255,13 @@ impl<'a> far::Render for Myt<'a> {
 pub fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
     let alpha = conf.alpha.unwrap_or(100);
+    // make sure to display the absolute path of the wallpaper
+    let p = std::fs::canonicalize(image_path).expect("PATH EXIST, validation from clap");
+
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
     //full path to the image
-    map.insert("wallpaper", image_path.display().to_string());
+    map.insert("wallpaper", p.display().to_string());
     map.insert("alpha", alpha.to_string());
     map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
     //map.insert("alpha_hex", format!("{:.02x}",  ((f32::from(alpha) / 100.0)  * 255.0) as i32 ));
