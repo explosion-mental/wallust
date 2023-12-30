@@ -2,12 +2,18 @@ use crate::backends::*;
 use std::num::NonZeroU32;
 
 use fast_image_resize as fir;
+use image::GenericImageView;
 
 /// Resize it, then get read the image, with an optimized algorithm that uses SIMD operations.
 /// TODO for some reason this method likes really small sizes. Working with 512 or more creates
 /// `green` "glitched" colors, that's why we don't use `shrink()` from `resized` module in here
 pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
-    let (true_w, true_h) = image::image_dimensions(f)?;
+    //read the image and guess format
+    let img = image::io::Reader::open(f)?
+        .with_guessed_format()?
+        .decode()?;
+
+    let (true_w, true_h) = img.dimensions();
 
     //custom shrink
     let s = |x| if x > 512 { x / 4 } else { x };
@@ -17,8 +23,6 @@ pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     let w = NonZeroU32::new(s(true_w)).unwrap_or(def_w);
     let h = NonZeroU32::new(s(true_h)).unwrap_or(def_h);
 
-    //read the image
-    let img = image::open(f)?;
 
     // source image
     let src = fir::Image::from_vec_u8(

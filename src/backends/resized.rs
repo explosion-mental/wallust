@@ -1,12 +1,23 @@
+use image::GenericImageView;
+
 use crate::backends::*;
 
 /// Resize it, then get read the image
 pub fn resized(f: &Path) -> Result<Vec<u8>> {
-    let (true_w, true_h) = image::image_dimensions(f)?;
+    let img = image::io::Reader::open(f)?
+        .with_guessed_format()?
+        .decode()?;
+
+    let (true_w, true_h) = img.dimensions();
 
     let (w, h) = shrink(true_w, true_h);
-    let img = image::open(f)?.resize(w, h, image::imageops::Gaussian);
-    Ok(img.into_rgb8().into_raw())
+
+    Ok(
+        img
+        .resize(w, h, image::imageops::Gaussian)
+        .into_rgb8()
+        .into_raw()
+    )
 }
 
 /// Calculates the new resized sizes, **keeping the aspect ratio**.
