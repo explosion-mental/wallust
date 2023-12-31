@@ -11,6 +11,7 @@ use wallust::config;
 
 //TODO add tests for every KEY combination
 
+/// Sample colors in use
 const COLS: &Colors = &Colors {
         background: Myrgb(238, 238, 238), //#EEEEEE
         foreground: Myrgb(221, 221, 221), //#DDDDDD
@@ -30,14 +31,42 @@ const COLS: &Colors = &Colors {
         color13: Myrgb(13, 0, 0),
         color14: Myrgb(14, 0, 0),
         color15: Myrgb(15, 0, 0), //# 0F 00 00
-    };
+};
 
+#[allow(non_upper_case_globals)]
+/// Expected result to get on templated below. `wallpaper` is `/home` since it requires a valid path
+const target_sample: &str =
+r#"
+# Special
+wallpaper="/home"
+background='#EEEEEE'
+foreground='#DDDDDD'
+cursor='#DDDDDD'
+
+# Colors
+color0='#000000'
+color1='#010000'
+color2='#020000'
+color3='#030000'
+color4='#040000'
+color5='#050000'
+color6='#060000'
+color7='#070000'
+color8='#080000'
+color9='#090000'
+color10='#0A0000'
+color11='#0B0000'
+color12='#0C0000'
+color13='#0D0000'
+color14='#0E0000'
+color15='#0F0000'
+"#;
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
 #[test]
 fn variables() {
     let template_sample =
-"\
+"
 # Special
 wallpaper=\"{wallpaper}\"
 background='{background}'
@@ -61,33 +90,6 @@ color12='{color12}'
 color13='{color13}'
 color14='{color14}'
 color15='{color15}'
-";
-
-    let target_sample =
-"\
-# Special
-wallpaper=\"\"
-background='#EEEEEE'
-foreground='#DDDDDD'
-cursor='#DDDDDD'
-
-# Colors
-color0='#000000'
-color1='#010000'
-color2='#020000'
-color3='#030000'
-color4='#040000'
-color5='#050000'
-color6='#060000'
-color7='#070000'
-color8='#080000'
-color9='#090000'
-color10='#0A0000'
-color11='#0B0000'
-color12='#0C0000'
-color13='#0D0000'
-color14='#0E0000'
-color15='#0F0000'
 ";
 
     let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
@@ -115,7 +117,7 @@ color15='#0F0000'
 
     let e = c.entry.as_ref().unwrap();
 
-    template::write_template(&c, Path::new(""), &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, Path::new("/home"), &e, COLS, true).expect("should parse correctly");
 
     //store templated string
     let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
@@ -157,33 +159,6 @@ color14='{{color14}}'
 color15='{{color15}}'
 "#;
 
-    let target_sample =
-r#"
-# Special
-wallpaper=""
-background='#EEEEEE'
-foreground='#DDDDDD'
-cursor='#DDDDDD'
-
-# Colors
-color0='#000000'
-color1='#010000'
-color2='#020000'
-color3='#030000'
-color4='#040000'
-color5='#050000'
-color6='#060000'
-color7='#070000'
-color8='#080000'
-color9='#090000'
-color10='#0A0000'
-color11='#0B0000'
-color12='#0C0000'
-color13='#0D0000'
-color14='#0E0000'
-color15='#0F0000'
-"#;
-
     let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
 
     // file in which the template variables are
@@ -209,7 +184,7 @@ color15='#0F0000'
 
     let e = c.entry.as_ref().unwrap();
 
-    template::write_template(&c, Path::new(""), &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, Path::new("/home"), &e, COLS, true).expect("should parse correctly");
 
     //store templated string
     let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
