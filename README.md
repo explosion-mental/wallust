@@ -154,6 +154,8 @@ nix-shell -p wallust
 
 [nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
 
+#### Arch User Repository (AUR)
+Using an Arch based distro, you can use the [wallust-git](https://aur.archlinux.org/packages/wallust-git) package.
 
 ### Binary
 Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
