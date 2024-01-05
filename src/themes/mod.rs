@@ -137,6 +137,7 @@ fn keys_to_values_match() {
     }
 }
 
+#[cfg(feature = "themes")]
 /// string that is inside the "theme" collection but acts as a keyword. The "random" theme is not a
 /// theme itself, but a selected random one.
 const RAND: &str = "random";
