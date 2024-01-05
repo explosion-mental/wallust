@@ -155,7 +155,17 @@ nix-shell -p wallust
 [nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
 
 #### Arch User Repository (AUR)
-Using an Arch based distro, you can use the [wallust-git](https://aur.archlinux.org/packages/wallust-git) package.
+Using an Arch based distro, you can use the [wallust](https://aur.archlinux.org/packages/wallust) or [wallust-git](https://aur.archlinux.org/packages/wallust-git) packages.
+
+- `wallust` fetches the latest **stable version** from `static.crates.io`, which mirrors the `master` branch. **Prefer this package.**
+- `wallust-git` fetches the latest **unstable version** from the `dev` branch.
+
+Either can be installed on an Arch based distro with the following commands:
+```bash
+git clone https://aur.archlinux.org/wallust.git # Or wallust-git.git
+cd wallust # or wallust-git
+makepkg -si
+```
 
 ### Binary
 Go to the [releases](https://codeberg.org/explosion-mental/wallust/releases)
