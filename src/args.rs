@@ -9,7 +9,6 @@ use crate::{
     colorspaces::ColorSpaces,
     filters::Filters,
     themes::Schemes,
-    themes::COLS_KEY,
 };
 
 use clap::Parser;
@@ -74,7 +73,7 @@ pub enum Subcmds {
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        #[arg(value_parser = COLS_KEY, hide_possible_values(false))]
+        #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
         theme: String,
 
         /// Only preview the selected theme.
