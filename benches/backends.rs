@@ -2,11 +2,11 @@ use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use wallust::backends::{self, Backend};
 use std::path::Path;
 
-const SRC: [&str; 1] = [
+const SRC: [&str; 4] = [
     "pexels-photo-356036.jpeg",
-    //"pexels-photo-1146708.jpeg",
-    //"pexels-photo-1567069.jpeg",
-    //"pexels-photo-1089194.jpeg",
+    "pexels-photo-1146708.jpeg",
+    "pexels-photo-1567069.jpeg",
+    "pexels-photo-1089194.jpeg",
 ];
 
 fn backends(c: &mut Criterion) {
@@ -46,5 +46,9 @@ fn backends(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, backends);
+criterion_group! {
+  name = benches;
+  config = Criterion::default().sample_size(10);
+  targets = backends
+}
 criterion_main!(benches);

@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 
 use wallust::backends::{self, Backend};
-use wallust::colorspaces::{self, ColorSpaces, ColorOrder};
+use wallust::colorspaces::{self, ColorSpaces};
 
 use std::path::Path;
 
@@ -42,7 +42,7 @@ fn colorspaces(c: &mut Criterion) {
             group.bench_with_input(
                 BenchmarkId::new(j.to_string(), &name),
                 &sample,
-                |b, i| b.iter(|| colorspaces::main(j, i, threshold, ColorOrder::DarkFirst))
+                |b, i| b.iter(|| colorspaces::main(j, i, threshold))
 
             );
         }
@@ -51,5 +51,9 @@ fn colorspaces(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, colorspaces);
+criterion_group! {
+  name = benches;
+  config = Criterion::default().sample_size(10);
+  targets = colorspaces
+}
 criterion_main!(benches);
