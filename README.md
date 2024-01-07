@@ -128,6 +128,10 @@ Where `var` can be colors from `color0` to `color15`, `background`, `foreground`
 
 ## Installation
 
+`wallust` doesn't require third party packages, but has an **optional**
+dependency: [`imagemagick`](https://imagemagick.org) to use the `wal` backend
+(just like pywal). Other methods are built in.
+
 <a href="https://repology.org/project/wallust/versions">
   <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
 </a>
