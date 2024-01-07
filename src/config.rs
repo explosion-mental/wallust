@@ -209,6 +209,54 @@ impl Config {
     }
 }
 
+impl std::fmt::Display for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            let sp = "    ";
+            let entry = if let Some(e) = &self.entry {
+                let mut s = String::new();
+                for i in e {
+                    let new_engine = if let Some(s) = i.new_engine {
+                        format!("{sp}{sp}new_engine = {s}\n")
+                    } else {
+                        "".into()
+                    };
+
+                    s.push_str(
+                        &format!("{sp}[[entry]]\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
+                                i.template, i.target)
+                        );
+                }
+                s.trim_end().to_owned()
+            } else {
+                "No entries found.".into()
+            };
+
+            write!(f, "\
+Config directory: {dir}
+Config file: {file}
+Configuration options:
+    backend        = {b}
+    color_space    = {c}
+    threshold      = {t}
+    filter         = {f}
+    check_contrast = {con:?}
+    saturation     = {sat:?}
+    alpha          = {a:?}
+Templates:
+{entry}",
+            b = self.backend,
+            c = self.color_space,
+            t = self.threshold,
+            f = self.filter,
+            con = self.check_contrast,
+            sat = self.saturation,
+            a = self.alpha,
+            dir = self.dir.display(),
+            file = self.file.display(),
+            )
+    }
+}
+
 fn validate_threshold<'de, D>(d: D) -> Result<u8, D::Error>
     where D: serde::de::Deserializer<'de>
 {

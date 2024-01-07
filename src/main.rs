@@ -92,53 +92,13 @@ fn main() -> Result<()> {
 
         },
         Some(args::Subcmds::Debug) => {
-            let sp = "    ";
-            let entry = if let Some(e) = conf.entry {
-                let mut s = String::new();
-                for i in e {
-                    let new_engine = if let Some(s) = i.new_engine {
-                        format!("{sp}{sp}new_engine = {s}\n")
-                    } else {
-                        "".into()
-                    };
-
-                    s.push_str(
-                        &format!("{sp}[[entry]]\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
-                                i.template, i.target)
-                        );
-                }
-                s.trim_end().to_owned()
-            } else {
-                "No entries found.".into()
-            };
-
+            use cache::CACHE_VER;
             println!(
-"Cache version: {}
+"Cache version: {CACHE_VER}
 Cache path: {}
-Config file: {}
-Config directory: {}
-Configuration options:
-    backend        = {}
-    color_space    = {}
-    threshold      = {}
-    filter         = {}
-    check_contrast = {:?}
-    saturation     = {:?}
-    alpha          = {:?}
-Templates:
-{entry}\n
+{conf}
  ~ make sure to report any issue at <https://codeberg.org/explosion-mental/wallust/issues> ~ ",
-        cache::CACHE_VER,
         cache_path.display(),
-        conf.file.display(),
-        conf.dir.display(),
-        conf.backend.to_string(),
-        conf.color_space.to_string(),
-        conf.threshold,
-        conf.filter.to_string(),
-        conf.check_contrast,
-        conf.saturation,
-        conf.alpha,
             );
         },
         None => (),
