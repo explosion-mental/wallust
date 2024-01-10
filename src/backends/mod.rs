@@ -17,6 +17,7 @@ mod resized;
 mod wal;
 mod thumb;
 mod fast_resize;
+mod kmeans;
 
 /// This indicates what 'parser' method to use, defined in the config file.
 /// Corresponds to the modules inside this module
@@ -36,7 +37,8 @@ pub enum Backend {
     #[clap(alias  = "fast-resize", name = "fastresize")] //claps prefers this-name
     #[serde(alias = "fast-resize")]
     /// A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
-    FastResize
+    FastResize,
+    Kmeans,
 }
 
 pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
@@ -46,6 +48,7 @@ pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
         B::Wal     => wal::wal,
         B::Thumb   => thumb::thumb,
         B::FastResize => fast_resize::fast_resize,
+        B::Kmeans => kmeans::kmeans,
     }
 }
 
@@ -58,6 +61,7 @@ impl Backend {
             B::Wal => AnsiColors::Red,
             B::Thumb => AnsiColors::Magenta,
             B::FastResize => AnsiColors::Green,
+            B::Kmeans => AnsiColors::BrightBlue,
         }
     }
 }
@@ -71,6 +75,7 @@ impl fmt::Display for Backend {
             B::Wal     => write!(f, "Wal"),
             B::Thumb   => write!(f, "Thumb"),
             B::FastResize => write!(f, "FastResize"),
+            B::Kmeans => write!(f, "Kmeans"),
         }
     }
 }
