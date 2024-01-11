@@ -36,6 +36,7 @@ mod softdark;
 mod softdark16;
 mod softlight;
 mod softlight16;
+mod darkcomp;
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
@@ -75,6 +76,10 @@ pub enum Filters {
     #[clap(alias  = "soft-light16", name = "softlight16")]
     #[serde(alias = "soft-light16")]
     SoftLight16,
+    /// Dark but colors from 9 to 14 are complementary to 1 to 7
+    #[clap(alias  = "dark-comp", name = "darkcomp")]
+    #[serde(alias = "dark-comp")]
+    DarkComp,
 }
 
 pub fn main(f: &Filters) -> fn(Cols) -> Colors {
@@ -89,6 +94,7 @@ pub fn main(f: &Filters) -> fn(Cols) -> Colors {
         F::SoftDark16 => softdark16::softdark16,
         F::SoftLight => softlight::softlight,
         F::SoftLight16 => softlight16::softlight16,
+        F::DarkComp => darkcomp::darkcomp,
     }
 }
 
@@ -97,7 +103,8 @@ pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
         F::Dark  | F::Dark16 |
         F::SoftDark | F::SoftDark16 |
-        F::SoftLight | F::SoftLight16
+        F::SoftLight | F::SoftLight16 |
+        F::DarkComp
         => crate::colorspaces::ColorOrder::LightFirst,
 
         F::HardDark | F::HardDark16 |
@@ -119,6 +126,7 @@ impl Filters {
             F::SoftDark16 => AnsiColors::BrightCyan,
             F::SoftLight => AnsiColors::BrightYellow,
             F::SoftLight16 => AnsiColors::BrightYellow,
+            F::DarkComp => AnsiColors::BrightYellow,
         }
     }
 }
@@ -137,6 +145,7 @@ impl fmt::Display for Filters {
             F::SoftDark16 => write!(f, "SoftDark16"),
             F::SoftLight => write!(f, "SoftLight"),
             F::SoftLight16 => write!(f, "SoftLight16"),
+            F::DarkComp => write!(f, "SoftLight16"),
         }
     }
 }
