@@ -171,15 +171,45 @@ impl Myrgb {
     /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)
     /// XXX easy_color seems to be an OK crate, however is there a more suitable crate for this?
     /// XXX think about using palette crate (still looks too complicated for me and my use case)
-    fn saturate(&mut self, amount: f32) {
+    pub fn saturate(&self, amount: f32) -> Self {
         let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().unwrap();
         let mut hsl: easy_color::HSL = initial.into();
         hsl.set_saturation((amount * 100.0) as u32);
         let rgb: easy_color::RGB = hsl.into();
 
-        self.0 = rgb.red();
-        self.1 = rgb.green();
-        self.2 = rgb.blue();
+        Self(rgb.red(), rgb.green(), rgb.blue())
+    }
+
+    /// Get the complementary color of a color.
+    /// Rather than doing something generic like
+    /// https://stackoverflow.com/questions/9577590/formula-to-find-the-split-complementaries-of-a-color#12014465
+    /// I decided to go to the exact oposite.
+    /// # Reminder, Hue value from HSV:
+    /// Red     falls between 0   and 60  degrees.
+    /// Yellow  falls between 61  and 120 degrees.
+    /// Green   falls between 121 and 180 degrees.
+    /// Cyan    falls between 181 and 240 degrees.
+    /// Blue    falls between 241 and 300 degrees.
+    /// Magenta falls between 301 and 360 degrees.
+    pub fn complementary(&self) -> Self {
+        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().unwrap();
+        let mut hsv: easy_color::HSV = initial.into();
+
+        let h = hsv.hue();
+        let sum = match hsv.hue() {
+            0..=60    => 180 + h,
+            61..=120  => 240 + h,
+            121..=180 => 180 + h,
+            181..=240 => 240 - h,
+            241..=300 => 420 - h,
+            301..=360 => 540 - h,
+            _ => 180,
+        };
+
+        hsv.set_hue(sum);
+        let rgb: easy_color::RGB = hsv.into();
+
+        Self(rgb.red(), rgb.green(), rgb.blue())
     }
 }
 
@@ -275,7 +305,7 @@ impl Colors {
             ];
 
             for i in a {
-                i.saturate(amount);
+                *i = i.saturate(amount);
             }
         }
     }
