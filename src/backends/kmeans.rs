@@ -79,3 +79,24 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
         rgb.as_components().to_vec()
     )
 }
+
+// This implementation gets extremly good results. Requires +nightly tho.
+// pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
+//     use ::kmeans::{Kmeans, KmeansConfig};
+//
+//     let n = 8;
+//
+//     // An image buffer of one black pixel and one white pixel
+//     let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?;
+//
+//     let (w, h) = img.dimensions();
+//     let data = img.into_rgb8().iter().map(|&x| f32::from(x)).collect::<Vec<f32>>();
+//
+//     let k = KMeans::new(data, (w * h) as usize, 3);
+//     let result = k.kmeans_lloyd(n, 100, KMeans::init_kmeanplusplus, &KMeansConfig::default());
+//
+//     Ok(
+//         result.centroids.iter().map(|x| *x as u8).collect::<Vec<u8>>()
+//     )
+//
+// }
