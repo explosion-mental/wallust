@@ -1,6 +1,6 @@
 [package]
 name = "wallust"
-version = "2.9.0"
+version = "2.9.0-dev"
 edition = "2021"
 license = "MIT"
 authors = [ "explosion-mental" ]
