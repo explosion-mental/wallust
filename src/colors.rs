@@ -181,7 +181,7 @@ impl Myrgb {
 
     /// Get the complementary color of a color.
     /// Rather than doing something generic like
-    /// https://stackoverflow.com/questions/9577590/formula-to-find-the-split-complementaries-of-a-color#12014465
+    /// <https://stackoverflow.com/questions/9577590/formula-to-find-the-split-complementaries-of-a-color#12014465>
     /// I decided to go to the exact oposite.
     /// # Reminder, Hue value from HSV:
     /// Red     falls between 0   and 60  degrees.
@@ -267,8 +267,8 @@ impl Colors {
     }
 
     /// A simple variation that follows the steps below, making the 'ilusion' of "more colors"
-    /// ref1: https://github.com/dylanaraps/pywal/pull/662
-    /// ref2: https://github.com/eylles/pywal16
+    /// * ref1: <https://github.com/dylanaraps/pywal/pull/662>
+    /// * ref2: <https://github.com/eylles/pywal16>
     pub fn to_16col(self) -> Self {
         let c = self;
         Self {
@@ -306,7 +306,7 @@ impl Colors {
     }
 
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
-    /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
+    /// * from: <https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420>
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
         /// Currently the ratio is hardcoded to `4.5`, standard, but could be decreased at `3.0`
         /// for bigger fonts (tested), but a more allround solution is `4.5` tho.
@@ -442,7 +442,7 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 /// Uses terminal sequences to update terminal colors
 /// ref: <https://github.com/dylanaraps/pywal/blob/master/pywal/sequences.py>
 /// ## Special colors.
-/// Source: https://goo.gl/KcoQgP
+/// Source: <https://goo.gl/KcoQgP>
 /// 10 = foreground, 11 = background, 12 = cursor foreground, 13 = mouse foreground,
 /// 708 = background border color.
 /// ## Format
@@ -728,9 +728,9 @@ pub struct ColorsIntoIter {
 
 /// Make [`Colors`] possible to `.iter()` into it.
 /// The order of the index is simple and will always be:
-/// * [0]-[15] => colors from 0 to 15
-/// * [16] => background
-/// * [17] => foreground
+/// * 0-15 => colors from 0 to 15
+/// * 16 => background
+/// * 17 => foreground
 impl IntoIterator for Colors {
     type Item = Myrgb;
     type IntoIter = ColorsIntoIter;

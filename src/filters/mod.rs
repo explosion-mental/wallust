@@ -3,7 +3,7 @@
 //! the most prominent colors make sense as a scheme/palette. The vector slice will always have at
 //! least 6 colors, so don't fear on using `.expect()` with this certainty and avoiding boilerplate
 //! code. The scenario in which an image has less than those colors is possible and already handled in
-//! the [`colorspaces`] module, so don't bother with that.
+//! the [`crate::colorspaces`] module, so don't bother with that.
 //!
 //! # Adding a new filter
 //! To integrate a new filter you have in mind, there are X rules:
@@ -20,7 +20,12 @@ use std::fmt;
 use owo_colors::AnsiColors;
 use serde::{Serialize, Deserialize};
 
-use crate::{colors::{Colors, Myrgb}, colorspaces::Cols};
+use crate::{
+    colors::{
+        Colors, Myrgb
+    },
+    colorspaces::{Cols, ColorOrder}
+};
 
 /// rename [`Filters`] so it's shorter to type
 use self::Filters as F;
@@ -98,17 +103,17 @@ pub fn main(f: &Filters) -> fn(Cols) -> Colors {
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
-pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
+pub fn sort_ord(f: &Filters) -> ColorOrder {
     match f {
           F::Dark  | F::Dark16
         | F::SoftDark | F::SoftDark16
         | F::SoftLight | F::SoftLight16
         | F::DarkComp
-        => crate::colorspaces::ColorOrder::LightFirst,
+        => ColorOrder::LightFirst,
 
           F::HardDark | F::HardDark16
         | F::Light | F::Light16
-        => crate::colorspaces::ColorOrder::DarkFirst,
+        => ColorOrder::DarkFirst,
     }
 }
 
