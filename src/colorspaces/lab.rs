@@ -23,7 +23,7 @@ impl Hist {
     /// Value is between 1.0 an 0.0
     pub fn set_luminance(&mut self, amount: f32) {
         if amount < 1.0 && amount > 0.0 {
-            self.color.l = self.color.l * amount;
+            self.color.l *= amount;
         }
     }
 }

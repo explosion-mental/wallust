@@ -1,3 +1,4 @@
+//! wallust - Generate a colorscheme based on an image
 pub mod args;
 pub mod backends;
 pub mod cache;

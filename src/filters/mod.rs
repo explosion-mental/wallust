@@ -22,7 +22,6 @@ use serde::{Serialize, Deserialize};
 
 use crate::{colors::{Colors, Myrgb}, colorspaces::Cols};
 
-
 /// rename [`Filters`] so it's shorter to type
 use self::Filters as F;
 
@@ -101,14 +100,15 @@ pub fn main(f: &Filters) -> fn(Cols) -> Colors {
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> crate::colorspaces::ColorOrder {
     match f {
-        F::Dark  | F::Dark16 |
-        F::SoftDark | F::SoftDark16 |
-        F::SoftLight | F::SoftLight16 |
-        F::DarkComp
+          F::Dark  | F::Dark16
+        | F::SoftDark | F::SoftDark16
+        | F::SoftLight | F::SoftLight16
+        | F::DarkComp
         => crate::colorspaces::ColorOrder::LightFirst,
 
-        F::HardDark | F::HardDark16 |
-        F::Light | F::Light16 => crate::colorspaces::ColorOrder::DarkFirst,
+          F::HardDark | F::HardDark16
+        | F::Light | F::Light16
+        => crate::colorspaces::ColorOrder::DarkFirst,
     }
 }
 

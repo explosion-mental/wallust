@@ -53,7 +53,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
         }
 
         let rendered = if e.new_engine.unwrap_or(false) {
-            far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: &image_path, conf })
+            far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
             new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path, conf))
         };
@@ -84,7 +84,7 @@ struct Myt<'a> {
 
 impl<'a> far::Render for Myt<'a> {
     fn render(&self) -> HashMap<&'static str, String> {
-        to_hash(&self.cols, &self.img, &self.conf)
+        to_hash(self.cols, self.img, self.conf)
 
     }
     fn keys() -> Box<dyn Iterator<Item = &'static str>> {
@@ -253,7 +253,8 @@ impl<'a> far::Render for Myt<'a> {
 
 }
 
-pub fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a str, String> {
+/// hash values
+fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
     let alpha = conf.alpha.unwrap_or(100);
     // list of hexadecimal alpha values https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4

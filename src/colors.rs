@@ -2,9 +2,6 @@
 //! Here [`Colors`] and [`Myrgb`] types are defined. These are simple enough used by backends,
 //! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
 //! the base has more structure (also because it's only 16 colors).
-//! **NOTE:** alpha value is hardcoded, pywal only uses alpha for urxvt sequences. I consider that
-//! too specific to open a new `--alpha` flag, since that value can easly hardcoded in the template
-//! itself. XXX maybe in v3 remove `rgba` and other alpha related code.
 use std::fmt;
 use std::fs::File;
 use std::io::Write;
@@ -39,7 +36,9 @@ pub struct Colors {
     pub color15: Myrgb,
 }
 
-/// Type that every backend should return
+/// Custom RGB type wrapper that works for compatibility (either by working with other crates,
+/// since most of them include their own `RGB` type) and by including methods for convertion and
+/// modification to the color. Every backend should return `Myrgb`.
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Myrgb(pub u8, pub u8, pub u8);
 
@@ -283,42 +282,37 @@ impl Colors {
         }
     }
 
+    /// amount is between 0. and 1
     pub fn saturate_colors(&mut self, amount: f32) {
-        if amount <= 1.0 {
-            let a = [
-                //&mut self.color0,
-                &mut self.color1,
-                &mut self.color2,
-                &mut self.color3,
-                &mut self.color4,
-                &mut self.color5,
-                &mut self.color6,
-                //&mut self.color7,
-                //&mut self.color8,
-                &mut self.color9,
-                &mut self.color10,
-                &mut self.color11,
-                &mut self.color12,
-                &mut self.color13,
-                &mut self.color14,
-                //&mut self.color15,
-            ];
-
-            for i in a {
-                *i = i.saturate(amount);
-            }
-        }
+        if amount > 1.0 && amount.is_sign_negative() { return }
+        [
+            //&mut self.color0,
+            &mut self.color1,
+            &mut self.color2,
+            &mut self.color3,
+            &mut self.color4,
+            &mut self.color5,
+            &mut self.color6,
+            //&mut self.color7,
+            //&mut self.color8,
+            &mut self.color9,
+            &mut self.color10,
+            &mut self.color11,
+            &mut self.color12,
+            &mut self.color13,
+            &mut self.color14,
+            //&mut self.color15,
+        ].map(|i| *i = i.saturate(amount));
     }
 
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// from: https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
-        /// Currently the ratio is hardcoded
-        /// > `4.5` is standard, could be decreased at `3.0` for bigger fonts.
-        /// Testing the above, is true. A more allround solution is `4.5` tho.
+        /// Currently the ratio is hardcoded to `4.5`, standard, but could be decreased at `3.0`
+        /// for bigger fonts (tested), but a more allround solution is `4.5` tho.
         const RATIO: f32 = 4.5;
 
-        if contrast(a, b) < RATIO { false } else { true }
+        contrast(a, b) >= RATIO
     }
 
     /// Checks the contrast for all colors, pywal seems to ignore color0, color7, color8 and
@@ -412,12 +406,12 @@ impl Colors {
     /// ANSI escape codes tables and helpful guidelines:
     /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
     /// As well as support for iTerm2 (macOS) and windows terminal, depending on the OS.
-    pub fn sequences(&self, cache_path: &Path) -> anyhow::Result<()> {
+    pub fn sequences(&self, _cache_path: &Path) -> anyhow::Result<()> {
         #[cfg(target_family = "windows")]
         return windows_term(self);
 
         #[cfg(target_family = "unix")]
-        return unix_term(self, cache_path);
+        return unix_term(self, _cache_path);
     }
 }
 
@@ -489,9 +483,7 @@ fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
                     },
                 }.write_all(sequences.as_bytes())?
             },
-            Err(e) => {
-                anyhow::bail!("Error while sending sequences to terminals:\n{e}")
-            },
+            Err(e) => anyhow::bail!("Error while sending sequences to terminals:\n{e}"),
         };
     }
 
@@ -637,7 +629,7 @@ use serde_json::Value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct WinTerm {
+struct WinTerm {
     #[serde(rename = "$help")]
     pub help: String,
     #[serde(rename = "$schema")]
@@ -656,7 +648,7 @@ pub struct WinTerm {
 /// a WindowsTerminal Scheme
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct WinScheme {
+struct WinScheme {
     pub name: String,
     pub cursor_color: String,
     pub selection_background: String,
@@ -728,6 +720,11 @@ impl From<Vec<u8>> for Myrgb {
     }
 }
 
+/// Dummy type to iterate over [`Colors`]
+pub struct ColorsIntoIter {
+    pub me: Colors,
+    pub index: usize,
+}
 
 /// Make [`Colors`] possible to `.iter()` into it.
 /// The order of the index is simple and will always be:
@@ -743,11 +740,6 @@ impl IntoIterator for Colors {
             index: 0,
         }
     }
-}
-
-pub struct ColorsIntoIter {
-    me: Colors,
-    index: usize,
 }
 
 impl Iterator for ColorsIntoIter {

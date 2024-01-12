@@ -14,29 +14,19 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     use image::GenericImageView;
     use rand::Rng;
 
-    struct OPT {
-        k: u8,
-        max_iter: usize,
-        runs: usize,
-        verbose: bool,
-    }
-
     // An image buffer of one black pixel and one white pixel
     let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
-
-    let converge = 0.0025;
-    //let seed: u64 = rand::thread_rng().gen();
-    let seed = 12345;
 
     // TODO skip srgba and go directly to rgb, ignoring transparency.
     let img_vec: &[Srgba<u8>] = img.components_as();
 
-    let opt = OPT {
-        k: 8,
-        max_iter: 20,
-        runs: 3,
-        verbose: false,
-    };
+    let k = 8;
+    let max_iter = 20;
+    let runs = 3;
+    let verbose = false;
+    let converge = 0.0025;
+    //let seed: u64 = rand::thread_rng().gen();
+    let seed = 12345;
 
     // Read image buffer into Srgb format
     let rgb_pixels: Vec<Srgb<f32>> = img_vec
@@ -46,17 +36,17 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
         .collect();
 
     //TODO what's the difference between these?
-    let method = if opt.k > 1 { get_kmeans_hamerly } else { get_kmeans };
+    let method = if k > 1 { get_kmeans_hamerly } else { get_kmeans };
 
     // Iterate over amount of runs keeping best results
     let mut result = Kmeans::new();
     //TODO check these fields in detail
-    for i in 0..opt.runs {
+    for i in 0..runs {
         let run_result = method(
-            opt.k as usize,
-            opt.max_iter,
+            k as usize,
+            max_iter,
             converge,
-            opt.verbose,
+            verbose,
             &rgb_pixels,
             seed + i as u64,
         );

@@ -102,6 +102,7 @@ impl Cols {
     ///      returning the wrapper type like `ColSp` which includes different methods by trait
     ///      according to their colorspace.
     pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
+        #[allow(clippy::match_like_matches_macro)] //waiting for other colorspaces..
         let mix = match c {
             ColorSpaces::LabMixed => true,
             _ => false,
