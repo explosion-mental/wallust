@@ -3,6 +3,7 @@ use crate::backends::*;
 
 /// Requires more tweaking and more in depth testing, but seems to do the work.
 /// TODO Investigate what are the better default properties that get the most average and tasteful palette.
+/// `palette` `as_components()` and `components_as()` is very interesting, since it works on primitive types, need more reading.
 /// from: https://github.com/okaneco/kmeans-colors/blob/master/src/bin/kmeans_colors/app.rs
 #[allow(unused)]
 pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
@@ -15,10 +16,14 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     use rand::Rng;
 
     // An image buffer of one black pixel and one white pixel
-    let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
+    //let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
+
+    //XXX maybe resize it first..
+    let img = thumb::thumb(f)?;
 
     // TODO skip srgba and go directly to rgb, ignoring transparency.
-    let img_vec: &[Srgba<u8>] = img.components_as();
+    //let img_vec: &[Srgba<u8>] = img.components_as();
+    let img_vec: &[Srgb<u8>] = img.components_as();
 
     let k = 8;
     let max_iter = 20;
@@ -29,26 +34,27 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     let seed = 12345;
 
     // Read image buffer into Srgb format
-    let rgb_pixels: Vec<Srgb<f32>> = img_vec
-        .iter()
-        .filter(|x| x.alpha == 255) //only use non-transparent colors
-        .map(|x| Srgb::<f32>::from_color(x.into_format::<_, f32>()))
-        .collect();
+     let rgb_pixels = img_vec
+         .iter()
+    //     .filter(|x| x.alpha == 255) //only use non-transparent colors
+         .map(|x| x.into_format())
+         .collect::<Vec<Srgb<f32>>>();
 
     //TODO what's the difference between these?
     let method = if k > 1 { get_kmeans_hamerly } else { get_kmeans };
 
     // Iterate over amount of runs keeping best results
     let mut result = Kmeans::new();
+
     //TODO check these fields in detail
     for i in 0..runs {
         let run_result = method(
-            k as usize,
+            k,
             max_iter,
             converge,
             verbose,
             &rgb_pixels,
-            seed + i as u64,
+            seed + i,
         );
 
         if run_result.score < result.score {
