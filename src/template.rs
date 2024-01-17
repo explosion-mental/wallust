@@ -15,7 +15,7 @@ use owo_colors::OwoColorize;
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
-pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
+pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
     let config = &conf.dir;
 
     let warn = "W".red();
@@ -78,7 +78,7 @@ pub fn write_template(conf: &Config, image_path: &Path, entries: &[Entries], val
 
 struct Myt<'a> {
     cols: &'a Colors,
-    img: &'a std::path::Path,
+    img: &'a str,
     conf: &'a Config,
 }
 
@@ -254,19 +254,16 @@ impl<'a> far::Render for Myt<'a> {
 }
 
 /// hash values
-fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a str, String> {
+fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
     let alpha = conf.alpha.unwrap_or(100);
     // list of hexadecimal alpha values https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4
     let alphas_dec = [ "00", "03", "05", "08", "0A", "0D", "0F", "12", "14", "17", "1A", "1C", "1F", "21", "24", "26", "29", "2B", "2E", "30", "33", "36", "38", "3B", "3D", "40", "42", "45", "47", "4A", "4D", "4F", "52", "54", "57", "59", "5C", "5E", "61", "63", "66", "69", "6B", "6E", "70", "73", "75", "78", "7A", "7D", "80", "82", "85", "87", "8A", "8C", "8F", "91", "94", "96", "99", "9C", "9E", "A1", "A3", "A6", "A8", "AB", "AD", "B0", "B3", "B5", "B8", "BA", "BD", "BF", "C2", "C4", "C7", "C9", "CC", "CF", "D1", "D4", "D6", "D9", "DB", "DE", "E0", "E3", "E6", "E8", "EB", "ED", "F0", "F2", "F5", "F7", "FA", "FC", "FF", ];
 
-    // make sure to display the absolute path of the wallpaper
-    let p = std::fs::canonicalize(image_path).expect("PATH EXIST, validation from clap");
-
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
     //full path to the image
-    map.insert("wallpaper", p.display().to_string());
+    map.insert("wallpaper", image_path.into());
     map.insert("alpha", alpha.to_string());
     map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
     map.insert("alpha_hex", alphas_dec.get(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100").to_string());
@@ -449,7 +446,7 @@ fn to_hash<'a>(col: &Colors, image_path: &Path, conf: &Config) -> HashMap<&'a st
 
 
 impl Colors {
-    pub fn to_hash(&self, image_path: &Path, conf: &Config) -> HashMap<&str, String> {
+    pub fn to_hash(&self, image_path: &str, conf: &Config) -> HashMap<&str, String> {
         to_hash(self, image_path, conf)
     }
 }

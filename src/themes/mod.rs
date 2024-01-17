@@ -131,7 +131,7 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
 #[test]
 fn keys_to_values_match() {
     for i in COLS_KEY {
-        if let Err(e) = built_in_theme(i.to_string(), true) {
+        if let Err(e) = built_in_theme(i, true) {
             eprintln!("Failed {i}: {e}");
         }
     }
@@ -146,7 +146,7 @@ const RAND: &str = "random";
 /// [`WalTheme`] format
 /// TODO consider a hashing algo for reducing binary size when embedding 200+ json themes..
 #[cfg(feature = "themes")]
-pub fn built_in_theme(theme_key: String, quiet: bool) -> Result<Colors> {
+pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
     use anyhow::Context;
     use rand::Rng;
 

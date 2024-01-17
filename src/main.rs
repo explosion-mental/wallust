@@ -10,6 +10,7 @@ use wallust::{
     args,
     cache,
     config,
+    config::WalStr,
     themes,
     gen_colors,
 };
@@ -41,7 +42,7 @@ fn main() -> Result<()> {
         #[cfg(feature = "themes")]
         Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current }) => {
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
-            let colors = themes::built_in_theme(theme, quiet)?;
+            let colors = themes::built_in_theme(&theme, quiet)?;
             if ! quiet {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview
@@ -58,7 +59,7 @@ fn main() -> Result<()> {
 
             //empty image_path cuz it's not used
             if ! skip_templates {
-                conf.write_entry(Path::new(""), &colors, quiet)?;
+                conf.write_entry(&WalStr::Theme(&theme), &colors, quiet)?;
             }
             if ! quiet { colors.done() }
         },
@@ -83,7 +84,7 @@ fn main() -> Result<()> {
 
             //empty image_path cuz it's not used
             if ! skip_templates {
-                conf.write_entry(Path::new(""), &colors, quiet)?;
+                conf.write_entry(&WalStr::Path(&file), &colors, quiet)?;
             }
             if ! quiet { colors.done() }
 
@@ -168,7 +169,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     }
 
     if ! cli.skip_templates {
-        conf.write_entry(&cli.file, &colors, cli.quiet)?;
+        conf.write_entry(&WalStr::Path(&cli.file), &colors, cli.quiet)?;
     }
 
     // Cache colors

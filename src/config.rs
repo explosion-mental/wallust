@@ -57,6 +57,15 @@ pub struct Entries {
     pub new_engine: Option<bool>,
 }
 
+/// How to populate `wallpaper` template value:
+/// 1. With `wallust theme rose-pine`, it will use the name of the theme in use. (e.g. `rose-pine`)
+/// 2. With `wallust cs scheme.json`, it will use the absolute path of the file used. (e.g. `/home/user/scheme.json`)
+/// 3. Normal behaviour with `wallust image.png`, it will use the wallpaper absolute path. (e.g. `/home/user/image.png`)
+pub enum WalStr<'a> {
+    Path(&'a Path),
+    Theme(&'a str),
+}
+
 impl Config {
     /// Constructs [`Config`] by reading the config file
     pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
@@ -153,12 +162,21 @@ impl Config {
     }
 
     // write entries `[[entry]]` of the config file (if any)
-    pub fn write_entry(&self, img_path: &Path, colors: &Colors, quiet: bool) -> Result<()> {
+    pub fn write_entry(&self, wal_str: &WalStr, colors: &Colors, quiet: bool) -> Result<()> {
         let info = "I".blue().bold().to_string();
+
+        // check if themes exist, if it does we are using the `theme` subcommand,
+        // which means there is not image path, so use the theme name as for the `wallpaper` value
+        let wallpaper_str = match wal_str {
+            // use the theme name otherwise
+            WalStr::Theme(s) => s.to_string(),
+            // make sure to display the absolute path of the wallpaper
+            WalStr::Path(p) => std::fs::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
+        };
 
         if let Some(s) = &self.entry {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(self, img_path, s, colors, quiet)
+            template::write_template(self, &wallpaper_str, s, colors, quiet)
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
             Ok(())

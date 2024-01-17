@@ -109,7 +109,7 @@ or
 [wpgtk templates](https://github.com/deviantfero/wpgtk-templates)
 
 #### Variables and Methods
-- `wallpaper`: The full path to the current wallpaper.
+- `wallpaper`:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
 - `backend`: Current **backend** being used.
 - `colorspace`: Current **colorspace** being used.
 - `filter`: Current **filter** being used.

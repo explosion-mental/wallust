@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
 
 use wallust::colors::Colors;
 //use wallust::colors::HexConversion;
@@ -32,6 +31,9 @@ const COLS: &Colors = &Colors {
         color14: Myrgb(14, 0, 0),
         color15: Myrgb(15, 0, 0), //# 0F 00 00
 };
+
+#[allow(non_upper_case_globals)]
+const wall_str: &str = "/home";
 
 #[allow(non_upper_case_globals)]
 /// Expected result to get on templated below. `wallpaper` is `/home` since it requires a valid path
@@ -117,7 +119,7 @@ color15='{color15}'
 
     let e = c.entry.as_ref().unwrap();
 
-    template::write_template(&c, Path::new("/home"), &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, wall_str, &e, COLS, true).expect("should parse correctly");
 
     //store templated string
     let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
@@ -184,7 +186,7 @@ color15='{{color15}}'
 
     let e = c.entry.as_ref().unwrap();
 
-    template::write_template(&c, Path::new("/home"), &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, wall_str, &e, COLS, true).expect("should parse correctly");
 
     //store templated string
     let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
