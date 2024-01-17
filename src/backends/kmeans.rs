@@ -13,7 +13,6 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     use palette::cast::{AsComponents, ComponentsAs};
     use palette::{white_point::D65, FromColor, IntoColor, Lab, LinSrgba, Srgb, Srgba};
     use image::GenericImageView;
-    use rand::Rng;
 
     // An image buffer of one black pixel and one white pixel
     //let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
