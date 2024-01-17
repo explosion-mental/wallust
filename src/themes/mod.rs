@@ -77,10 +77,14 @@ pub enum Schemes {
     Wallust,
 }
 
-/// reads a $file with an specified $format
-pub fn read_scheme(file: &Path, format: &Schemes) -> Result<Colors> {
-    let contents = std::fs::read_to_string(file)?;
+pub fn read_scheme(f: &Path, format: &Schemes) -> Result<Colors> {
+    let contents = std::fs::read_to_string(f)?;
+    deser_scheme(&contents, format)
 
+}
+
+/// deserialize the contents from a file
+fn deser_scheme(contents: &str, format: &Schemes) -> Result<Colors> {
     match format {
         Schemes::Pywal => {
             let ser: WalTheme = serde_json::from_str(&contents)?;
@@ -111,8 +115,10 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
         Schemes::Wallust,
     ];
 
+    let contents = std::fs::read_to_string(file)?;
+
     for i in &a {
-        match read_scheme(file, i) {
+        match deser_scheme(&contents, i) {
             Ok(o) => {
                 println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col()));
                 return Ok(o);
