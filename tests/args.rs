@@ -16,12 +16,16 @@ fn verify_cli() {
     Cli::command().debug_assert()
 }
 
+/// setting contents to a const allows to use `{` and other formatting special chars in the file.
+#[allow(non_upper_case_globals)]
+const content: &str = include_str!("../wallust.toml");
+
 /// test for a valid `--config_file` and for the provided file to be the new location
 #[test]
 fn config_file() {
     let mut tmp = tempfile::NamedTempFile::new().expect("init new temporal named pipe");
 
-    write!(tmp, include_str!("../wallust.toml")).expect("should write to tmp correctly");
+    write!(tmp, "{content}").expect("should write to tmp correctly");
 
     let mut args = WallustArgs::default();
 
@@ -50,7 +54,7 @@ fn config_dir() {
 
     let joined = tmp.path().join("wallust.toml");
     let mut conf_tmp = File::create(joined).expect("should created a tmp file");
-    write!(conf_tmp, include_str!("../wallust.toml")).expect("should write to tmp correctly");
+    write!(conf_tmp, "{content}").expect("should write to tmp correctly");
 
     let mut args = WallustArgs::default();
     args.config_dir = Some(tmp.path().to_path_buf());
