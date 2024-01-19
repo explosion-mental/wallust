@@ -2,6 +2,7 @@
 //! This is just an interface to get the most (16) prominent colors, from darkest to lightest, as
 //! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
 //! so this deserved it's own module.
+//TODO finally understood how pywal does it. To get a good "uniform" palette, instead of sorting with lightest or the top colors and the like, it should take into consideration the hue. If you understand this module (me) then extrapolating to words from here would be something like: 'making it the most hued colors acting as the `darkest`', so `DarkFirst` would get the most hued colors first, or the 'hard' ones (uwu)
 use std::fmt;
 
 use crate::colors::Myrgb;
