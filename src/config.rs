@@ -1,4 +1,5 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
+use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::fs;
@@ -15,6 +16,7 @@ use owo_colors::{AnsiColors, OwoColorize};
 use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
+//TODO wallust should be able to work without a config file?
 #[derive(Debug, Deserialize, Default)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
@@ -43,6 +45,13 @@ pub struct Config {
     /// Config file (wallust.toml) path
     #[serde(skip)]
     pub file: PathBuf,
+
+    // templates: a new way of defining templates, giving the ability of naming stuff.
+    // [templates]
+    // dunst.src = 'C:\long\path'
+    // dunst.dst = '~/.config/dunst'
+    // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
+    //pub templates: Option<HashMap<String, Fields>>,
 }
 
 /// An entry within the config file, toml table
@@ -55,6 +64,14 @@ pub struct Entries {
     pub target: String,
     /// Whether to use the new method or not
     pub new_engine: Option<bool>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct Fields {
+    //XXX also, the templates files should be into the below path, making the need for `templates/` dir
+    /// A file inside `~/.config/wallust/templates/`, which is used for templating
+    pub src: PathBuf,
+    pub dst: PathBuf,
 }
 
 /// How to populate `wallpaper` template value:
@@ -122,6 +139,8 @@ impl Config {
 
         ret.dir = config_dir;
         ret.file = config.to_path_buf();
+
+        //println!("{:#?}", ret);
 
         Ok(ret)
     }
