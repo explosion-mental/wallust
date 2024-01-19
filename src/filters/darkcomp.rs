@@ -7,14 +7,5 @@ use crate::filters::*;
 /// Sorted by [`LightFirst`]
 /// Variation of dark with 16 colors. From <https://github.com/eylles/pywal16>
 pub fn darkcomp(c: Cols) -> Colors {
-    let mut r = super::dark::dark(c);
-
-    r.color9  = r.color1.saturate(0.3).complementary();
-    r.color10 = r.color2.saturate(0.3).complementary();
-    r.color11 = r.color3.saturate(0.3).complementary();
-    r.color12 = r.color4.saturate(0.3).complementary();
-    r.color13 = r.color5.saturate(0.3).complementary();
-    r.color14 = r.color6.saturate(0.3).complementary();
-
-    r
+    dark::dark(c).to_comp()
 }

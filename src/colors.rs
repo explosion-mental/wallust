@@ -282,6 +282,20 @@ impl Colors {
         }
     }
 
+    pub fn to_comp(self) -> Self {
+        let c = self;
+
+        Self {
+            color9  : c.color1.saturate(0.3).complementary(),
+            color10 : c.color2.saturate(0.3).complementary(),
+            color11 : c.color3.saturate(0.3).complementary(),
+            color12 : c.color4.saturate(0.3).complementary(),
+            color13 : c.color5.saturate(0.3).complementary(),
+            color14 : c.color6.saturate(0.3).complementary(),
+            ..c
+        }
+    }
+
     /// amount is between 0. and 1
     pub fn saturate_colors(&mut self, amount: f32) {
         if amount > 1.0 && amount.is_sign_negative() { return }
