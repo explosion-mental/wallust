@@ -1,5 +1,5 @@
 //! Type declarations for working with clap `derive`, subcommands, flags, etc.
-//! TODO make sure this works properly with `clap_completions`, currently it doesn't.
+//! TODO on v3 prefer `wallust run image.png` over `wallust image.png`
 
 use std::path::PathBuf;
 
