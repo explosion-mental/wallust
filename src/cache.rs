@@ -30,7 +30,7 @@ impl fmt::Display for Cache {
     }
 }
 
-pub const CACHE_VER: &str = "1.2";
+pub const CACHE_VER: &str = "1.3";
 
 impl Cache {
     /// # Cache directory structure
