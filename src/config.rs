@@ -123,7 +123,7 @@ impl Config {
             eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
             File::create(config)?
-                .write_all(include_str!("../wallust.toml").as_bytes())?;
+                .write_all(include_bytes!("../wallust.toml"))?;
         }
 
         let mut ret: Config = toml::from_str(
