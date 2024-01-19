@@ -51,27 +51,21 @@ pub struct Config {
     // dunst.src = 'C:\long\path'
     // dunst.dst = '~/.config/dunst'
     // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
-    //pub templates: Option<HashMap<String, Fields>>,
+    pub templates: Option<HashMap<String, Entries>>,
 }
 
 /// An entry within the config file, toml table
 /// ref: <https://toml.io/en/v1.0.0#array-of-tables>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Entries {
     /// A file inside `~/.config/wallust/`, which is used for templating
+    #[serde(alias = "src")]
     pub template: String,
     /// Where to write the template
+    #[serde(alias = "dst")]
     pub target: String,
     /// Whether to use the new method or not
     pub new_engine: Option<bool>,
-}
-
-#[derive(Debug, Deserialize, Default)]
-pub struct Fields {
-    //XXX also, the templates files should be into the below path, making the need for `templates/` dir
-    /// A file inside `~/.config/wallust/templates/`, which is used for templating
-    pub src: PathBuf,
-    pub dst: PathBuf,
 }
 
 /// How to populate `wallpaper` template value:
@@ -193,9 +187,21 @@ impl Config {
             WalStr::Path(p) => std::fs::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
         };
 
+        let mut entries = vec![];
+
         if let Some(s) = &self.entry {
+            entries.extend(s.clone());
+        }
+
+        //TODO on next major version, use the name assign to the template. think it needs to be included in `write_template()`
+        if let Some(s) = &self.templates {
+            let e = s.clone().into_values().collect::<Vec<Entries>>();
+            entries.extend(e);
+        }
+
+        if !entries.is_empty() {
             if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
-            template::write_template(self, &wallpaper_str, s, colors, quiet)
+            template::write_template(self, &wallpaper_str, &entries, colors, quiet)
         } else {
             if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
             Ok(())
