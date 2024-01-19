@@ -99,6 +99,10 @@ Cache path: {}
         cache_path.display(),
             );
         },
+        Some(args::Subcmds::News) => {
+            //TODO tell users about breaking changes and how to assess them
+            println!("");
+        },
         None => (),
     }
 
