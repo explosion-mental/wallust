@@ -93,6 +93,14 @@ pub struct Cols {
     pub c: ColorSpaces,
 }
 
+impl<T> From<Histo<T>> for Myrgb
+    where Myrgb: From<T>
+{
+    fn from(h: Histo<T>) -> Self {
+        h.color.into()
+    }
+}
+
 impl Cols {
     /// Creates a new [`Cols`]
     /// TODO in the future, to allow to work with other colorspaces, and thus working with
@@ -109,13 +117,16 @@ impl Cols {
             _ => false,
         };
 
-        let histo = match c {
-            ColorSpaces::Lab | ColorSpaces::LabMixed => lab::histo(cols, threshold, mix),
-            ColorSpaces::LabFast => lab::histo_lazy(cols, threshold, mix),
+        let pred = match c {
+            ColorSpaces::Lab | ColorSpaces::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
+
+            ColorSpaces::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
         };
 
+        let histo = lab::histo(cols, threshold, mix, pred);
+
         Self {
-            orig_histo: histo.clone(),
+            orig_histo: vec![],
             c: *c,
             histo,
             threshold,
@@ -134,20 +145,24 @@ impl Cols {
     /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
     /// than [`MAX_COLS`])
     pub fn new_cols(&mut self) {
-        match self.c {
-            ColorSpaces::Lab | ColorSpaces::LabMixed => lab::new_cols(&mut self.histo, self.threshold),
-            ColorSpaces::LabFast => lab::new_cols_lazy(&mut self.histo, self.threshold),
-        }
+
+        let pred = match self.c {
+            ColorSpaces::Lab | ColorSpaces::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
+
+            ColorSpaces::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
+        };
+
+        self.histo.append(&mut lab::new_cols(&self.histo, self.threshold, pred));
     }
 
     /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
     pub fn to_rgb(&self) -> Vec<Myrgb> {
-        self.histo.iter().map(|x| x.color.into()).collect::<Vec<_>>()
+        self.histo.iter().map(|&x| x.into()).collect::<Vec<_>>()
     }
 
     /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
     pub fn to_rgb_orig(&self) -> Vec<Myrgb> {
-        self.orig_histo.iter().map(|x| x.color.into()).collect::<Vec<_>>()
+        self.orig_histo.iter().map(|&x| x.into()).collect::<Vec<_>>()
     }
 }
 
@@ -175,43 +190,45 @@ impl fmt::Display for ColorSpaces {
 
 pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
-    let warn;
+    let mut warn = false;
 
     let mut cols = Cols::new(cols, threshold, &c);
 
-    if cols.histo.len() < 2 {
-        anyhow::bail!(ERR_TWO_COLS);
-    } else {
-        // take the *necessary* most used colors
-        cols.histo.truncate(MAX_COLS.into());
-        // sort vec by count, most used colors first (if they are more than the MAX)
-        cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
-    }
+    // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
+    if cols.histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
+
+    // sort vec by count, most used colors first
+    cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+    // take the *necessary* most used colors
+    //TODO MAX OR MIN?
+    cols.histo.truncate(MIN_COLS.into());
 
     // Artificially generate colors with linear interpolation in between the colors that we already
     // have. However even this can even fail and not generate enough different colors, so there is
     // another check below
     if cols.histo.len() < MIN_COLS.into() {
-        warn = true;
+        warn = true; // "artificially generation colors.."
 
-        //new vector with new colors, later to be `.append()`ed
+        // `interpolate()`ion and `.append()` new colors to `cols`
         cols.new_cols();
-
-        // take the *necessary* most used colors
-        cols.histo.truncate(MAX_COLS.into());
 
         // sort vec by count, most used colors first (if they are more than the MAX)
         cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
-    } else {
-        warn = false;
+
+        // TODO Do another check on histo itself to update `.count` variables
+        //       test if colors repetead again (on interpolation)
+
+        // take the *necessary* most used colors
+        cols.histo.truncate(MAX_COLS.into());
     }
 
     // not enough colors, even after making new colors (if any)
-    if cols.histo.len() < MIN_COLS.into() {
-        anyhow::bail!(NOT_ENOUGH_COLS);
-    }
+    if cols.histo.len() < MIN_COLS.into() { anyhow::bail!(NOT_ENOUGH_COLS); }
 
-    //let histo = cols.histo.iter().map(|x| x.color.into()).collect::<Rc<_>>();
+    // orig_histo will not be changed by `sort_colors`,
+    // thus keeping the `top used colors` order in place
+    cols.orig_histo = cols.histo.clone();
 
     Ok((cols, warn))
 }
