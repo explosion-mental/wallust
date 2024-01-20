@@ -1498,6 +1498,7 @@ dependencies = [
  "strum 0.25.0",
  "tempfile",
  "toml",
+ "word_iter",
 ]
 
 [[package]]
@@ -1747,6 +1748,12 @@ checksum = "9b5c3db89721d50d0e2a673f5043fc4722f76dcc352d7b1ab8b8288bed4ed2c5"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "word_iter"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f68cdd9d59ee7a806569ee7db9acb5a260f59f5b138d889923bb11034347c8ad"
 
 [[package]]
 name = "zune-inflate"

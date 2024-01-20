@@ -10,6 +10,7 @@ fn main() {
     use wallust::backends::Backend;
     use wallust::colorspaces::ColorSpaces;
     use wallust::filters::Filters;
+    use word_iter::Words;
 
     //use owo_colors::AnsiColors;
     //use documented::{Documented, DocumentedFields};
@@ -25,12 +26,13 @@ fn main() {
     let def_filter     = Filters::SoftDark16.to_string().to_ascii_lowercase();
     let def_threshold  = "20";
 
-    // const MAX: usize = 90;
+    const MAX: usize = 90;
     // const SP: usize = "#      ".len();
 
     fn ul_comment<T>() -> String
         where T: documented::DocumentedFields + std::fmt::Display + IntoEnumIterator
     {
+        // get the padding
         let mut largest = 0;
         for i in T::iter() {
             let i = i.to_string();
@@ -39,23 +41,58 @@ fn main() {
             }
         }
 
+        // comment
         let mut whole = String::new();
+        println!("{:?}", T::iter().map(|x| x.to_string()).collect::<Vec<String>>());
         for i in T::iter() {
-            let mut start = format!("{}", i.to_string().to_ascii_lowercase());
+            let name = i.to_string();
+
+            // pad the name
+            let mut start = format!("{}", name.to_ascii_lowercase());
             if start.len() < largest {
                 start.push_str(&" ".repeat(largest - start.len()));
             }
-            start = format!("#  * {start} - {}\n", T::get_field_comment(i.to_string()).unwrap());
-            // TODO make the text wrap, respecting words (wrap on a whitespace)
-            // let mut comment = T::get_field_comment(i.to_string()).unwrap().to_string();
-            //let len = comment.len() + start.len();
-            // if len > MAX {
-            //     let (first, second) = comment.split_at(MAX);
-            //     let second = format!("#    {}  {second}", " ".repeat(largest));
-            //     comment = format!("{first}\n{second}");
-            // }
-            // start = format!("#  * {start} - {}\n", comment);
-            whole.push_str(&start);
+
+            let init = format!("#  * {start} - ");
+
+            let ind = format!("#    {}    ", " ".repeat(largest));
+
+            let text = T::get_field_comment(name).unwrap();
+
+            // start wrapping the comment
+            let mut wraped = vec![String::new()];
+            wraped[0].push_str(&init);
+
+            let mut i = 0;
+            //let mut len = wraped[i].len();
+            //let mut len = 0;
+
+            // iter into words.
+            for w in text.words() {
+                //len = wraped[i].len() + w.len();
+                if (wraped[i].len() + w.len()) > MAX {
+                    wraped[i] = wraped[i].trim_end().into();
+                    wraped.push("".into());
+                    i += 1;
+                    wraped[i].push('\n');
+                    wraped[i].push_str(&ind);
+                    wraped[i].push_str(w);
+                    wraped[i].push(' ');
+                } else {
+                    wraped[i].push_str(w);
+                    wraped[i].push(' ');
+                }
+            }
+            // println!("{wraped:#?}");
+
+            let ret = wraped.join("");
+            let ret = ret.trim_end();
+
+
+            // println!("RET = {ret}");
+
+            whole.push_str(&ret);
+            whole.push_str("\n");
         }
         whole.trim_end().into()
     }
@@ -103,38 +140,47 @@ filter = \"{def_filter}\"
 
 # Alpha value for templating, by default 100 (no other use whatsoever)
 #alpha = 100
+");
 
-# -- templating -- # (OPTIONAL)
-# An `entry` requires two files:
-# 1. template: A relative path that points to a file where wallust.toml is located, usually at `~/.config/wallust/`
-# 2. target: Absolute path in which to place a file with generated templated values
+let raw_part =
+r#"
+[templates]
+# template: A relative path that points to a file where wallust.toml is located, usually at `~/.config/wallust/`
+# target: Absolute path in which to place a file with generated templated values
+# NOTE: prefer '' over "" for paths, avoids escaping.
+#zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
 
-# This is the most common way of integrating `wallust` generated palette to some program.
-# Below a simple example that searches for `config-path/zathurarc` and puts the newly created file to `~/.config/zathura/zathurarc`
+# OPTIONALLY It can accept `new_engine = true`: This "new engine" difers by using  double brackets like `{{variable}}`
+# instead of one like usual, which helps with file formats that use brackets like json. With the `new_engine` enabled
+# you can escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
+#dunst = { template = 'dunstconfig', target = '~/.config/dunst/dunstrc', new_engine = true }
 
-# [[entry]]
-# template = \"zathurarc\"
-# target = \"~/.config/zathura/zathurarc\"
+# Template can be express as `src` and target as `dst` for shorter naming:
+#alacritty = { src = 'alacrittycfg', target = '~/.config/alacritty/alacritty.toml' }
+# As well as using dotted toml fields, both `alacritty` fields represent the same;
+#alacritty.src = 'alacrittycfg'
+#alacritty.target = '~/.config/alacritty/alacritty.toml'
 
 # REMINDER Variables and methods that can be used with templating:
-#  wallpaper  The full path to the current wallpaper.
-#  backend    Current **backend** being used.
-#  colorspace Current **colorspace** being used.
-#  filter     Current **filter** being used.
-#  alpha      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
-#  alpha_dec  Instead of [0..=100], displays it from 0.00 to 1.00.
-#  var        Output the color in `hex`.
-#  var.rgb    Output the color in `rgb`.
-#  var.rgba   Output the color in `rgba`.
-#  var.xrgba  Output the color in `xrgb`.
-#  var.strip  Output the color in `hex` (without a `#`).
-#  var.red    Output the red value.
-#  var.green  Output the green value.
-#  var.blue   Output the blue value.
+#  wallpaper:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
+#  backend:    Current **backend** being used.
+#  colorspace: Current **colorspace** being used.
+#  filter:     Current **filter** being used.
+#  alpha:      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
+#  alpha_dec:  Instead of [0..=100], displays it from 0.00 to 1.00.
+#  var:        Output the color in `hex`.
+#  var.rgb:    Output the color in `rgb`.
+#  var.rgba:   Output the color in `rgba`.
+#  var.xrgba:  Output the color in `xrgb`.
+#  var.strip:  Output the color in `hex` (without a `#`).
+#  var.red:    Output the red value.
+#  var.green:  Output the green value.
+#  var.blue:   Output the blue value.
 #
 # Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
-"
-);
+"#;
+
+    let template = template + raw_part;
 
     std::fs::File::create("wallust.toml").unwrap()
         .write_all(template.as_bytes()).unwrap()

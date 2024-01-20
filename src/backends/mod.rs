@@ -38,6 +38,7 @@ pub enum Backend {
     #[serde(alias = "fast-resize")]
     /// A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
     FastResize,
+    /// Algo
     Kmeans,
 }
 
