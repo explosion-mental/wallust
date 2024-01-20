@@ -80,7 +80,7 @@ pub enum Filters {
     #[clap(alias  = "soft-light16", name = "softlight16")]
     #[serde(alias = "soft-light16")]
     SoftLight16,
-    /// Dark but colors from 9 to 14 are complementary to 1 to 7
+    /// This is a `dark` variant that uses get it's complementary colors.
     #[clap(alias  = "dark-comp", name = "darkcomp")]
     #[serde(alias = "dark-comp")]
     DarkComp,
