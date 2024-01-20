@@ -131,7 +131,7 @@ impl Filters {
             F::SoftDark16 => AnsiColors::BrightCyan,
             F::SoftLight => AnsiColors::BrightYellow,
             F::SoftLight16 => AnsiColors::BrightYellow,
-            F::DarkComp => AnsiColors::BrightYellow,
+            F::DarkComp => AnsiColors::BrightBlue,
         }
     }
 }
@@ -150,7 +150,7 @@ impl fmt::Display for Filters {
             F::SoftDark16 => write!(f, "SoftDark16"),
             F::SoftLight => write!(f, "SoftLight"),
             F::SoftLight16 => write!(f, "SoftLight16"),
-            F::DarkComp => write!(f, "SoftLight16"),
+            F::DarkComp => write!(f, "DarkComp"),
         }
     }
 }

@@ -44,7 +44,7 @@ threshold = 20
 #  * softdark16  - softdark with color variation
 #  * softlight   - Light with soft pastel colors counterpart of harddark
 #  * softlight16 - softlight with color variation
-#  * softlight16 - softlight with color variation
+#  * darkcomp    - This is a dark variant that uses get it s complementary colors
 filter = "softdark16"
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
