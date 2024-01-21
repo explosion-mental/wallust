@@ -140,21 +140,20 @@ impl Config {
     }
 
     pub fn print(&self) {
+        let empty = String::new();
         let k = if self.check_contrast.unwrap_or(false) {
             format!("\n[{}] {}: Doing extra calculations to ensure a good contrast",
                 "I".blue().bold(),
                 "contrast".magenta().bold()
                 )
-        } else { "".to_string() };
+        } else { empty.clone() };
 
         let sat = if let Some(s) = self.saturation {
             format!("\n[{}] {}: Adding saturation to existing palette by {s}%",
                 "I".blue().bold(),
                 "saturation".magenta().bold()
                 )
-        } else {
-            "".to_string()
-        };
+        } else { empty };
 
         println!(
 "[{i}] {back_f}: Using {back} backend parser
@@ -285,7 +284,7 @@ impl std::fmt::Display for Config {
                     let new_engine = if let Some(s) = i.1.new_engine {
                         format!("{sp}{sp}new_engine = {s}\n")
                     } else {
-                        "".into()
+                        String::new()
                     };
 
                     let name = i.0;
