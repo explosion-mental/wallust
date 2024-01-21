@@ -32,8 +32,8 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 - Configuration file, documented at `wallust.toml` of this repo:
     * When no config file, the [default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml) will be generated
 	* **Optional** [templating](#templating) integrated in a config file
-	* backends, colorspaces and filters
-	* configurable [threshold](#threshold)
+	* Configurable methods for backends, colorspaces and filters (chart below)
+	* Configurable [threshold](#threshold)
     * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
     * MacOs: `$HOME/Library/Application Support`
     * Windows: `{FOLDERID_RoamingAppData}`
@@ -44,7 +44,8 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 | ColorSpace | Get the most prominent color, and sort them according to the `Filter`, configurable with a [threshold](#threshold) |
 | Filter     | Makes a scheme palette with the gathered colors, (e.g makes the colors constrast nicely with the background) |
 
-_To see what's avaliable under each method, check the_ [_config file_](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml)
+
+_Make sure to read the sample_ [***config file***](wallust.toml) _for more documentation._
 
 ### Threshold
 Default is `20` with a more colorful approach, `19` is also suggested.
@@ -218,12 +219,16 @@ that the following dependencies are available:
 
 - Build Dependencies:
 	1. Rust (`cargo`, `rustc`)
+- Runtime Dependencies
+    1. [`imagemagick`](https://imagemagick.org) is required **only** for the `wal`
+       backend, such limiting should be mentined and considered an **optional**
+       dependency, since all other backends work without it.
 
 ## Contribute!
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
 
 
-Show some of your taste by adding a [backend](./src/backends/mod.rs)
+Show some of your taste by adding a [backend](./src/backends/mod.rs),
 [colorspace](./src/colorspaces/mod.rs), [filter](./src/filters/mod.rs),
 and/or [colorscheme](./src/themes/colorschemes.rs).
 
