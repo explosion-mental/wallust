@@ -223,12 +223,9 @@ that the following dependencies are available:
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
 
 
-Show some of your taste by adding a
-[backends](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/backends),
-[colorspaces](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/colorspaces),
-[filters](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/filters),
-and/or
-[colorscheme](https://codeberg.org/explosion-mental/wallust/src/branch/master/src/themes/colorschemes.rs).
+Show some of your taste by adding a [backend](./src/backends/mod.rs)
+[colorspace](./src/colorspaces/mod.rs), [filter](./src/filters/mod.rs),
+and/or [colorscheme](./src/themes/colorschemes.rs).
 
 Having thoughts or suggestios is also very welcome.
 
