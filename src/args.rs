@@ -96,7 +96,6 @@ pub enum Subcmds {
         update_current: bool,
     },
     Run(WallustArgs),
-    News,
     Debug,
 }
 
