@@ -95,6 +95,7 @@ pub enum Subcmds {
         #[arg(short, long, conflicts_with = "skip_sequences")]
         update_current: bool,
     },
+    /// Generate a palette from an image
     Run(WallustArgs),
     Debug,
 }
