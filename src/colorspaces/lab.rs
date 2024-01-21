@@ -129,7 +129,7 @@ fn gather_cols<F>(labs: Vec<Spec>, threshold: u8, mix: bool, pred: &F) -> Vec<Hi
             // Check if whether the color is new or is already in the vec
             for col in &mut histo {
                 // if any lab value is between a threshold, count it up
-                if delta_e(lab, col.color) < threshold.into() {
+                if delta_e(lab, col.color) <= threshold.into() {
                     if mix { col.color = mixed(lab, col.color); }
                     col.count += 1;
                     continue 'outter;
