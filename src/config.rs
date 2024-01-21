@@ -46,7 +46,7 @@ pub struct Config {
     #[serde(skip)]
     pub file: PathBuf,
 
-    // templates: a new way of defining templates, giving the ability of naming stuff.
+    /// templates: a new way of defining templates, giving the ability of naming stuff.
     // [templates]
     // dunst.src = 'C:\long\path'
     // dunst.dst = '~/.config/dunst'
@@ -140,7 +140,6 @@ impl Config {
     }
 
     pub fn print(&self) {
-
         let k = if self.check_contrast.unwrap_or(false) {
             format!("\n[{}] {}: Doing extra calculations to ensure a good contrast",
                 "I".blue().bold(),
@@ -174,9 +173,10 @@ impl Config {
         );
     }
 
-    // write entries `[[entry]]` of the config file (if any)
+    /// Writes templates defined in the config file (if any)
+    /// Should print a warning if you are using the old `[[entry]]` syntax (since it's going to be deprecated in v3).
     pub fn write_entry(&self, wal_str: &WalStr, colors: &Colors, quiet: bool) -> Result<()> {
-        let info = "I".blue().bold().to_string();
+        let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
 
         // check if themes exist, if it does we are using the `theme` subcommand,
         // which means there is not image path, so use the theme name as for the `wallpaper` value
@@ -190,6 +190,11 @@ impl Config {
         let mut entries = vec![];
 
         if let Some(s) = &self.entry {
+            if ! quiet {
+                eprintln!("[{w}] {t}: Looks like you are using the old `[[entry]]` syntax, make sure to read \
+                <https://codeberg.org/explosion-mental/wallust/src/branch/master/v3.md>",
+                w = "W".red().bold(), t = "templates".magenta().bold());
+            }
             entries.extend(s.clone());
         }
 
@@ -200,10 +205,10 @@ impl Config {
         }
 
         if !entries.is_empty() {
-            if ! quiet { println!("[{info}] {}: Writing templates..", "templates".magenta().bold()); }
+            if ! quiet { println!("{init}Writing templates.."); }
             template::write_template(self, &wallpaper_str, &entries, colors, quiet)
         } else {
-            if ! quiet { println!("[{info}] {}: No templates found", "templates".magenta().bold()); }
+            if ! quiet { println!("{init}No templates found"); }
             Ok(())
         }
     }
@@ -271,7 +276,34 @@ impl std::fmt::Display for Config {
                 }
                 s.trim_end().to_owned()
             } else {
+                String::new()
+            };
+
+            let temps = if let Some(e) = &self.templates {
+                let mut s = String::new();
+                for i in e {
+                    let new_engine = if let Some(s) = i.1.new_engine {
+                        format!("{sp}{sp}new_engine = {s}\n")
+                    } else {
+                        "".into()
+                    };
+
+                    let name = i.0;
+
+                    s.push_str(
+                        &format!("{sp}{name}\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
+                                i.1.template, i.1.target)
+                        );
+                }
+                s.trim_end().to_owned()
+            } else {
+                String::new()
+            };
+
+            let templates = if entry.is_empty() && temps.is_empty() {
                 "No entries found.".into()
+            } else {
+                [entry, temps].join("")
             };
 
             write!(f, "\
@@ -286,7 +318,7 @@ Configuration options:
     saturation     = {sat:?}
     alpha          = {a:?}
 Templates:
-{entry}",
+{templates}",
             b = self.backend,
             c = self.color_space,
             t = self.threshold,
