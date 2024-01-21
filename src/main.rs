@@ -39,6 +39,7 @@ fn main() -> Result<()> {
     }
 
     match cli.subcmds {
+        Some(args::Subcmds::Run(s)) => no_subcomands(&mut conf, &cache_path, &s)?,
         #[cfg(feature = "themes")]
         Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current }) => {
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
