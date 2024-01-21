@@ -10,7 +10,9 @@
 #  * fastresize - A much faster resize algo that uses SIMD For some reason it fails on
 #                  some images where resized doesn t for this reason it doesn t replace
 #                  but rather it s a new option
-#  * kmeans     - Algo
+#  * kmeans     - EXPERIMENTAL Kmeans is an algo that divides and picks pixels all around
+#                  the image Requires more tweaking and more in depth testing even tho is
+#                  works I mark it as experimental
 backend = "resized"
 
 # What color space to use to produce and select the most prominent colors:
@@ -44,7 +46,9 @@ threshold = 20
 #  * softdark16  - softdark with color variation
 #  * softlight   - Light with soft pastel colors counterpart of harddark
 #  * softlight16 - softlight with color variation
-#  * darkcomp    - This is a dark variant that uses get it s complementary colors
+#  * darkcomp    - This is a dark variant that uses get it s complementary colors This
+#                   still requires a proper combination currently it only uses the
+#                   complementary collors
 filter = "dark"
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)

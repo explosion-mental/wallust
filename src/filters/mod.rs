@@ -64,7 +64,8 @@ pub enum Filters {
     Light,
     /// Same as `light` but uses the 16 color trick
     Light16,
-    /// Variant of softlight, uses the lightest colors and a dark background (could be interpreted as `dark` inversed)
+    /// Variant of softlight, uses the lightest colors and a dark background (could be
+    /// interpreted as `dark` inversed)
     #[clap(alias  = "soft-dark", name = "softdark")]
     #[serde(alias = "soft-dark")]
     SoftDark,
@@ -80,7 +81,8 @@ pub enum Filters {
     #[clap(alias  = "soft-light16", name = "softlight16")]
     #[serde(alias = "soft-light16")]
     SoftLight16,
-    /// This is a `dark` variant that uses get it's complementary colors.
+    /// This is a `dark` variant that uses get it's complementary colors. This still
+    /// requires a proper combination, currently it only uses the complementary collors
     #[clap(alias  = "dark-comp", name = "darkcomp")]
     #[serde(alias = "dark-comp")]
     DarkComp,

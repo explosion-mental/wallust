@@ -19,8 +19,8 @@ mod thumb;
 mod fast_resize;
 mod kmeans;
 
-/// This indicates what 'parser' method to use, defined in the config file.
-/// Corresponds to the modules inside this module
+/// This indicates what 'parser' method to use, defined in the config file. Corresponds to the
+/// modules inside this module
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields, strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
@@ -36,9 +36,12 @@ pub enum Backend {
     Thumb,
     #[clap(alias  = "fast-resize", name = "fastresize")] //claps prefers this-name
     #[serde(alias = "fast-resize")]
-    /// A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
+    /// A much faster resize algo that uses SIMD. For some reason it fails on some images where
+    /// `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
     FastResize,
-    /// Algo
+    /// (EXPERIMENTAL) Kmeans is an algo that divides and picks pixels all around the image,
+    /// Requires more tweaking and more in depth testing, even tho is "works", I mark it as
+    /// experimental.
     Kmeans,
 }
 
