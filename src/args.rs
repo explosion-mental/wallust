@@ -97,6 +97,7 @@ pub enum Subcmds {
     },
     /// Generate a palette from an image
     Run(WallustArgs),
+    /// Print information about the program and the enviroment it uses
     Debug,
 }
 
