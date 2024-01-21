@@ -112,6 +112,12 @@ pub fn histo<F>(cols: &[u8], threshold: u8, mix: bool, pred: F) -> Vec<Hist>
 {
     let mut labs = rgb_bytes_to_labs(cols);
     labs.dedup();
+    // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
+    // that the colors aren't the most prominent ones (for the most part).
+    // However, avoiding `.dedup()` and not calling it, also changes the result.
+    // After some testing I decided that the most 'plausible' colors would be
+    // the one that requires `.dedup()`.
+    //labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
 
     gather_cols(labs, threshold, mix, &pred)
 }
@@ -148,7 +154,7 @@ fn gather_cols<F>(labs: Vec<Spec>, threshold: u8, mix: bool, pred: &F) -> Vec<Hi
 /// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
 /// (by criterion),
 #[inline]
-fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
+pub fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
     //delta_2000(lab_0, lab_1) as u32
     delta_1994(lab_0, lab_1) as u32
 }

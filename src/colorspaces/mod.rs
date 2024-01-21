@@ -197,12 +197,28 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> 
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
     if cols.histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
 
+    // FORGET: testing this as much as I can, and `.dedup()`ing doesn't seem to remove "similar" colors.
+    // dedup colors by
+    // ---> this is wrong lmao, delta_e is da wae//cols.histo.dedup_by(|a, b| a.color == b.color);
+
+    // The above is wrong, I've tested a lot and:
+    // 1. using `dedup_by` without `sort_by_key` seems to not get much colors.
+    // 2. obviously sorting without `dedup`ing won't do much.
+    // 3. to get more colors `.truncate()` should accept `MAX_COLS`, however this used to get many
+    //    similar colors, not resulting in an stable palette. By using these two methods below, we
+    //    'asure' (lazyly) to have no duplicates, and thus, the benefit of 'more colors' won't
+    //    imply 'bad scheme'.
+    cols.histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
+    cols.histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
+    // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
+    // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
+    // labs.dedup();
+
     // sort vec by count, most used colors first
     cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
 
-    // take the *necessary* most used colors
-    //TODO MAX OR MIN?
-    cols.histo.truncate(MIN_COLS.into());
+    // remove excess elements
+    cols.histo.truncate(MAX_COLS.into());
 
     // Artificially generate colors with linear interpolation in between the colors that we already
     // have. However even this can even fail and not generate enough different colors, so there is
