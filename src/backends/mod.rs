@@ -39,9 +39,8 @@ pub enum Backend {
     /// A much faster resize algo that uses SIMD. For some reason it fails on some images where
     /// `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
     FastResize,
-    /// (EXPERIMENTAL) Kmeans is an algo that divides and picks pixels all around the image,
-    /// Requires more tweaking and more in depth testing, even tho is "works", I mark it as
-    /// experimental.
+    /// Kmeans is an algo that divides and picks pixels all around the image, Requires more
+    /// tweaking and more in depth testing but, for the most part, "it just werks".
     Kmeans,
 }
 
