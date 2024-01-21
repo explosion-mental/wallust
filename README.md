@@ -78,10 +78,11 @@ your `.zshrc`, `.bashrc`, etc.
 _OPTIONAL_
 
 
-**NOTE**: You can enable a new method by using `new_engine = true` inside an `[[entry]]`.
-This "new engine" difers by using double brackets like `{{variable}}` instead of one like
-`{variable}` (_as in the example below_), which helps with file formats that use brackets
-like json. With the `new_engine` enabled you can escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
+**NOTE**: You can enable a new method by using `new_engine = true` inside a
+template This "new engine" difers by using double brackets like `{{variable}}`
+instead of one like `{variable}` (_as in the example below_), which helps with
+file formats that use brackets like json. With the `new_engine` enabled you can
+escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
 
 
 You can use `wallust` generated colors in a program by _templating_ the colors
@@ -99,17 +100,25 @@ set statusbar-bg   "{color4}"
 set statusbar-fg   "{color6}"
 set inputbar-bg    "{color1}"
 ```
-Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
-(config directory defined by the platform) and add a new entry to `wallust.toml`
-```toml
-[[entry]]
-template = "zathurarc"
-target = "~/.config/zathura/zathurarc"
-```
+
 You can find examples at
 [pywal templates](https://github.com/dylanaraps/pywal/tree/master/pywal/templates)
 or
 [wpgtk templates](https://github.com/deviantfero/wpgtk-templates)
+
+
+Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
+(config directory defined by the platform) and add a new template to
+`wallust.toml` inside `templates`:
+```toml
+[templates]
+zathura.template = "zathurarc"
+zathura.target = '~/.config/zathura/zathurarc'
+# or like this, alternatively
+#zathura = { src = 'zathurarc', dst = '~/.config/zathura/zathurarc' }
+```
+The name after doesn't really matters, in this case `zathura`, and is used as
+an identifier for the user.
 
 #### Variables and Methods
 - `wallpaper`:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
