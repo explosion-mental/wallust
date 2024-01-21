@@ -129,7 +129,7 @@ threshold = {def_threshold}
 filter = \"{def_filter}\"
 
 # Ensures a \"readable contrast\" (OPTIONAL, disabled by default)
-# Should only be enables when you notice an unreadable contrast frequently happening
+# Should only be enabled when you notice an unreadable contrast frequently happening
 # with your images. The reference color for the contrast is the background color.
 #check_contrast = true
 
@@ -155,11 +155,11 @@ r#"
 # you can escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
 #dunst = { template = 'dunstconfig', target = '~/.config/dunst/dunstrc', new_engine = true }
 
-# Template can be express as `src` and target as `dst` for shorter naming:
-#alacritty = { src = 'alacrittycfg', target = '~/.config/alacritty/alacritty.toml' }
+# template field can be express as `src` and target as `dst` for shorter naming:
+#alacritty = { src = 'alacrittycfg', dst = '~/.config/alacritty/alacritty.toml' }
 # As well as using dotted toml fields, both `alacritty` fields represent the same;
 #alacritty.src = 'alacrittycfg'
-#alacritty.target = '~/.config/alacritty/alacritty.toml'
+#alacritty.dst = '~/.config/alacritty/alacritty.toml'
 
 # REMINDER Variables and methods that can be used with templating:
 #  wallpaper:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
