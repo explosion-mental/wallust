@@ -23,15 +23,17 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
     * *NIX: ASCII escape sequences
     * MacOS: iTerm2 sequences
     * Windows: Adds a [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
-- Cache scheme palettes
+- Cache scheme palettes, overwritten by `-w`
     * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
     * MacOs: `$HOME/Library/Caches`
     * Windows: `{FOLDERID_LocalAppData}`
 - Read pywal/terminal-sexy colorschemes with `cs` subcommand
 - Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features) `wallust theme --help` to list possible themes
-- Configuration file, documented at `wallust.toml` of this repo:
-    * When no config file, the [default config file](https://codeberg.org/explosion-mental/wallust/src/branch/master/wallust.toml) will be generated
-	* **Optional** [templating](#templating) integrated in a config file
+- Configuration file, `wallust.toml`:
+    * When no config file, the [default config file](wallust.toml) will be generated
+	* **Optional** [templating](#templating) with two different engines:
+        - Default is using usual `{variable}`
+        - By enabling `new_engine = true`, you use `{{variable}}`
 	* Configurable methods for backends, colorspaces and filters (chart below)
 	* Configurable [threshold](#threshold)
     * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
@@ -42,7 +44,7 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 |------------|-------------|
 | Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14)) |
 | ColorSpace | Get the most prominent color, and sort them according to the `Filter`, configurable with a [threshold](#threshold) |
-| Filter     | Makes a scheme palette with the gathered colors, (e.g makes the colors constrast nicely with the background) |
+| Filter     | Makes a scheme palette with the gathered colors, (e.g. sets light background) |
 
 
 _Make sure to read the sample_ [***config file***](wallust.toml) _for more documentation._
@@ -114,7 +116,7 @@ Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
 [templates]
 zathura.template = "zathurarc"
 zathura.target = '~/.config/zathura/zathurarc'
-# or like this, alternatively
+# or, alternatively, like:
 #zathura = { src = 'zathurarc', dst = '~/.config/zathura/zathurarc' }
 ```
 The name after doesn't really matters, in this case `zathura`, and is used as
@@ -139,14 +141,13 @@ an identifier for the user.
 Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
 
 ## Installation
+<a href="https://repology.org/project/wallust/versions">
+  <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
+</a>
 
 `wallust` doesn't require third party packages, but has an **optional**
 dependency: [`imagemagick`](https://imagemagick.org) to use the `wal` backend
 (just like pywal). Other methods are built in.
-
-<a href="https://repology.org/project/wallust/versions">
-  <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
-</a>
 
 ### Distros Packages
 #### NetBSD
