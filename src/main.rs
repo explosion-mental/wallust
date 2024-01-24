@@ -34,7 +34,11 @@ fn main() -> Result<()> {
     let mut conf = config::Config::new(&original_config_path, cli.args.as_ref())?;
 
     match &cli.args {
-        Some(s) => no_subcomands(&mut conf, &cache_path, s)?,
+        Some(s) => {
+            eprintln!("[{w}] Prefer to use `wallust {r} {f}` as it will be a breaking change in v3.",
+                w = "W".red().bold(), r = "run".bold(), f = s.file.display());
+            no_subcomands(&mut conf, &cache_path, s)?
+        },
         None => (),
     }
 
