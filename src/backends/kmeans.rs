@@ -5,25 +5,29 @@ use crate::backends::*;
 /// TODO Investigate what are the better default properties that get the most average and tasteful palette.
 /// `palette` `as_components()` and `components_as()` is very interesting, since it works on primitive types, need more reading.
 /// from: https://github.com/okaneco/kmeans-colors/blob/master/src/bin/kmeans_colors/app.rs
-#[allow(unused)]
 pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
+    use kmeans_colors::{
+        get_kmeans,
+        get_kmeans_hamerly,
+        Kmeans,
+        MapColor,
+        // Calculate,
+        // Sort,
+    };
+    use palette::{
+        cast::{AsComponents, ComponentsAs},
+        Srgb,
+    };
+    //use palette::{white_point::D65, FromColor, IntoColor, Lab, LinSrgba, Srgb, Srgba};
 
-
-    use kmeans_colors::{get_kmeans, get_kmeans_hamerly, Calculate, Kmeans, MapColor, Sort};
-    use palette::cast::{AsComponents, ComponentsAs};
-    use palette::{white_point::D65, FromColor, IntoColor, Lab, LinSrgba, Srgb, Srgba};
-    use image::GenericImageView;
-
-    // An image buffer of one black pixel and one white pixel
     //let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
 
-    //XXX maybe resize it first..
     let img = thumb::thumb(f)?;
 
-    // TODO skip srgba and go directly to rgb, ignoring transparency.
     //let img_vec: &[Srgba<u8>] = img.components_as();
     let img_vec: &[Srgb<u8>] = img.components_as();
 
+    //TODO check these fields in detail, seems to do the work tho.
     let k = 8;
     let max_iter = 20;
     let runs = 3;
@@ -45,7 +49,6 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     // Iterate over amount of runs keeping best results
     let mut result = Kmeans::new();
 
-    //TODO check these fields in detail
     for i in 0..runs {
         let run_result = method(
             k,
