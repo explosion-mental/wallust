@@ -27,7 +27,6 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     //let img_vec: &[Srgba<u8>] = img.components_as();
     let img_vec: &[Srgb<u8>] = img.components_as();
 
-    //TODO check these fields in detail, seems to do the work tho.
     let k = 8;
     let max_iter = 20;
     let runs = 3;
