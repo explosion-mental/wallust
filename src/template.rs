@@ -55,7 +55,14 @@ pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], valu
         let rendered = if e.new_engine.unwrap_or(false) {
             far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
-            new_string_template::template::Template::new(file_content).render_nofail(&values.to_hash(image_path, conf))
+            match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
+                Ok(o) => o,
+                Err(er) => {
+                    let raw = r#"{{variable}}"#;
+                    eprintln!("[{warn}] File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", e.template);
+                    continue;
+                }
+            }
         };
 
         let mut buffer = match File::create(target_file.as_ref()) {
