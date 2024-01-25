@@ -160,22 +160,22 @@ impl Filters {
     pub fn col(&self) -> AnsiColors {
         match self {
             F::Dark => AnsiColors::Blue,
-            F::Dark16 => AnsiColors::Green,
+            F::Dark16 => AnsiColors::BrightBlue,
             F::DarkComp => AnsiColors::BrightBlue,
 
-            F::HardDark => AnsiColors::Magenta,
-            F::HardDark16 => AnsiColors::Magenta,
-            F::HardDarkComp => AnsiColors::BrightMagenta,
+            F::HardDark => AnsiColors::Green,
+            F::HardDark16 => AnsiColors::BrightGreen,
+            F::HardDarkComp => AnsiColors::BrightGreen,
 
-            F::Light => AnsiColors::Yellow,
-            F::Light16 => AnsiColors::Cyan,
+            F::Light => AnsiColors::Cyan,
+            F::Light16 => AnsiColors::BrightCyan,
             F::LightComp => AnsiColors::BrightCyan,
 
-            F::SoftDark => AnsiColors::BrightCyan,
-            F::SoftDark16 => AnsiColors::BrightCyan,
-            F::SoftDarkComp => AnsiColors::BrightCyan,
+            F::SoftDark => AnsiColors::Magenta,
+            F::SoftDark16 => AnsiColors::BrightMagenta,
+            F::SoftDarkComp => AnsiColors::BrightMagenta,
 
-            F::SoftLight => AnsiColors::BrightYellow,
+            F::SoftLight => AnsiColors::Yellow,
             F::SoftLight16 => AnsiColors::BrightYellow,
             F::SoftLightComp => AnsiColors::BrightYellow,
         }
