@@ -191,7 +191,7 @@ impl Config {
         if let Some(s) = &self.entry {
             if ! quiet {
                 eprintln!("[{w}] {t}: Looks like you are using the old `[[entry]]` syntax, make sure to read \
-                <https://codeberg.org/explosion-mental/wallust/src/branch/master/v3.md>",
+                <https://codeberg.org/explosion-mental/wallust/src/tag/2.10.0/v3.md>",
                 w = "W".red().bold(), t = "templates".magenta().bold());
             }
             entries.extend(s.clone());
