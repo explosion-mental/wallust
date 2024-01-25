@@ -235,6 +235,9 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> 
         warn = true; // "artificially generation colors.."
 
         // `interpolate()`ion and `.append()` new colors to `cols`
+        //TODO give options on **how** to complete the colors:
+        // - `interpolate()`ion, what's currently being used
+        // - `.complementary()`, fill colors with it's complementary ones #13
         cols.new_cols();
 
         // sort vec by count, most used colors first (if they are more than the MAX)
