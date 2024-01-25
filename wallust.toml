@@ -32,24 +32,28 @@ color_space = "lab"
 #  100        Colors are exact opposite
 threshold = 20
 
-# NOTE: All filters will fill 16 colors (from color0 to color15), 16 color
+# NOTE: All palettes will fill 16 colors (from color0 to color15), 16 color
 #       variations are the 'ilusion' of more colors by opaquing color1 to color5.
 # Use the most prominent colors in a way that makes sense, a scheme:
-#  * dark        - dark colors dark background and light contrast
-#  * dark16      - Same as dark but uses the colors trick
-#  * harddark    - Same as dark with hard hue colors
-#  * harddark16  - Harddark with color variation
-#  * light       - Light bg dark fg
-#  * light16     - Same as light but uses the color trick
-#  * softdark    - Variant of softlight uses the lightest colors and a dark background
-#                   could be interpreted as dark inversed
-#  * softdark16  - softdark with color variation
-#  * softlight   - Light with soft pastel colors counterpart of harddark
-#  * softlight16 - softlight with color variation
-#  * darkcomp    - This is a dark variant that uses get it s complementary colors This
-#                   still requires a proper combination currently it only uses the
-#                   complementary collors
-filter = "dark"
+#  * dark          - dark colors dark background and light contrast
+#  * dark16        - Same as dark but uses the colors trick
+#  * darkcomp      - This is a dark variant that uses get it s complementary colors This
+#                     still requires a proper combination currently it only uses the
+#                     complementary collors
+#  * harddark      - Same as dark with hard hue colors
+#  * harddark16    - Harddark with color variation
+#  * harddarkcomp  - complementary colors variation of harddark scheme
+#  * light         - Light bg dark fg
+#  * light16       - Same as light but uses the color trick
+#  * lightcomp     - complementary colors variation of light
+#  * softdark      - Variant of softlight uses the lightest colors and a dark background
+#                     could be interpreted as dark inversed
+#  * softdark16    - softdark with color variation
+#  * softdarkcomp  - complementary variation for softdark
+#  * softlight     - Light with soft pastel colors counterpart of harddark
+#  * softlight16   - softlight with color variation
+#  * softlightcomp - softlight with complementary colors
+palette = "dark"
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening
@@ -85,7 +89,7 @@ filter = "dark"
 #  wallpaper:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
 #  backend:    Current **backend** being used.
 #  colorspace: Current **colorspace** being used.
-#  filter:     Current **filter** being used.
+#  palette:     Current **palette** being used.
 #  alpha:      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 #  alpha_dec:  Instead of [0..=100], displays it from 0.00 to 1.00.
 #  var:        Output the color in `hex`.

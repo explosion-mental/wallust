@@ -122,11 +122,11 @@ color_space = \"{def_colorspace}\"
 #  100        Colors are exact opposite
 threshold = {def_threshold}
 
-# NOTE: All filters will fill 16 colors (from color0 to color15), 16 color
+# NOTE: All palettes will fill 16 colors (from color0 to color15), 16 color
 #       variations are the 'ilusion' of more colors by opaquing color1 to color5.
 # Use the most prominent colors in a way that makes sense, a scheme:
 {filters}
-filter = \"{def_filter}\"
+palette = \"{def_filter}\"
 
 # Ensures a \"readable contrast\" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening
@@ -165,7 +165,7 @@ r#"
 #  wallpaper:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
 #  backend:    Current **backend** being used.
 #  colorspace: Current **colorspace** being used.
-#  filter:     Current **filter** being used.
+#  palette:     Current **palette** being used.
 #  alpha:      Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 #  alpha_dec:  Instead of [0..=100], displays it from 0.00 to 1.00.
 #  var:        Output the color in `hex`.
