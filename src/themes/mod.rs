@@ -87,16 +87,16 @@ pub fn read_scheme(f: &Path, format: &Schemes) -> Result<Colors> {
 fn deser_scheme(contents: &str, format: &Schemes) -> Result<Colors> {
     match format {
         Schemes::Pywal => {
-            let ser: WalTheme = serde_json::from_str(&contents)?;
+            let ser: WalTheme = serde_json::from_str(contents)?;
             ser.to_colors()
 
         },
         Schemes::TerminalSexy => {
-            let ser: TerminalSexy = serde_json::from_str(&contents)?;
+            let ser: TerminalSexy = serde_json::from_str(contents)?;
             ser.to_colors()
         },
         Schemes::Wallust => {
-            let ser: Colors = serde_json::from_str(&contents)?;
+            let ser: Colors = serde_json::from_str(contents)?;
             Ok(ser)
         },
     }
