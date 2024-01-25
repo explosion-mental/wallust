@@ -32,15 +32,24 @@ use self::Filters as F;
 
 mod dark;
 mod dark16;
+mod darkcomp;
+
 mod harddark;
 mod harddark16;
+mod harddarkcomp;
+
 mod light;
 mod light16;
+mod lightcomp;
+
 mod softdark;
 mod softdark16;
+mod softdarkcomp;
+
 mod softlight;
 mod softlight16;
-mod darkcomp;
+mod softlightcomp;
+
 
 /// Corresponds to the modules inside this module and `filter` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
@@ -52,6 +61,12 @@ pub enum Filters {
     Dark,
     /// Same as `dark` but uses the 16 colors trick
     Dark16,
+    /// This is a `dark` variant that uses get it's complementary colors. This still
+    /// requires a proper combination, currently it only uses the complementary collors
+    #[clap(alias  = "dark-comp", name = "darkcomp")]
+    #[serde(alias = "dark-comp")]
+    DarkComp,
+
     /// Same as `dark` with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
     #[serde(alias = "hard-dark")]
@@ -60,10 +75,20 @@ pub enum Filters {
     #[clap(alias  = "hard-dark16", name = "harddark16")] //clap prefers this-name
     #[serde(alias = "hard-dark16")]
     HardDark16,
+    /// complementary colors variation of harddark scheme
+    #[clap(alias  = "hard-dark-comp", name = "harddarkcomp")] //clap prefers this-name
+    #[serde(alias = "hard-dark-comp")]
+    HardDarkComp,
+
     /// Light bg, dark fg
     Light,
     /// Same as `light` but uses the 16 color trick
     Light16,
+    /// complementary colors variation of light
+    #[clap(alias  = "light-comp", name = "lightcomp")] //clap prefers this-name
+    #[serde(alias = "light-comp")]
+    LightComp,
+
     /// Variant of softlight, uses the lightest colors and a dark background (could be
     /// interpreted as `dark` inversed)
     #[clap(alias  = "soft-dark", name = "softdark")]
@@ -73,6 +98,11 @@ pub enum Filters {
     #[clap(alias  = "soft-dark16", name = "softdark16")]
     #[serde(alias = "soft-dark16")]
     SoftDark16,
+    /// complementary variation for softdark
+    #[clap(alias  = "soft-dark-comp", name = "softdarkcomp")]
+    #[serde(alias = "soft-dark-comp")]
+    SoftDarkComp,
+
     /// Light with soft pastel colors, counterpart of `harddark`
     #[clap(alias  = "soft-light", name = "softlight")]
     #[serde(alias = "soft-light")]
@@ -81,40 +111,46 @@ pub enum Filters {
     #[clap(alias  = "soft-light16", name = "softlight16")]
     #[serde(alias = "soft-light16")]
     SoftLight16,
-    /// This is a `dark` variant that uses get it's complementary colors. This still
-    /// requires a proper combination, currently it only uses the complementary collors
-    #[clap(alias  = "dark-comp", name = "darkcomp")]
-    #[serde(alias = "dark-comp")]
-    DarkComp,
+    /// softlight with complementary colors
+    #[clap(alias  = "soft-light-comp", name = "softlightcomp")]
+    #[serde(alias = "soft-light-comp")]
+    SoftLightComp,
 }
 
 pub fn main(f: &Filters) -> fn(Cols) -> Colors {
     match f {
         F::Dark    => dark::dark,
         F::Dark16  => dark16::dark16,
+        F::DarkComp => darkcomp::darkcomp,
+
         F::HardDark => harddark::harddark,
         F::HardDark16 => harddark16::harddark16,
+        F::HardDarkComp => harddarkcomp::harddarkcomp,
+
         F::Light   => light::light,
         F::Light16 => light16::light16,
+        F::LightComp => lightcomp::lightcomp,
+
         F::SoftDark => softdark::softdark,
         F::SoftDark16 => softdark16::softdark16,
+        F::SoftDarkComp => softdarkcomp::softdarkcomp,
+
         F::SoftLight => softlight::softlight,
         F::SoftLight16 => softlight16::softlight16,
-        F::DarkComp => darkcomp::darkcomp,
+        F::SoftLightComp => softlightcomp::softlightcomp,
     }
 }
 
 /// Use different sorting `sort_by` on different filters, which creates even more schemes.
 pub fn sort_ord(f: &Filters) -> ColorOrder {
     match f {
-          F::Dark  | F::Dark16
-        | F::SoftDark | F::SoftDark16
-        | F::SoftLight | F::SoftLight16
-        | F::DarkComp
+          F::Dark  | F::Dark16 | F::DarkComp
+        | F::SoftDark | F::SoftDark16 | F::SoftDarkComp
+        | F::SoftLight | F::SoftLight16 | F::SoftLightComp
         => ColorOrder::LightFirst,
 
-          F::HardDark | F::HardDark16
-        | F::Light | F::Light16
+          F::HardDark | F::HardDark16 | F::HardDarkComp
+        | F::Light | F::Light16 | F::LightComp
         => ColorOrder::DarkFirst,
     }
 }
@@ -125,15 +161,23 @@ impl Filters {
         match self {
             F::Dark => AnsiColors::Blue,
             F::Dark16 => AnsiColors::Green,
+            F::DarkComp => AnsiColors::BrightBlue,
+
             F::HardDark => AnsiColors::Magenta,
             F::HardDark16 => AnsiColors::Magenta,
+            F::HardDarkComp => AnsiColors::BrightMagenta,
+
             F::Light => AnsiColors::Yellow,
             F::Light16 => AnsiColors::Cyan,
+            F::LightComp => AnsiColors::BrightCyan,
+
             F::SoftDark => AnsiColors::BrightCyan,
             F::SoftDark16 => AnsiColors::BrightCyan,
+            F::SoftDarkComp => AnsiColors::BrightCyan,
+
             F::SoftLight => AnsiColors::BrightYellow,
             F::SoftLight16 => AnsiColors::BrightYellow,
-            F::DarkComp => AnsiColors::BrightBlue,
+            F::SoftLightComp => AnsiColors::BrightYellow,
         }
     }
 }
@@ -142,17 +186,25 @@ impl Filters {
 impl fmt::Display for Filters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            F::Dark => write!(f, "Dark"),
-            F::Dark16 => write!(f, "Dark16"),
-            F::HardDark => write!(f, "HardDark"),
-            F::HardDark16 => write!(f, "HardDark16"),
-            F::Light => write!(f, "Light"),
-            F::Light16 => write!(f, "Light16"),
-            F::SoftDark => write!(f, "SoftDark"),
-            F::SoftDark16 => write!(f, "SoftDark16"),
-            F::SoftLight => write!(f, "SoftLight"),
-            F::SoftLight16 => write!(f, "SoftLight16"),
+            F::Dark     => write!(f, "Dark"),
+            F::Dark16   => write!(f, "Dark16"),
             F::DarkComp => write!(f, "DarkComp"),
+
+            F::HardDark     => write!(f, "HardDark"),
+            F::HardDark16   => write!(f, "HardDark16"),
+            F::HardDarkComp => write!(f, "HardDarkComp"),
+
+            F::Light     => write!(f, "Light"),
+            F::Light16   => write!(f, "Light16"),
+            F::LightComp => write!(f, "LightComp"),
+
+            F::SoftDark     => write!(f, "SoftDark"),
+            F::SoftDark16   => write!(f, "SoftDark16"),
+            F::SoftDarkComp => write!(f, "SoftDarkComp"),
+
+            F::SoftLight     => write!(f, "SoftLight"),
+            F::SoftLight16   => write!(f, "SoftLight16"),
+            F::SoftLightComp => write!(f, "SoftLightComp"),
         }
     }
 }
