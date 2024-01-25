@@ -127,8 +127,10 @@ pub struct WallustArgs {
     #[arg(short = 'd', long, conflicts_with = "config_path")]
     pub config_dir: Option<PathBuf>,
 
-    /// Choose which filter to use (overwrites config)
-    #[arg(short, long, value_enum)]
+    /// Choose which palette to use (overwrites config)
+    #[arg(short = 'p', long = "palette",
+        visible_short_alias = 'f', visible_alias = "filter",
+        value_enum, value_name = "PALETTE")]
     pub filter: Option<Filters>,
 
     /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
