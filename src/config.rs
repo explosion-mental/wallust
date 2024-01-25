@@ -26,6 +26,7 @@ pub struct Config {
     /// Which backend to use, see backends.rs
     pub backend: crate::backends::Backend,
     /// Which filter to use, see filters.rs
+    #[serde(alias = "filter", rename = "palette")]
     pub filter: crate::filters::Filters,
     /// Which colorspace to use, see colorspaces.rs
     pub color_space: crate::colorspaces::ColorSpaces,
