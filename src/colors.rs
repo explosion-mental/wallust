@@ -286,38 +286,40 @@ impl Colors {
     pub fn to_comp(self) -> Self {
         let c = self;
 
-        Self {
-            color9  : c.color1.saturate(0.3).complementary(),
-            color10 : c.color2.saturate(0.3).complementary(),
-            color11 : c.color3.saturate(0.3).complementary(),
-            color12 : c.color4.saturate(0.3).complementary(),
-            color13 : c.color5.saturate(0.3).complementary(),
-            color14 : c.color6.saturate(0.3).complementary(),
-            ..c
-        }
+        // This version 'flips' to complementary color the second row colors from 9 to 14.
+        // Self {
+        //     color9  : c.color1.saturate(0.3).complementary(),
+        //     color10 : c.color2.saturate(0.3).complementary(),
+        //     color11 : c.color3.saturate(0.3).complementary(),
+        //     color12 : c.color4.saturate(0.3).complementary(),
+        //     color13 : c.color5.saturate(0.3).complementary(),
+        //     color14 : c.color6.saturate(0.3).complementary(),
+        //     ..c
+        // }
 
         // This version completely flips the whole palette to it's complementary one (allowing to
         // work also with 16 color variation). One annoyance could be sorting, since luminace/hue
         // won't be the same after flipping.
-        // Self {
-        //     color1  : c.color1.saturate(0.3).complementary(),
-        //     color9  : c.color1.saturate(0.3).complementary(),
-        //
-        //     color2  : c.color2.saturate(0.3).complementary(),
-        //     color10 : c.color2.saturate(0.3).complementary(),
-        //
-        //     color3  : c.color3.saturate(0.3).complementary(),
-        //     color11 : c.color3.saturate(0.3).complementary(),
-        //
-        //     color4  : c.color4.saturate(0.3).complementary(),
-        //     color12 : c.color4.saturate(0.3).complementary(),
-        //
-        //     color5  : c.color5.saturate(0.3).complementary(),
-        //     color13 : c.color5.saturate(0.3).complementary(),
-        //
-        //     color6  : c.color6.saturate(0.3).complementary(),
-        //     color14 : c.color6.saturate(0.3).complementary(),
-        // }
+        Self {
+            color1  : c.color1.saturate(0.3).complementary(),
+            color9  : c.color1.saturate(0.3).complementary(),
+
+            color2  : c.color2.saturate(0.3).complementary(),
+            color10 : c.color2.saturate(0.3).complementary(),
+
+            color3  : c.color3.saturate(0.3).complementary(),
+            color11 : c.color3.saturate(0.3).complementary(),
+
+            color4  : c.color4.saturate(0.3).complementary(),
+            color12 : c.color4.saturate(0.3).complementary(),
+
+            color5  : c.color5.saturate(0.3).complementary(),
+            color13 : c.color5.saturate(0.3).complementary(),
+
+            color6  : c.color6.saturate(0.3).complementary(),
+            color14 : c.color6.saturate(0.3).complementary(),
+            ..c
+        }
     }
 
     /// amount is between 0. and 1
