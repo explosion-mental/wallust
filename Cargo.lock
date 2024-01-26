@@ -1485,7 +1485,7 @@ dependencies = [
 
 [[package]]
 name = "wallust"
-version = "2.9.0-dev"
+version = "2.10.0"
 dependencies = [
  "anyhow",
  "clap 4.4.18",
