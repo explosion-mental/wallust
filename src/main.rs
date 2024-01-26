@@ -121,7 +121,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
     conf.customs_cli(cli);
 
     // generate hash cache file name and cache dir to either read or write to it
-    let cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
+    let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
     if ! cli.quiet {
@@ -150,6 +150,7 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
                         method = "generation method".magenta().bold()
                         );
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
+                    cached_data.gen(&gen);
                     o
                 }
                 Err(e) => {

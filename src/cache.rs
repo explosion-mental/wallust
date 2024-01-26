@@ -106,6 +106,18 @@ impl Cache {
         })
     }
 
+    /// add "_C" or "_I" to filename if it needed to generate artificial colors
+    pub fn gen(&mut self, g: &crate::colorspaces::Generate) {
+        let gen = match g {
+            crate::colorspaces::Generate::Interpolate => "I",
+            crate::colorspaces::Generate::Complementary => "C",
+        };
+
+        self.path.set_extension("");
+
+        self.path = format!("{}_{gen}.json", self.path.display()).into();
+    }
+
     /// Fetches values from a file present in cache
     pub fn read(&self) -> Result<Colors> {
         let contents = std::fs::read_to_string(&self.path)?;
