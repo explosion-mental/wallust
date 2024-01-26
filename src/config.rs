@@ -82,6 +82,9 @@ pub enum WalStr<'a> {
     Theme(&'a str),
 }
 
+/// v3.md link
+pub const V3: &str = "<https://codeberg.org/explosion-mental/wallust/src/tag/2.10.0/v3.md>";
+
 impl Config {
     /// Constructs [`Config`] by reading the config file
     pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
@@ -195,8 +198,7 @@ impl Config {
 
         if let Some(s) = &self.entry {
             if ! quiet {
-                eprintln!("[{w}] {t}: Looks like you are using the old `[[entry]]` syntax, make sure to read \
-                <https://codeberg.org/explosion-mental/wallust/src/tag/2.10.0/v3.md>",
+                eprintln!("[{w}] {t}: Looks like you are using the old `[[entry]]` syntax, make sure to read {V3}",
                 w = "W".red().bold(), t = "templates".magenta().bold());
             }
             entries.extend(s.clone());
