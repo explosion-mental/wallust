@@ -34,7 +34,7 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 	* **Optional** [templating](#templating) with two different engines:
         - Default is using usual `{variable}`
         - By enabling `new_engine = true`, you use `{{variable}}`
-	* Configurable methods for backends, colorspaces and filters (chart below)
+	* Configurable methods for backends, colorspaces and palettes (chart below)
 	* Configurable [threshold](#threshold)
     * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
     * MacOs: `$HOME/Library/Application Support`
@@ -43,8 +43,8 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 | Methods    | Description |
 |------------|-------------|
 | Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14)) |
-| ColorSpace | Get the most prominent color, and sort them according to the `Filter`, configurable with a [threshold](#threshold) |
-| Filter     | Makes a scheme palette with the gathered colors, (e.g. sets light background) |
+| ColorSpace | Get the most prominent color, and sort them according to the `Palette`, configurable with a [threshold](#threshold) |
+| Palette    | Makes a scheme palette with the gathered colors, (e.g. sets light background) |
 
 
 _Make sure to read the sample_ [***config file***](wallust.toml) _for more documentation._
@@ -126,7 +126,7 @@ an identifier for the user.
 - `wallpaper`:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
 - `backend`: Current **backend** being used.
 - `colorspace`: Current **colorspace** being used.
-- `filter`: Current **filter** being used.
+- `palette`: Current **palette** being used.
 - `alpha`: Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 - `alpha_dec`: instead of [0..=100], displays it from 0.00 to 1.00.
 - `var`: Output the color in `hex`.
@@ -239,7 +239,7 @@ that the following dependencies are available:
 
 
 Show some of your taste by adding a [backend](./src/backends/mod.rs),
-[colorspace](./src/colorspaces/mod.rs), [filter](./src/filters/mod.rs),
+[colorspace](./src/colorspaces/mod.rs), [palette](./src/filters/mod.rs),
 and/or [colorscheme](./src/themes/colorschemes.rs).
 
 Having thoughts or suggestios is also very welcome.
