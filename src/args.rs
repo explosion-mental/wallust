@@ -14,19 +14,7 @@ use clap::Parser;
 
 /// Overall cli type for clap
 #[derive(Parser, Debug)]
-#[command(version, about =
-r#"
-        \|/                                           _.-~""~-.
-       --*--         wallust - xmas edition         .'   ,--.  '.
-        / \                                 |\     /    (    )   \   .-,
-       /°  \        ========================' \    /     `--`     `-'   ',
-      /    o\      Generate a 16 color palette \   /   __                ;
-     /  O    \          based on an image      /   ;  /_/                ;
-    /0     q  \     ========================, /    |     __         __   /
-   /    °      \     ,-.-,                  |/      \   /_/   __   /_/  .'
-  / ()        0 \   +->&<-+    merry xmas   `        ',      /_/        /
-  `'`'`|`'`|`'`'`   |  |  |     to u <3                ',            _-'
-       |___|        +-----+                              `~.____,..-`"#)]
+#[command(version, about, after_help = format!("Don't forget to prepare for v3: {}", crate::config::V3))]
 #[command(subcommand_negates_reqs(true))]
 #[command(args_conflicts_with_subcommands(true))]
 pub struct Cli {
