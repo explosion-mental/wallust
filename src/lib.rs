@@ -17,7 +17,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let (mut top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold)?;
+    let (mut top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, &c.generation.unwrap_or_default())?;
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
     top.sort_colors(&filters::sort_ord(&c.filter));

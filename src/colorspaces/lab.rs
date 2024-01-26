@@ -82,8 +82,12 @@ pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
     );
 }
 
-pub fn new_cols<F>(histo: &[Hist], threshold: u8, pred: F) -> Vec<Histo<Spec>>
-    where F: Fn(f32) -> bool
+/// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
+/// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
+pub fn new_cols<F1, F2>(histo: &[Hist], threshold: u8, pred: F1, method: F2) -> Vec<Histo<Spec>>
+    where
+        F1: Fn(f32) -> bool,
+        F2: Fn(Myrgb, Myrgb, u8) -> Vec<Myrgb>,
 {
     let mut new_cols = vec![];
     // try to generate new colors with interpolation in between the already gathered colors
@@ -91,7 +95,7 @@ pub fn new_cols<F>(histo: &[Hist], threshold: u8, pred: F) -> Vec<Histo<Spec>>
         let color_a: Myrgb = comb[0].color.into();
         let color_b: Myrgb = comb[1].color.into();
 
-        let rgbs = interpolate(color_a, color_b, MAX_COLS)
+        let rgbs = method(color_a, color_b, MAX_COLS)
             .iter().map(|&x| Spec::from(x)).collect();
 
         //similar to how it's done at the start of `lab()`

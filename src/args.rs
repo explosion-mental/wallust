@@ -133,6 +133,10 @@ pub struct WallustArgs {
         value_enum, value_name = "PALETTE")]
     pub filter: Option<Filters>,
 
+    /// Choose which generation method to use (overwrites config)
+    #[arg(short, long, value_enum)]
+    pub generation: Option<crate::colorspaces::Generate>,
+
     /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
     #[arg(short = 'k', long)]
     pub check_contrast: bool,

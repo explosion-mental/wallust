@@ -73,6 +73,16 @@ pub enum ColorSpaces {
     LabFast,
 }
 
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
+#[serde(rename_all = "lowercase")]
+pub enum Generate {
+    /// uses [`interpolate`]
+    #[default]
+    Interpolate,
+    /// uses [`complementary`]
+    Complementary,
+}
+
 /// Simple Histogram
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Histo<T> {
@@ -152,7 +162,7 @@ impl Cols {
     /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
     /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
     /// than [`MAX_COLS`])
-    pub fn new_cols(&mut self) {
+    pub fn new_cols(&mut self, gen: &Generate) {
 
         let pred = match self.c {
             ColorSpaces::Lab | ColorSpaces::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
@@ -160,7 +170,12 @@ impl Cols {
             ColorSpaces::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
         };
 
-        self.histo.append(&mut lab::new_cols(&self.histo, self.threshold, pred));
+        let method = match gen {
+            Generate::Interpolate => interpolate,
+            Generate::Complementary => complementary,
+        };
+
+        self.histo.append(&mut lab::new_cols(&self.histo, self.threshold, pred, method));
     }
 
     /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
@@ -185,6 +200,25 @@ impl ColorSpaces {
     }
 }
 
+impl Generate {
+    /// Assign a color for the ColorSpaces
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            Generate::Interpolate => AnsiColors::Blue,
+            Generate::Complementary => AnsiColors::Green,
+        }
+    }
+}
+
+impl fmt::Display for Generate {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Generate::Interpolate => write!(f, "Interpolate"),
+            Generate::Complementary => write!(f, "Complementary"),
+        }
+    }
+}
+
 /// Display what [`ColorSpaces`] is in use. Used in cache and main.
 impl fmt::Display for ColorSpaces {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -196,7 +230,7 @@ impl fmt::Display for ColorSpaces {
     }
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> {
+pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, gen: &Generate) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
@@ -238,7 +272,7 @@ pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8) -> Result<(Cols, bool)> 
         //TODO give options on **how** to complete the colors:
         // - `interpolate()`ion, what's currently being used
         // - `.complementary()`, fill colors with it's complementary ones #13
-        cols.new_cols();
+        cols.new_cols(gen);
 
         // sort vec by count, most used colors first (if they are more than the MAX)
         cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
@@ -292,4 +326,11 @@ fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
     }
 
     palette
+}
+
+fn complementary(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
+    vec![
+        color_a.complementary(),
+        color_b.complementary()
+    ]
 }

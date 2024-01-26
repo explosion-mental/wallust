@@ -9,6 +9,7 @@ fn main() {
     //use wallust::config::Config;
     use wallust::backends::Backend;
     use wallust::colorspaces::ColorSpaces;
+    use wallust::colorspaces::Generate;
     use wallust::filters::Filters;
     use word_iter::Words;
 
@@ -25,6 +26,7 @@ fn main() {
     let def_colorspace = ColorSpaces::default().to_string().to_ascii_lowercase();
     let def_filter     = Filters::default().to_string().to_ascii_lowercase();
     let def_threshold  = "20";
+    let def_gen        = Generate::default().to_string().to_ascii_lowercase();
 
     const MAX: usize = 90;
     // const SP: usize = "#      ".len();
@@ -127,6 +129,11 @@ threshold = {def_threshold}
 # Use the most prominent colors in a way that makes sense, a scheme:
 {filters}
 palette = \"{def_filter}\"
+
+# This field chooses a method to use when the gathered colors aren't enough:
+#  * interpolation - (default) Tries to pick two colors and built gradients over them
+#  * complementary - Uses the complementary colors of two colors, or more (if needed), colors.
+#generation = \"{def_gen}\"
 
 # Ensures a \"readable contrast\" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening

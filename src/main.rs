@@ -143,7 +143,12 @@ fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::Wallu
             //ugly workaround for printing warning, gotta stop the spinner first
             match gen_colors(&cli.file, conf) {
                 Ok((o, warn)) => {
-                    let not_enough = format!("[{}] Not enough colors in the image, artificially generating new colors..\n", "W".red().bold());
+                    let gen = conf.generation.unwrap_or_default();
+                    let not_enough = format!(
+                    "[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
+                        g = gen.to_string().color(gen.col()),
+                        method = "generation method".magenta().bold()
+                        );
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
                     o
                 }

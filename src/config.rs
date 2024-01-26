@@ -39,6 +39,10 @@ pub struct Config {
     pub check_contrast: Option<bool>,
     /// Maybe the user requires more vivid colors
     pub saturation: Option<u8>,
+    /// How to 'generate' colors when there aren't enough colors to create the `palette`.
+    /// This appears as "Artificially generating colors.." in cli
+    pub generation: Option<crate::colorspaces::Generate>,
+
     /// Config directory (wallust/) path
     #[serde(skip)]
     pub dir: PathBuf,
@@ -241,6 +245,10 @@ impl Config {
 
         if let Some(sat) = cli.saturation {
             self.saturation = Some(sat as u8);
+        }
+
+        if let Some(g) = cli.generation {
+            self.generation = Some(g);
         }
     }
 
