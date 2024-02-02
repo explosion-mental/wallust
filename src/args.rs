@@ -60,7 +60,7 @@ pub enum Subcmds {
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        #[arg(value_parser = crate::themes::COLS_KEY, hide_possible_values(false))]
+        #[arg(value_parser = clap::builder::ValueParser::new(col_values), hide_possible_values(false))]
         theme: String,
 
         /// Only preview the selected theme.
@@ -161,4 +161,14 @@ pub struct WallustArgs {
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
+}
+
+#[cfg(feature = "themes")]
+/// little hack to add the "random" keyword in clap
+fn col_values(input: &str) -> Result<String, &'static str> {
+    if input == crate::themes::RAND || wallust_themes::COLS_KEY.contains(&input) {
+        Ok(input.into())
+    } else {
+        Err("input was not found.")
+    }
 }

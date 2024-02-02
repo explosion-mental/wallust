@@ -1512,7 +1512,18 @@ dependencies = [
  "strum 0.25.0",
  "tempfile",
  "toml",
+ "wallust_themes",
  "word_iter",
+]
+
+[[package]]
+name = "wallust_themes"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a186f8f8a63fb7505ac79fa78b0afab0af7ef186f48da803fa5da3b3da7bf3cd"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

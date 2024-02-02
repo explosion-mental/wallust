@@ -13,14 +13,6 @@ use crate::colors::{Colors, HexConversion};
 use anyhow::Result;
 use serde::Deserialize;
 
-#[cfg(feature = "themes")]
-use colorschemes::COLS_VALUE;
-#[cfg(feature = "themes")]
-pub use colorschemes::COLS_KEY;
-
-#[cfg(feature = "themes")]
-pub mod colorschemes;
-
 #[derive(Deserialize)]
 pub struct WalSpecial {
     pub background: String,
@@ -134,27 +126,19 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
 }
 
 #[cfg(feature = "themes")]
-#[test]
-fn keys_to_values_match() {
-    for i in COLS_KEY {
-        if let Err(e) = built_in_theme(i, true) {
-            eprintln!("Failed {i}: {e}");
-        }
-    }
-}
-
-#[cfg(feature = "themes")]
 /// string that is inside the "theme" collection but acts as a keyword. The "random" theme is not a
 /// theme itself, but a selected random one.
-const RAND: &str = "random";
+pub const RAND: &str = "random";
 
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
 /// [`WalTheme`] format
 /// TODO consider a hashing algo for reducing binary size when embedding 200+ json themes..
 #[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
-    use anyhow::Context;
+    use wallust_themes::COLS_KEY;
+    use wallust_themes::COLS_VALUE;
     use rand::Rng;
+    use crate::colors::Myrgb;
 
     let index = if theme_key == RAND {
         let i = rand::thread_rng().gen_range(0..=COLS_VALUE.len() - 1); //ommit the last item, which is "random"
@@ -165,7 +149,39 @@ pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
     };
 
     match index {
-        Some(s) => serde_json::from_str::<WalTheme>(COLS_VALUE[s]).context(format!("using '{s}' failed")).expect("JSON should be correct").to_colors(),
+        Some(s) => {
+            let c = COLS_VALUE[s];
+            let c = c
+                .iter()
+                .map(|x| {
+                    let [b, g, r, _a] = x.to_le_bytes();
+                    Myrgb(r, g, b)
+                })
+            .collect::<Vec<_>>();
+
+            Ok(
+            Colors {
+                color0:  c[0],
+                color1:  c[1],
+                color2:  c[2],
+                color3:  c[3],
+                color4:  c[4],
+                color5:  c[5],
+                color6:  c[6],
+                color7:  c[7],
+                color8:  c[8],
+                color9:  c[9],
+                color10: c[10],
+                color11: c[11],
+                color12: c[12],
+                color13: c[13],
+                color14: c[14],
+                color15: c[15],
+                background: c[16],
+                foreground: c[17],
+            }
+            )
+        },
         None => anyhow::bail!("Theme not found. Quitting..."),
     }
 }
