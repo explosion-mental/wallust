@@ -18,8 +18,15 @@ fn main() {
     //use documented::DocumentedFields;
     use strum::IntoEnumIterator;
 
-    let version = clap::crate_version!();
-    let version = &version[0..version.len() - 2]; // crop patch
+    let v = clap::crate_version!().chars().collect::<Vec<_>>();
+    let mut version = String::new();
+    let mut num = 0;
+    for i in v {
+        if i == '.' { num += 1; } // count dots
+        if num == 2 { break; }    // only allow Major.Minor
+        version.push(i);
+    }
+    //let version = format!("{M}.{m}", M = v[0], m = v[2]); // crop patch and ignore `-dev`
 
     // default values
     let def_backend    = Backend::default().to_string().to_ascii_lowercase();
@@ -59,7 +66,7 @@ fn main() {
 
             let ind = format!("#    {}    ", " ".repeat(largest));
 
-            let text = T::get_field_comment(name).unwrap();
+            let text = T::get_field_docs(name).unwrap();
 
             // start wrapping the comment
             let mut wraped = vec![String::new()];

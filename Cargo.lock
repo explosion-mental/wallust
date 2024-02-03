@@ -329,9 +329,9 @@ dependencies = [
 
 [[package]]
 name = "documented"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "338daf1e84e9d9e2299ac5e0ae0152b622583644f6a57dfcc0dc86397c10b531"
+checksum = "e2f2016be31b2ee8ca5950d0b985e53d2802bbe646634e41cdf70f668fc66049"
 dependencies = [
  "documented-derive",
  "phf",
@@ -340,9 +340,9 @@ dependencies = [
 
 [[package]]
 name = "documented-derive"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1645da77791db962740589b429872f411db68edc7d18af1bf23121393d794e1"
+checksum = "83095afc77f3f21d50be46d608d0a1cfa463cc97e4f3aedab871d6e0baf91870"
 dependencies = [
  "quote",
  "syn 2.0.48",
@@ -1249,11 +1249,11 @@ dependencies = [
 
 [[package]]
 name = "strum"
-version = "0.25.0"
+version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
+checksum = "723b93e8addf9aa965ebe2d11da6d7540fa2283fcea14b3371ff055f7ba13f5f"
 dependencies = [
- "strum_macros 0.25.3",
+ "strum_macros 0.26.1",
 ]
 
 [[package]]
@@ -1271,9 +1271,9 @@ dependencies = [
 
 [[package]]
 name = "strum_macros"
-version = "0.25.3"
+version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23dc1fa9ac9c169a78ba62f0b841814b7abae11bdd047b9c58f893439e309ea0"
+checksum = "7a3417fc93d76740d974a01654a09777cb500428cc874ca9f45edfe0c4d4cd18"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -1485,7 +1485,7 @@ dependencies = [
 
 [[package]]
 name = "wallust"
-version = "2.10.0"
+version = "2.10.0-dev"
 dependencies = [
  "anyhow",
  "clap 4.4.18",
@@ -1509,7 +1509,7 @@ dependencies = [
  "serde_json",
  "shellexpand",
  "spinners",
- "strum 0.25.0",
+ "strum 0.26.1",
  "tempfile",
  "toml",
  "wallust_themes",
