@@ -107,10 +107,10 @@ impl Cache {
     }
 
     /// add "_C" or "_I" to filename if it needed to generate artificial colors
-    pub fn gen(&mut self, g: &crate::colorspaces::Generate) {
+    pub fn gen(&mut self, g: &wallust::colorspaces::Generate) {
         let gen = match g {
-            crate::colorspaces::Generate::Interpolate => "I",
-            crate::colorspaces::Generate::Complementary => "C",
+            wallust::colorspaces::Generate::Interpolate => "I",
+            wallust::colorspaces::Generate::Complementary => "C",
         };
 
         self.path.set_extension("");

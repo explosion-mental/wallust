@@ -558,8 +558,8 @@ fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str
 }
 
 
-impl Colors {
-    pub fn to_hash(&self, image_path: &str, conf: &Config) -> HashMap<&str, String> {
-        to_hash(self, image_path, conf)
-    }
-}
+// impl Colors {
+//     pub fn to_hash(&self, image_path: &str, conf: &Config) -> HashMap<&str, String> {
+//         to_hash(self, image_path, conf)
+//     }
+// }
