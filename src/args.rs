@@ -1,5 +1,4 @@
-//! Type declarations for working with clap `derive`, subcommands, flags, etc.
-//! TODO on v3 prefer `wallust run image.png` over `wallust image.png`
+//! Type declarations for working with clap `derive`, subcommands, flags, value parsers ...
 
 use std::path::PathBuf;
 

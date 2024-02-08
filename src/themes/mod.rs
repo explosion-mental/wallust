@@ -130,9 +130,7 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
 /// theme itself, but a selected random one.
 pub const RAND: &str = "random";
 
-/// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json
-/// [`WalTheme`] format
-/// TODO consider a hashing algo for reducing binary size when embedding 200+ json themes..
+/// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json [`WalTheme`] format
 #[cfg(feature = "themes")]
 pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
     use wallust_themes::COLS_KEY;
