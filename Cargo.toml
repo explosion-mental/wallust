@@ -28,7 +28,7 @@ itertools = "0.12"
 fast_image_resize = "3.0"
 num-traits = "0.2"
 easy_color = "0.1"
-far = "0.2.1" # hardcoded in case my "hacky" way of utilizing it could be considered a "bug"
+far = "=0.2.1" # hardcoded in case my "hacky" way of utilizing it could be considered a "bug"
 kmeans_colors = { version = "0.6.0", default-features = true }
 palette = "0.7"
 fancy-regex = "0.13"
