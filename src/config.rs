@@ -87,28 +87,20 @@ pub const V3: &str = "<https://codeberg.org/explosion-mental/wallust/src/tag/2.1
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(original_config_path: &PathBuf, args: Option<&WallustArgs>) -> Result<Config> {
+    pub fn new(original_config_path: &PathBuf, config_file: Option<&Path>, config_dir: Option<&Path>) -> Result<Config> {
 
         // check config file or generate one if not one isn't found
-        let custom = match args {
-            Some(s) => s.config_path.as_ref(),
-            None => None,
-        };
+        let custom = config_file;
 
         // true -> uses original_config_path
         // false -> uses a custom path
         let mut is_original = true;
 
         // check config dir
-        let config = match args {
-            Some(s) => {
-                match &s.config_dir {
-                    Some(path) => { //only in this case, the config dir is altered
-                        is_original = false;
-                        path
-                    },
-                    None => original_config_path,
-                }
+        let config = match config_dir {
+            Some(path) => { //only in this case, the config dir is altered
+                is_original = false;
+                path
             },
             None => original_config_path,
         };
@@ -121,8 +113,8 @@ impl Config {
 
         // is the user using `--config-path`
         let (config, default_path) = match custom {
-            None => (&def_conf, true),
-            Some(s) => (s, false),
+            None => (def_conf, true),
+            Some(s) => (s.to_owned(), false),
         };
 
         // Create cache dir (with all of it's parents) ONLY if the flag `--config-path` isn't in use
@@ -130,12 +122,12 @@ impl Config {
             let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
             eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
             fs::create_dir_all(&config_dir)?;
-            File::create(config)?
+            File::create(&config)?
                 .write_all(include_bytes!("../wallust.toml"))?;
         }
 
         let mut ret: Config = toml::from_str(
-            &read_to_string(config)
+            &read_to_string(&config)
                 .with_context(|| format!("Failed to read file {}:", config.display()))?
         ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))?;
 

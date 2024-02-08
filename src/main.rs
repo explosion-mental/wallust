@@ -25,7 +25,7 @@ fn gen_colors(file: &std::path::Path, c: &config::Config) -> anyhow::Result<(col
 }
 
 fn main() -> Result<()> {
-    let cli = args::Cli::parse();
+    let cli = args::Subcmds::parse();
     let info = "I".blue();
     let info = info.bold();
 
@@ -37,22 +37,15 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
-    // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
-    let mut conf = config::Config::new(&original_config_path, cli.args.as_ref())?;
-
-    match &cli.args {
-        Some(s) => {
-            eprintln!("[{w}] Prefer to use `wallust {r} {f}` as it will be a breaking change in v3.",
-                w = "W".red().bold(), r = "run".bold(), f = s.file.display());
-            no_subcomands(&mut conf, &cache_path, s)?
+    match Some(cli) {
+        Some(args::Subcmds::Run(s)) => {
+            // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
+            let mut conf = config::Config::new(&original_config_path, s.config_path.as_deref(), s.config_dir.as_deref())?;
+            no_subcomands(&mut conf, &cache_path, &s)?
         },
-        None => (),
-    }
-
-    match cli.subcmds {
-        Some(args::Subcmds::Run(s)) => no_subcomands(&mut conf, &cache_path, &s)?,
         #[cfg(feature = "themes")]
         Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current }) => {
+            let conf = config::Config::new(&original_config_path, None, None)?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(&theme, quiet)?;
             if ! quiet {
@@ -76,6 +69,7 @@ fn main() -> Result<()> {
             if ! quiet { colors.done() }
         },
         Some(args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format, update_current }) => {
+            let conf = config::Config::new(&original_config_path, None, None)?;
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
             let colors = match format {
@@ -102,6 +96,7 @@ fn main() -> Result<()> {
 
         },
         Some(args::Subcmds::Debug) => {
+            let conf = config::Config::new(&original_config_path, None, None)?;
             use cache::CACHE_VER;
             println!(
 "Cache version: {CACHE_VER}

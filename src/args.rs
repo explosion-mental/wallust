@@ -13,23 +13,13 @@ use wallust::{
 
 use clap::Parser;
 
-/// Overall cli type for clap
-#[derive(Parser, Debug)]
-#[command(version, about, after_help = format!("Don't forget to prepare for v3: {}", crate::config::V3))]
-#[command(subcommand_negates_reqs(true))]
-#[command(args_conflicts_with_subcommands(true))]
-pub struct Cli {
-    #[clap(flatten)]
-    pub args: Option<WallustArgs>,
 
-    #[clap(subcommand)]
-    pub subcmds: Option<Subcmds>,
-}
-
-/// Possible Subcommands
-#[derive(Debug, clap::Subcommand)]
+/// Overall cli type for clap: Possible Subcommands
+#[derive(Debug, Parser)]
 #[command(version, about, long_about)]
 pub enum Subcmds {
+    /// Generate a palette from an image
+    Run(WallustArgs),
     /// Apply a certain colorscheme
     Cs {
         /// Path to the file that has a colorscheme
@@ -84,8 +74,6 @@ pub enum Subcmds {
         #[arg(short, long, conflicts_with = "skip_sequences")]
         update_current: bool,
     },
-    /// Generate a palette from an image
-    Run(WallustArgs),
     /// Print information about the program and the enviroment it uses
     Debug,
 }
