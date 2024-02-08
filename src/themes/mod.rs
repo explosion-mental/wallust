@@ -137,11 +137,10 @@ pub const RAND: &str = "random";
 pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
     use wallust_themes::COLS_KEY;
     use wallust_themes::COLS_VALUE;
-    use rand::Rng;
     use crate::colors::Myrgb;
 
     let index = if theme_key == RAND {
-        let i = rand::thread_rng().gen_range(0..=COLS_VALUE.len() - 1); //ommit the last item, which is "random"
+        let i = fastrand::usize(0..COLS_KEY.len());
         if ! quiet { println!("[{info}] {theme}: randomly selected {name}", theme = "theme".magenta().bold(), name = COLS_KEY[i], info = "I".blue().bold()); }
         Some(i)
     } else {

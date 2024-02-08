@@ -39,7 +39,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 # optionals
 documented = { version = "0.3.0", optional = true }
-rand  = { version = "0.8", optional = true }
+fastrand  = { version = "2", optional = true }
 strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
 
@@ -50,7 +50,9 @@ word_iter = "0.2.1"
 
 [features]
 default = [ "themes" ]
-themes = [ "dep:rand", "dep:wallust_themes" ] # include built-in themes at ./src/themes/colorschemes.rs (130K)
+
+# include built-in themes (~130K) <https://codeberg.org/explosion-mental/wallust-themes>
+themes = [ "dep:fastrand", "dep:wallust_themes" ]
 makeconfig = [ "dep:documented", "dep:strum", "clap/cargo" ]
 
 [[bench]]
