@@ -4,7 +4,7 @@ use std::{
 };
 
 use wallust::{
-    args::Cli,
+    args::Subcmds,
     args::WallustArgs,
     config::Config,
 };
@@ -13,7 +13,7 @@ use wallust::{
 #[test]
 fn verify_cli() {
     use clap::CommandFactory;
-    Cli::command().debug_assert()
+    Subcmds::command().debug_assert()
 }
 
 /// setting contents to a const allows to use `{` and other formatting special chars in the file.
@@ -34,7 +34,7 @@ fn config_file() {
     let conf_dir = "~/.config";
 
     // serde + logic to find out the new config
-    let c = Config::new(&PathBuf::from(conf_dir), Some(&args)).expect("should deserialize wallust.toml");
+    let c = Config::new(&PathBuf::from(conf_dir), args.config_path.as_deref(), None).expect("should deserialize wallust.toml");
 
     // config path directory should remain the same + an added `wallust/`
     assert_eq!(c.dir, PathBuf::from(conf_dir).join("wallust"));
@@ -60,7 +60,7 @@ fn config_dir() {
     args.config_dir = Some(tmp.path().to_path_buf());
 
     let original_conf = "~/.config"; //pseudo "original" config
-    let c = Config::new(&PathBuf::from(original_conf), Some(&args)).expect("should deserialize wallust.toml");
+    let c = Config::new(&PathBuf::from(original_conf), None, args.config_dir.as_deref()).expect("should deserialize wallust.toml");
 
     // config path directory should NOT remain the "original_conf", but changed to the one provided by the cli (args.config_dir)
     assert_eq!(c.dir, tmp.path().to_path_buf());
