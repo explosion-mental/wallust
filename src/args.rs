@@ -3,10 +3,9 @@
 
 use std::path::PathBuf;
 
-use wallust::{
+use crate::{
     backends::Backend,
     colorspaces::ColorSpaces,
-    colorspaces::Generate,
     filters::Filters,
     themes::Schemes,
 };
@@ -112,7 +111,7 @@ pub struct WallustArgs {
 
     /// Choose which generation method to use (overwrites config)
     #[arg(short, long, value_enum)]
-    pub generation: Option<Generate>,
+    pub generation: Option<crate::colorspaces::Generate>,
 
     /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
     #[arg(short = 'k', long)]

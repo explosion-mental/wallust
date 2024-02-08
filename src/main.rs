@@ -7,22 +7,15 @@ use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
 
 use wallust::{
+    args,
+    cache,
+    config,
+    config::WalStr,
     themes,
-    colors,
+    gen_colors,
 };
 
-mod args;
-mod cache;
-mod config;
-mod template;
-
-use config::WalStr;
-
 const ISSUE: &str = "please report this at <https://codeberg.org/explosion-mental/wallust/issues>";
-
-fn gen_colors(file: &std::path::Path, c: &config::Config) -> anyhow::Result<(colors::Colors, bool)> {
-    wallust::gen_colors(file, &c.backend, c.color_space, c.threshold, &c.generation.unwrap_or_default(), &c.filter, c.check_contrast.unwrap_or(false), c.saturation)
-}
 
 fn main() -> Result<()> {
     let cli = args::Subcmds::parse();

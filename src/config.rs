@@ -24,12 +24,12 @@ pub struct Config {
     #[serde(deserialize_with = "validate_threshold")]
     pub threshold: u8,
     /// Which backend to use, see backends.rs
-    pub backend: wallust::backends::Backend,
+    pub backend: crate::backends::Backend,
     /// Which filter to use, see filters.rs
     #[serde(alias = "filter", rename = "palette")]
-    pub filter: wallust::filters::Filters,
+    pub filter: crate::filters::Filters,
     /// Which colorspace to use, see colorspaces.rs
-    pub color_space: wallust::colorspaces::ColorSpaces,
+    pub color_space: crate::colorspaces::ColorSpaces,
     /// toml table with template and config target (optional)
     pub entry: Option<Vec<Entries>>,
     /// Optional alpha value
@@ -41,7 +41,7 @@ pub struct Config {
     pub saturation: Option<u8>,
     /// How to 'generate' colors when there aren't enough colors to create the `palette`.
     /// This appears as "Artificially generating colors.." in cli
-    pub generation: Option<wallust::colorspaces::Generate>,
+    pub generation: Option<crate::colorspaces::Generate>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]

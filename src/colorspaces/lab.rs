@@ -5,7 +5,7 @@
 //! > The b* axis represents the blue-yellow opponents, with negative numbers toward
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
-use super::*;
+use crate::colorspaces::*;
 
 use ::lab::rgb_bytes_to_labs;
 use ::lab::Lab;
