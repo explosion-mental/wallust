@@ -20,8 +20,11 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 
 ## Features
 - Sets [terminal colors](#Terminal-color) on all active terminals
-    * *NIX: ASCII escape sequences
-    * MacOS: iTerm2 sequences
+    * Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
+    * *NIX: ASCII escape sequences:
+        - `/dev/pts/` on Linux
+        - [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
+    * MacOS: iTerm2 sequences, `/dev/ttys00` on MacOS
     * Windows: Adds a [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
 - Cache scheme palettes, overwritten by `-w`
     * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
@@ -43,102 +46,16 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 | Methods    | Description |
 |------------|-------------|
 | Backends   | How to extract the colors from the image. (e.g [pywal uses convert](https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L14)) |
-| ColorSpace | Get the most prominent color, and sort them according to the `Palette`, configurable with a [threshold](#threshold) |
+| ColorSpace | Get the most prominent color, and sort them according to the `Palette`, configurable by a _threshold_ |
 | Palette    | Makes a scheme palette with the gathered colors, (e.g. sets light background) |
 
 
-_Make sure to read the sample_ [***config file***](wallust.toml) _for more documentation._
+_Make sure to read the sample_ [***config file***](wallust.toml) _for_ **practical** _documentation._
 
-### Threshold
-Default is `20` with a more colorful approach, `19` is also suggested.
-
-| Number  | Description |
-|---------|-------------|
-| 1       | Not perceptible by human eyes. |
-| 1 - 2   | Perceptible through close observation. |
-| 2 - 10  | Perceptible at a glance. |
-| 11 - 49 | Colors are more similar than opposite |
-| 100     | Colors are exact opposite |
-
-### Terminal colors
-By default, `wallust` will send these sequences to all open terminals:
-- `/dev/pts/` on Linux
-- `/dev/ttys00` on MacOS
-- [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
-- Updates `settings.json` on Windows Terminal, to enable this scheme for
-  the first time you will have to selected it manually
-
-You can skip this with the `-s` or `--skip-sequences` flag.
-
-When opening new terminals you will notice that the color sequences are not
-applied. To solve this you can send the sequences yourself when your shell
-opens. `wallust` will store the sequences in the cache directory as a file
-called `sequences`, the usual way is to `cat ~/.cache/wallust/sequences` in
-your `.zshrc`, `.bashrc`, etc.
-
-### Templating
-_OPTIONAL_
-
-
-**NOTE**: You can enable a new method by using `new_engine = true` inside a
-template This "new engine" difers by using double brackets like `{{variable}}`
-instead of one like `{variable}` (_as in the example below_), which helps with
-file formats that use brackets like json. With the `new_engine` enabled you can
-escape and produce a literal `{{` by `{{{{}}`, and for `}}` you escape it with `{{}}}}`.
-
-
-You can use `wallust` generated colors in a program by _templating_ the colors
-in it's config file, like the following example:
-```
-# zathurarc config file
-
-#keybindings
-...
-
-# colors
-set default-bg     "{color2}"
-set default-fg     "{foreground}"
-set statusbar-bg   "{color4}"
-set statusbar-fg   "{color6}"
-set inputbar-bg    "{color1}"
-```
-
-You can find examples at
-[pywal templates](https://github.com/dylanaraps/pywal/tree/master/pywal/templates)
-or
-[wpgtk templates](https://github.com/deviantfero/wpgtk-templates)
-
-
-Then add this file to `~/.config/wallust/` e.g. _~/.config/wallust/zathurarc_
-(config directory defined by the platform) and add a new template to
-`wallust.toml` inside `templates`:
-```toml
-[templates]
-zathura.template = "zathurarc"
-zathura.target = '~/.config/zathura/zathurarc'
-# or, alternatively, like:
-#zathura = { src = 'zathurarc', dst = '~/.config/zathura/zathurarc' }
-```
-The name after doesn't really matters, in this case `zathura`, and is used as
-an identifier for the user.
-
-#### Variables and Methods
-- `wallpaper`:  The full path to the current wallpaper, colorscheme file or the name of the theme in use.
-- `backend`: Current **backend** being used.
-- `colorspace`: Current **colorspace** being used.
-- `palette`: Current **palette** being used.
-- `alpha`: Default to 100, can be modified in the config file or with `--alpha`/`-a`.
-- `alpha_dec`: instead of [0..=100], displays it from 0.00 to 1.00.
-- `var`: Output the color in `hex`.
-- `var.rgb`: Output the color in `rgb`.
-- `var.rgba`: Output the color in `rgba`.
-- `var.xrgba`: Output the color in `xrgb`.
-- `var.strip`: Output the color in `hex` (without a `#`).
-- `var.red`: Output the red value.
-- `var.green`: Output the green value.
-- `var.blue`: Output the blue value.
-
-Where `var` can be colors from `color0` to `color15`, `background`, `foreground` and `cursor`.
+For detailed docs:
+- `man wallust`, overall info;
+- `man wallust.5`, config docs;
+- `man wallust-subcommand`, displays a man page for _subcommand_.
 
 ## Installation
 <a href="https://repology.org/project/wallust/versions">
@@ -237,10 +154,9 @@ that the following dependencies are available:
 ## Contribute!
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
 
-
 Show some of your taste by adding a [backend](./src/backends/mod.rs),
 [colorspace](./src/colorspaces/mod.rs), [palette](./src/filters/mod.rs),
-and/or [colorscheme](./src/themes/colorschemes.rs).
+and/or a [custom theme](https://codeberg.org/explosion-mental/wallust-themes).
 
 Having thoughts or suggestios is also very welcome.
 

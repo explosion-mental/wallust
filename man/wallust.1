@@ -1,0 +1,186 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH wallust 1  wallust-2.10 
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH NAME
+wallust \- Generate a 16 color scheme based on an image.
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH SYNOPSIS
+\fBwallust\fR [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+
+.SH "DESCRIPTION"
+.TS
+tab(;) left,box;
+
+l   |   l |.
+\fBMethods\fP;\fBDescription\fP
+_
+\fBBackends\fP;How to extract the colors from the image (e.g. pywal uses convert).
+_
+\fBColorspace\fP;Get the most prominent color, and sort them according to the \fBpalette\fP, configurable with a threshold.
+_
+\fBPalette\fP;Makes a scheme palette with the gathered colors (e.g. sets a light background).
+.TE
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH SUBCOMMANDS
+.TP
+wallust\-run(1)
+Generate a palette from an image
+.TP
+wallust\-cs(1)
+Apply a certain colorscheme
+.TP
+wallust\-theme(1)
+Apply a custom built in theme
+.TP
+wallust\-debug(1)
+Print information about the program and the enviroment it uses
+.TP
+wallust\-help(1)
+Print this message or the help of the given subcommand(s)
+
+.SH "TERMINAL COLORS"
+By default,
+.I wallust
+will send these sequences to all open terminals:
+.IP \(bu
+.I /dev/pts/
+on Linux
+.IP \(bu
+.I /dev/ttys00
+on MacOS.
+.IP \(bu
+.I "ps to search active terminals"
+(ref: https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
+.IP \(bu
+Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
+
+.RE
+.sp
+You can skip this with the `-s` or `--skip-sequences` flag.
+.br
+When opening new terminals you will notice that the color sequences are not applied. To solve this you can send the sequences yourself when your shell opens. `wallust` will store the sequences in the cache directory as a file called `sequences`, the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`, `.bashrc`, etc.
+
+.SH "TEMPLATE VARIABLES"
+The following are the avaliable variable template names that one can use: where
+.B var
+can be colors from
+.I "color0"
+to
+.I color15
+,
+.I background
+,
+.I foreground
+and
+.I cursor
+.
+
+.TP
+.B wallpaper
+The full path to the current wallpaper, colorscheme file or the name of the theme in use.
+.TP
+.B backend
+Current backend being used.
+.TP
+.B colorspace
+Current **colorspace** being used.
+.TP
+.B palette
+Current **palette** being used.
+.TP
+.B alpha
+Default to 100, can be modified in the config file or with `--alpha`/`-a`.
+.TP
+.B alpha_dec
+Instead of 0 to 100, displays it from 0.00 to 1.00.
+.TP
+.B var
+Output the color in `hex`.
+.TP
+.B var.rgb
+Output the color in `rgb`.
+.TP
+.B var.rgba
+Output the color in `rgba`.
+.TP
+.B var.xrgba
+Output the color in `xrgb`.
+.TP
+.B var.strip
+Output the color in `hex` (without a `#`).
+.TP
+.B var.red
+Output the red value.
+.TP
+.B var.green
+Output the green value.
+.TP
+.B var.blue
+Output the blue value.
+
+.SH "TEMPLATE EXAMPLES"
+You can use
+.B wallust
+generated colors in a program by
+.I templating
+the colors in it's config file, like the following example:
+
+.RS
+.nf
+\fC
+# zathurarc config file
+
+#keybindings
+...
+
+# colors
+set default-bg     "{color2}"
+set default-fg     "{foreground}"
+set statusbar-bg   "{color4}"
+set statusbar-fg   "{color6}"
+set inputbar-bg    "{color1}"
+\fP
+.fi
+
+.RE
+.sp
+Then you can add this file to
+.I ~/.config/wallust/
+and use the config file to template it. For example,
+.I "zathura.template = ~/.config/wallust/zathurarc"
+, and then define a
+.I target
+field, see
+.BR wallust (5).
+
+.SH "SEE ALSO"
+.BR wallust (5),
+.BR wallust-run (1),
+.BR wallust-cs (1),
+.BR wallust-theme (1),
+.BR wallust-themes [1]
+.br
+.SH "NOTES"
+.nr step 1
+.IP " \n+[step]." 4
+Suggestions for new colorschemes returned by the
+.B themes
+subcommand should be filled here.
+.RS 4
+.I https://codeberg.org/explosion-mental/wallust-themes
+.RE
+.SH "BUGS"
+.I https://codeberg.org/explosion-mental/wallust

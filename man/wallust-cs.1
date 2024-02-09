@@ -1,0 +1,80 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH wallust-cs 1  wallust-2.10 wallust-cs
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH NAME
+cs \- Apply a certain colorscheme
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH SYNOPSIS
+\fBcs\fR [\fB\-f\fR|\fB\-\-format\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
+
+.SH "DESCRIPTION"
+.TS
+tab(;) left,box;
+
+l   |   l |.
+\fBMethods\fP;\fBDescription\fP
+_
+\fBBackends\fP;How to extract the colors from the image (e.g. pywal uses convert).
+_
+\fBColorspace\fP;Get the most prominent color, and sort them according to the \fBpalette\fP, configurable with a threshold.
+_
+\fBPalette\fP;Makes a scheme palette with the gathered colors (e.g. sets a light background).
+.TE
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH OPTIONS
+.TP
+\fB\-f\fR, \fB\-\-format\fR=\fIFORMAT\fR
+Specify a custom format. Without this option, wallust will sequentially try to decode it by trying one by one
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+pywal: uses the wal colorscheme format, see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>
+.IP \(bu 2
+terminal\-sexy: uses <https://terminal.sexy> JSON export
+.IP \(bu 2
+wallust: cached wallust files
+.RE
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Don\*(Aqt print anything
+.TP
+\fB\-s\fR, \fB\-\-skip\-sequences\fR
+Skip setting terminal sequences
+.TP
+\fB\-T\fR, \fB\-\-skip\-templates\fR
+Skip templating process
+.TP
+\fB\-u\fR, \fB\-\-update\-current\fR
+Only update the current terminal
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+<\fIFILE\fR>
+Path to the file that has a colorscheme
+
+.SH "SEE ALSO"
+.BR wallust (5),
+.BR wallust-run (1),
+.BR wallust-cs (1),
+.BR wallust-theme (1),
+.BR wallust-themes [1]
+.br
+.SH "NOTES"
+.nr step 1
+.IP " \n+[step]." 4
+Suggestions for new colorschemes returned by the
+.B themes
+subcommand should be filled here.
+.RS 4
+.I https://codeberg.org/explosion-mental/wallust-themes
+.RE
+.SH "BUGS"
+.I https://codeberg.org/explosion-mental/wallust

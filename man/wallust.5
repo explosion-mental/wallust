@@ -1,0 +1,154 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH wallust 5  wallust-2.10
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.SH NAME
+wallust \- TOML configuration file format.
+
+.SH "GENERAL"
+.PP
+Some general variables that can be configured in the wallust.toml file.
+
+.TP
+.B "backend"
+Allows you to choose which method to use in order to parse the image.
+
+.TP
+.B "color_space"
+What colorspace to use to produce and select the most prominent colors.
+
+.TP
+.B "threshold"
+Thershold is the difference between similar colors, used by the colorspace, identified by a whole number. The recommended value is 20.
+
+\" centered, box is also an option, but left justified makes more sense.
+.TS
+ left,box;
+
+l |l |.
+\fBNumber\fP	\fBDescription\fP
+_
+\fB1\fP	Not perceptible by human eyes.
+_
+\fB1 \- 2\fP	Perceptible through close observation.
+_
+\fB2 \- 10\fP	Perceptible at a glance.
+_
+\fB11 \- 49\fP	Colors are more similar than opposite.
+_
+\fB100\fP	Colors are exact opposite
+.TE
+
+.TP
+.B "palette"
+Uses the colors gathered from `color_space` in a way that makes sense, resulting in a scheme palette.
+.I Some notes:
+.IP \[bu]
+No matter the
+.B palette
+, the colors will always be 16: color0 to color15 (not including background, foreground and cursor). The
+.B 16col
+variation, only indicates a slight luminance change for color from 1 \- 6, making an
+.I ilusion
+of generating more colors and diferenciate which is which.
+.IP \[bu]
+The
+.B complementary
+variant completely
+.I replaces
+all the original colors with it's complementary counterpart. Since a pleasant wallpaper will, usually, have complementary colors of the colors already present, the scheme palette may not vary that much.
+
+.TP
+.BI "check_constrast" " optional"
+Ensures a "readable contrast" Should only be enabled when you notice an unreadable contrast frequently happening with your images. The reference color for the contrast is the background color. (default: disabled)
+
+.TP
+.BI "saturation" " optional"
+Color saturation, usually something higher than 50 increases the saturation and below decreases it (on a scheme with strong and vivid colors).
+.br
+.I Possible values:
+1 \- 100
+(default: disabled)
+
+.TP
+.BI "alpha" " optional"
+Alpha value for templating (default: 100)
+
+.SH "TEMPLATES"
+Templates are optional and defined inside the [templates] header. Here it's recommended to use single quotes (') instead of double quotes (") since the first one, by the toml format, ignores backslashes (\\) as escape codes, allowing you to define Widows like paths (e.g. 'C:\\Users\\Desktop\\')
+
+.TP
+.B template
+A relative path that points to a file where wallust.toml is located, usually at '~/.config/wallust/'.
+
+.TP
+.B target
+Absolute path in which to place a file with generated templated values. This
+field CAN expand the `~` as the `$HOME` enviromental variable.
+
+.TP
+.BI "pywal" " optional"
+Indicates to treat
+.I template
+as a pywal template, using
+.I {variable}
+syntax. (default: false)
+
+.TP
+.BI "recursive" " optional"
+This indicates to recursively template the files inside the `template` field. Has no effect if `template` is a file, and not a directory. (defulat: false)
+
+.SH "EXAMPLES"
+Below is a simple example exahusting all possible cases. All the format is correct:
+
+.RS
+.nf
+\fC
+backend = "full"
+color_space = "lab"
+threshold = "20"
+palette = "softdark"
+check_contrast = true
+
+[templates]
+# dunst templates
+dunst.template = "dunstrc.monitor"
+dunst.target = "~/.config/dunst/dunstrc"
+
+# one liner for zathura
+zathura = { template = 'zath', target = '~/.config/zathura/zathurarc' }
+
+# even a shorter way
+glava = { src = 'glava.glsl', target = '~/.config/glava/rc.glsl' }
+
+# or splited, like dunst
+res.src = "xres"
+res.dst = "~/.config/Xresources"
+
+# old times, good times (here I put old pywal templates)
+# Also, note that the name doesn't matters (as long as it isn't already defined)
+pywal = { src = "templates/", target = '~/.cache/wal/', recursive = true, pywal = true }
+\fP
+.fi
+
+
+.SH "SEE ALSO"
+.BR wallust (1),
+.BR wallust-run (1),
+.BR wallust-cs (1),
+.BR wallust-theme (1),
+.BR wallust-themes[1]
+.br
+.SH "NOTES"
+.nr step 1
+.IP "\n+[step]. wallust-themes"
+Suggestions for new colorschemes returned by the
+.B themes
+subcommand should be filled here.
+.br
+.I https://codeberg.org/explosion-mental/wallust-themes
+.SH "BUGS"
+.PP
+.br
+\fIhttps://codeberg.org/explosion-mental/wallust\fP

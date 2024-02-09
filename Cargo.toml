@@ -48,6 +48,8 @@ tempfile = "3"
 criterion = { version = "0.5", features = ["html_reports"] }
 word_iter = "0.2.1"
 clap_complete = "4.4"
+clap_mangen = "0.2"
+clap  = { version = "4.3", features = ["derive", "cargo"] }
 
 [features]
 default = [ "themes" ]
