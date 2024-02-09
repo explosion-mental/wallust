@@ -138,18 +138,41 @@ This will use the lastest version
 
 ## Packaging
 
-Binary-based distros can grab the latest pre-compiled binary from the [releases
-page](https://codeberg.org/explosion-mental/wallust/releases).
+Binary-based distros can grab the latest pre-compiled binary from the
+[releases page](https://codeberg.org/explosion-mental/wallust/releases).
 
 Source-based distros, if they wish to build `wallust` from source, must ensure
 that the following dependencies are available:
 
 - Build Dependencies:
 	1. Rust (`cargo`, `rustc`)
+    2. make (or install man pages and completions manually)
 - Runtime Dependencies
     1. [`imagemagick`](https://imagemagick.org) is required **only** for the `wal`
        backend, such limiting should be mentined and considered an **optional**
        dependency, since all other backends work without it.
+
+### Makefile
+Using `make` is _optional_ if you know your way into cargo and **can** accept
+the job to **manually install man pages, completions and the binary**.
+
+I've only added a `Makefile` to simplify _installing_ these assets, as well as
+the binary. By default  `make` uses native compilation, you can define your
+wished target like this:
+
+**Building**
+```
+$ TARGET=x86_64-pc-windows-gnu make install CARGOFLAGS="--release --target=$TARGET"
+```
+
+**Installing**
+```
+# TARGET=x86_64-pc-windows-gnu make CARGOFLAGS="--release --target=$TARGET" RELEASE="target/$TARGET/release"
+```
+
+Don't forget that `make` by itself runs `cargo` in order to built the binary.
+It's common on projects that use make to split building in two steps, given
+that `make install` requires permissions to write on `$DESTDIR$PREFIX`.
 
 ## Contribute!
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
@@ -158,7 +181,7 @@ Show some of your taste by adding a [backend](./src/backends/mod.rs),
 [colorspace](./src/colorspaces/mod.rs), [palette](./src/filters/mod.rs),
 and/or a [custom theme](https://codeberg.org/explosion-mental/wallust-themes).
 
-Having thoughts or suggestios is also very welcome.
+Having design ideas or suggestios is also very welcome.
 
 ## TODOs
 for more, grep the src for TODO `rg TODO`
@@ -167,6 +190,7 @@ for more, grep the src for TODO `rg TODO`
 - shell completions and man page (allows up readme)
 
 ## Related
+- [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
 - [pywal - 🎨Generate and change color-schemes on the fly](https://github.com/dylanaraps/pywal)
 - [pywal16 - 16 colors fork of pywal](https://github.com/eylles/pywal16)
 - [wpgtk - 🎴a colorscheme, wallpaper and template manager for *nix](https://github.com/deviantfero/wpgtk)
