@@ -187,7 +187,6 @@ Having design ideas or suggestios is also very welcome.
 for more, grep the src for TODO `rg TODO`
 - automate binary releases with a CI, figure out woodkeeper codeberg CI
 - use `thiserror` for errors in the modules (there aren't that many)
-- shell completions and man page (allows up readme)
 
 ## Related
 - [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
