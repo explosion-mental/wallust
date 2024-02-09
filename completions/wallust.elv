@@ -24,6 +24,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --version 'Print version'
             cand run 'Generate a palette from an image'
             cand cs 'Apply a certain colorscheme'
+            cand theme 'Apply a custom built in theme'
             cand debug 'Print information about the program and the enviroment it uses'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
@@ -78,6 +79,20 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
         }
+        &'wallust;theme'= {
+            cand -p 'Only preview the selected theme'
+            cand --preview 'Only preview the selected theme'
+            cand -q 'Don''t print anything'
+            cand --quiet 'Don''t print anything'
+            cand -s 'Skip setting terminal sequences'
+            cand --skip-sequences 'Skip setting terminal sequences'
+            cand -T 'Skip templating process'
+            cand --skip-templates 'Skip templating process'
+            cand -u 'Only update the current terminal'
+            cand --update-current 'Only update the current terminal'
+            cand -h 'Print help'
+            cand --help 'Print help'
+        }
         &'wallust;debug'= {
             cand -h 'Print help'
             cand --help 'Print help'
@@ -85,12 +100,15 @@ set edit:completion:arg-completer[wallust] = {|@words|
         &'wallust;help'= {
             cand run 'Generate a palette from an image'
             cand cs 'Apply a certain colorscheme'
+            cand theme 'Apply a custom built in theme'
             cand debug 'Print information about the program and the enviroment it uses'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'wallust;help;run'= {
         }
         &'wallust;help;cs'= {
+        }
+        &'wallust;help;theme'= {
         }
         &'wallust;help;debug'= {
         }

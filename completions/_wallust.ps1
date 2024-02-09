@@ -27,6 +27,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('run', 'run', [CompletionResultType]::ParameterValue, 'Generate a palette from an image')
             [CompletionResult]::new('cs', 'cs', [CompletionResultType]::ParameterValue, 'Apply a certain colorscheme')
+            [CompletionResult]::new('theme', 'theme', [CompletionResultType]::ParameterValue, 'Apply a custom built in theme')
             [CompletionResult]::new('debug', 'debug', [CompletionResultType]::ParameterValue, 'Print information about the program and the enviroment it uses')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -84,6 +85,21 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             break
         }
+        'wallust;theme' {
+            [CompletionResult]::new('-p', 'p', [CompletionResultType]::ParameterName, 'Only preview the selected theme')
+            [CompletionResult]::new('--preview', 'preview', [CompletionResultType]::ParameterName, 'Only preview the selected theme')
+            [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Don''t print anything')
+            [CompletionResult]::new('--quiet', 'quiet', [CompletionResultType]::ParameterName, 'Don''t print anything')
+            [CompletionResult]::new('-s', 's', [CompletionResultType]::ParameterName, 'Skip setting terminal sequences')
+            [CompletionResult]::new('--skip-sequences', 'skip-sequences', [CompletionResultType]::ParameterName, 'Skip setting terminal sequences')
+            [CompletionResult]::new('-T', 'T ', [CompletionResultType]::ParameterName, 'Skip templating process')
+            [CompletionResult]::new('--skip-templates', 'skip-templates', [CompletionResultType]::ParameterName, 'Skip templating process')
+            [CompletionResult]::new('-u', 'u', [CompletionResultType]::ParameterName, 'Only update the current terminal')
+            [CompletionResult]::new('--update-current', 'update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            break
+        }
         'wallust;debug' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
@@ -92,6 +108,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
         'wallust;help' {
             [CompletionResult]::new('run', 'run', [CompletionResultType]::ParameterValue, 'Generate a palette from an image')
             [CompletionResult]::new('cs', 'cs', [CompletionResultType]::ParameterValue, 'Apply a certain colorscheme')
+            [CompletionResult]::new('theme', 'theme', [CompletionResultType]::ParameterValue, 'Apply a custom built in theme')
             [CompletionResult]::new('debug', 'debug', [CompletionResultType]::ParameterValue, 'Print information about the program and the enviroment it uses')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -100,6 +117,9 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             break
         }
         'wallust;help;cs' {
+            break
+        }
+        'wallust;help;theme' {
             break
         }
         'wallust;help;debug' {

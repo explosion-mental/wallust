@@ -24,6 +24,9 @@ _wallust() {
             wallust,run)
                 cmd="wallust__run"
                 ;;
+            wallust,theme)
+                cmd="wallust__theme"
+                ;;
             wallust__help,cs)
                 cmd="wallust__help__cs"
                 ;;
@@ -36,6 +39,9 @@ _wallust() {
             wallust__help,run)
                 cmd="wallust__help__run"
                 ;;
+            wallust__help,theme)
+                cmd="wallust__help__theme"
+                ;;
             *)
                 ;;
         esac
@@ -43,7 +49,7 @@ _wallust() {
 
     case "${cmd}" in
         wallust)
-            opts="-h -V --help --version run cs debug help"
+            opts="-h -V --help --version run cs theme debug help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -93,7 +99,7 @@ _wallust() {
             return 0
             ;;
         wallust__help)
-            opts="run cs debug help"
+            opts="run cs theme debug help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -149,6 +155,20 @@ _wallust() {
             return 0
             ;;
         wallust__help__run)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        wallust__help__theme)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -245,6 +265,20 @@ _wallust() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        wallust__theme)
+            opts="-p -q -s -T -u -h --preview --quiet --skip-sequences --skip-templates --update-current --help <THEME>"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
                 *)
                     COMPREPLY=()
                     ;;
