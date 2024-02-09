@@ -65,3 +65,7 @@ harness = false
 [[bench]]
 name = "colorspaces"
 harness = false
+
+[profile.release]
+strip = true
+#lto = true # Seems to increase ~0.2 secs in speed..
