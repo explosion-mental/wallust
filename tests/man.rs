@@ -205,7 +205,7 @@ fn mk_man() {
     let full_name = "wallust-theme.1";
     let mut out = File::create(dir.join(&full_name)).unwrap();
     let app = cmd.get_subcommands().find(|&x| x.get_name() == "theme").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
-    let app = clap_mangen::Man::new(app.clone())
+    let app = clap_mangen::Man::new(app.clone().name("wallust-theme"))
         .title("wallust-theme")
         .manual("wallust-theme")
         .source(format!("wallust-{version}")) //little string footer at the end
@@ -223,7 +223,7 @@ fn mk_man() {
     let full_name = "wallust-cs.1";
     let mut out = File::create(dir.join(&full_name)).unwrap();
     let app = cmd.get_subcommands().find(|&x| x.get_name() == "cs").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
-    let app = clap_mangen::Man::new(app.clone())
+    let app = clap_mangen::Man::new(app.clone().name("wallust-cs"))
         .title("wallust-cs")
         .manual("wallust-cs")
         .source(format!("wallust-{version}"))
