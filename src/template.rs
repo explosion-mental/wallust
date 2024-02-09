@@ -25,7 +25,7 @@ use fancy_regex::Regex;
 /// TOOD no need to read line by line
 /// TODO escaping incrementanly brackets by using a recursive pure function
 /// (or ignore it and hardcode 3 escapes in the meantime) (also there can be `.chars()` method in use)
-fn template(all: &Myt, template_data: &String) -> Result<String> {
+fn template(all: &Myt, template_data: &str) -> Result<String> {
     let colors = all.cols;
     //let template_data = std::fs::read_to_string(&file).unwrap();
     // this regex is insane, very well done dylan (pywal)
@@ -156,17 +156,18 @@ pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], valu
         let rendered = if e.new_engine.unwrap_or(false) {
             far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
-            template(&Myt { cols: values, img: image_path, conf }, &file_content)?
+            // TODO finish my implementation that follows the pywal wiki
+            //template(&Myt { cols: values, img: image_path, conf }, &file_content)?
             // .with_regex(regex::Regex::new() doesn't seem to work neither with r"/{(.*?)}/" or r"/{([^}]*)}/"
             // so I'm probably rolling my own pywal template implementation (see template())
-            // match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
-            //     Ok(o) => o,
-            //     Err(er) => {
-            //         let raw = r#"{{variable}}"#;
-            //         eprintln!("[{warn}] File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", e.template);
-            //         continue;
-            //     }
-            // }
+            match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
+                Ok(o) => o,
+                Err(er) => {
+                    let raw = r#"{{variable}}"#;
+                    eprintln!("[{warn}] File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", e.template);
+                    continue;
+                }
+            }
         };
 
         let mut buffer = match File::create(target_file.as_ref()) {
