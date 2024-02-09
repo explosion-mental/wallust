@@ -1,5 +1,8 @@
 use clap::{ValueEnum, CommandFactory};
 
+// TODO maybe in the future, when I get my head along with workspaces just split up library and
+// binary, move this `geneartion` like tests into `src/bin`
+
 /// completion dir
 const COMPLETION_DIR: &str = "./completions";
 
