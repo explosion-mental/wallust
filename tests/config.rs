@@ -1,7 +1,7 @@
+#![cfg(feature = "buildgen")]
 /// testing for the validity of the config file is done in `args.rs`
 /// a current hack to avoid build.rs hell (requires dividing types into a crate itself or include! hacks)
 /// XXX this seems so useful, maybe elaborate this idea into it's own crate.
-#[cfg(feature = "makeconfig")]
 #[test]
 fn main() {
     use std::io::Write;

@@ -18,7 +18,7 @@ use serde::Deserialize;
 /// Representation of the toml config file `wallust.toml`
 //TODO wallust should be able to work without a config file?
 #[derive(Debug, Deserialize, Default)]
-#[cfg_attr(feature = "makeconfig", derive(documented::Documented, documented::DocumentedFields))]
+#[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
     /// threshold to use to differentiate colors
     #[serde(deserialize_with = "validate_threshold")]

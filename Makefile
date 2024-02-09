@@ -34,12 +34,12 @@ ${RELEASE}/wallust:
 
 # The generated completion could differ if `themes` compiletime feature is disabled.
 completions:
-	@${CARGO} test --quiet --test=completions
+	@${CARGO} test --quiet --features=buildgen --test=completions
 
 # Here, however, if `themes is disabled, you only need to omit `wallust-themes.1` man page.
 # also no need to rebuilt it on install, since by default, the repo includes them.
 man:
-	@${CARGO} test --quiet --test=man
+	@${CARGO} test --quiet --features=buildgen --test=man
 
 install-completions: completions ## installs completions files
 	mkdir -p ${DESTDIR}${ZSHPREFIX}

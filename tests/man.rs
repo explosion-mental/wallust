@@ -1,3 +1,4 @@
+#![cfg(feature = "buildgen")]
 #![allow(non_upper_case_globals)]
 use clap::CommandFactory;
 
