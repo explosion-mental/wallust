@@ -115,15 +115,22 @@ fn template(all: &Myt, template_data: &str) -> Result<String> {
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
-pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], values: &Colors, quiet: bool) -> Result<()> {
+pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: bool) -> Result<()> {
+    let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
     let config = &conf.dir;
 
     let warn = "W".red();
     let warn = warn.bold();
 
     let templates_header = match &conf.templates {
-        Some(s) => s,
-        None => return Ok(()),
+        Some(s) => {
+            if ! quiet { println!("{init}Writing templates.."); }
+            s
+        },
+        None => {
+            if ! quiet { println!("{init}No templates found"); }
+            return Ok(())
+        },
     };
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the

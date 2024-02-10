@@ -30,8 +30,6 @@ pub struct Config {
     pub filter: crate::filters::Filters,
     /// Which colorspace to use, see colorspaces.rs
     pub color_space: crate::colorspaces::ColorSpaces,
-    /// toml table with template and config target (optional)
-    pub entry: Option<Vec<Entries>>,
     /// Optional alpha value
     pub alpha: Option<u8>,
     /// This flags ensures good contrast between images, by doing some w3m calculations.
@@ -175,8 +173,6 @@ impl Config {
     /// Writes templates defined in the config file (if any)
     /// Should print a warning if you are using the old `[[entry]]` syntax (since it's going to be deprecated in v3).
     pub fn write_entry(&self, wal_str: &WalStr, colors: &Colors, quiet: bool) -> Result<()> {
-        let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
-
         // check if themes exist, if it does we are using the `theme` subcommand,
         // which means there is not image path, so use the theme name as for the `wallpaper` value
         let wallpaper_str = match wal_str {
@@ -186,29 +182,7 @@ impl Config {
             WalStr::Path(p) => std::fs::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
         };
 
-        let mut entries = vec![];
-
-        if let Some(s) = &self.entry {
-            if ! quiet {
-                eprintln!("[{w}] {t}: Looks like you are using the old `[[entry]]` syntax, make sure to read {V3}",
-                w = "W".red().bold(), t = "templates".magenta().bold());
-            }
-            entries.extend(s.clone());
-        }
-
-        //TODO on next major version, use the name assign to the template. think it needs to be included in `write_template()`
-        if let Some(s) = &self.templates {
-            let e = s.clone().into_values().collect::<Vec<Entries>>();
-            entries.extend(e);
-        }
-
-        if !entries.is_empty() {
-            if ! quiet { println!("{init}Writing templates.."); }
-            template::write_template(self, &wallpaper_str, &entries, colors, quiet)
-        } else {
-            if ! quiet { println!("{init}No templates found"); }
-            Ok(())
-        }
+        template::write_template(self, &wallpaper_str, colors, quiet)
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration
@@ -262,24 +236,6 @@ impl Config {
 impl std::fmt::Display for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
             let sp = "    ";
-            let entry = if let Some(e) = &self.entry {
-                let mut s = String::new();
-                for i in e {
-                    let new_engine = if let Some(s) = i.new_engine {
-                        format!("{sp}{sp}new_engine = {s}\n")
-                    } else {
-                        "".into()
-                    };
-
-                    s.push_str(
-                        &format!("{sp}[[entry]]\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
-                                i.template, i.target)
-                        );
-                }
-                s.trim_end().to_owned()
-            } else {
-                String::new()
-            };
 
             let temps = if let Some(e) = &self.templates {
                 let mut s = String::new();
@@ -302,10 +258,10 @@ impl std::fmt::Display for Config {
                 String::new()
             };
 
-            let templates = if entry.is_empty() && temps.is_empty() {
+            let templates = if temps.is_empty() {
                 "No entries found.".into()
             } else {
-                [entry, temps].join("")
+                temps
             };
 
             write!(f, "\
