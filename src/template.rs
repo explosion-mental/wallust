@@ -112,9 +112,9 @@ fn template(all: &Myt, template_data: &str) -> Result<String> {
     )
 }
 
-/// Render a file, gathered from `map.1.template`.
-/// TODO This function shouldn't need Result, since if it fail, it should just warn about it.
-/// TODO maybe use eprintln messages as Err(format!()) ones.
+/// Render the template `file` provided and write it to `target_path`.
+/// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
+/// since we don't care about handling all possible io::Errors
 fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
     let warn = "W".red();
     let warn = warn.bold();
@@ -122,47 +122,30 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
     let filename = file.display();
     let filename = filename.italic();
 
-    let file_content = match read_to_string(&file) {
-        Ok(o) => o,
-        Err(err) => { // Don't hard error, just report it
-            return Err(format!("Skipping {filename}: {err}"));
-        }
-    };
+    let file_content = read_to_string(&file)
+        .map_err(|err| format!("Reading {filename} failed: {err}"))?;
 
     // First find if the parent exists at all before rendering
     match target_path.parent() {
-       Some(s) => {
-           if let Err(e) = std::fs::create_dir_all(s) {
-               return Err(format!("Failed to create parent directories from {}: {e}", target_path.display().italic()));
-           }
-       },
-       None => {
-           return Err(format!("Failed to find file parent from {}", target_path.display().italic()));
-       }
+       Some(s) => std::fs::create_dir_all(s)
+           .map_err(|err| format!("Failed to create parent directories from {}: {err}", target_path.display().italic()))?,
+       None => return Err(format!("Failed to find file parent from {}", target_path.display().italic())),
     };
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        match far::find_with_mode(file_content, far::Mode::AllowMissing) {
-            Ok(o) => o,
-            Err(err) => {
-                return Err(format!("Error while rendering '{filename}': {err}"));
-            }
-        }.replace(&Myt { cols: values, img: image_path, conf })
+        far::find_with_mode(file_content, far::Mode::AllowMissing)
+            .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
+            .replace(&Myt { cols: values, img: image_path, conf })
     } else {
         // TODO finish my implementation that follows the pywal wiki
         //template(&Myt { cols: values, img: image_path, conf }, &file_content)?
-        // .with_regex(regex::Regex::new() doesn't seem to work neither with r"/{(.*?)}/" or r"/{([^}]*)}/"
-        // so I'm probably rolling my own pywal template implementation (see template())
-        match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
-            Ok(o) => o,
-            Err(err) => {
-                let raw = r#"{{variable}}"#;
-                return Err(format!("Error while rendering '{filename}': {err}"));
-            }
-        }
+        new_string_template::template::Template::new(file_content)
+            .render(&values.to_hash(image_path, conf))
+            .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
 
+    // map io::Errors into a writeable one (String) ((maybe this is how anyhow werks?))
     std::fs::write(target_path, rendered)
         .map_err(|x| format!("Error while writting to {}", target_path.display()))
 }
@@ -210,6 +193,7 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
         if path.is_dir() {
             if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
 
+            // read directory, encapsulating this into a function and then calling this recursively handle the `recursive` field?
             for i in path.read_dir()? {
                 let i = i?;
 
@@ -224,23 +208,16 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
 
                 if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display()); }
 
-                match file_render(&path.join(&f), &target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
-                    Ok(_) => (),
-                    Err(err) => {
-                        eprintln!("[{warn}] {name}: {err}");
-                        continue;
-                    }
-                }
-            }
-
-        } else {
-            if ! quiet { println!("  * Templated {name} to '{target}'"); }
-            match file_render(&path, target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
-                Ok(_) => (),
-                Err(err) => {
+                if let Err(err) = file_render(&path.join(&f), &target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
+            }
+        } else {
+            if ! quiet { println!("  * Templated {name} to '{target}'"); }
+            if let Err(err) = file_render(&path, target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
+                eprintln!("[{warn}] {name}: {err}");
+                continue;
             }
         }
     }
