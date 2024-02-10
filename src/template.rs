@@ -112,6 +112,59 @@ fn template(all: &Myt, template_data: &str) -> Result<String> {
     )
 }
 
+/// Render a file, gathered from `map.1.template`.
+/// TODO This function shouldn't need Result, since if it fail, it should just warn about it.
+/// TODO maybe use eprintln messages as Err(format!()) ones.
+fn file_render(file: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<String, String> {
+    let warn = "W".red();
+    let warn = warn.bold();
+
+    let filename = file.display();
+    let filename = filename.italic();
+
+    let file_content = match read_to_string(&file) {
+        Ok(o) => o,
+        Err(err) => { // Don't hard error, just report it
+            return Err(format!("Skipping {filename}: {err}"));
+        }
+    };
+
+    // First find if the parent exists at all before rendering
+    //match Path::new(&file).parent() {
+    //    Some(s) => {
+    //        if let Err(e) = std::fs::create_dir_all(s) {
+    //            return Err(format!("Failed to create parent directories from {target}: {e}"));
+    //        }
+    //    },
+    //    None => {
+    //        return Err(format!("Failed to find file parent from {target}"));
+    //    }
+    //};
+
+    // Template/render the file_contents
+    if ! pywal {
+        let o = match far::find_with_mode(file_content, far::Mode::AllowMissing) {
+            Ok(o) => o,
+            Err(err) => {
+                return Err(format!("File '{filename}': {err}"));
+            }
+        }.replace(&Myt { cols: values, img: image_path, conf });
+        Ok(o)
+    } else {
+        // TODO finish my implementation that follows the pywal wiki
+        //template(&Myt { cols: values, img: image_path, conf }, &file_content)?
+        // .with_regex(regex::Regex::new() doesn't seem to work neither with r"/{(.*?)}/" or r"/{([^}]*)}/"
+        // so I'm probably rolling my own pywal template implementation (see template())
+        match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
+            Ok(o) => Ok(o),
+            Err(err) => {
+                let raw = r#"{{variable}}"#;
+                return Err(format!("File '{filename}': {err}"));
+            }
+        }
+    }
+}
+
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
@@ -136,77 +189,58 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
     for e in templates_header {
-        // Entries
-        let fields = e.1;
 
-        //used only for printing
-        let name = &e.0.bold();
-        let target = &fields.target.italic();
+        //root path for the template file
+        let path = config.join(&e.1.template);
 
-        // config template path
-        let path = config.join(&fields.template).display().to_string();
-
-        if ! quiet { println!("  * Templated {name} at '{target}'"); }
-
-        let file_content = match read_to_string(&path) {
-            Ok(o) => o,
-            Err(err) => { // Don't hard error, just report it
-                eprintln!("[{warn}] {name}: Skipping {path}: {err}");
-                continue;
-            }
-        };
-
+        //root path for the target file (requires interpret `~` for home)
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let target_file = shellexpand::tilde(&fields.target);
+        let env = shellexpand::tilde(&e.1.target);
+        let target_path = Path::new(env.as_ref());
 
-        //if ! quiet { println!("  * Templating: {}", fields.template); }
+        // for printing
+        let name = e.0.bold();
+        let target = &e.1.target.italic();
+        let warn = "W".red();
+        let warn = warn.bold();
 
-        // First find if the parent exists at all before rendering
-        match Path::new(&target_file.as_ref()).parent() {
-            Some(s) => {
-                if let Err(e) = std::fs::create_dir_all(s) {
-                    eprintln!("[{warn}] Failed to create parent directories from {target}: {e}");
-                    continue;
+        // TODO handle `.recursive` field
+        if path.is_dir() {
+            if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
+
+            for i in path.read_dir()? {
+                let i = i?;
+
+                //println!("{i:?}");
+                let f = &i.file_name();
+                //println!(" THIS IS FILE {f:?}");
+
+                let target_path = target_path.join(&f);
+
+                let target = target_path.display();
+                let target = target.italic();
+
+                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display()); }
+
+                match file_render(&path.join(&f), e.1.pywal.unwrap_or(false), conf, image_path, values) {
+                    Ok(o) => std::fs::write(&target_path, &o)?,
+                    Err(err) => {
+                        eprintln!("[{warn}] {name}: {err}");
+                        continue;
+                    }
                 }
-            },
-            None => {
-                eprintln!("[{warn}] Failed to find file parent from {target}");
-                continue;
             }
-        };
 
-        // Template/render the file_contents
-        let rendered = if ! fields.pywal.unwrap_or(false) {
-            far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
-            // TODO finish my implementation that follows the pywal wiki
-            //template(&Myt { cols: values, img: image_path, conf }, &file_content)?
-            // .with_regex(regex::Regex::new() doesn't seem to work neither with r"/{(.*?)}/" or r"/{([^}]*)}/"
-            // so I'm probably rolling my own pywal template implementation (see template())
-            match new_string_template::template::Template::new(file_content).render(&values.to_hash(image_path, conf)) {
-                Ok(o) => o,
-                Err(er) => {
-                    let raw = r#"{{variable}}"#;
-                    eprintln!("[{warn}] {name}: File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", fields.template);
+            if ! quiet { println!("  * Templated {name} to '{target}'"); }
+            match file_render(&path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
+                Ok(o) => std::fs::write(&target_path, &o)?,
+                Err(err) => {
+                    eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
             }
-        };
-
-        let mut buffer = match File::create(target_file.as_ref()) {
-            Ok(o) => o,
-            Err(e) => {
-                eprintln!("[{warn}] {name}: Failed to create file {target}: {e}");
-                continue;
-            }
-        };
-
-        if let Err(e) = buffer.write_all(rendered.as_bytes()) {
-            eprintln!("[{warn}] {name}: Failed to write to file {target}: {e}");
-            continue;
         }
-
-        //if ! quiet { println!("      Created: {} ... OK", target); }
     }
 
     Ok(())
