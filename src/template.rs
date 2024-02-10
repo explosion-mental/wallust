@@ -1,128 +1,22 @@
-#![allow(unused)]
 //! Template stuff, definitions and how it's parsed
 use std::fs::read_to_string;
-use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use std::collections::HashMap;
 
 use crate::config::Config;
-use crate::config::Entries;
 use crate::colors::Colors;
-use crate::colors::Myrgb;
 
 use anyhow::Result;
 use owo_colors::OwoColorize;
-
-use fancy_regex::Regex;
-//use fancy_regex::Matches;
-
-/// This is a `pywal` template wannabe
-/// <https://github.com/dylanaraps/pywal/wiki/User-Template-Files>
-/// Read template file, substitute markers and save the file elsewhere.
-/// TODO improve this engine, currently I'm following the pywal structure
-/// (like reading line by line), however, this is rust. We can do better (and faster :p)
-/// TOOD no need to read line by line
-/// TODO escaping incrementanly brackets by using a recursive pure function
-/// (or ignore it and hardcode 3 escapes in the meantime) (also there can be `.chars()` method in use)
-fn template(all: &Myt, template_data: &str) -> Result<String> {
-    let colors = all.cols;
-    //let template_data = std::fs::read_to_string(&file).unwrap();
-    // this regex is insane, very well done dylan (pywal)
-    //
-    // Yet not that necessary? /{([^}]*)}/ or /{(.*?)}/ seems to also werk fine AND doesnt match after new lines
-    let re = Regex::new(r"(?<=(?<!\{))(\{([^{}]+)\})(?=(?!\}))").unwrap();
-    let hash = to_hash(all.cols, all.img, all.conf);
-
-    //for compatibility reasons, in pywal there was a need to use `{{` and `}}` to escape `{` and `}`
-    // The regex above will avoid things like `{{variable}}`, so there is no need for escaping
-    //let re = Regex::new(r"{{|}}").unwrap();
-
-    let mut ret = String::new();
-    for (i, l) in template_data.lines().enumerate() {
-        //println!("{i}| {l}");
-        // this means the for loop won't run
-        if ! re.is_match(l)? {
-            ret.push_str(l);
-        }
-        //get matches as an iterator
-        for mymatch in re.captures_iter(l) {
-            // ignore result for now
-            let m = mymatch?;
-            //println!("{m:?}");
-
-            //get the complete string, e.g. "wallpaper"
-            let mut name = match m.get(2) {
-                Some(s) => s.as_str(),
-                None => {
-                    eprintln!("Some error with '{m:?}'");
-                    continue;
-                }
-            };
-
-            let key = match hash.get(&name) {
-                Some(s) => s,
-                None => {
-                    eprintln!("Error: key '{name}' is not a valid variable.");
-                    continue;
-                }
-            };
-
-            //println!("name = {name}.{funcs} -> {new}");
-            let new = re.replace(l, key);
-            ret.push_str(&new);
-            //println!("{i}| {key}");
-
-            // XXX no need to split anything since we already have a hashmap with methods included.
-            // key has a method to be aplied to, figure out which one is it
-            //if name.contains(".") { //using a function
-
-                // XXX no need to split anything since we already have a hashmap with methods included.
-                // // split by key and method
-                // let groups = name.split(".").collect::<Vec<_>>();
-                // let name  = groups[0];
-                // let funcs = groups[1];
-                //
-                // if groups.len() > 2 { panic!("More than one dot") }
-                //
-                // //first get the hash key (which is a Myrgb)
-                // // then apply the method (funcs)
-                // // and finally re.replace
-
-                // let new = replace(colors, name, Some(funcs));
-                // println!("name = {name}.{funcs} -> {new}");
-                // ret.push_str(&new);
-                // re.replace(l, value);
-                // println!("{i}| {new}");
-            //} else {
-                // usual key
-
-                // let new = replace(colors, name, None);
-                // //println!("name = {name} -> {new}");
-                // ret.push_str(&new);
-                // println!("{i}| {new}");
-            //}
-
-            //println!("{name:?}");
-        }
-        ret.push('\n');
-    }
-    Ok(
-    ret
-    )
-}
 
 /// Render the template `file` provided and write it to `target_path`.
 /// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
 /// since we don't care about handling all possible io::Errors
 fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
-    let warn = "W".red();
-    let warn = warn.bold();
-
     let filename = file.display();
     let filename = filename.italic();
 
-    let file_content = read_to_string(&file)
+    let file_content = read_to_string(file)
         .map_err(|err| format!("Reading {filename} failed: {err}"))?;
 
     // First find if the parent exists at all before rendering
@@ -138,16 +32,17 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
             .replace(&Myt { cols: values, img: image_path, conf })
     } else {
-        // TODO finish my implementation that follows the pywal wiki
-        //template(&Myt { cols: values, img: image_path, conf }, &file_content)?
         new_string_template::template::Template::new(file_content)
+            // this regex is even better than pywal, doesn't match new lines :3
+            // <https://regex101.com/r/AgVXKJ/1>
+            .with_regex(&regex::Regex::new(r"\{(\S+?)\}").unwrap())
             .render(&values.to_hash(image_path, conf))
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
 
     // map io::Errors into a writeable one (String) ((maybe this is how anyhow werks?))
     std::fs::write(target_path, rendered)
-        .map_err(|x| format!("Error while writting to {}", target_path.display()))
+        .map_err(|err| format!("Error while writting to {}: {err}", target_path.display()))
 }
 
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
@@ -156,9 +51,6 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: bool) -> Result<()> {
     let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
     let config = &conf.dir;
-
-    let warn = "W".red();
-    let warn = warn.bold();
 
     let templates_header = match &conf.templates {
         Some(s) => {
@@ -201,14 +93,14 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
                 let f = &i.file_name();
                 //println!(" THIS IS FILE {f:?}");
 
-                let target_path = target_path.join(&f);
+                let target_path = target_path.join(f);
 
                 let target = target_path.display();
                 let target = target.italic();
 
                 if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display()); }
 
-                if let Err(err) = file_render(&path.join(&f), &target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
+                if let Err(err) = file_render(&path.join(f), &target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
