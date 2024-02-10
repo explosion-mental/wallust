@@ -67,8 +67,12 @@ pub struct Entries {
     /// Where to write the template
     #[serde(alias = "dst")]
     pub target: String,
-    /// Whether to use the new method or not
-    pub new_engine: Option<bool>,
+    /// Allows pywal template spec compatibility (disabled by default)
+    pub pywal: Option<bool>,
+    /// If 'src' is a directory, 'dst' SHOULD also be one.
+    /// This flag allows for 'src', when a dir, to be templated recursively
+    /// If 'src' is a file, this has no effect.
+    pub recursive: Option<bool>,
 }
 
 /// How to populate `wallpaper` template value:
@@ -240,8 +244,8 @@ impl std::fmt::Display for Config {
             let temps = if let Some(e) = &self.templates {
                 let mut s = String::new();
                 for i in e {
-                    let new_engine = if let Some(s) = i.1.new_engine {
-                        format!("{sp}{sp}new_engine = {s}\n")
+                    let pywal = if let Some(s) = i.1.pywal {
+                        format!("{sp}{sp}pywal = {s}\n")
                     } else {
                         String::new()
                     };
@@ -249,7 +253,7 @@ impl std::fmt::Display for Config {
                     let name = i.0;
 
                     s.push_str(
-                        &format!("{sp}{name}\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{new_engine}",
+                        &format!("{sp}{name}\n{sp}{sp}template = {}\n{sp}{sp}target   = {}\n{pywal}",
                                 i.1.template, i.1.target)
                         );
                 }

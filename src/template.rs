@@ -146,6 +146,8 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
         // config template path
         let path = config.join(&fields.template).display().to_string();
 
+        if ! quiet { println!("  * Templated {name} at '{target}'"); }
+
         let file_content = match read_to_string(&path) {
             Ok(o) => o,
             Err(err) => { // Don't hard error, just report it
@@ -174,7 +176,7 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
         };
 
         // Template/render the file_contents
-        let rendered = if fields.new_engine.unwrap_or(false) {
+        let rendered = if ! fields.pywal.unwrap_or(false) {
             far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
             // TODO finish my implementation that follows the pywal wiki
@@ -205,8 +207,6 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
         }
 
         //if ! quiet { println!("      Created: {} ... OK", target); }
-
-        if ! quiet { println!("  * Templated {name} at '{target}'"); }
     }
 
     Ok(())
