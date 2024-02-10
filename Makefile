@@ -11,15 +11,12 @@ ZSHPREFIX  = ${PREFIX}/share/zsh/site-functions
 BASHPREFIX = ${PREFIX}/share/bash-completion/completions
 FISHPREFIX = ${PREFIX}/fish/vendor_completions.d
 
-#RELEASE = $$(test -z "$(TARGET)" && echo "target/release") \
-#	  $$(test -n "$(TARGET)" && echo "target/$(TARGET)/release")
-# TODO rust arch, empty means native
-#TARGET =
-#CARGOFLAGS = $$(test -z "$(TARGET)" && printf "%s" "--release" || printf "%s" "--release --target=$(TARGET)")
-
-# some common targets
+# Some common (and "universal") targets for pkg-nix and pkg-win
+# used by `pkg-nix`
 NIX=x86_64-unknown-linux-musl
 #NIX=x86_64-apple-darwin
+
+# used by `pkg-win`
 WIN=x86_64-pc-windows-gnu
 
 # Redefine this variable if you use a given TARGET
@@ -78,14 +75,34 @@ uninstall:
 		${ZSHPREFIX}/_wallust \
 		${BASHPREFIX}/wallust.bash \
 		${BASHPREFIX}/wallust.fish
+pkg-nix-with-assets:
+	@${CARGO} build --release --target ${NIX}
+	mkdir -p wallust-${VERSION}-${NIX}/
+	cp -f target/${NIX}/release/wallust wallust-${VERSION}-${NIX}/wallust
+	cp -fr completions/ wallust-${VERSION}-${NIX}
+	cp -fr man/ wallust-${VERSION}-${NIX}
+	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust-${VERSION}-${NIX}
+	rm -fr wallust wallust-${VERSION}-${NIX}
+
 pkg-nix:
 	@${CARGO} build --release --target ${NIX}
+	mkdir -p wallust-${VERSION}-${NIX}/
 	cp -f target/${NIX}/release/wallust wallust
 	tar czvf wallust-${VERSION}-${NIX}.tar.gz wallust
 	rm -f wallust
 
+pkg-win-with-assets:
+	@${CARGO} build --release --target ${WIN}
+	mkdir -p wallust-${VERSION}-${WIN}/
+	cp -f target/${WIN}/release/wallust.exe wallust-${VERSION}-${WIN}/wallust.exe
+	cp -fr completions/ wallust-${VERSION}-${WIN}
+	cp -fr man/ wallust-${VERSION}-${WIN}
+	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust-${VERSION}-${WIN}
+	rm -fr wallust.exe wallust-${VERSION}-${WIN}
+
 pkg-win: ## can't be generalized out because of the .exe
 	@${CARGO} build --release --target ${WIN}
+	mkdir -p wallust-${VERSION}-${WIN}/
 	cp -f target/${WIN}/release/wallust.exe wallust.exe
 	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust.exe
 	rm -f wallust.exe
