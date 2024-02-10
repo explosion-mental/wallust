@@ -112,7 +112,6 @@ fn template(all: &Myt, template_data: &str) -> Result<String> {
     )
 }
 
-
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
@@ -122,38 +121,53 @@ pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], valu
     let warn = "W".red();
     let warn = warn.bold();
 
+    let templates_header = match &conf.templates {
+        Some(s) => s,
+        None => return Ok(()),
+    };
+
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
-    for e in entries {
-        let path = config.join(&e.template).display().to_string();
+    for e in templates_header {
+        // Entries
+        let fields = e.1;
 
-        let file_template = match read_to_string(&path) {
+        //used only for printing
+        let name = &e.0.bold();
+        let target = &fields.target.italic();
+
+        // config template path
+        let path = config.join(&fields.template).display().to_string();
+
+        let file_content = match read_to_string(&path) {
             Ok(o) => o,
-            Err(e) => {
-                eprintln!("[{warn}] Skipping {path}: {e}");
+            Err(err) => { // Don't hard error, just report it
+                eprintln!("[{warn}] {name}: Skipping {path}: {err}");
                 continue;
             }
         };
 
-        let target = &e.target;
-        let file_content = file_template;
-
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let target_file = shellexpand::tilde(target);
+        let target_file = shellexpand::tilde(&fields.target);
 
-        if ! quiet { println!("  * Templating: {}", e.template); }
+        //if ! quiet { println!("  * Templating: {}", fields.template); }
 
-        if let Some(p) = Path::new(target_file.as_ref()).parent() {
-            if let Err(e) = std::fs::create_dir_all(p) {
-                eprintln!("[{warn}] Failed to create parent directories from {target}: {e}");
+        // First find if the parent exists at all before rendering
+        match Path::new(&target_file.as_ref()).parent() {
+            Some(s) => {
+                if let Err(e) = std::fs::create_dir_all(s) {
+                    eprintln!("[{warn}] Failed to create parent directories from {target}: {e}");
+                    continue;
+                }
+            },
+            None => {
+                eprintln!("[{warn}] Failed to find file parent from {target}");
                 continue;
             }
-        } else {
-            eprintln!("[{warn}] Failed to find file parent from {target}");
-            continue;
-        }
+        };
 
-        let rendered = if e.new_engine.unwrap_or(false) {
+        // Template/render the file_contents
+        let rendered = if fields.new_engine.unwrap_or(false) {
             far::find_with_mode(file_content, far::Mode::AllowMissing)?.replace(&Myt { cols: values, img: image_path, conf })
         } else {
             // TODO finish my implementation that follows the pywal wiki
@@ -164,7 +178,7 @@ pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], valu
                 Ok(o) => o,
                 Err(er) => {
                     let raw = r#"{{variable}}"#;
-                    eprintln!("[{warn}] File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", e.template);
+                    eprintln!("[{warn}] {name}: File '{}': {er}\n[{warn}] Try using `new_engine = true` which changes syntax to double brackets '{raw}'", fields.template);
                     continue;
                 }
             }
@@ -173,18 +187,21 @@ pub fn write_template(conf: &Config, image_path: &str, entries: &[Entries], valu
         let mut buffer = match File::create(target_file.as_ref()) {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("[{warn}] Failed to create file {target}: {e}");
+                eprintln!("[{warn}] {name}: Failed to create file {target}: {e}");
                 continue;
             }
         };
 
         if let Err(e) = buffer.write_all(rendered.as_bytes()) {
-            eprintln!("[{warn}] Failed to write to file {target}: {e}");
+            eprintln!("[{warn}] {name}: Failed to write to file {target}: {e}");
             continue;
         }
 
-        if ! quiet { println!("      Created: {} ... OK", target); }
+        //if ! quiet { println!("      Created: {} ... OK", target); }
+
+        if ! quiet { println!("  * Templated {name} at '{target}'"); }
     }
+
     Ok(())
 }
 
