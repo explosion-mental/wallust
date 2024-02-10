@@ -79,7 +79,7 @@ pub struct Entries {
 /// How to populate `wallpaper` template value:
 /// 1. With `wallust theme rose-pine`, it will use the name of the theme in use. (e.g. `rose-pine`)
 /// 2. With `wallust cs scheme.json`, it will use the absolute path of the file used. (e.g. `/home/user/scheme.json`)
-/// 3. Normal behaviour with `wallust image.png`, it will use the wallpaper absolute path. (e.g. `/home/user/image.png`)
+/// 3. Normal behaviour with `wallust run image.png`, it will use the wallpaper absolute path. (e.g. `/home/user/image.png`)
 pub enum WalStr<'a> {
     Path(&'a Path),
     Theme(&'a str),
