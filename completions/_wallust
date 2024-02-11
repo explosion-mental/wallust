@@ -46,10 +46,10 @@ fastresize\:"A much faster resize algo that uses SIMD. For some reason it fails 
 kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, Requires more tweaking and more in depth testing but, for the most part, "it just werks""))' \
 '-c+[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
-labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have "enough colors" for labfast"))' \
+labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast"))' \
 '--colorspace=[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
-labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have "enough colors" for labfast"))' \
+labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast"))' \
 '-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
 '--config-path=[Use FILE as the config file]:CONFIG_FILE:_files' \
 '(-C --config-path)-d+[Use DIR as the config directory]:CONFIG_DIR:_files' \

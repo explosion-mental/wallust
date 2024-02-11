@@ -69,8 +69,7 @@ pub enum ColorSpaces {
     #[clap(alias = "lab-fast", name = "labfast")]
     #[serde(alias = "lab-fast")]
     /// Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much
-    /// precise result. Images that work on lab/labmixed could not have "enough colors" for
-    /// labfast.
+    /// precise result. Images that work on lab/labmixed could not have enough colors for labfast.
     LabFast,
 }
 
