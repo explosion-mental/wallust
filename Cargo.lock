@@ -1465,6 +1465,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml_edit"
+version = "0.22.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c9ffdf896f8daaabf9b66ba8e77ea1ed5ed0f72821b398aba62352e95062951"
+dependencies = [
+ "indexmap",
+ "toml_datetime",
+ "winnow",
+]
+
+[[package]]
 name = "tracing"
 version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1568,6 +1579,7 @@ dependencies = [
  "strum 0.26.1",
  "tempfile",
  "toml",
+ "toml_edit 0.22.4",
  "wallust_themes",
  "word_iter",
 ]

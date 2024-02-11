@@ -54,13 +54,18 @@ pub struct Config {
     // dunst.src = 'C:\long\path'
     // dunst.dst = '~/.config/dunst'
     // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
-    pub templates: Option<HashMap<String, Entries>>,
+    pub templates: Option<HashMap<String, Fields>>,
+
+    /// toml table with template and config target (optional)
+    /// This is here only for `wallust migrate`
+    // and is an array of tables btw..
+    pub entry: Option<Vec<Entries>>,
 }
 
 /// An entry within the config file, toml table
 /// ref: <https://toml.io/en/v1.0.0#array-of-tables>
 #[derive(Debug, Deserialize, Clone)]
-pub struct Entries {
+pub struct Fields {
     /// A file inside `~/.config/wallust/`, which is used for templating
     #[serde(alias = "src")]
     pub template: String,
@@ -74,6 +79,16 @@ pub struct Entries {
     // If 'src' is a file, this has no effect.
     //TODO implement recursive behaviour
     //pub recursive: Option<bool>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Entries {
+    /// A file inside `~/.config/wallust/`, which is used for templating
+    pub template: String,
+    /// Where to write the template
+    pub target: String,
+    /// Allows pywal template spec compatibility (disabled by default)
+    pub new_engine: Option<bool>,
 }
 
 /// How to populate `wallpaper` template value:

@@ -72,6 +72,8 @@ pub enum Subcmds {
         #[arg(short, long, conflicts_with = "skip_sequences")]
         update_current: bool,
     },
+    /// Migrate v2 config to v3 (might lose comments,)
+    Migrate,
     /// Print information about the program and the enviroment it uses
     Debug,
 }

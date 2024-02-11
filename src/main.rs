@@ -99,8 +99,70 @@ Cache path: {}
         cache_path.display(),
             );
         },
-    }
+        args::Subcmds::Migrate => {
+            use toml_edit::{Document, value};
 
+            let dir  = original_config_path.join("wallust");
+            let file = dir.join("wallust.toml");
+            let old  = dir.join("wallust-old.toml");
+
+            if ! file.exists() {
+                println!("Configuration file not found.");
+                return Ok(());
+            }
+
+            let contents = std::fs::read_to_string(&file)?;
+            let mut doc = contents.parse::<Document>()?;
+            let conf: config::Config = toml::from_str(&contents)?;
+
+            // true means quit
+            let entryflag;
+            let filterflag;
+
+            match &conf.entry {
+                Some(entries) => {
+                    entryflag = false;
+                    for (i, e) in entries.iter().enumerate() {
+                        let name = &format!("migrated{}", i + 1);
+                        doc["templates"][name]["src"] = value(&e.template);
+                        doc["templates"][name]["dst"]   = value(&e.target);
+                        //XXX since alias are recommended, use them.
+                        //doc["templates"][name]["template"] = value(&e.template);
+                        //doc["templates"][name]["target"]   = value(&e.target);
+                        match e.new_engine {
+                            Some(s) => if s == false { doc["templates"][name]["pywal"] = value(true) },
+                            None => doc["templates"][name]["pywal"] = value(true),
+                        }
+                    }
+                },
+                None => entryflag = true,
+            }
+
+            match doc["filter"].as_value() {
+                Some(_) => filterflag = false,
+                None    => filterflag = true,
+            }
+
+            if entryflag && filterflag {
+                println!("No templates are used, quitting.\nIf you wish to define templates read `man wallust.5` for the config spec.");
+                return Ok(());
+            }
+
+            // inline is shorter :3
+            doc["templates"].as_inline_table_mut().map(|t| t.fmt());
+
+            println!("Succesfully migrated config, old format is at {}\nFor more info read `man wallust.5`", old.display());
+
+            // hacky stuff: remove entry by being an empty array and rename palette by replace method
+            doc["entry"] = toml_edit::array();
+            let new = doc.to_string();
+            let new = if filterflag { new.replace("filter", "palette") } else { new };
+
+            // renaeme the original config
+            std::fs::rename(&file, &old)?;
+            std::fs::write(&file, &new)?;
+        }
+    }
     Ok(())
 
 }
