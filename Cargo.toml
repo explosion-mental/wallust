@@ -52,6 +52,9 @@ clap_complete = "4.4"
 clap_mangen = "0.2"
 clap  = { version = "4.3", features = ["derive", "cargo"] }
 
+[build-dependencies]
+wallust_themes = "1"
+
 [features]
 default = [ "themes" ]
 # include built-in themes (~130K) <https://codeberg.org/explosion-mental/wallust-themes>

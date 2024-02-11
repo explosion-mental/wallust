@@ -25,6 +25,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand run 'Generate a palette from an image'
             cand cs 'Apply a certain colorscheme'
             cand theme 'Apply a custom built in theme'
+            cand migrate 'Migrate v2 config to v3 (might lose comments,)'
             cand debug 'Print information about the program and the enviroment it uses'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
@@ -93,6 +94,10 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand -h 'Print help'
             cand --help 'Print help'
         }
+        &'wallust;migrate'= {
+            cand -h 'Print help'
+            cand --help 'Print help'
+        }
         &'wallust;debug'= {
             cand -h 'Print help'
             cand --help 'Print help'
@@ -101,6 +106,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand run 'Generate a palette from an image'
             cand cs 'Apply a certain colorscheme'
             cand theme 'Apply a custom built in theme'
+            cand migrate 'Migrate v2 config to v3 (might lose comments,)'
             cand debug 'Print information about the program and the enviroment it uses'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
@@ -109,6 +115,8 @@ set edit:completion:arg-completer[wallust] = {|@words|
         &'wallust;help;cs'= {
         }
         &'wallust;help;theme'= {
+        }
+        &'wallust;help;migrate'= {
         }
         &'wallust;help;debug'= {
         }

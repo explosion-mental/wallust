@@ -28,6 +28,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('run', 'run', [CompletionResultType]::ParameterValue, 'Generate a palette from an image')
             [CompletionResult]::new('cs', 'cs', [CompletionResultType]::ParameterValue, 'Apply a certain colorscheme')
             [CompletionResult]::new('theme', 'theme', [CompletionResultType]::ParameterValue, 'Apply a custom built in theme')
+            [CompletionResult]::new('migrate', 'migrate', [CompletionResultType]::ParameterValue, 'Migrate v2 config to v3 (might lose comments,)')
             [CompletionResult]::new('debug', 'debug', [CompletionResultType]::ParameterValue, 'Print information about the program and the enviroment it uses')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -100,6 +101,11 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
             break
         }
+        'wallust;migrate' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            break
+        }
         'wallust;debug' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
@@ -109,6 +115,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('run', 'run', [CompletionResultType]::ParameterValue, 'Generate a palette from an image')
             [CompletionResult]::new('cs', 'cs', [CompletionResultType]::ParameterValue, 'Apply a certain colorscheme')
             [CompletionResult]::new('theme', 'theme', [CompletionResultType]::ParameterValue, 'Apply a custom built in theme')
+            [CompletionResult]::new('migrate', 'migrate', [CompletionResultType]::ParameterValue, 'Migrate v2 config to v3 (might lose comments,)')
             [CompletionResult]::new('debug', 'debug', [CompletionResultType]::ParameterValue, 'Print information about the program and the enviroment it uses')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -120,6 +127,9 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             break
         }
         'wallust;help;theme' {
+            break
+        }
+        'wallust;help;migrate' {
             break
         }
         'wallust;help;debug' {
