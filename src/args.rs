@@ -153,7 +153,7 @@ pub struct WallustArgs {
     pub overwrite_cache: bool,
 }
 
-#[cfg(feature = "themes")]
+#[cfg(all(feature = "themes", not(feature = "buildgen")))]
 /// little hack to add the "random" keyword in clap
 fn col_values(input: &str) -> Result<String, &'static str> {
     if input == crate::themes::RAND || wallust_themes::COLS_KEY.contains(&input) {
