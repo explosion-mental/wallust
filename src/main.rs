@@ -30,14 +30,14 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
-    match Some(cli) {
-        Some(args::Subcmds::Run(s)) => {
+    match cli {
+        args::Subcmds::Run(s) => {
             // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
             let mut conf = config::Config::new(&original_config_path, s.config_path.as_deref(), s.config_dir.as_deref())?;
-            no_subcomands(&mut conf, &cache_path, &s)?
+            run(&mut conf, &cache_path, &s)?
         },
         #[cfg(feature = "themes")]
-        Some(args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current }) => {
+        args::Subcmds::Theme { theme, quiet, skip_sequences, skip_templates, preview, update_current } => {
             let conf = config::Config::new(&original_config_path, None, None)?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(&theme, quiet)?;
@@ -61,7 +61,7 @@ fn main() -> Result<()> {
             }
             if ! quiet { colors.done() }
         },
-        Some(args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format, update_current }) => {
+        args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format, update_current } => {
             let conf = config::Config::new(&original_config_path, None, None)?;
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
@@ -88,7 +88,7 @@ fn main() -> Result<()> {
             if ! quiet { colors.done() }
 
         },
-        Some(args::Subcmds::Debug) => {
+        args::Subcmds::Debug => {
             let conf = config::Config::new(&original_config_path, None, None)?;
             use cache::CACHE_VER;
             println!(
@@ -99,7 +99,6 @@ Cache path: {}
         cache_path.display(),
             );
         },
-        None => (),
     }
 
     Ok(())
@@ -108,7 +107,7 @@ Cache path: {}
 
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn no_subcomands(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
+fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
     let info = "I".blue();
     let info = info.bold();
 
