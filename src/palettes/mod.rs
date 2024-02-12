@@ -12,7 +12,6 @@
 //!     be in a doc comment of the function itself.
 //!  3. If it's a variation of an already existing palette, it should be indicated as a comment.
 //!
-//! * TODO maybe on v3.0.0 change name to palette, which sounds better.
 //! * XXX would other palettes need more than 6 (or even 8) colors? if so, change the return type to
 //!   `Result<Colors>` or just fallback to a scheme
 use std::fmt;
