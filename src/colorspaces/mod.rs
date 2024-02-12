@@ -131,7 +131,7 @@ impl Cols {
     pub fn new(cols: &[u8], threshold: u8, c: &Cs) -> Self {
         #[allow(clippy::match_like_matches_macro)] //waiting for other colorspaces..
         let mix = match c {
-            CS::LabMixed => true,
+            Cs::LabMixed => true,
             _ => false,
         };
 
@@ -193,9 +193,9 @@ impl Cs {
     /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
-            C::Lab => AnsiColors::Blue,
-            C::LabMixed => AnsiColors::Green,
-            C::LabFast => AnsiColors::Yellow,
+            Cs::Lab => AnsiColors::Blue,
+            Cs::LabMixed => AnsiColors::Green,
+            Cs::LabFast => AnsiColors::Yellow,
         }
     }
 }
@@ -222,9 +222,9 @@ impl fmt::Display for Generate {
 impl fmt::Display for Cs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            C::Lab => write!(f, "Lab"),
-            C::LabMixed => write!(f, "LabMixed"),
-            C::LabFast => write!(f, "LabFast"),
+            Cs::Lab => write!(f, "Lab"),
+            Cs::LabMixed => write!(f, "LabMixed"),
+            Cs::LabFast => write!(f, "LabFast"),
         }
     }
 }
