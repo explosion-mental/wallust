@@ -29,6 +29,10 @@ pub enum Subcmds {
         #[arg(short, long)]
         format: Option<Schemes>,
 
+        /// Won't send these colors sequences
+        #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+        ignore_sequence: Option<Vec<Sequences>>,
+
         /// Don't print anything
         #[arg(short, long)]
         quiet: bool,
@@ -38,7 +42,7 @@ pub enum Subcmds {
         skip_sequences: bool,
 
         /// Skip templating process
-        #[arg(short = 'T', long)]
+        #[arg(short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
         skip_templates: bool,
 
         /// Only update the current terminal
@@ -54,6 +58,10 @@ pub enum Subcmds {
         #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
         theme: String,
 
+        /// Won't send these colors sequences
+        #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+        ignore_sequence: Option<Vec<Sequences>>,
+
         /// Only preview the selected theme.
         #[arg(short, long, conflicts_with = "quiet")]
         preview: bool,
@@ -67,7 +75,7 @@ pub enum Subcmds {
         skip_sequences: bool,
 
         /// Skip templating process
-        #[arg(short = 'T', long)]
+        #[arg(short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
         skip_templates: bool,
 
         /// Only update the current terminal
@@ -114,6 +122,10 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum)]
     pub generation: Option<crate::colorspaces::Generate>,
 
+    /// Won't send these colors sequences
+    #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+    pub ignore_sequence: Option<Vec<Sequences>>,
+
     /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
     #[arg(short = 'k', long)]
     pub check_contrast: bool,
@@ -150,10 +162,6 @@ pub struct WallustArgs {
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
-
-    /// Won't send these colors sequences
-    #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
-    pub ignore_sequence: Option<Vec<Sequences>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, clap::ValueEnum)]
