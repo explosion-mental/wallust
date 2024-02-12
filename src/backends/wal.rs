@@ -8,13 +8,14 @@
 //!   skip   skip         ^
 //!                we care bout this one
 //! ```
+use anyhow::Context;
+
 use crate::backends::*;
 use crate::colors::HexConversion;
 use std::process::Command;
 use std::str;
 
 /// use Image Magick to get colors
-//TODO flatten the hues like pywal
 pub fn wal(f: &Path) -> Result<Vec<u8>> {
     let im = Command::new("convert")
         .arg(f)
@@ -24,14 +25,18 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
         .arg("16")
         .arg("-unique-colors")
         .arg("txt:-")
-        .output()?;
+        .output()
+        .with_context(||
+"Couldn't run `convert` command.
+Make sure to have it installed if you wish to use this backend, else try another one.")?;
 
-    let mut cols: Vec<u8> = vec![];
+    let mut cols: Vec<u8> = Vec::with_capacity(16); // there will be no more than 16 colors
 
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(2);
         let hex = s.next().expect("Should always be present e.g. #EEEEEE");
         cols.append(&mut hex.decode_hex()?);
     }
+
     Ok(cols)
 }
