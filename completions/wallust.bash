@@ -217,7 +217,7 @@ _wallust() {
             return 0
             ;;
         wallust__run)
-            opts="-a -b -c -C -d -f -p -g -k -n -q -s -t -T -u -w -h --alpha --backend --colorspace --config-path --config-dir --filter --palette --generation --check-contrast --no-cache --quiet --skip-sequences --saturation --threshold --skip-templates --update-current --overwrite-cache --help <FILE>"
+            opts="-a -b -c -C -d -f -p -g -k -n -q -s -t -T -u -w -i -h --alpha --backend --colorspace --config-path --config-dir --filter --palette --generation --check-contrast --no-cache --quiet --skip-sequences --saturation --threshold --skip-templates --update-current --overwrite-cache --ignore-sequence --help <FILE>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -297,6 +297,14 @@ _wallust() {
                     ;;
                 -t)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --ignore-sequence)
+                    COMPREPLY=($(compgen -W "background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15" -- "${cur}"))
+                    return 0
+                    ;;
+                -i)
+                    COMPREPLY=($(compgen -W "background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15" -- "${cur}"))
                     return 0
                     ;;
                 *)

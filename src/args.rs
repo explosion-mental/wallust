@@ -128,7 +128,7 @@ pub struct WallustArgs {
     pub quiet: bool,
 
     /// Skip setting terminal sequences
-    #[arg(short, long, conflicts_with = "update_current")]
+    #[arg(short, long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
     pub skip_sequences: bool,
 
     /// Add saturation from 1% to 100% (overwrites config)
@@ -151,6 +151,36 @@ pub struct WallustArgs {
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
+
+    /// Won't send these colors sequences
+    #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+    pub ignore_sequence: Option<Vec<Sequences>>,
+}
+
+use serde::Deserialize;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, clap::ValueEnum)]
+#[serde(rename_all = "lowercase")]
+pub enum Sequences {
+    Background,
+    Foreground,
+    Cursor,
+    Color0,
+    Color1,
+    Color2,
+    Color3,
+    Color4,
+    Color5,
+    Color6,
+    Color7,
+    Color8,
+    Color9,
+    Color10,
+    Color11,
+    Color12,
+    Color13,
+    Color14,
+    Color15,
 }
 
 #[cfg(all(feature = "themes", not(feature = "buildgen")))]

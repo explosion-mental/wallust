@@ -12,6 +12,7 @@ use num_traits::Pow;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Deserialize};
 
+use crate::args::Sequences;
 /// This is how the scheme it's organized, the `cursor` field it's the same as the foreground (only
 /// put to be compatible with pywal)
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -406,10 +407,10 @@ impl Colors {
     }
 
     /// Return the colors into sequences.
-    pub fn to_seq(&self) -> String {
+    pub fn to_seq(&self, remove: Option<&[Sequences]>) -> String {
         let c = self;
 
-        [
+        let cols = [
             // colors from 0-15
             c.color0 .set_color(0 ),
             c.color1 .set_color(1 ),
@@ -427,31 +428,88 @@ impl Colors {
             c.color13.set_color(13),
             c.color14.set_color(14),
             c.color15.set_color(15),
+        ];
 
+        let bg = [
             // special colors, see above the fn
-            c.foreground.set_special(10, "g"),
+            //backgroud is between 16..=20
             c.background.set_special(11, "h"),
-            c.foreground.set_special(12, "l"), //cursor
-            c.foreground.set_special(13, "j"), //mouse
-            c.foreground.set_special(17, "k"),
             c.background.set_special(19, "m"),
             c.background.set_color(232),
-            c.foreground.set_color(256),
             c.background.set_color(257),
-            c.background.set_special(708, "")
-        ].join("")
+            c.background.set_special(708, ""),
+        ];
+
+
+        let fg = [
+            //foreground is between 21..=23
+            c.foreground.set_special(10, "g"),
+            c.foreground.set_special(17, "k"),
+            c.foreground.set_color(256),
+        ];
+
+        let cursor = [
+            //cursor is between 24..=len()
+            c.foreground.set_special(12, "l"), //cursor
+            c.foreground.set_special(13, "j"), //mouse
+        ];
+
+        let arr;
+
+        if let Some(seqs) = remove {
+            use crate::args::Sequences as Seq;
+            use std::collections::HashMap;
+            let bg = bg.join("");
+            let fg = fg.join("");
+            let cursor = cursor.join("");
+
+            let mut h = HashMap::from([
+                (Seq::Color0     , &cols[0 ]),
+                (Seq::Color1     , &cols[1 ]),
+                (Seq::Color2     , &cols[2 ]),
+                (Seq::Color3     , &cols[3 ]),
+                (Seq::Color4     , &cols[4 ]),
+                (Seq::Color5     , &cols[5 ]),
+                (Seq::Color6     , &cols[6 ]),
+                (Seq::Color7     , &cols[7 ]),
+                (Seq::Color8     , &cols[8 ]),
+                (Seq::Color9     , &cols[9 ]),
+                (Seq::Color10    , &cols[10]),
+                (Seq::Color11    , &cols[11]),
+                (Seq::Color12    , &cols[12]),
+                (Seq::Color13    , &cols[13]),
+                (Seq::Color14    , &cols[14]),
+                (Seq::Color15    , &cols[15]),
+                (Seq::Background , &bg      ),
+                (Seq::Foreground , &fg      ),
+                (Seq::Cursor     , &cursor  ),
+            ]);
+
+            for i in seqs {
+                h.remove(i);
+            }
+
+            arr = h
+                .into_values()
+                .map(|x| x.to_owned())
+                .collect();
+        } else {
+            arr = [ cols.join(""), bg.join(""), fg.join(""), cursor.join("")].join("");
+        }
+
+        arr
     }
 
     /// # Sets terminal colors
     /// ANSI escape codes tables and helpful guidelines:
     /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
     /// As well as support for iTerm2 (macOS) and windows terminal, depending on the OS.
-    pub fn sequences(&self, _cache_path: &Path) -> anyhow::Result<()> {
+    pub fn sequences(&self, _cache_path: &Path, ignore: Option<&[Sequences]>) -> anyhow::Result<()> {
         #[cfg(target_family = "windows")]
         return windows_term(self);
 
         #[cfg(target_family = "unix")]
-        return unix_term(self, _cache_path);
+        return unix_term(self, _cache_path, ignore);
     }
 }
 
@@ -489,10 +547,10 @@ fn set_iterm_tab_color(c: &Colors) -> String {
 /// Escape sequences is "\033]4;%s;%s\033\\" but hex, note the escaped backslash at the end.
 /// A triple `\\\` is needed to remove the new line and print a single `\`
 #[cfg(target_family = "unix")]
-fn unix_term(c: &Colors, cache_path: &Path) -> Result<()> {
+fn unix_term(c: &Colors, cache_path: &Path, remove: Option<&[Sequences]>) -> Result<()> {
     let seq_file = cache_path.join("wallust/sequences");
 
-    let sequences = c.to_seq();
+    let sequences = c.to_seq(remove);
 
     // set iterm on mac
     #[cfg(target_os = "macos")]

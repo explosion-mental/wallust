@@ -53,6 +53,8 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--saturation', 'saturation', [CompletionResultType]::ParameterName, 'Add saturation from 1% to 100% (overwrites config)')
             [CompletionResult]::new('-t', 't', [CompletionResultType]::ParameterName, 'Choose a custom threshold (overwrites config)')
             [CompletionResult]::new('--threshold', 'threshold', [CompletionResultType]::ParameterName, 'Choose a custom threshold (overwrites config)')
+            [CompletionResult]::new('-i', 'i', [CompletionResultType]::ParameterName, 'Won''t send these colors sequences')
+            [CompletionResult]::new('--ignore-sequence', 'ignore-sequence', [CompletionResultType]::ParameterName, 'Won''t send these colors sequences')
             [CompletionResult]::new('-k', 'k', [CompletionResultType]::ParameterName, 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)')
             [CompletionResult]::new('--check-contrast', 'check-contrast', [CompletionResultType]::ParameterName, 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)')
             [CompletionResult]::new('-n', 'n', [CompletionResultType]::ParameterName, 'Don''t cache the results')

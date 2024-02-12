@@ -47,12 +47,12 @@ fn main() -> Result<()> {
             }
             if ! skip_sequences && ! update_current {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-                colors.sequences(&cache_path)?;
+                colors.sequences(&cache_path, None)?;
             }
 
             if update_current {
                 if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-                print!("{}", colors.to_seq());
+                print!("{}", colors.to_seq(None));
             }
 
             //empty image_path cuz it's not used
@@ -73,12 +73,12 @@ fn main() -> Result<()> {
             if ! quiet { colors.print(); }
             if ! skip_sequences && ! update_current {
                 if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-                colors.sequences(&cache_path)?;
+                colors.sequences(&cache_path, None)?;
             }
 
             if update_current {
                 if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-                print!("{}", colors.to_seq());
+                print!("{}", colors.to_seq(None));
             }
 
             //empty image_path cuz it's not used
@@ -259,12 +259,12 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) ->
     // Set sequences
     if ! cli.skip_sequences && ! cli.update_current {
         if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(cache_path)?;
+        colors.sequences(cache_path, cli.ignore_sequence.as_deref())?;
     }
 
     if cli.update_current {
         if ! cli.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-        print!("{}", colors.to_seq());
+        print!("{}", colors.to_seq(cli.ignore_sequence.as_deref()));
     }
 
     if ! cli.skip_templates {

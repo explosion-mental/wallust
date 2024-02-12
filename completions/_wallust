@@ -141,14 +141,16 @@ complementary\:"uses \[\`complementary\`\]"))' \
 '--saturation=[Add saturation from 1% to 100% (overwrites config)]:SATURATION: ' \
 '-t+[Choose a custom threshold (overwrites config)]:THRESHOLD: ' \
 '--threshold=[Choose a custom threshold (overwrites config)]:THRESHOLD: ' \
+'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '-k[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
 '--no-cache[Don'\''t cache the results]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current)-s[Skip setting terminal sequences]' \
-'(-u --update-current)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip the templating process]' \
 '--skip-templates[Skip the templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal colros]' \

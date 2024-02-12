@@ -15,6 +15,7 @@ complete -c wallust -n "__fish_seen_subcommand_from run" -s p -s f -l palette -l
 complete -c wallust -n "__fish_seen_subcommand_from run" -s g -l generation -d 'Choose which generation method to use (overwrites config)' -r -f -a "{interpolate	'uses [`interpolate`]',complementary	'uses [`complementary`]'}"
 complete -c wallust -n "__fish_seen_subcommand_from run" -l saturation -d 'Add saturation from 1% to 100% (overwrites config)' -r
 complete -c wallust -n "__fish_seen_subcommand_from run" -s t -l threshold -d 'Choose a custom threshold (overwrites config)' -r
+complete -c wallust -n "__fish_seen_subcommand_from run" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background	'',foreground	'',cursor	'',color0	'',color1	'',color2	'',color3	'',color4	'',color5	'',color6	'',color7	'',color8	'',color9	'',color10	'',color11	'',color12	'',color13	'',color14	'',color15	''}"
 complete -c wallust -n "__fish_seen_subcommand_from run" -s k -l check-contrast -d 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)'
 complete -c wallust -n "__fish_seen_subcommand_from run" -s n -l no-cache -d 'Don\'t cache the results'
 complete -c wallust -n "__fish_seen_subcommand_from run" -s q -l quiet -d 'Don\'t print anything'

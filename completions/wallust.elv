@@ -49,6 +49,8 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --saturation 'Add saturation from 1% to 100% (overwrites config)'
             cand -t 'Choose a custom threshold (overwrites config)'
             cand --threshold 'Choose a custom threshold (overwrites config)'
+            cand -i 'Won''t send these colors sequences'
+            cand --ignore-sequence 'Won''t send these colors sequences'
             cand -k 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)'
             cand --check-contrast 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)'
             cand -n 'Don''t cache the results'
