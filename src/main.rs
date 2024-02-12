@@ -117,6 +117,7 @@ Cache path: {}
             // true means quit
             let entryflag;
             let filterflag;
+            let templateflag;
 
             match doc.get("entry") {
                 Some(entries) => {
@@ -145,12 +146,36 @@ Cache path: {}
                 None => entryflag = true,
             }
 
+            match doc.get_mut("templates") {
+                Some(fields) => {
+                    templateflag = false;
+                    let fields = match fields.as_table_mut() {
+                        Some(s) => s,
+                        None => {
+                            eprintln!("Error, `[templates]` is wrongly formatted, please refer to the man page.");
+                            return Ok(());
+                        },
+                    };
+
+                    for (_, v) in fields.iter_mut() {
+                        match v.get("new_engine")  {
+                            Some(s) => {
+                                v["pywal"] = value(!s.as_bool().expect("new_engine SHOULD be a boolean"));
+                                v["new_engine"] = toml_edit::Item::None;
+                            },
+                            None => v["pywal"] = value(true),
+                        }
+                    }
+                },
+                None => templateflag = true,
+            }
+
             match doc.get("filter") {
                 Some(_) => filterflag = false,
                 None    => filterflag = true,
             }
 
-            if entryflag && filterflag {
+            if entryflag && filterflag && templateflag {
                 println!("Config format Ok.\nIf you wish to define templates read `man wallust.5` for the config spec.");
                 return Ok(());
             }
@@ -161,7 +186,7 @@ Cache path: {}
             println!("Succesfully migrated config, old format is at {}\nFor more info read `man wallust.5`", old.display());
 
             // hacky stuff: remove entry by being an empty array and rename palette by replace method
-            doc["entry"] = toml_edit::array();
+            doc.remove("entry");
             let new = doc.to_string();
             let new = if !filterflag { new.replace("filter", "palette") } else { new };
 
