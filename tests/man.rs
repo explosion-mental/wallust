@@ -202,6 +202,24 @@ fn mk_man() {
     write!(out, "{footer}").unwrap();
     out.flush().unwrap();
 
+    // wallust-run
+    let full_name = "wallust-run.1";
+    let mut out = File::create(dir.join(&full_name)).unwrap();
+    let app = cmd.get_subcommands().find(|&x| x.get_name() == "run").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
+    let app = clap_mangen::Man::new(app.clone().name("wallust-run"))
+        .title("wallust-run")
+        .manual("wallust-run")
+        .source(format!("wallust-{version}"))
+        ;
+    app.render_title(&mut out).unwrap();
+    app.render_name_section(&mut out).unwrap();
+    app.render_synopsis_section(&mut out).unwrap();
+    //write!(out, "{description}").unwrap();
+    app.render_options_section(&mut out).unwrap();
+    write!(out, "{footer}").unwrap();
+    out.flush().unwrap();
+
+
     // wallust-theme
     let full_name = "wallust-theme.1";
     let mut out = File::create(dir.join(&full_name)).unwrap();
