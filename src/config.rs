@@ -145,8 +145,8 @@ impl Config {
 
         let mut ret: Config = toml::from_str(
             &read_to_string(&config)
-                .with_context(|| format!("Failed to read file {}:", config.display()))?
-        ).with_context(|| format!("Failed to deserialize config file {}:", config.display()))?;
+                .with_context(|| format!("Failed to read file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.", config.display()))?
+        ).with_context(|| format!("Failed to deserialize config file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.", config.display()))?;
 
         ret.dir = config_dir;
         ret.file = config.to_path_buf();
