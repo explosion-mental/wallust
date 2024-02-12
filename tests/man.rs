@@ -160,6 +160,29 @@ subcommand should be filled here.
 .I https://codeberg.org/explosion-mental/wallust
 "#;
 
+const subcommands: &str =
+r#"
+.SH SUBCOMMANDS
+.TP
+wallust\-run(1)
+Generate a palette from an image
+.TP
+wallust\-cs(1)
+Apply a certain colorscheme
+.TP
+wallust\-theme(1)
+Apply a custom built in theme
+.TP
+wallust\-migrate
+Migrate v2 config to v3
+.TP
+wallust\-debug
+Print information about the program and the enviroment it uses
+.TP
+wallust\-help
+Print this message or the help of the given subcommand(s)
+"#;
+
 /// Maybe consider making a makefile? (just like the old times :3)
 #[test]
 fn mk_man() {
@@ -197,7 +220,8 @@ fn mk_man() {
     app.render_synopsis_section(&mut out).unwrap();
     write!(out, "{description}").unwrap();
     app.render_options_section(&mut out).unwrap();
-    app.render_subcommands_section(&mut out).unwrap(); //subcommand only at wallust
+    //app.render_subcommands_section(&mut out).unwrap(); //subcommand only at wallust
+    write!(out, "{subcommands}").unwrap();
     write!(out, "{misc_wallust}").unwrap();
     write!(out, "{footer}").unwrap();
     out.flush().unwrap();
@@ -229,11 +253,10 @@ fn mk_man() {
         .manual("wallust-theme")
         .source(format!("wallust-{version}")) //little string footer at the end
         ;
-
     app.render_title(&mut out).unwrap();
     app.render_name_section(&mut out).unwrap();
     app.render_synopsis_section(&mut out).unwrap();
-    write!(out, "{description}").unwrap();
+    //write!(out, "{description}").unwrap();
     app.render_options_section(&mut out).unwrap();
     write!(out, "{footer}").unwrap();
     out.flush().unwrap();
@@ -251,7 +274,7 @@ fn mk_man() {
     app.render_title(&mut out).unwrap();
     app.render_name_section(&mut out).unwrap();
     app.render_synopsis_section(&mut out).unwrap();
-    write!(out, "{description}").unwrap();
+    //write!(out, "{description}").unwrap();
     app.render_options_section(&mut out).unwrap();
     write!(out, "{footer}").unwrap();
     out.flush().unwrap();
