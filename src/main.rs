@@ -113,38 +113,45 @@ Cache path: {}
 
             let contents = std::fs::read_to_string(&file)?;
             let mut doc = contents.parse::<Document>()?;
-            let conf: config::Config = toml::from_str(&contents)?;
 
             // true means quit
             let entryflag;
             let filterflag;
 
-            match &conf.entry {
+            match doc.get("entry") {
                 Some(entries) => {
+                    let entries = match entries.as_array_of_tables() {
+                        Some(s) => s,
+                        None => {
+                            eprintln!("Error, entry is not an array of tables.");
+                            return Ok(());
+                        },
+                    };
                     entryflag = false;
-                    for (i, e) in entries.iter().enumerate() {
+                    for (i, e) in entries.clone().into_iter().enumerate() {
                         let name = &format!("migrated{}", i + 1);
-                        doc["templates"][name]["src"] = value(&e.template);
-                        doc["templates"][name]["dst"]   = value(&e.target);
+                        doc["templates"][name]["src"] = e["template"].clone();
+                        doc["templates"][name]["dst"] = e["target"].clone();
                         //XXX since alias are recommended, use them.
                         //doc["templates"][name]["template"] = value(&e.template);
                         //doc["templates"][name]["target"]   = value(&e.target);
-                        match e.new_engine {
-                            Some(s) => if s == false { doc["templates"][name]["pywal"] = value(true) },
-                            None => doc["templates"][name]["pywal"] = value(true),
+                        //doc["templates"][name]["pywal"] = e["new_engine"].as_value().unwrap_or(toml_edit));
+                        match e.get("new_engine") {
+                            Some(s) => doc["templates"][name]["pywal"] = s.clone(),
+                            None    => doc["templates"][name]["pywal"] = value(true),
                         }
                     }
                 },
                 None => entryflag = true,
             }
 
-            match doc["filter"].as_value() {
+            match doc.get("filter") {
                 Some(_) => filterflag = false,
                 None    => filterflag = true,
             }
 
             if entryflag && filterflag {
-                println!("No templates are used, quitting.\nIf you wish to define templates read `man wallust.5` for the config spec.");
+                println!("Config format Ok.\nIf you wish to define templates read `man wallust.5` for the config spec.");
                 return Ok(());
             }
 
@@ -156,7 +163,7 @@ Cache path: {}
             // hacky stuff: remove entry by being an empty array and rename palette by replace method
             doc["entry"] = toml_edit::array();
             let new = doc.to_string();
-            let new = if filterflag { new.replace("filter", "palette") } else { new };
+            let new = if !filterflag { new.replace("filter", "palette") } else { new };
 
             // renaeme the original config
             std::fs::rename(&file, &old)?;
