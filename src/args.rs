@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use crate::{
     backends::Backend,
-    colorspaces::ColorSpaces,
+    colorspaces::ColorSpace,
     palettes::Palette,
     themes::Schemes,
 };
@@ -104,7 +104,7 @@ pub struct WallustArgs {
 
     /// Choose which colorspace to use (overwrites config)
     #[arg(short, long, value_enum)]
-    pub colorspace: Option<ColorSpaces>,
+    pub colorspace: Option<ColorSpace>,
 
     /// Use FILE as the config file
     #[arg(short = 'C', long, value_name = "CONFIG_FILE")]

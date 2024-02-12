@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 
 use wallust::backends::{self, Backend};
-use wallust::colorspaces::{self, ColorSpaces};
+use wallust::colorspaces::{self, ColorSpace};
 
 use std::path::Path;
 
@@ -23,9 +23,9 @@ fn colorspaces(c: &mut Criterion) {
     let root = &root[0..root.len() - "Cargo.toml".len()];
 
     let possible_cases = [
-        ColorSpaces::Lab,
-        ColorSpaces::LabMixed,
-        ColorSpaces::LabFast,
+        ColorSpace::Lab,
+        ColorSpace::LabMixed,
+        ColorSpace::LabFast,
     ];
 
     let threshold = 20;

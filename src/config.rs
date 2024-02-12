@@ -28,7 +28,7 @@ pub struct Config {
     /// Which palette to use, see palettes.rs
     pub palette: crate::palettes::Palette,
     /// Which colorspace to use, see colorspaces.rs
-    pub color_space: crate::colorspaces::ColorSpaces,
+    pub color_space: crate::colorspaces::ColorSpace,
     /// Optional alpha value
     pub alpha: Option<u8>,
     /// This flags ensures good contrast between images, by doing some w3m calculations.

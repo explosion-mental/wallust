@@ -18,8 +18,8 @@ use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
 
-/// rename [`ColorSpaces`] so it's shorter to type
-use self::ColorSpaces as C;
+/// rename [`ColorSpace`] so it's shorter to type
+use self::ColorSpace as Cs;
 
 mod lab;
 
@@ -57,7 +57,7 @@ pub enum ColorOrder {
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 #[cfg_attr(feature = "iter", derive(strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
-pub enum ColorSpaces {
+pub enum ColorSpace {
     /// Uses Cie L*a*b color space
     #[default]
     Lab,
@@ -108,7 +108,7 @@ pub struct Cols {
     /// explained in config.rs
     pub threshold: u8,
     /// what are we using?
-    pub c: ColorSpaces,
+    pub c: ColorSpace,
 }
 
 impl<T> From<Histo<T>> for Myrgb
@@ -128,17 +128,17 @@ impl Cols {
     ///      be defined in another function similar to the old `gen_cs` or directly on main,
     ///      returning the wrapper type like `ColSp` which includes different methods by trait
     ///      according to their colorspace.
-    pub fn new(cols: &[u8], threshold: u8, c: &ColorSpaces) -> Self {
+    pub fn new(cols: &[u8], threshold: u8, c: &Cs) -> Self {
         #[allow(clippy::match_like_matches_macro)] //waiting for other colorspaces..
         let mix = match c {
-            ColorSpaces::LabMixed => true,
+            CS::LabMixed => true,
             _ => false,
         };
 
         let pred = match c {
-            ColorSpaces::Lab | ColorSpaces::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
+            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
 
-            ColorSpaces::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
+            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
         };
 
         let histo = lab::histo(cols, threshold, mix, pred);
@@ -154,7 +154,7 @@ impl Cols {
     /// Sort the colors, this depends on the colorspace being used
     pub fn sort_colors(&mut self, method: &ColorOrder) {
         match self.c {
-            ColorSpaces::Lab | ColorSpaces::LabMixed | ColorSpaces::LabFast => lab::sort_colors(&mut self.histo, method),
+            Cs::Lab | Cs::LabMixed | Cs::LabFast => lab::sort_colors(&mut self.histo, method),
         }
     }
 
@@ -165,9 +165,9 @@ impl Cols {
     pub fn new_cols(&mut self, gen: &Generate) {
 
         let pred = match self.c {
-            ColorSpaces::Lab | ColorSpaces::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
+            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
 
-            ColorSpaces::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
+            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
         };
 
         let method = match gen {
@@ -189,8 +189,8 @@ impl Cols {
     }
 }
 
-impl ColorSpaces {
-    /// Assign a color for the ColorSpaces
+impl Cs {
+    /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
             C::Lab => AnsiColors::Blue,
@@ -201,7 +201,6 @@ impl ColorSpaces {
 }
 
 impl Generate {
-    /// Assign a color for the ColorSpaces
     pub fn col(&self) -> AnsiColors {
         match self {
             Generate::Interpolate => AnsiColors::Blue,
@@ -219,8 +218,8 @@ impl fmt::Display for Generate {
     }
 }
 
-/// Display what [`ColorSpaces`] is in use. Used in cache and main.
-impl fmt::Display for ColorSpaces {
+/// Display what [`Cs`] is in use. Used in cache and main.
+impl fmt::Display for Cs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             C::Lab => write!(f, "Lab"),
@@ -230,7 +229,7 @@ impl fmt::Display for ColorSpaces {
     }
 }
 
-pub fn main(c: ColorSpaces, cols: &[u8], threshold: u8, gen: &Generate) -> Result<(Cols, bool)> {
+pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &Generate) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
