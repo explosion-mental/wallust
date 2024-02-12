@@ -4,9 +4,14 @@ VERSION = 2.10.0
 # Customize below to fit your system
 
 # paths
-PREFIX = /usr/local
-MANPREFIX = ${PREFIX}/share/man
-CARGO = /usr/bin/cargo
+PREFIX ?= /usr/local
+MANPREFIX ?= ${PREFIX}/share/man
+CARGO ?= /usr/bin/cargo
+
+# bsd
+#PREFIX = /usr/pkg
+#MANPREFIX = ${PREFIX}/man
+#CARGO = ${PREFIX}/bin/cargo
 
 # Hardcoded completions paths
 ZSHPREFIX  = ${PREFIX}/share/zsh/site-functions
