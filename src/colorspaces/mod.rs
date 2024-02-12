@@ -33,7 +33,7 @@ Quitting...\
 
 const ERR_TWO_COLS: &str = "Image should at least have two different pixel colors.";
 
-/// Currently this works in function with the filters methods, which currently only needs 6 colors.
+/// Currently this works in function with the palettes methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
 const MIN_COLS: u8 = 6;
 
@@ -98,7 +98,7 @@ pub struct Histo<T> {
 /// 3. return
 /// TODO Find a way to make this `colorspace` agnostic, in the sense that it should not require to
 ///      store the `histo` per se, as this requires the [`Cols`] type to add a generic argument,
-///      threshold and colorspace doesn't seem to be useful in the `filters` stage.
+///      threshold and colorspace doesn't seem to be useful in the `palettes` stage.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Cols {
     /// The histogram

@@ -136,7 +136,6 @@ impl<'a> far::Render for Myt<'a> {
             "alpha_hex",
             "backend",
             "colorspace",
-            "filter",
             "palette",
             "color0" ,
             "color1" ,
@@ -313,8 +312,7 @@ fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str
     // Include backend, colorspace and filter (palette)
     map.insert("backend", conf.backend.to_string());
     map.insert("colorspace", conf.color_space.to_string());
-    map.insert("filter", conf.filter.to_string());
-    map.insert("palette", conf.filter.to_string());
+    map.insert("palette", conf.palette.to_string());
 
     // normal output `#EEEEEE`
     map.insert("color0" , col.color0 .to_string());

@@ -1,6 +1,6 @@
 //! # softdark
 
-use crate::filters::*;
+use super::*;
 
 use super::softlight::softlight;
 

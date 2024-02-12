@@ -1,6 +1,6 @@
 //! # dark
 //! Default method to generate colors.
-use crate::filters::*;
+use super::*;
 
 /// This parser only needs 6 colors [0..=5]. Sorted by [`LightFirst`]
 pub fn dark(cols: Cols) -> Colors {

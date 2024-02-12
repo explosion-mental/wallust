@@ -25,9 +25,8 @@ pub struct Config {
     pub threshold: u8,
     /// Which backend to use, see backends.rs
     pub backend: crate::backends::Backend,
-    /// Which filter to use, see filters.rs
-    #[serde(rename = "palette")]
-    pub filter: crate::filters::Filters,
+    /// Which palette to use, see palettes.rs
+    pub palette: crate::palettes::Palette,
     /// Which colorspace to use, see colorspaces.rs
     pub color_space: crate::colorspaces::ColorSpaces,
     /// Optional alpha value
@@ -177,15 +176,15 @@ impl Config {
 "[{i}] {back_f}: Using {back} backend parser
 [{i}] {th_f}: Using delta of {th} in between colors
 [{i}] {cs_f}: Using {cs} colorspace variation
-[{i}] {filter_f}: Using {filter} scheme filter{k}{sat}",
+[{i}] {palette_f}: Using {palette} palette{k}{sat}",
             back     = self.backend.bold().color(self.backend.col()),
             th       = self.threshold.bold().color(self.threshold_col()),
-            filter   = self.filter.bold().color(self.filter.col()),
+            palette  = self.palette.bold().color(self.palette.col()),
             cs       = self.color_space.bold().color(self.color_space.col()),
             i        = "I".blue().bold(),
             back_f   = "image parser".magenta().bold(),
             th_f     = "threshold".magenta().bold(),
-            filter_f = "scheme".magenta().bold(),
+            palette_f = "scheme palette".magenta().bold(),
             cs_f     = "colorspace".magenta().bold(),
         );
     }
@@ -215,8 +214,8 @@ impl Config {
             self.color_space = col;
         }
 
-        if let Some(f) = cli.filter {
-            self.filter = f;
+        if let Some(f) = cli.palette {
+            self.palette = f;
         }
 
         if let Some(t) = cli.threshold {
@@ -291,7 +290,7 @@ Configuration options:
     backend        = {b}
     color_space    = {c}
     threshold      = {t}
-    filter         = {f}
+    palette        = {f}
     check_contrast = {con:?}
     saturation     = {sat:?}
     alpha          = {a:?}
@@ -300,7 +299,7 @@ Templates:
             b = self.backend,
             c = self.color_space,
             t = self.threshold,
-            f = self.filter,
+            f = self.palette,
             con = self.check_contrast,
             sat = self.saturation,
             a = self.alpha,

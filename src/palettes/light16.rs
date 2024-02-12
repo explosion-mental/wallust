@@ -1,5 +1,5 @@
 //! # light16
-use crate::filters::*;
+use super::*;
 
 /// Variation of the [`light`] scheme, but with a 16 variation, similar to how [`dark16`] does it.
 /// Sorted by [`DarkFirst`]

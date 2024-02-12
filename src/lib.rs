@@ -5,7 +5,7 @@ pub mod cache;
 pub mod colors;
 pub mod colorspaces;
 pub mod config;
-pub mod filters;
+pub mod palettes;
 pub mod template;
 pub mod themes;
 
@@ -20,10 +20,10 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     let (mut top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, &c.generation.unwrap_or_default())?;
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    top.sort_colors(&filters::sort_ord(&c.filter));
+    top.sort_colors(&palettes::sort_ord(&c.palette));
 
-    // Apply a [`Filters`] that returns the [`Colors`] struct
-    let mut colors = filters::main(&c.filter)(top);
+    // Apply a [`Palette`] that returns the [`Colors`] struct
+    let mut colors = palettes::main(&c.palette)(top);
 
     if c.check_contrast.unwrap_or(false) {
         colors.check_contrast_all();

@@ -183,7 +183,7 @@ that `make install` requires permissions to write on `$DESTDIR$PREFIX`.
 **Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
 
 Show some of your taste by adding a [backend](./src/backends/mod.rs),
-[colorspace](./src/colorspaces/mod.rs), [palette](./src/filters/mod.rs),
+[colorspace](./src/colorspaces/mod.rs), [scheme palettes](./src/palettes/mod.rs),
 and/or a [custom theme](https://codeberg.org/explosion-mental/wallust-themes).
 
 Having design ideas or suggestios is also very welcome.

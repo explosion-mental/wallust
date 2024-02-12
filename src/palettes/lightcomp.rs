@@ -1,5 +1,5 @@
 //! # dark16
-use crate::filters::*;
+use super::*;
 
 /// light complementary variation
 pub fn lightcomp(c: Cols) -> Colors {

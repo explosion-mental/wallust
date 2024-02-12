@@ -1,4 +1,4 @@
-use crate::filters::*;
+use super::*;
 
 /// complementary colors variation of softdark
 pub fn softdarkcomp(c: Cols) -> Colors {

@@ -1,19 +1,19 @@
-//! # Filters
+//! # Scheme palettes
 //! A filter is just a way to fill the [`Colors`] struct. A method to generate a scheme that makes
 //! the most prominent colors make sense as a scheme/palette. The vector slice will always have at
 //! least 6 colors, so don't fear on using `.expect()` with this certainty and avoiding boilerplate
 //! code. The scenario in which an image has less than those colors is possible and already handled in
 //! the [`crate::colorspaces`] module, so don't bother with that.
 //!
-//! # Adding a new filter
-//! To integrate a new filter you have in mind, there are X rules:
-//!  1. The name of the filter should be as the filename and function name.
-//!  2. Comments indicating the [`ColorOrder`], what does the filter do and how it does it, should
+//! # Adding a new scheme palette
+//! Have in mind these 3 rules
+//!  1. The name of the palette should be as the filename and function name.
+//!  2. Comments indicating the [`ColorOrder`], what does the palette do and how it does it, should
 //!     be in a doc comment of the function itself.
-//!  3. If it's a variation of an already existing filter, it should be indicated as a comment.
+//!  3. If it's a variation of an already existing palette, it should be indicated as a comment.
 //!
 //! * TODO maybe on v3.0.0 change name to palette, which sounds better.
-//! * XXX would other filters need more than 6 (or even 8) colors? if so, change the return type to
+//! * XXX would other palettes need more than 6 (or even 8) colors? if so, change the return type to
 //!   `Result<Colors>` or just fallback to a scheme
 use std::fmt;
 
@@ -27,8 +27,8 @@ use crate::{
     colorspaces::{Cols, ColorOrder}
 };
 
-/// rename [`Filters`] so it's shorter to type
-use self::Filters as F;
+/// rename [`Palette`] so it's shorter to type
+use self::Palette as F;
 
 mod dark;
 mod dark16;
@@ -56,12 +56,12 @@ mod softlightcomp;
 mod softlightcomp16;
 
 
-/// Corresponds to the modules inside this module and `filter` parameter in the config file.
+/// Corresponds to the modules inside this module and `palette` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 #[cfg_attr(feature = "iter", derive(strum::EnumIter))]
 #[serde(rename_all = "lowercase")]
-pub enum Filters {
+pub enum Palette {
     /// 8 dark colors, dark background and light contrast
     #[default]
     Dark,
@@ -143,7 +143,7 @@ pub enum Filters {
     SoftLightComp16,
 }
 
-pub fn main(f: &Filters) -> fn(Cols) -> Colors {
+pub fn main(f: &F) -> fn(Cols) -> Colors {
     match f {
         F::Dark    => dark::dark,
         F::Dark16  => dark16::dark16,
@@ -172,8 +172,8 @@ pub fn main(f: &Filters) -> fn(Cols) -> Colors {
     }
 }
 
-/// Use different sorting `sort_by` on different filters, which creates even more schemes.
-pub fn sort_ord(f: &Filters) -> ColorOrder {
+/// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
+pub fn sort_ord(f: &F) -> ColorOrder {
     match f {
           F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
         | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
@@ -186,7 +186,7 @@ pub fn sort_ord(f: &Filters) -> ColorOrder {
     }
 }
 
-impl Filters {
+impl F {
     /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
         match self {
@@ -218,8 +218,8 @@ impl Filters {
     }
 }
 
-/// Display what [`Filters`] is in use. Used in cache and main.
-impl fmt::Display for Filters {
+/// Display what [`Palette`] is in use. Used in cache and main.
+impl fmt::Display for F {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             F::Dark       => write!(f, "Dark"),

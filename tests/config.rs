@@ -10,7 +10,7 @@ fn main() {
     use wallust::backends::Backend;
     use wallust::colorspaces::ColorSpaces;
     use wallust::colorspaces::Generate;
-    use wallust::filters::Filters;
+    use wallust::palettes::Palette;
     use word_iter::Words;
 
     //use owo_colors::AnsiColors;
@@ -31,7 +31,7 @@ fn main() {
     // default values
     let def_backend    = Backend::default().to_string().to_ascii_lowercase();
     let def_colorspace = ColorSpaces::default().to_string().to_ascii_lowercase();
-    let def_filter     = Filters::default().to_string().to_ascii_lowercase();
+    let def_filter     = Palette::default().to_string().to_ascii_lowercase();
     let def_threshold  = "20";
     let def_gen        = Generate::default().to_string().to_ascii_lowercase();
 
@@ -108,7 +108,7 @@ fn main() {
 
     let backends    = ul_comment::<Backend>();
     let colorspaces = ul_comment::<ColorSpaces>();
-    let filters     = ul_comment::<Filters>();
+    let filters     = ul_comment::<Palette>();
 
     let template = format!(
 "# wallust {version}.*

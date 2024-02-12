@@ -1,4 +1,4 @@
-use crate::filters::*;
+use super::*;
 
 /// Variant of softlight with 16 colors
 pub fn softdark16(c: Cols) -> Colors {

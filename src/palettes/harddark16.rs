@@ -1,5 +1,5 @@
 //! # harddark
-use crate::filters::*;
+use super::*;
 
 /// dark background, light foreground, with dark hard hued colors.
 /// Sorted by [`DarkFirst`]

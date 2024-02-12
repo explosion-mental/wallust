@@ -1,5 +1,5 @@
 //! # light
-use crate::filters::*;
+use super::*;
 
 /// light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 pub fn light(c: Cols) -> Colors {

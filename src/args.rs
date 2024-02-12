@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use crate::{
     backends::Backend,
     colorspaces::ColorSpaces,
-    filters::Filters,
+    palettes::Palette,
     themes::Schemes,
 };
 
@@ -114,10 +114,6 @@ pub struct WallustArgs {
     #[arg(short = 'd', long, conflicts_with = "config_path")]
     pub config_dir: Option<PathBuf>,
 
-    /// Choose which palette to use (overwrites config)
-    #[arg(short = 'p', long = "palette", value_enum, value_name = "PALETTE")]
-    pub filter: Option<Filters>,
-
     /// Choose which generation method to use (overwrites config)
     #[arg(short, long, value_enum)]
     pub generation: Option<crate::colorspaces::Generate>,
@@ -133,6 +129,10 @@ pub struct WallustArgs {
     /// Don't cache the results
     #[arg(short, long)]
     pub no_cache: bool,
+
+    /// Choose which palette to use (overwrites config)
+    #[arg(short, long, value_enum, value_name = "PALETTE")]
+    pub palette: Option<Palette>,
 
     /// Don't print anything
     #[arg(short, long)]

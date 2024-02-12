@@ -1,5 +1,5 @@
 
-use crate::filters::*;
+use super::*;
 
 /// softlight 16 variation scheme
 pub fn softlight16(c: Cols) -> Colors {

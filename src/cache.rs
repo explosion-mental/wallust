@@ -38,7 +38,7 @@ impl Cache {
     ///   2. "wallust"
     ///   3. backend
     ///   4. colorspace
-    ///   5. filter
+    ///   5. palette
     ///   6. threshold
     ///   7. saturation percentage (OPTIONAL)
     /// # File structure:
@@ -69,12 +69,12 @@ impl Cache {
         };
 
 
-        //format!("{root}/wallust/{back}/{th}/{cs}/{filter}",
+        //format!("{root}/wallust/{back}/{th}/{cs}/{palette}",
         let cachepath = Path::new(cache_path)
             .join("wallust")
             .join(c.backend.to_string())
             .join(c.color_space.to_string())
-            .join(c.filter.to_string())
+            .join(c.palette.to_string())
             .join(c.threshold.to_string())
             .join(sat)
         ;

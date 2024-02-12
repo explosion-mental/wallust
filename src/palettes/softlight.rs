@@ -1,6 +1,6 @@
 //! # softlight
 
-use crate::filters::*;
+use super::*;
 
 /// light background, dark foreground. Uses the lightest colors, might not give enough contrast.
 /// Sorted by [`LightFirst`]

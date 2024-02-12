@@ -1,6 +1,6 @@
 //! # Colors logic
 //! Here [`Colors`] and [`Myrgb`] types are defined. These are simple enough used by backends,
-//! colorspace and filters modules as a reference, rather than to keep using `Vec<u8>`. This way
+//! colorspace and palettes modules as a reference, rather than to keep using `Vec<u8>`. This way
 //! the base has more structure (also because it's only 16 colors).
 use std::fmt;
 use std::fs::File;

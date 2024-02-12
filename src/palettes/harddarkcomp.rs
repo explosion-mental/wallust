@@ -1,5 +1,5 @@
 //! # dark16
-use crate::filters::*;
+use super::*;
 
 /// complementary colors variation of harddark
 pub fn harddarkcomp(c: Cols) -> Colors {
