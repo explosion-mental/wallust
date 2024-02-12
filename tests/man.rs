@@ -1,9 +1,9 @@
 #![cfg(feature = "buildgen")]
 #![allow(non_upper_case_globals)]
-use clap::CommandFactory;
+use clap::{Command, CommandFactory};
 
 /// DESCRIPTION section
-const description: &str =
+const description_main: &str =
 r#"
 .SH "DESCRIPTION"
 .TS
@@ -200,6 +200,7 @@ fn mk_man() {
         if num == 2 { break; }    // only allow Major.Minor
         version.push(i);
     }
+    let wallust_v = &format!("wallust-{version}");
 
     // First the overall man-page: wallust
     let dir = Path::new("./man/");
@@ -207,7 +208,7 @@ fn mk_man() {
     let mut out = File::create(dir.join(&full_name)).unwrap();
     //let app = cmd.get_subcommands().filter(|x| x.get_name() == "wallust").collect::<Vec<_>>()[0];
     let app = clap_mangen::Man::new(cmd.clone())
-        .source(format!("wallust-{version}"));
+        .source(wallust_v);
 
     // This is the only reason we use clap_mangen, to autogenerate cli flags descriptions.
     // 1. header
@@ -218,7 +219,7 @@ fn mk_man() {
     app.render_title(&mut out).unwrap();
     app.render_name_section(&mut out).unwrap();
     app.render_synopsis_section(&mut out).unwrap();
-    write!(out, "{description}").unwrap();
+    write!(out, "{description_main}").unwrap();
     app.render_options_section(&mut out).unwrap();
     //app.render_subcommands_section(&mut out).unwrap(); //subcommand only at wallust
     write!(out, "{subcommands}").unwrap();
@@ -226,56 +227,35 @@ fn mk_man() {
     write!(out, "{footer}").unwrap();
     out.flush().unwrap();
 
-    // wallust-run
-    let full_name = "wallust-run.1";
-    let mut out = File::create(dir.join(&full_name)).unwrap();
-    let app = cmd.get_subcommands().find(|&x| x.get_name() == "run").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
-    let app = clap_mangen::Man::new(app.clone().name("wallust-run"))
-        .title("wallust-run")
-        .manual("wallust-run")
-        .source(format!("wallust-{version}"))
-        ;
-    app.render_title(&mut out).unwrap();
-    app.render_name_section(&mut out).unwrap();
-    app.render_synopsis_section(&mut out).unwrap();
-    //write!(out, "{description}").unwrap();
-    app.render_options_section(&mut out).unwrap();
-    write!(out, "{footer}").unwrap();
-    out.flush().unwrap();
+    subcmd("wallust-run"  , &cmd, dir, wallust_v, None, Some(footer)).unwrap();
+    subcmd("wallust-theme", &cmd, dir, wallust_v, None, Some(footer)).unwrap();
+    subcmd("wallust-cs"   , &cmd, dir, wallust_v, None, Some(footer)).unwrap();
+}
 
+/// This is the only reason we use clap_mangen, to autogenerate cli flags descriptions.
+/// 1. header
+/// 2. synopsis
+/// 3. description
+/// 4. options
+/// 4. footer (issues, link, see also..)
+fn subcmd(name: &'static str, cmd: &Command, dirout: &std::path::Path, version: &str, description: Option<&str>, foot: Option<&str>) -> std::io::Result<()> {
+    use std::fs::File;
+    use std::io::Write;
+    let manname  = format!("{name}.1");
+    let mut out = File::create(dirout.join(&manname))?;
+    // renaming the `app` so that SYNOPSIS and other places the program name is `program-subcommand`
+    let app = cmd.get_subcommands().find(|&x| x.get_name() == name.split('-').collect::<Vec<&str>>()[1]).unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
+    let app = clap_mangen::Man::new(app.clone().name(&name))
+        .title(name)
+        .manual(name)
+        .source(version);
 
-    // wallust-theme
-    let full_name = "wallust-theme.1";
-    let mut out = File::create(dir.join(&full_name)).unwrap();
-    let app = cmd.get_subcommands().find(|&x| x.get_name() == "theme").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
-    let app = clap_mangen::Man::new(app.clone().name("wallust-theme"))
-        .title("wallust-theme")
-        .manual("wallust-theme")
-        .source(format!("wallust-{version}")) //little string footer at the end
-        ;
-    app.render_title(&mut out).unwrap();
-    app.render_name_section(&mut out).unwrap();
-    app.render_synopsis_section(&mut out).unwrap();
-    //write!(out, "{description}").unwrap();
-    app.render_options_section(&mut out).unwrap();
-    write!(out, "{footer}").unwrap();
-    out.flush().unwrap();
+    app.render_title(&mut out)?;
+    app.render_name_section(&mut out)?;
+    app.render_synopsis_section(&mut out)?;
+    if let Some(des) = description { write!(out, "{des}")?; }
+    app.render_options_section(&mut out)?;
+    if let Some(f) = foot { write!(out, "{f}")?; }
 
-    // wallust-cs
-    let full_name = "wallust-cs.1";
-    let mut out = File::create(dir.join(&full_name)).unwrap();
-    let app = cmd.get_subcommands().find(|&x| x.get_name() == "cs").unwrap(); // .get_name doesn't use `wallust-theme` but rather just `theme`
-    let app = clap_mangen::Man::new(app.clone().name("wallust-cs"))
-        .title("wallust-cs")
-        .manual("wallust-cs")
-        .source(format!("wallust-{version}"))
-        ;
-
-    app.render_title(&mut out).unwrap();
-    app.render_name_section(&mut out).unwrap();
-    app.render_synopsis_section(&mut out).unwrap();
-    //write!(out, "{description}").unwrap();
-    app.render_options_section(&mut out).unwrap();
-    write!(out, "{footer}").unwrap();
-    out.flush().unwrap();
+    out.flush()
 }
