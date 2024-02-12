@@ -120,4 +120,4 @@ mostlyclean:
 clean:
 	@${CARGO} clean
 
-.PHONY: all clean mostlyclean dist install uninstall install-completions completions
+.PHONY: all clean mostlyclean dist install uninstall install-completions completions man
