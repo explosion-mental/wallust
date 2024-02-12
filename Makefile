@@ -1,6 +1,8 @@
 # wallust See LICENSE file for copyright and license details.
 VERSION = 2.10.0
 
+# Customize below to fit your system
+
 # paths
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
@@ -44,7 +46,7 @@ install-completions: ## installs completions files
 	mkdir -p ${DESTDIR}${BASHPREFIX}
 	cp -f completions/wallust.bash ${DESTDIR}${BASHPREFIX}/wallust.bash
 	mkdir -p ${DESTDIR}${FISHPREFIX}
-	cp -f completions/wallust.fish ${DESTDIR}${BASHPREFIX}/wallust.fish
+	cp -f completions/wallust.fish ${DESTDIR}${FISHPREFIX}/wallust.fish
 
 dist: clean
 	mkdir -p wallust-${VERSION}
@@ -74,7 +76,7 @@ uninstall:
 		${DESTDIR}${MANPREFIX}/man5/wallust.5 \
 		${ZSHPREFIX}/_wallust \
 		${BASHPREFIX}/wallust.bash \
-		${BASHPREFIX}/wallust.fish
+		${FISHPREFIX}/wallust.fish
 pkg-nix-with-assets:
 	@${CARGO} build --release --target ${NIX}
 	mkdir -p wallust-${VERSION}-${NIX}/
