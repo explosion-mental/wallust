@@ -95,10 +95,6 @@ as a pywal template, using
 .I {variable}
 syntax. (default: false)
 
-.TP
-.BI "recursive" " optional"
-This indicates to recursively template the files inside the `template` field. Has no effect if `template` is a file, and not a directory. (defulat: false)
-
 .SH "EXAMPLES"
 Below is a simple example exahusting all possible cases. All the format is correct:
 
@@ -128,7 +124,7 @@ res.dst = "~/.config/Xresources"
 
 # old times, good times (here I put old pywal templates)
 # Also, note that the name doesn't matters (as long as it isn't already defined)
-pywal = { src = "templates/", target = '~/.cache/wal/', recursive = true, pywal = true }
+pywal = { src = "templates/", target = '~/.cache/wal/', pywal = true }
 \fP
 .fi
 
