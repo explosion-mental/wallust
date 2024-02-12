@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 
@@ -6,6 +7,7 @@ use wallust::colors::Colors;
 use wallust::colors::Myrgb;
 use wallust::template;
 use wallust::config;
+use wallust::config::Fields;
 //use wallust::colors;
 
 //TODO add tests for every KEY combination
@@ -66,7 +68,7 @@ color15='#0F0000'
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
 #[test]
-fn variables() {
+fn variables_pywal() {
     let template_sample =
 "
 # Special
@@ -109,20 +111,22 @@ color15='{color15}'
     let c = config::Config {
         check_contrast: None,
         dir: tmpdir.path().into(),
-        entry: Some(vec![config::Entries {
-            template: template_path.display().to_string(),
-            target: target_path.display().to_string(),
-            new_engine: Some(false),
-        }]),
+        templates: Some(HashMap::from([
+            ("test1".into(), Fields {
+                template: template_path.display().to_string(),
+                target:   target_path.display().to_string(),
+                pywal: Some(true),
+            }), ]),
+        ),
         ..config::Config::default()
     };
 
-    let e = c.entry.as_ref().unwrap();
+    let e = c.templates.as_ref().unwrap();
 
-    template::write_template(&c, wall_str, &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, wall_str, &COLS, true).expect("should parse correctly");
 
     //store templated string
-    let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
+    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
 
     // templated file should be the same as expected in the target_sample
     assert_eq!(target_content, target_sample);
@@ -133,7 +137,7 @@ color15='{color15}'
 
 /// Like the above but with the new engine
 #[test]
-fn variables_new_engine() {
+fn variables() {
     let template_sample =
 r#"
 # Special
@@ -176,20 +180,22 @@ color15='{{color15}}'
     let c = config::Config {
         check_contrast: None,
         dir: tmpdir.path().into(),
-        entry: Some(vec![config::Entries {
-            template: template_path.display().to_string(),
-            target: target_path.display().to_string(),
-            new_engine: Some(true),
-        }]),
+        templates: Some(HashMap::from([
+            ("test1".into(), Fields {
+                template: template_path.display().to_string(),
+                target:   target_path.display().to_string(),
+                pywal: Some(false),
+            }), ]),
+        ),
         ..config::Config::default()
     };
 
-    let e = c.entry.as_ref().unwrap();
+    let e = c.templates.as_ref().unwrap();
 
-    template::write_template(&c, wall_str, &e, COLS, true).expect("should parse correctly");
+    template::write_template(&c, wall_str, COLS, true).expect("should parse correctly");
 
     //store templated string
-    let target_content = std::fs::read_to_string(&e[0].target).expect("TARGET CONTENT");
+    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
 
     // templated file should be the same as expected in the target_sample
     assert_eq!(target_content, target_sample);
