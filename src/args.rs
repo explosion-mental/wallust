@@ -10,6 +10,7 @@ use crate::{
 };
 
 use clap::Parser;
+use serde::Deserialize;
 
 
 /// Overall cli type for clap: Possible Subcommands
@@ -106,9 +107,7 @@ pub struct WallustArgs {
     pub config_dir: Option<PathBuf>,
 
     /// Choose which palette to use (overwrites config)
-    #[arg(short = 'p', long = "palette",
-        visible_short_alias = 'f', visible_alias = "filter",
-        value_enum, value_name = "PALETTE")]
+    #[arg(short = 'p', long = "palette", value_enum, value_name = "PALETTE")]
     pub filter: Option<Filters>,
 
     /// Choose which generation method to use (overwrites config)
@@ -135,7 +134,7 @@ pub struct WallustArgs {
     #[arg(long, value_parser = 1..=100)]
     pub saturation: Option<i64>,
 
-    /// Choose a custom threshold (overwrites config)
+    /// Choose a custom threshold, between 1 and 100 (overwrites config)
     #[arg(short, long, value_parser = 1..=100)]
     pub threshold: Option<i64>,
 
@@ -156,8 +155,6 @@ pub struct WallustArgs {
     #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
     pub ignore_sequence: Option<Vec<Sequences>>,
 }
-
-use serde::Deserialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
