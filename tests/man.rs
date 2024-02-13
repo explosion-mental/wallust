@@ -122,10 +122,6 @@ allows to apply multiple filters at a time.
 .B rgb
 Output the color in `rgb`, separated by comas. (e.g. "10,11,12")
 .TP
-.B rgba
-Output the color in `rgba`.
-DEPRECATE THIS
-.TP
 .B xrgb
 Output the color in `xrgb`, separated by slashes. (e.g "0A/0B/0C")
 .TP

@@ -69,8 +69,7 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
         //filters
         jinjafn!(env, rgb);
-        jinjafn!(env, rgba);
-        jinjafn!(env, xrgba);
+        jinjafn!(env, xrgb);
         jinjafn!(env, strip);
         jinjafn!(env, red);
         jinjafn!(env, green);

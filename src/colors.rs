@@ -148,6 +148,11 @@ impl Myrgb {
         format!("{:02x}/{:02x}/{:02x}/ff", self.0, self.1, self.2)
     }
 
+    //xrgba but without alpha
+    pub fn xrgb(&self) -> String {
+        format!("{:02x}/{:02x}/{:02x}", self.0, self.1, self.2)
+    }
+
     //This only "strips" the `#` from the usual output, leaving the following: `EEEEEE`
     pub fn strip(&self) -> String {
         format!("{:02X}{:02X}{:02X}", self.0, self.1, self.2)
