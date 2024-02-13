@@ -17,6 +17,27 @@ macro_rules! jinjafn {
         fn $func_name(value: ViaDeserialize<Myrgb>) -> String { Myrgb::$func_name(&value) }
         $var.add_filter(stringify!($func_name), $func_name);
     };
+    ($var:expr, tostr => $func_name:ident) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>) -> String { Myrgb::$func_name(&value).to_string() }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
+
+    ($var:expr, $func_name:ident, $arg:ty) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>, other: $arg) -> String { Myrgb::$func_name(&value, other) }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
+    ($var:expr, tostr => $func_name:ident, $arg:ty) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>, other: $arg) -> String { Myrgb::$func_name(&value, other).to_string() }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
+    ($var:expr, $func_name:ident, deref => $arg:ty) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>, other: $arg) -> String { Myrgb::$func_name(&value, *other) }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
+    ($var:expr, tostr => $func_name:ident, deref => $arg:ty) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>, other: $arg) -> String { Myrgb::$func_name(&value, *other).to_string() }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
 }
 
 /// Render the template `file` provided and write it to `target_path`.
@@ -53,6 +74,11 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         jinjafn!(env, red);
         jinjafn!(env, green);
         jinjafn!(env, blue);
+        jinjafn!(env, tostr => complementary);
+        jinjafn!(env, tostr => blend, deref => ViaDeserialize<Myrgb>);
+        jinjafn!(env, tostr => lighten, f32);
+        jinjafn!(env, tostr => darken, f32);
+        jinjafn!(env, tostr => saturate, f32);
 
         let template = env.get_template(&name).unwrap();
 
