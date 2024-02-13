@@ -43,8 +43,10 @@ _
 .TP
 .B "palette"
 Uses the colors gathered from `color_space` in a way that makes sense, resulting in a scheme palette.
+.br
 .I Some notes:
-.IP \[bu]
+.RS 14
+.IP \[bu] 2
 No matter the
 .B palette
 , the colors will always be 16: color0 to color15 (not including background, foreground and cursor). The
@@ -58,6 +60,7 @@ The
 variant completely
 .I replaces
 all the original colors with it's complementary counterpart. Since a pleasant wallpaper will, usually, have complementary colors of the colors already present, the scheme palette may not vary that much.
+.RE
 
 .TP
 .BI "check_constrast" " optional"
@@ -77,6 +80,9 @@ Alpha value for templating (default: 100)
 
 .SH "TEMPLATES"
 Templates are optional and defined inside the [templates] header. Here it's recommended to use single quotes (') instead of double quotes (") since the first one, by the toml format, ignores backslashes (\\) as escape codes, allowing you to define Widows like paths (e.g. 'C:\\Users\\Desktop\\')
+.br
+To learn more about the syntax see
+.BR wallust (1).
 
 .TP
 .B template

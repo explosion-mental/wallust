@@ -26,6 +26,7 @@ const misc_wallust: &str = r#"
 By default,
 .I wallust
 will send these sequences to all open terminals:
+.RS
 .IP \(bu
 .I /dev/pts/
 on Linux
@@ -37,28 +38,43 @@ on MacOS.
 (ref: https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
 .IP \(bu
 Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
-
 .RE
+
 .sp
 You can skip this with the `-s` or `--skip-sequences` flag.
 .br
 When opening new terminals you will notice that the color sequences are not applied. To solve this you can send the sequences yourself when your shell opens. `wallust` will store the sequences in the cache directory as a file called `sequences`, the usual way is to `cat ~/.cache/wallust/sequences` in your `.zshrc`, `.bashrc`, etc.
 
 .SH "TEMPLATE VARIABLES"
-The following are the avaliable variable template names that one can use: where
-.B var
-can be colors from
-.I "color0"
-to
-.I color15
-,
-.I background
-,
-.I foreground
-and
-.I cursor
-.
 
+.TP
+.B COLORS
+.br
+These types are formated like as HEX (e.g. '#0A0B0C')
+
+.BR color0 ,
+.BR color1 ,
+.BR color2 ,
+.BR color3 ,
+.BR color4 ,
+.BR color5 ,
+.BR color6 ,
+.BR color7 ,
+.BR color8 ,
+.BR color9 ,
+.BR color10 ,
+.BR color11 ,
+.BR color12 ,
+.BR color13 ,
+.BR color14 ,
+.BR color15 ,
+.BR background ,
+.BR foreground " and"
+.BR cursor .
+
+.TP
+.B MISCELLANEOUS
+.RS
 .TP
 .B wallpaper
 The full path to the current wallpaper, colorscheme file or the name of the theme in use.
@@ -78,31 +94,94 @@ Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 .B alpha_dec
 Instead of 0 to 100, displays it from 0.00 to 1.00.
 .TP
-.B var
-Output the color in `hex`.
+.B alpha_hex
+Displays alpha value as hexadecimal color code, (e.g "FF")
+.br
+see <https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4>
+.RE
+
+.SH "TEMPLATE FUNCTIONS"
+
+.TP
+.B COLORS
+.br
+Functions that only work with colors. Here
+.I
+var
+represent a color, see TEMPLATE VARIABLES.
+.RS
 .TP
 .B var.rgb
-Output the color in `rgb`.
+Output the color in `rgb`, separated by comas. (e.g. "10,11,12")
 .TP
 .B var.rgba
 Output the color in `rgba`.
+DEPRECATE THIS
 .TP
-.B var.xrgba
-Output the color in `xrgb`.
+.B var.xrgb
+Output the color in `xrgb`, separated by slashes. (e.g "0A/0B/0C")
 .TP
 .B var.strip
-Output the color in `hex` (without a `#`).
+Output the color in `hex`, just like by default, but removes the leading `#`. (e.g. "0A0B0C")
 .TP
 .B var.red
-Output the red value.
+Outputs only the red value. (e.g. "10")
 .TP
 .B var.green
-Output the green value.
+Outputs only the green value. (e.g. "11")
 .TP
 .B var.blue
-Output the blue value.
+Outputs only the blue value. (e.g. "12")
+.RE
 
-.SH "TEMPLATE EXAMPLES"
+.SH "TEMPLATE SYNTAX"
+You reference variables in the following syntax:
+
+.RS
+.nf
+\fC
+{{color0}}
+\fP
+.fi
+.RE
+
+For applying a function (technically named a
+.I "filter"
+) you apply it like this:
+
+.RS
+.nf
+\fC
+{{background | strip}}
+\fP
+.fi
+.RE
+
+Keep in mind that
+.B color functions
+require
+.B color arguments.
+
+If you need to write a literal `{{`, that doesn't references any variable, you can write literals inside the delimiters:
+
+.RS
+.nf
+\fC
+{{ "{{" }} {{ "}}" }}
+\fP
+.fi
+.RE
+
+The syntax comes from the library being used, which is
+.I minijinja
+, a subset of the template engine `Jinja2'.
+
+You can read more at:
+.I
+<https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md>
+
+
+.SH "TEMPLATE EXAMPLE"
 You can use
 .B wallust
 generated colors in a program by
@@ -118,11 +197,11 @@ the colors in it's config file, like the following example:
 ...
 
 # colors
-set default-bg     "{color2}"
-set default-fg     "{foreground}"
-set statusbar-bg   "{color4}"
-set statusbar-fg   "{color6}"
-set inputbar-bg    "{color1}"
+set default-bg     "{{color2}}"
+set default-fg     "{{foreground}}"
+set statusbar-bg   "{{color4}}"
+set statusbar-fg   "{{color6}}"
+set inputbar-bg    "{{color1}}"
 \fP
 .fi
 
@@ -136,6 +215,74 @@ and use the config file to template it. For example,
 .I target
 field, see
 .BR wallust (5).
+
+.SH PYWAL TEMPLATE COMPATIBILITY
+You can enable pywal like syntax in the config file with `pywal = true',
+see
+.BR wallust (5).
+
+.br
+The syntax is simple, but more variables are added given that it's engine and spec doesn't support runtime evaluation functions.
+
+.br
+.I
+While the implementation is simple enough to be added in wallust, it's use is discoraged.
+
+.TP
+.B Variables
+.BR color0 ,
+.BR color1 ,
+.BR color2 ,
+.BR color3 ,
+.BR color4 ,
+.BR color5 ,
+.BR color6 ,
+.BR color7 ,
+.BR color8 ,
+.BR color9 ,
+.BR color10 ,
+.BR color11 ,
+.BR color12 ,
+.BR color13 ,
+.BR color14 ,
+.BR color15 ,
+.BR background ,
+.BR foreground ,
+.BR cursor ,
+and it's
+.BR .rgb ,
+.BR .rgba ,
+.BR .xrgba ,
+.BR .strip ,
+.BR .red ,
+.BR .green " and"
+.BR .blue
+variants, just append it to the variable name (e.g. "color0.rgb", "background.blue" ...).
+
+.br
+
+.BR wallpaper ,
+.BR alpha ,
+.BR alpha_dec " and"
+.BR alpha_hex
+are also avaliable, these don't support the variants from above.
+
+.TP
+.B Syntax
+.br
+The syntax logic is simply "Find and Replace" like:
+
+.RS
+.nf
+\fC
+somevariable = {color2}
+anothervariable = {color8.rgb}
+\fP
+.fi
+.RE
+
+For the full pywal spec see
+.I <https://github.com/dylanaraps/pywal/wiki/User-Template-Files>
 "#;
 
 /// Usually how to end the man page
