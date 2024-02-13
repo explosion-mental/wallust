@@ -10,7 +10,7 @@ use std::path::Path;
 use anyhow::Result;
 use num_traits::Pow;
 use owo_colors::{OwoColorize, Rgb};
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
 use crate::args::Sequences;
 /// This is how the scheme it's organized, the `cursor` field it's the same as the foreground (only
@@ -40,8 +40,55 @@ pub struct Colors {
 /// Custom RGB type wrapper that works for compatibility (either by working with other crates,
 /// since most of them include their own `RGB` type) and by including methods for convertion and
 /// modification to the color. Every backend should return `Myrgb`.
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Myrgb(pub u8, pub u8, pub u8);
+
+impl Serialize for Myrgb {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.collect_str(self)
+    }
+}
+use serde::de::{Visitor, Error};
+impl<'de> Deserialize<'de> for Myrgb {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct RgbVisitor;
+
+        impl<'de> Visitor<'de> for RgbVisitor {
+            type Value = Myrgb;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a string representing an RGB value")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: Error,
+            {
+                if value.len() != 7 || !value.starts_with('#') {
+                    return Err(Error::invalid_value(
+                        serde::de::Unexpected::Str(value),
+                        &self,
+                    ));
+                }
+
+                let r = u8::from_str_radix(&value[1..3], 16).map_err(Error::custom)?;
+                let g = u8::from_str_radix(&value[3..5], 16).map_err(Error::custom)?;
+                let b = u8::from_str_radix(&value[5..7], 16).map_err(Error::custom)?;
+
+                Ok(Myrgb(r, g, b))
+            }
+        }
+
+        deserializer.deserialize_str(RgbVisitor)
+    }
+}
+
 
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
 impl fmt::Display for Myrgb {

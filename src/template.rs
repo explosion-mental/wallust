@@ -5,13 +5,24 @@ use std::collections::HashMap;
 
 use crate::config::Config;
 use crate::colors::Colors;
+use crate::colors::Myrgb;
 
 use anyhow::Result;
 use owo_colors::OwoColorize;
+use minijinja::{Environment, context};
+use minijinja::value::ViaDeserialize;
+
+macro_rules! jinjafn {
+    ($var:expr, $func_name:ident) => {
+        fn $func_name(value: ViaDeserialize<Myrgb>) -> String { Myrgb::$func_name(&value) }
+        $var.add_filter(stringify!($func_name), $func_name);
+    };
+}
 
 /// Render the template `file` provided and write it to `target_path`.
 /// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
 /// since we don't care about handling all possible io::Errors
+#[allow(unused)]
 fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
     let filename = file.display();
     let filename = filename.italic();
@@ -28,9 +39,31 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        far::find_with_mode(file_content, far::Mode::AllowMissing)
-            .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
-            .replace(&Myt { cols: values, img: image_path, conf })
+        // TODO reorganize so calling minijinja is eficcient
+        let name = file.display().to_string();
+
+        let v = minijinja::Value::from_serializable(&values);
+        let mut env = Environment::new();
+        env.add_template(&name, &file_content).unwrap();
+
+        jinjafn!(env, rgb);
+        jinjafn!(env, rgba);
+        jinjafn!(env, xrgba);
+        jinjafn!(env, strip);
+        jinjafn!(env, red);
+        jinjafn!(env, green);
+        jinjafn!(env, blue);
+
+        let template = env.get_template(&name).unwrap();
+
+        template.render(context! {
+            ..v, ..context! {
+                cursor     => values.foreground,
+                palette    => conf.palette,
+                wallpaper  => image_path,
+                backend    => conf.backend,
+            }
+        }).map_err(|x| format!("{x}"))?
     } else {
         new_string_template::template::Template::new(file_content)
             // this regex is even better than pywal, doesn't match new lines :3

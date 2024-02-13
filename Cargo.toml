@@ -35,6 +35,8 @@ palette = "0.7"
 fancy-regex = "0.13"
 regex = "1"
 
+minijinja = "1.0.12"
+
 clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
