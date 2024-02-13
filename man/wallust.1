@@ -131,38 +131,75 @@ Displays alpha value as hexadecimal color code, (e.g "FF")
 see <https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4>
 .RE
 
-.SH "TEMPLATE FUNCTIONS"
+.SH "TEMPLATE FILTERS"
+.PP
+The Jinja2 format calls them 'filters', making a distincion from 'functions', those elements that are callable within the delimiters `{{}}`.
+.br
+For expressions like `if`, `for` and other control flow like syntax, and most important
+.B functions
+, which currently there are none because I haven't found a usecase yet.
 
 .TP
 .B COLORS
 .br
-Functions that only work with colors. Here
-.I
-var
-represent a color, see TEMPLATE VARIABLES.
+Functions that only work with colors. These can be applied to a
+.I color
+, which can be the COLOR variables listed above, see TEMPLATE VARIABLES, or a literal color like
+"#0A0B0C". These functions return a color in the mentioned format (hex rgb, like "#000000"), unless
+written otherwise (like rgb, rgba, the other filters that explicitly say it's output format). This
+allows to apply multiple filters at a time.
 .RS
 .TP
-.B var.rgb
+.B rgb
 Output the color in `rgb`, separated by comas. (e.g. "10,11,12")
 .TP
-.B var.rgba
+.B rgba
 Output the color in `rgba`.
 DEPRECATE THIS
 .TP
-.B var.xrgb
+.B xrgb
 Output the color in `xrgb`, separated by slashes. (e.g "0A/0B/0C")
 .TP
-.B var.strip
+.B strip
 Output the color in `hex`, just like by default, but removes the leading `#`. (e.g. "0A0B0C")
 .TP
-.B var.red
+.B red
 Outputs only the red value. (e.g. "10")
 .TP
-.B var.green
+.B green
 Outputs only the green value. (e.g. "11")
 .TP
-.B var.blue
+.B blue
 Outputs only the blue value. (e.g. "12")
+.TP
+.B complementary
+Returns the respective complementary color.
+.TP
+.BI blend " COLOR"
+Takes another
+.B color
+as input, to blend it for the filtered color.
+.TP
+.BI lighten " amount"
+Takes a
+.I float
+(decimal value) as input,
+.B "from 0.1 to 1.0"
+, that corresponds to the amount to lighten the color by.
+.TP
+.BI darken " amount"
+Takes a
+.I float
+(decimal value) as input,
+.B "from 0.1 to 1.0"
+, that corresponds to the amount to darken the color by.
+.TP
+.BI saturate " amount"
+Takes a
+.I float
+(decimal value) as input,
+.B "from 0.1 to 1.0"
+, that corresponds to the amount to saturate the color by.
 .RE
 
 .SH "TEMPLATE SYNTAX"
@@ -176,9 +213,9 @@ You reference variables in the following syntax:
 .fi
 .RE
 
-For applying a function (technically named a
+For applying a
 .I "filter"
-) you apply it like this:
+you use the 'pipe character` (|) like this:
 
 .RS
 .nf
@@ -188,10 +225,40 @@ For applying a function (technically named a
 .fi
 .RE
 
-Keep in mind that
-.B color functions
-require
-.B color arguments.
+And if the filter requires an argument:
+
+.RS
+.nf
+\fC
+{{background | lighten(0.3)}}
+\fP
+.fi
+.RE
+
+Remember that filters require a valid type to
+.B "apply to"
+in these examples we are using colors, which can even be defined literally:
+
+.RS
+.nf
+\fC
+{{ "#4ff4ff" | lighten(0.3)}}
+\fP
+.fi
+.RE
+
+For
+.B both
+, being applied to or as an argument of a filter:
+
+.RS
+.nf
+\fC
+{{ color2 | blend("4ff4ff")}}
+\fP
+.fi
+.RE
+
 
 If you need to write a literal `{{`, that doesn't references any variable, you can write literals inside the delimiters:
 
@@ -211,7 +278,6 @@ You can read more at:
 .I
 <https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md>
 
-
 .SH "TEMPLATE EXAMPLE"
 You can use
 .B wallust
@@ -222,17 +288,21 @@ the colors in it's config file, like the following example:
 .RS
 .nf
 \fC
-# zathurarc config file
-
-#keybindings
+# zathurarc config sample
 ...
 
 # colors
-set default-bg     "{{color2}}"
+set default-bg     "{{background}}"
 set default-fg     "{{foreground}}"
-set statusbar-bg   "{{color4}}"
-set statusbar-fg   "{{color6}}"
-set inputbar-bg    "{{color1}}"
+
+# make it a bit lighter than background
+set statusbar-bg   "{{background | lighten(0.3)}}"
+
+# make it darken by blending to a darken color
+set statusbar-fg   "{{foreground | blend("#eeeeee")}}"
+
+# use it's complementary
+set inputbar-bg    "{{background | complementary}}"
 \fP
 .fi
 
