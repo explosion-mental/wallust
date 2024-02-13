@@ -67,6 +67,7 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         let mut env = Environment::new();
         env.add_template(&name, &file_content).unwrap();
 
+        //filters
         jinjafn!(env, rgb);
         jinjafn!(env, rgba);
         jinjafn!(env, xrgba);
@@ -79,6 +80,9 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         jinjafn!(env, tostr => lighten, f32);
         jinjafn!(env, tostr => darken, f32);
         jinjafn!(env, tostr => saturate, f32);
+
+        //functions
+        //empty
 
         let template = env.get_template(&name).unwrap();
 
