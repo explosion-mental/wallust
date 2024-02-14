@@ -116,7 +116,6 @@ Cache path: {}
 
             // true means quit
             let entryflag;
-            let filterflag;
             let templateflag;
 
             match doc.get("entry") {
@@ -176,10 +175,7 @@ Cache path: {}
                 None => templateflag = true,
             }
 
-            match doc.get("filter") {
-                Some(_) => filterflag = false,
-                None    => filterflag = true,
-            }
+            let filterflag = doc.get("filter").is_none();
 
             if entryflag && filterflag && templateflag {
                 println!("Config format Ok.\nIf you wish to define templates read `man wallust.5` for the config spec.");
