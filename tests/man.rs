@@ -102,11 +102,11 @@ see <https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4>
 
 .SH "TEMPLATE FILTERS"
 .PP
-The Jinja2 format calls them 'filters', making a distincion from 'functions', those elements that are callable within the delimiters `{{}}`.
+The Jinja2 format calls them 'filters', making a distincion from 'functions'.
 .br
-For expressions like `if`, `for` and other control flow like syntax, and most important
-.B functions
-, which currently there are none because I haven't found a usecase yet.
+Currently I haven't implemented any
+.B function
+because I haven't found a usecase (yet?).
 
 .TP
 .B COLORS
@@ -231,6 +231,55 @@ If you need to write a literal `{{`, that doesn't references any variable, you c
 .nf
 \fC
 {{ "{{" }} {{ "}}" }}
+\fP
+.fi
+.RE
+
+You can also use control flow expressions with `{% %}` delimiters:
+
+.RS
+.nf
+\fC
+{% if backend == "wal" %}
+I am using the '{{backend}}' backend, getting a pywal like scheme.
+{% elif backend == "fastresize" %}
+This backend is called "{{palette}}" and, uses SIMD optimizations and is so fast!
+{% else %}
+I don't care about any other backends. Be happy!
+{% endif %}
+\fP
+.fi
+.RE
+
+Or inline them:
+.RS
+.nf
+\fC
+{{ "I'm using the kmeans algo!" if backend == "kmeans" else "Some backend is in use" }}
+\fP
+.fi
+.RE
+
+Since mostly everything can be represented as a string (we've seen how colors are represented),
+indexing results very useful! The syntax for indexing is basically the Python one.
+.RS
+.nf
+\fC
+{# I'll hardcode a color based on the palette being used. #}
+{% if palette[:4] == "dark" %}
+somevariable = "#eeffbb"
+{% else %}
+somevariable = "#aabbee"
+{% endif %}
+\fP
+.fi
+.RE
+
+And yes, you can comment inside your template, the comments won't be rendered in the final target file:
+.RS
+.nf
+\fC
+{# This won't be visible! #}
 \fP
 .fi
 .RE
