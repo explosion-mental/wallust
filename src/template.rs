@@ -106,8 +106,9 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
         //functions
         //empty
+        let name = file.display().to_string();
 
-        env.render_str(&file_content, context! {
+        env.render_named_str(&name, &file_content, context! {
             ..v, ..context! {
                 cursor     => values.foreground,
                 palette    => conf.palette,
