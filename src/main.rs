@@ -147,9 +147,9 @@ Cache path: {}
             }
 
             match doc.get_mut("templates") {
-                Some(fields) => {
+                Some(templates) => {
                     templateflag = false;
-                    let fields = match fields.as_table_mut() {
+                    let fields = match templates.as_table_mut() {
                         Some(s) => s,
                         None => {
                             eprintln!("Error, `[templates]` is wrongly formatted, please refer to the man page.");
@@ -166,6 +166,8 @@ Cache path: {}
                             None => v["pywal"] = value(true),
                         }
                     }
+                    // inline is shorter :3 (refactor all added templates as inline)
+                    templates.as_inline_table_mut().map(|t| t.fmt());
                 },
                 None => templateflag = true,
             }
@@ -179,9 +181,6 @@ Cache path: {}
                 println!("Config format Ok.\nIf you wish to define templates read `man wallust.5` for the config spec.");
                 return Ok(());
             }
-
-            // inline is shorter :3
-            doc["templates"].as_inline_table_mut().map(|t| t.fmt());
 
             println!("Succesfully migrated config, old format is at {}\nFor more info read `man wallust.5`", old.display());
 
