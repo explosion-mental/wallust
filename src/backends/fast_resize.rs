@@ -20,14 +20,14 @@ pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
 
     let def_w = NonZeroU32::new(1024).expect("NON ZERO");
     let def_h = NonZeroU32::new(768).expect("NON ZERO");
-    let w = NonZeroU32::new(s(true_w)).unwrap_or_else(||def_w);
-    let h = NonZeroU32::new(s(true_h)).unwrap_or_else(||def_h);
+    let w = NonZeroU32::new(s(true_w)).unwrap_or(def_w);
+    let h = NonZeroU32::new(s(true_h)).unwrap_or(def_h);
 
 
     // source image
     let src = fir::Image::from_vec_u8(
-        NonZeroU32::new(true_w).unwrap_or_else(||def_w),
-        NonZeroU32::new(true_h).unwrap_or_else(||def_h),
+        NonZeroU32::new(true_w).unwrap_or(def_w),
+        NonZeroU32::new(true_h).unwrap_or(def_h),
         img.into_rgba8().into_raw(),
         fir::PixelType::U8,
     )?;

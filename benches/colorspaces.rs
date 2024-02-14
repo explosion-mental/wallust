@@ -35,12 +35,12 @@ fn colorspaces(c: &mut Criterion) {
 
         println!("Reading image first.. {i}");
         let p = &Path::new(&root).join("target").join("benchimg").join(i);
-        let sample = backends::main(&Backend::Resized)(Path::new(p)).expect(&format!("Download the image {i}"));
+        let sample = backends::main(&Backend::Resized)(Path::new(p)).unwrap_or_else(|_| panic!("Download the image {i}"));
         println!("Done.\n");
 
         for j in possible_cases {
             group.bench_with_input(
-                BenchmarkId::new(j.to_string(), &name),
+                BenchmarkId::new(j.to_string(), name),
                 &sample,
                 |b, i| b.iter(|| colorspaces::main(j, i, threshold, &colorspaces::Generate::default()))
 

@@ -193,7 +193,7 @@ color15='{color15}'
 
     let e = c.templates.as_ref().unwrap();
 
-    template::write_template(&c, wall_str, &COLS, true).expect("should parse correctly");
+    template::write_template(&c, wall_str, COLS, true).expect("should parse correctly");
 
     //store templated string
     let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");

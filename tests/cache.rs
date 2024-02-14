@@ -16,7 +16,7 @@ fn parse_cache() {
 
     c.read().expect("sample format is OK, shouldn't fail");
 
-    assert_eq!(c.is_cached(), true);
+    assert!(c.is_cached());
 
     tmp.close().expect("temporal named pipe should close successfully");
 }

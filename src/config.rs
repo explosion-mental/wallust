@@ -158,7 +158,7 @@ impl Config {
 
     pub fn print(&self) {
         let empty = String::new();
-        let k = if self.check_contrast.unwrap_or_else(||false) {
+        let k = if self.check_contrast.unwrap_or(false) {
             format!("\n[{}] {}: Doing extra calculations to ensure a good contrast",
                 "I".blue().bold(),
                 "contrast".magenta().bold()
