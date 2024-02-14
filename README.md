@@ -10,7 +10,7 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-2.6.gif "wallust gif")
 > sources: [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg) - [scenic view of mountains](https://www.pexels.com/photo/scenic-view-of-mountains-during-dawn-1261728) - [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg)
 
-**Major version 3.0.0 is closer than ever, check [how to prepare for v3](v3.md) for future changes.**
+**If comming from v2, please check [how to prepare for v3](v3.md).**
 
 ## Usage
 ```
@@ -19,6 +19,7 @@ wallust run my_wallpaper.png
 _use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
 ## Features
+- Includes [man pages](man/) and [completions](completions/)!
 - Sets [terminal colors](#Terminal-color) on all active terminals
     * Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
     * *NIX: ASCII escape sequences:

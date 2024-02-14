@@ -15,7 +15,9 @@ use serde::Deserialize;
 
 /// Overall cli type for clap: Possible Subcommands
 #[derive(Debug, Parser)]
-#[command(version, about, long_about)]
+#[command(version, about, long_about,
+    after_help = format!("Remember to read man pages (man wallust.1, man wallust.5, ..)\nAnd the new v3 spec at {}", crate::config::V3)
+    )]
 pub enum Subcmds {
     /// Generate a palette from an image
     Run(WallustArgs),
