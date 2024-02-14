@@ -100,7 +100,7 @@ pub enum WalStr<'a> {
 }
 
 /// v3.md link
-pub const V3: &str = "<https://codeberg.org/explosion-mental/wallust/src/tag/2.10.0/v3.md>";
+pub const V3: &str = "<https://codeberg.org/explosion-mental/wallust/src/tag/3.0.0-alpha/v3.md>";
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
