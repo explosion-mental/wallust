@@ -44,6 +44,8 @@ completions:
 # also no need to rebuilt it on install, since by default, the repo includes them.
 man:
 	@${CARGO} test --quiet --features=buildgen --test=man
+config:
+	@${CARGO} test --quiet --features=buildgen --test=config
 
 install-completions: ## installs completions files
 	mkdir -p ${DESTDIR}${ZSHPREFIX}
@@ -120,4 +122,4 @@ mostlyclean:
 clean:
 	@${CARGO} clean
 
-.PHONY: all clean mostlyclean dist install uninstall install-completions completions man
+.PHONY: all clean mostlyclean dist install uninstall install-completions completions man config
