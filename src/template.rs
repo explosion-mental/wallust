@@ -57,7 +57,20 @@ fn minijinja_err_chain(err: minijinja::Error) -> String {
 /// Render the template `file` provided and write it to `target_path`.
 /// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
 /// since we don't care about handling all possible io::Errors
-#[allow(unused)]
+// TODO there's gonna be trouble harcoding:
+// //with jinja:
+// let mut env = Environment::new(); //preload jinja enviroment
+// ... // set jinja functions
+// file_render(&env, ..) //pass env as reference,
+// //with pywal(new_string):
+// let values = values.to_hash(..); //preload hashmap, so it doesn't create a new one for every iteration
+// file_render(&values, ..);
+//
+// Maybe a solution is something like:
+// let test = templates.iter().any(|x| x.pywal == Some(true));
+// Then create env or the hasmap as an option, and `.expect` to open it an pass it as file_render():
+// 1. If it's None, it will never reach expect.
+// 2. If it's Some, it will always be true an a valid value.
 fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
     let filename = file.display();
     let filename = filename.italic();
@@ -74,14 +87,9 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        // TODO reorganize so calling minijinja is eficcient
-        let name = file.display().to_string();
-
         let v = minijinja::Value::from_serializable(&values);
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
-        env.add_template(&name, &file_content)
-            .map_err(minijinja_err_chain)?;
 
         //filters
         jinjafn!(env, rgb);
@@ -99,10 +107,7 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         //functions
         //empty
 
-        let template = env.get_template(&name)
-            .map_err(minijinja_err_chain)?;
-
-        template.render(context! {
+        env.render_str(&file_content, context! {
             ..v, ..context! {
                 cursor     => values.foreground,
                 palette    => conf.palette,
