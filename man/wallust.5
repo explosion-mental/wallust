@@ -86,12 +86,17 @@ To learn more about the syntax see
 
 .TP
 .B template
-A relative path that points to a file where wallust.toml is located, usually at '~/.config/wallust/'.
+A relative path that points to a file where wallust.toml is located, usually at '~/.config/wallust/'. This file can also be a directory, which will be templated
+.BR "non-recursively" .
 
 .TP
 .B target
 Absolute path in which to place a file with generated templated values. This
-field CAN expand the `~` as the `$HOME` enviromental variable.
+field CAN expand the `~` as the `$HOME` enviromental variable. If
+.I template
+is a directory, this
+.B must
+correspond and be one.
 
 .TP
 .BI "pywal" " optional"
@@ -130,7 +135,9 @@ res.dst = "~/.config/Xresources"
 
 # old times, good times (here I put old pywal templates)
 # Also, note that the name doesn't matters (as long as it isn't already defined)
-pywal = { src = "templates/", target = '~/.cache/wal/', pywal = true }
+# NOTE that both src and dst are directories
+pywal = { src = "templates/", dst = '~/.cache/wal/', pywal = true }
+
 \fP
 .fi
 
