@@ -39,7 +39,7 @@ const wall_str: &str = "/home";
 
 #[allow(non_upper_case_globals)]
 /// Expected result to get on templated below. `wallpaper` is `/home` since it requires a valid path
-const target_sample: &str =
+const expected_output: &str =
 r#"
 # Special
 wallpaper="/home"
@@ -67,75 +67,6 @@ color15='#0F0000'
 "#;
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
-#[test]
-fn variables_pywal() {
-    let template_sample =
-"
-# Special
-wallpaper=\"{wallpaper}\"
-background='{background}'
-foreground='{foreground}'
-cursor='{cursor}'
-
-# Colors
-color0='{color0}'
-color1='{color1}'
-color2='{color2}'
-color3='{color3}'
-color4='{color4}'
-color5='{color5}'
-color6='{color6}'
-color7='{color7}'
-color8='{color8}'
-color9='{color9}'
-color10='{color10}'
-color11='{color11}'
-color12='{color12}'
-color13='{color13}'
-color14='{color14}'
-color15='{color15}'
-";
-
-    let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
-
-    // file in which the template variables are
-    let template_path = tmpdir.path().join("colors-template.sh");
-    let mut template = File::create(&template_path).expect("should created a tmp file");
-    write!(template, "{template_sample}").expect("should write to tmp correctly");
-
-    // file in which, after templating, it's gonna be writeable
-    let target_path = tmpdir.path().join("colors.sh");
-    let mut _target = File::create(&target_path).expect("should created a tmp file");
-
-    // usual config
-    let c = config::Config {
-        check_contrast: None,
-        dir: tmpdir.path().into(),
-        templates: Some(HashMap::from([
-            ("test1".into(), Fields {
-                template: template_path.display().to_string(),
-                target:   target_path.display().to_string(),
-                pywal: Some(true),
-            }), ]),
-        ),
-        ..config::Config::default()
-    };
-
-    let e = c.templates.as_ref().unwrap();
-
-    template::write_template(&c, wall_str, &COLS, true).expect("should parse correctly");
-
-    //store templated string
-    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
-
-    // templated file should be the same as expected in the target_sample
-    assert_eq!(target_content, target_sample);
-
-    // `rm`ing the temporal dir will also close the files inside it
-    tmpdir.close().expect("temporal directory should close successfully");
-}
-
-/// Like the above but with the new engine
 #[test]
 fn variables() {
     let template_sample =
@@ -170,6 +101,7 @@ color15='{{color15}}'
     // file in which the template variables are
     let template_path = tmpdir.path().join("colors-template.sh");
     let mut template = File::create(&template_path).expect("should created a tmp file");
+
     write!(template, "{template_sample}").expect("should write to tmp correctly");
 
     // file in which, after templating, it's gonna be writeable
@@ -198,7 +130,76 @@ color15='{{color15}}'
     let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
 
     // templated file should be the same as expected in the target_sample
-    assert_eq!(target_content, target_sample);
+    assert_eq!(expected_output, target_content);
+
+    // `rm`ing the temporal dir will also close the files inside it
+    tmpdir.close().expect("temporal directory should close successfully");
+}
+
+/// Like the above but with pywal syntax
+#[test]
+fn variables_pywal() {
+    let template_sample =
+r#"
+# Special
+wallpaper="{wallpaper}"
+background='{background}'
+foreground='{foreground}'
+cursor='{cursor}'
+
+# Colors
+color0='{color0}'
+color1='{color1}'
+color2='{color2}'
+color3='{color3}'
+color4='{color4}'
+color5='{color5}'
+color6='{color6}'
+color7='{color7}'
+color8='{color8}'
+color9='{color9}'
+color10='{color10}'
+color11='{color11}'
+color12='{color12}'
+color13='{color13}'
+color14='{color14}'
+color15='{color15}'
+"#;
+
+    let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
+
+    // file in which the template variables are
+    let template_path = tmpdir.path().join("colors-template.sh");
+    let mut template = File::create(&template_path).expect("should created a tmp file");
+    write!(template, "{template_sample}").expect("should write to tmp correctly");
+
+    // file in which, after templating, it's gonna be writeable
+    let target_path = tmpdir.path().join("colors.sh");
+    let mut _target = File::create(&target_path).expect("should created a tmp file");
+
+    // usual config
+    let c = config::Config {
+        check_contrast: None,
+        dir: tmpdir.path().into(),
+        templates: Some(HashMap::from([
+            ("test1".into(), Fields {
+                template: template_path.display().to_string(),
+                target:   target_path.display().to_string(),
+                pywal: Some(true),
+            }), ]),
+        ),
+        ..config::Config::default()
+    };
+
+    let e = c.templates.as_ref().unwrap();
+
+    template::write_template(&c, wall_str, &COLS, true).expect("should parse correctly");
+
+    //store templated string
+    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
+
+    // templated file should be the same as expected in the target_sample
+    assert_eq!(expected_output, target_content);
 
     // `rm`ing the temporal dir will also close the files inside it
     tmpdir.close().expect("temporal directory should close successfully");

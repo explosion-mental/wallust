@@ -65,6 +65,7 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
         let v = minijinja::Value::from_serializable(&values);
         let mut env = Environment::new();
+        env.set_keep_trailing_newline(true); // keep the template file intact
         env.add_template(&name, &file_content).unwrap();
 
         //filters

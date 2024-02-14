@@ -7,7 +7,7 @@ use std::io::Write;
 /// Should pase the sample json cache
 #[test]
 fn parse_cache() {
-    let sample = "{\"background\":[5,5,5],\"foreground\":[231,230,231],\"color0\":[5,5,5],\"color1\":[67,47,32],\"color2\":[72,70,71],\"color3\":[115,70,49],\"color4\":[101,101,107],\"color5\":[154,119,96],\"color6\":[141,138,141],\"color7\":[213,211,213],\"color8\":[149,147,149],\"color9\":[90,63,43],\"color10\":[97,94,95],\"color11\":[154,94,66],\"color12\":[135,135,143],\"color13\":[206,159,129],\"color14\":[189,184,188],\"color15\":[170,168,170]}";
+    let sample = r##"{"background":"#040100","foreground":"#FDF6DD","color0":"#050201","color1":"#415F58","color2":"#92473A","color3":"#BA4839","color4":"#B4592D","color5":"#B78033","color6":"#BDAE78","color7":"#F5EBC7","color8":"#ABA48B","color9":"#456C64","color10":"#B14C3B","color11":"#E21D03","color12":"#E7601F","color13":"#F4AB45","color14":"#FCE8A0","color15":"#F5EBC7"}"##;
 
     let mut tmp = tempfile::NamedTempFile::new().expect("init new temporal named pipe");
     write!(tmp, "{sample}").unwrap();
