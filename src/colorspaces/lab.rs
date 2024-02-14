@@ -76,8 +76,8 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
 pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
     histo.sort_by(|a, b|
         match method {
-            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
-            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or_else(||std::cmp::Ordering::Equal),
+            ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or_else(||std::cmp::Ordering::Equal),
         }
     );
 }

@@ -96,7 +96,7 @@ impl Cache {
             base = name.to_string_lossy(),
             size = md.len(),
             magic = num,
-            con = if c.check_contrast.unwrap_or(false) { "C_" } else { "" },
+            con = if c.check_contrast.unwrap_or_else(||false) { "C_" } else { "" },
             version = CACHE_VER,
         );
 

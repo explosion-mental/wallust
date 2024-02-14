@@ -25,7 +25,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     // Apply a [`Palette`] that returns the [`Colors`] struct
     let mut colors = palettes::main(&c.palette)(top);
 
-    if c.check_contrast.unwrap_or(false) {
+    if c.check_contrast.unwrap_or_else(||false) {
         colors.check_contrast_all();
     }
 

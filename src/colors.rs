@@ -224,7 +224,7 @@ impl Myrgb {
     /// XXX easy_color seems to be an OK crate, however is there a more suitable crate for this?
     /// XXX think about using palette crate (still looks too complicated for me and my use case)
     pub fn saturate(&self, amount: f32) -> Self {
-        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().unwrap();
+        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().expect("Format is correct since it's controled by u8 type");
         let mut hsl: easy_color::HSL = initial.into();
         hsl.set_saturation((amount * 100.0) as u32);
         let rgb: easy_color::RGB = hsl.into();
@@ -244,7 +244,7 @@ impl Myrgb {
     /// Blue    falls between 241 and 300 degrees.
     /// Magenta falls between 301 and 360 degrees.
     pub fn complementary(&self) -> Self {
-        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().unwrap();
+        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().expect("correct format because it's u8");
         let mut hsv: easy_color::HSV = initial.into();
 
         let h = hsv.hue();
