@@ -128,7 +128,7 @@ impl Cache {
     pub fn write(&self, colors: &Colors) -> Result<()> {
         Ok(File::create(&self.path)?
             .write_all(
-                serde_json::to_string(colors)
+                serde_json::to_string_pretty(colors)
                     .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
                 .as_bytes()
             )?
