@@ -252,6 +252,7 @@ I don't care about any other backends. Be happy!
 .RE
 
 Or inline them:
+
 .RS
 .nf
 \fC
@@ -262,6 +263,7 @@ Or inline them:
 
 Since mostly everything can be represented as a string (we've seen how colors are represented),
 indexing results very useful! The syntax for indexing is basically the Python one.
+
 .RS
 .nf
 \fC
@@ -276,6 +278,7 @@ somevariable = "#aabbee"
 .RE
 
 And yes, you can comment inside your template, the comments won't be rendered in the final target file:
+
 .RS
 .nf
 \fC
