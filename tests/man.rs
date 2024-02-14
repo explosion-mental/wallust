@@ -34,8 +34,8 @@ on Linux
 .I /dev/ttys00
 on MacOS.
 .IP \(bu
-.I "ps to search active terminals"
-(ref: https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
+.BR "ps to search active terminals" [1]
+on OpenBSD
 .IP \(bu
 Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
 .RE
@@ -95,9 +95,9 @@ Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 Instead of 0 to 100, displays it from 0.00 to 1.00.
 .TP
 .B alpha_hex
-Displays alpha value as hexadecimal color code, (e.g "FF")
-.br
-see <https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4>
+Displays alpha value as
+.BR "hexadecimal color code" [2]
+(e.g "FF")
 .RE
 
 .SH "TEMPLATE FILTERS"
@@ -289,8 +289,7 @@ The syntax comes from the library being used, which is
 , a subset of the template engine `Jinja2'.
 
 You can read more at:
-.I
-<https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md>
+.BR "Compatibility of minijinja" [3]
 
 .SH "TEMPLATE EXAMPLE"
 You can use
@@ -396,9 +395,58 @@ anothervariable = {color8.rgb}
 .fi
 .RE
 
-For the full pywal spec see
-.I <https://github.com/dylanaraps/pywal/wiki/User-Template-Files>
+Don't forget to visit the
+.BR "full pywal spec" [4]
 "##;
+
+
+/// This is specialized footer for wallust.1
+const footer_wallust:&str = r#"
+.SH "SEE ALSO"
+.BR wallust (5),
+.BR wallust-run (1),
+.BR wallust-cs (1),
+.BR wallust-theme (1),
+.BR wallust-themes [5].
+.br
+
+.SH "NOTES"
+.nr step 1
+
+.TP 4
+.B "1."
+ps to search active terminals
+.br
+.I https://github.com/dylanaraps/pywal/pull/510
+
+.TP 4
+.B "2."
+Hexadecimal color code
+.br
+.I https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4
+
+.TP 4
+.B "3."
+Compatibility of Minijinja with Jinja2
+.br
+.I https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md
+
+.TP 4
+.B "4."
+Full pywal template specification
+.I https://github.com/dylanaraps/pywal/wiki/User-Template-Files
+
+.TP 4
+.B "5."
+Suggestions for new colorschemes returned by the
+.B themes
+subcommand should be filled here.
+.br
+.I https://codeberg.org/explosion-mental/wallust-themes
+
+.SH "BUGS"
+.I https://codeberg.org/explosion-mental/wallust
+"#;
 
 /// Usually how to end the man page
 const footer:&str = r#"
@@ -486,7 +534,7 @@ fn mk_man() {
     //app.render_subcommands_section(&mut out).unwrap(); //subcommand only at wallust
     write!(out, "{subcommands}").unwrap();
     write!(out, "{misc_wallust}").unwrap();
-    write!(out, "{footer}").unwrap();
+    write!(out, "{footer_wallust}").unwrap();
     out.flush().unwrap();
 
     subcmd("wallust-run"  , &cmd, dir, wallust_v, None, Some(footer)).unwrap();
