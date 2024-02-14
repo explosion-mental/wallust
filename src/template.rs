@@ -40,6 +40,20 @@ macro_rules! jinjafn {
     };
 }
 
+/// Recommended way to chain errors
+/// ref: <https://docs.rs/minijinja/latest/minijinja/struct.Error.html>
+fn minijinja_err_chain(err: minijinja::Error) -> String {
+    let mut err = &err as &dyn std::error::Error;
+    let mut s = String::from(&format!("Could not render template: {err:#}"));
+
+    // get to the source, if there are more.
+    while let Some(next_err) = err.source() {
+        s.push('\n');
+        s.push_str(&format!("Caused by: {next_err:#}"));
+        err = next_err;
+    }
+    s
+}
 /// Render the template `file` provided and write it to `target_path`.
 /// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
 /// since we don't care about handling all possible io::Errors
@@ -66,7 +80,8 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         let v = minijinja::Value::from_serializable(&values);
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
-        env.add_template(&name, &file_content).unwrap();
+        env.add_template(&name, &file_content)
+            .map_err(minijinja_err_chain)?;
 
         //filters
         jinjafn!(env, rgb);
@@ -84,7 +99,8 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
         //functions
         //empty
 
-        let template = env.get_template(&name).unwrap();
+        let template = env.get_template(&name)
+            .map_err(minijinja_err_chain)?;
 
         template.render(context! {
             ..v, ..context! {
@@ -93,12 +109,13 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
                 wallpaper  => image_path,
                 backend    => conf.backend,
             }
-        }).map_err(|x| format!("{x}"))?
+        })
+            .map_err(minijinja_err_chain)?
     } else {
         new_string_template::template::Template::new(file_content)
             // this regex is even better than pywal, doesn't match new lines :3
             // <https://regex101.com/r/AgVXKJ/1>
-            .with_regex(&regex::Regex::new(r"\{(\S+?)\}").unwrap())
+            .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
             .render(&values.to_hash(image_path, conf))
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
