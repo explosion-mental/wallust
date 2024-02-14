@@ -35,7 +35,7 @@ fn backends(c: &mut Criterion) {
         //with all possible backends
         for j in possible_cases {
             group.bench_with_input(
-                BenchmarkId::new(j.to_string(), &name),
+                BenchmarkId::new(j.to_string(), name),
                 i,
                 |b, i| b.iter(|| backends::main(&j)(i).expect("Download the images"))
 
