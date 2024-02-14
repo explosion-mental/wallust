@@ -148,7 +148,9 @@ Cache path: {}
 
             match doc.get_mut("templates") {
                 Some(templates) => {
+
                     templateflag = false;
+
                     let fields = match templates.as_table_mut() {
                         Some(s) => s,
                         None => {
@@ -157,6 +159,7 @@ Cache path: {}
                         },
                     };
 
+                    //we don't care about the string key
                     for (_, v) in fields.iter_mut() {
                         match v.get("new_engine")  {
                             Some(s) => {
@@ -166,8 +169,9 @@ Cache path: {}
                             None => v["pywal"] = value(true),
                         }
                     }
+
                     // inline is shorter :3 (refactor all added templates as inline)
-                    templates.as_inline_table_mut().map(|t| t.fmt());
+                    if let Some(t) = templates.as_inline_table_mut() { t.fmt() }
                 },
                 None => templateflag = true,
             }
@@ -191,7 +195,7 @@ Cache path: {}
 
             // renaeme the original config
             std::fs::rename(&file, &old)?;
-            std::fs::write(&file, &new)?;
+            std::fs::write(&file, new)?;
         }
     }
     Ok(())
