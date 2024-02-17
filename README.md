@@ -18,31 +18,35 @@ wallust run my_wallpaper.png
 ```
 _use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
+For **detailed** docs:
+- `man wallust`, information about terminal colors and **template syntax**;
+- `man wallust.5`, config docs;
+- `man wallust-subcommand`, displays a man page for _subcommand_.
+
 ## Features
 - Includes [man pages](man/) and [completions](completions/)!
-- Sets [terminal colors](#Terminal-color) on all active terminals
-    * Updates `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
+- Sets terminal colors on all (or the current, `-u`) active terminals:
+    * Windows: Adds a
+      [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
+      by updating `settings.json` on Windows Terminal, to enable this scheme for the first time you will have to selected it manually
     * *NIX: ASCII escape sequences:
         - `/dev/pts/` on Linux
         - [`ps` to search active terminals](https://github.com/dylanaraps/pywal/pull/510) on OpenBSD
     * MacOS: iTerm2 sequences, `/dev/ttys00` on MacOS
-    * Windows: Adds a [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
-- Cache scheme palettes, overwritten by `-w`
+- Cache scheme palettes, overwritten by `-w`:
     * Linux: `$XDG_CACHE_HOME` or `$HOME/.cache`
     * MacOs: `$HOME/Library/Caches`
     * Windows: `{FOLDERID_LocalAppData}`
-- Read pywal/terminal-sexy colorschemes with `cs` subcommand
-- Built-in [pywal themes](https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes) with the `theme` subcommand (can be disabled with compile-time features) `wallust theme --help` to list possible themes
+- Read pywal/terminal-sexy colorschemes with `wallust cs`.
+- Built-in [themes](https://codeberg.org/explosion-mental/wallust-themes) with ` wallust theme` (compile time feature).
 - Configuration file, `wallust.toml`:
-    * When no config file, the [default config file](wallust.toml) will be generated
-	* **Optional** [templating](#templating) with two different engines:
-        - Default is using usual `{variable}`
-        - By enabling `new_engine = true`, you use `{{variable}}`
-	* Configurable methods for backends, colorspaces and palettes (chart below)
-	* Configurable [threshold](#threshold)
-    * Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
-    * MacOs: `$HOME/Library/Application Support`
-    * Windows: `{FOLDERID_RoamingAppData}`
+    * When no config file, the [default config file](wallust.toml) will be generated.
+	* **Optional** templating with a [subset of _Jinja2_](https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md) or [_pywal_](https://github.com/dylanaraps/pywal/wiki/User-Template-Files#available-variables-and-syntax) syntax if selected.
+	* Configurable methods for backends, colorspaces, palettes and threshold.
+    * OS dependant path:
+        - Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
+        - MacOs: `$HOME/Library/Application Support`
+        - Windows: `{FOLDERID_RoamingAppData}`
 
 | Methods    | Description |
 |------------|-------------|
@@ -50,13 +54,6 @@ _use `wallust -h` for an overview and `wallust --help` for a more detailed expla
 | ColorSpace | Get the most prominent color, and sort them according to the `Palette`, configurable by a _threshold_ |
 | Palette    | Makes a scheme palette with the gathered colors, (e.g. sets light background) |
 
-
-_Make sure to read the sample_ [***config file***](wallust.toml) _for_ **practical** _documentation._
-
-For detailed docs:
-- `man wallust`, overall info;
-- `man wallust.5`, config docs;
-- `man wallust-subcommand`, displays a man page for _subcommand_.
 
 ## Installation
 <a href="https://repology.org/project/wallust/versions">
@@ -191,8 +188,19 @@ Having design ideas or suggestios is also very welcome.
 
 ## TODOs
 for more, grep the src for TODO `rg TODO`
-- automate binary releases with a CI, figure out woodkeeper codeberg CI
 - use `thiserror` for errors in the modules (there aren't that many)
+- Learn more from "Material You" implementations, what I've seen is that it
+  looses some colors and hues to mantain contrast.
+
+## Background
+I've started this tool mainly for _speed_ reasons[0], since I have a
+[keybinding](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/config.h#L346)
+that [runs pywal](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/demwm_random_wall#L19)
+to a random wallpaper with a noticeable delay. I tried ["rewriting" pywal in C](https://github.com/explosion-mental/wast)
+after watching a tsoding video where he implmements a histogram in C for manipulating an image. That was the little push I needed
+start this journey.
+
+[0]: While that was the goal, big images are still gonna be big no matter the language you write your implementation, that's why there are different backends for different tastes :).
 
 ## Related
 - [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
