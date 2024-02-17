@@ -31,7 +31,7 @@ num-traits = "0.2"
 easy_color = "0.1"
 kmeans_colors = { version = "0.6.0", default-features = true }
 palette = "0.7"
-regex = "1"
+regex = "1.10"
 minijinja = "1.0"
 
 clap  = { version = "4.3", features = ["derive"] }
@@ -44,7 +44,7 @@ strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
 
 [dev-dependencies]
-tempfile = "3"
+tempfile = "3.10"
 criterion = { version = "0.5", features = ["html_reports"] }
 word_iter = "0.2.1"
 clap_complete = "4.4"
@@ -52,7 +52,7 @@ clap_mangen = "0.2"
 clap  = { version = "4.3", features = ["derive", "cargo"] }
 
 [build-dependencies]
-wallust_themes = "1"
+wallust_themes = "1.0"
 
 [features]
 default = [ "themes" ]
