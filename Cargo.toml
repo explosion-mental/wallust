@@ -67,10 +67,12 @@ iter = [ "dep:strum" ]
 [[bench]]
 name = "backends"
 harness = false
+required-features = ["iter"]
 
 [[bench]]
 name = "colorspaces"
 harness = false
+required-features = ["iter"]
 
 [profile.release]
 strip = true

@@ -1,0 +1,24 @@
+//This file is meant to be included
+
+// Similarly to the image crate
+// <https://github.com/image-rs/image/blob/master/benches/encode.rs>
+// encode and decode functionality could be analogous to `backend` and `colorspaces`
+// Where backend we don't care about the input, it's an image PATH.
+// On colorspaces tho, the speed depends on it's input, a vector of u8s.
+
+const IMAGES: [&str; 4] = [
+    "pexels-photo-356036.jpeg",
+    "pexels-photo-1146708.jpeg",
+    "pexels-photo-1567069.jpeg",
+    "pexels-photo-1089194.jpeg",
+];
+
+fn get_dir() -> std::path::PathBuf {
+    let home = std::process::Command::new("cargo").arg("locate-project").output().unwrap();
+    let home = std::str::from_utf8(&home.stdout).unwrap();
+    let root: serde_json::Value = serde_json::from_str(home).unwrap();
+    let root = root.pointer("/root").unwrap();
+    let root: String = serde_json::from_value(root.clone()).unwrap();
+    let root = &root[0..root.len() - "Cargo.toml".len()];
+    std::path::Path::new(root).into()
+}
