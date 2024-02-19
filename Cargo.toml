@@ -29,8 +29,8 @@ itertools = "0.12"
 fast_image_resize = "3.0"
 num-traits = "0.2"
 easy_color = "0.1"
-kmeans_colors = { version = "0.6.0", default-features = true }
-palette = "0.7"
+kmeans_colors = { version = "0.6.0", default-features = false, features = ["palette_color"] }
+palette = { version = "0.7", default-features = false }
 regex = "1.10"
 minijinja = "1.0"
 
@@ -39,7 +39,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 # optionals
 documented = { version = "0.3.0", optional = true }
-fastrand  = { version = "2", optional = true }
+fastrand  = { version = "2.0", optional = true }
 strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
 
@@ -75,5 +75,6 @@ harness = false
 required-features = ["iter"]
 
 [profile.release]
+incremental = false
 strip = true
-#lto = true # Seems to increase ~0.2 secs in speed..
+lto   = true # Seems to increase ~0.2 secs in speed..
