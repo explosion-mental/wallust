@@ -19,7 +19,12 @@ use anyhow::{Result, Context};
 
 /// Used to manage cache, rather than passing arguments in main() a lot
 pub struct Cache {
-    /// Path of the cache
+    /// The usual naming
+    pub normal: PathBuf,
+    /// naming with when artificially generating colors
+    pub gen: PathBuf,
+
+    /// Path of the cache, this is the path read.
     pub path: PathBuf,
 }
 
@@ -92,7 +97,7 @@ impl Cache {
         let num = md.file_attributes() ;
 
         // The following generates a hash name from a filename and it's `stat` attrs
-        let hash_name = format!("{base}_{size}_{magic}_{con}{version}.json",
+        let basename = format!("{base}_{size}_{magic}_{con}{version}",
             base = name.to_string_lossy(),
             size = md.len(),
             magic = num,
@@ -100,28 +105,29 @@ impl Cache {
             version = CACHE_VER,
         );
 
-        Ok(Self {
-            path:
-                cachepath.join(hash_name)
-        })
-    }
-
-    /// add "_C" or "_I" to filename if it needed to generate artificial colors
-    pub fn gen(&mut self, g: &crate::colorspaces::Generate) {
-        let gen = match g {
-            crate::colorspaces::Generate::Interpolate => "I",
-            crate::colorspaces::Generate::Complementary => "C",
+        let gen_letter = match c.generation.unwrap_or_default() {
+            crate::colorspaces::Generate::Interpolate => 'I',
+            crate::colorspaces::Generate::Complementary => 'C',
         };
 
-        self.path.set_extension("");
+        let generation = format!("{basename}_{gen_letter}");
 
-        self.path = format!("{}_{gen}.json", self.path.display()).into();
+        Ok(Self {
+            normal: cachepath.join(basename + ".json"),
+            gen:  cachepath.join(generation + ".json"),
+            path: PathBuf::new(),
+
+        })
     }
 
     /// Fetches values from a file present in cache
     pub fn read(&self) -> Result<Colors> {
         let contents = std::fs::read_to_string(&self.path)?;
         Ok(serde_json::from_str(&contents)?)
+    }
+
+    pub fn reached_gen(&mut self) {
+        self.path = self.gen.clone();
     }
 
     /// Write values to cache
@@ -136,8 +142,27 @@ impl Cache {
     }
 
     /// To determine whether to read from cache or to generate the colors from scratch
-    pub fn is_cached(&self) -> bool {
-        Path::new(&self.path).exists()
+    /// If not found, check if the generated path exist, it could may be that it doesn't have
+    /// enought colors.
+    pub fn is_cached(&mut self) -> bool {
+        let normal = self.normal.exists();
+        let gen = self.gen.exists();
+
+        let (new_path, ret) = match (normal, gen) {
+            //some exist, so `is_cached()` true
+            (true, false) => (self.normal.clone(), true),
+            (false, true) => (self.gen.clone(), true),
+
+            // none cached, default to normal and `is_cached()` false
+            (false, false) => (self.normal.clone(), false),
+
+            // unusual (imposible?) case. Just default to normal path.
+            // if the code reaches the generation part, `reached_gen()` should be called anyway.
+            (true,  true)   => (self.normal.clone(), true),
+        };
+
+        self.path = new_path;
+        ret
     }
 }
 

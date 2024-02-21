@@ -237,7 +237,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) ->
                         method = "generation method".magenta().bold()
                         );
                     sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
-                    cached_data.gen(&gen);
+                    cached_data.reached_gen();
                     o
                 }
                 Err(e) => {
