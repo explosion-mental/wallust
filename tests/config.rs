@@ -9,7 +9,7 @@ fn main() {
     //use wallust::config::Config;
     use wallust::backends::Backend;
     use wallust::colorspaces::ColorSpace;
-    use wallust::colorspaces::Generate;
+    use wallust::colorspaces::FallbackGenerator;
     use wallust::palettes::Palette;
     use word_iter::Words;
 
@@ -33,7 +33,7 @@ fn main() {
     let def_colorspace = ColorSpace::default().to_string().to_ascii_lowercase();
     let def_palette    = Palette::default().to_string().to_ascii_lowercase();
     let def_threshold  = "20";
-    let def_gen        = Generate::default().to_string().to_ascii_lowercase();
+    let def_gen        = FallbackGenerator::default().to_string().to_ascii_lowercase();
 
     const MAX: usize = 90;
     // const SP: usize = "#      ".len();
@@ -140,7 +140,7 @@ palette = \"{def_palette}\"
 # This field chooses a method to use when the gathered colors aren't enough:
 #  * interpolation - (default) Tries to pick two colors and built gradients over them
 #  * complementary - Uses the complementary colors of two colors, or more (if needed), colors.
-#generation = \"{def_gen}\"
+#fallback_generator = \"{def_gen}\"
 
 # Ensures a \"readable contrast\" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening

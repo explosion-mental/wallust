@@ -18,6 +18,7 @@ use crate::config::Config;
 use anyhow::{Result, Context};
 
 /// Used to manage cache, rather than passing arguments in main() a lot
+#[derive(Debug, Default)]
 pub struct Cache {
     /// The usual naming
     pub normal: PathBuf,

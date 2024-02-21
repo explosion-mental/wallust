@@ -1,4 +1,4 @@
-use wallust::cache;
+use wallust::cache::Cache;
 use std::io::Write;
 
 
@@ -12,7 +12,11 @@ fn parse_cache() {
     let mut tmp = tempfile::NamedTempFile::new().expect("init new temporal named pipe");
     write!(tmp, "{sample}").unwrap();
 
-    let c = cache::Cache { path: tmp.path().into() };
+    let mut c = Cache {
+        normal: tmp.path().into(), // no fallback generator
+        path: tmp.path().into(),   // path same as normal, `gen` doesn't exist then
+        ..Cache::default()
+    };
 
     c.read().expect("sample format is OK, shouldn't fail");
 
