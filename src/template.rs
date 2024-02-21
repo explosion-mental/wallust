@@ -54,6 +54,7 @@ fn minijinja_err_chain(err: minijinja::Error) -> String {
     }
     s
 }
+
 /// Render the template `file` provided and write it to `target_path`.
 /// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
 /// since we don't care about handling all possible io::Errors
@@ -71,7 +72,7 @@ fn minijinja_err_chain(err: minijinja::Error) -> String {
 // Then create env or the hasmap as an option, and `.expect` to open it an pass it as file_render():
 // 1. If it's None, it will never reach expect.
 // 2. If it's Some, it will always be true an a valid value.
-fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
+pub fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
     let filename = file.display();
     let filename = filename.italic();
 
@@ -87,35 +88,12 @@ fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, imag
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        let v = minijinja::Value::from_serializable(&values);
-        let mut env = Environment::new();
-        env.set_keep_trailing_newline(true); // keep the template file intact
+        let env = jinja_env();
+        let variables = jinja_values(values, image_path, conf.palette, conf.backend, conf.color_space);
 
-        //filters
-        jinjafn!(env, rgb);
-        jinjafn!(env, xrgb);
-        jinjafn!(env, strip);
-        jinjafn!(env, red);
-        jinjafn!(env, green);
-        jinjafn!(env, blue);
-        jinjafn!(env, tostr => complementary);
-        jinjafn!(env, tostr => blend, deref => ViaDeserialize<Myrgb>);
-        jinjafn!(env, tostr => lighten, f32);
-        jinjafn!(env, tostr => darken, f32);
-        jinjafn!(env, tostr => saturate, f32);
-
-        //functions
-        //empty
         let name = file.display().to_string();
 
-        env.render_named_str(&name, &file_content, context! {
-            ..v, ..context! {
-                cursor     => values.foreground,
-                palette    => conf.palette,
-                wallpaper  => image_path,
-                backend    => conf.backend,
-            }
-        })
+        env.render_named_str(&name, &file_content, variables)
             .map_err(minijinja_err_chain)?
     } else {
         new_string_template::template::Template::new(file_content)
@@ -202,6 +180,48 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
 
     Ok(())
 }
+
+pub fn jinja_env<'a>() -> Environment<'a> {
+        let mut env = Environment::new();
+
+        env.set_keep_trailing_newline(true); // keep the template file intact
+
+        //filters
+        jinjafn!(env, rgb);
+        jinjafn!(env, xrgb);
+        jinjafn!(env, strip);
+        jinjafn!(env, red);
+        jinjafn!(env, green);
+        jinjafn!(env, blue);
+        jinjafn!(env, tostr => complementary);
+        jinjafn!(env, tostr => blend, deref => ViaDeserialize<Myrgb>);
+        jinjafn!(env, tostr => lighten, f32);
+        jinjafn!(env, tostr => darken, f32);
+        jinjafn!(env, tostr => saturate, f32);
+        env
+}
+
+pub fn jinja_values(
+    values: &Colors,
+    image_path: &str,
+    palette: crate::palettes::Palette,
+    backend: crate::backends::Backend,
+    colorspace: crate::colorspaces::ColorSpace,
+) -> minijinja::Value {
+    let v = minijinja::Value::from_serializable(&values);
+    context! {
+        ..v,
+        ..context! {
+            cursor     => values.foreground,
+            palette    => palette,
+            wallpaper  => image_path,
+            backend    => backend,
+            colorspace => colorspace,
+            colors     => values.into_iter().map(|x| x.to_string()).collect::<String>(),
+        }
+    }
+}
+
 
 /// hash values
 fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str, String> {
