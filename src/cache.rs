@@ -105,9 +105,9 @@ impl Cache {
             version = CACHE_VER,
         );
 
-        let gen_letter = match c.generation.unwrap_or_default() {
-            crate::colorspaces::Generate::Interpolate => 'I',
-            crate::colorspaces::Generate::Complementary => 'C',
+        let gen_letter = match c.fallback_generator.unwrap_or_default() {
+            crate::colorspaces::FallbackGenerator::Interpolate => 'I',
+            crate::colorspaces::FallbackGenerator::Complementary => 'C',
         };
 
         let generation = format!("{basename}_{gen_letter}");

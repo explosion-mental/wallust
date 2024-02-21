@@ -38,7 +38,7 @@ pub struct Config {
     pub saturation: Option<u8>,
     /// How to 'generate' colors when there aren't enough colors to create the `palette`.
     /// This appears as "Artificially generating colors.." in cli
-    pub generation: Option<crate::colorspaces::Generate>,
+    pub fallback_generator: Option<crate::colorspaces::FallbackGenerator>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]
@@ -235,8 +235,8 @@ impl Config {
             self.saturation = Some(sat as u8);
         }
 
-        if let Some(g) = cli.generation {
-            self.generation = Some(g);
+        if let Some(g) = cli.fallback_generator {
+            self.fallback_generator = Some(g);
         }
     }
 

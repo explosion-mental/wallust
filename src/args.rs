@@ -116,9 +116,9 @@ pub struct WallustArgs {
     #[arg(short = 'd', long, conflicts_with = "config_path")]
     pub config_dir: Option<PathBuf>,
 
-    /// Choose which generation method to use (overwrites config)
+    /// Choose which fallback generation method to use (overwrites config)
     #[arg(short, long, value_enum)]
-    pub generation: Option<crate::colorspaces::Generate>,
+    pub fallback_generator: Option<crate::colorspaces::FallbackGenerator>,
 
     /// Won't send these colors sequences
     #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]

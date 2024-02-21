@@ -73,9 +73,12 @@ pub enum ColorSpace {
     LabFast,
 }
 
+/// rename [`GenerateFallback`] so it's shorter to type
+use self::FallbackGenerator as G;
+
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
-pub enum Generate {
+pub enum FallbackGenerator {
     /// uses [`interpolate`]
     #[default]
     Interpolate,
@@ -162,7 +165,7 @@ impl Cols {
     /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
     /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
     /// than [`MAX_COLS`])
-    pub fn new_cols(&mut self, gen: &Generate) {
+    pub fn new_cols(&mut self, gen: &G) {
 
         let pred = match self.c {
             Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
@@ -171,8 +174,8 @@ impl Cols {
         };
 
         let method = match gen {
-            Generate::Interpolate => interpolate,
-            Generate::Complementary => complementary,
+            G::Interpolate => interpolate,
+            G::Complementary => complementary,
         };
 
         self.histo.append(&mut lab::new_cols(&self.histo, self.threshold, pred, method));
@@ -200,20 +203,20 @@ impl Cs {
     }
 }
 
-impl Generate {
+impl G {
     pub fn col(&self) -> AnsiColors {
         match self {
-            Generate::Interpolate => AnsiColors::Blue,
-            Generate::Complementary => AnsiColors::Green,
+            G::Interpolate => AnsiColors::Blue,
+            G::Complementary => AnsiColors::Green,
         }
     }
 }
 
-impl fmt::Display for Generate {
+impl fmt::Display for G {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Generate::Interpolate => write!(f, "Interpolate"),
-            Generate::Complementary => write!(f, "Complementary"),
+            G::Interpolate => write!(f, "Interpolate"),
+            G::Complementary => write!(f, "Complementary"),
         }
     }
 }
@@ -229,7 +232,7 @@ impl fmt::Display for Cs {
     }
 }
 
-pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &Generate) -> Result<(Cols, bool)> {
+pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G) -> Result<(Cols, bool)> {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
