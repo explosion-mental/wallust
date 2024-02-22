@@ -10,6 +10,7 @@ use std::io::Write;
 use crate::args::WallustArgs;
 use crate::colors::Colors;
 use crate::template;
+use crate::template::TemplateFields;
 
 use anyhow::{Result, Context};
 use owo_colors::{AnsiColors, OwoColorize};
@@ -193,16 +194,38 @@ impl Config {
     /// Writes templates defined in the config file (if any)
     /// Should print a warning if you are using the old `[[entry]]` syntax (since it's going to be deprecated in v3).
     pub fn write_entry(&self, wal_str: &WalStr, colors: &Colors, quiet: bool) -> Result<()> {
+        let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
+
+        let templates_header = match &self.templates {
+            Some(s) => {
+                if ! quiet { println!("{init}Writing templates.."); }
+                s
+            },
+            None => {
+                if ! quiet { println!("{init}No templates found"); }
+                return Ok(())
+            },
+        };
+
         // check if themes exist, if it does we are using the `theme` subcommand,
         // which means there is not image path, so use the theme name as for the `wallpaper` value
-        let wallpaper_str = match wal_str {
+        let image_path = match wal_str {
             // use the theme name otherwise
             WalStr::Theme(s) => s.to_string(),
             // make sure to display the absolute path of the wallpaper
             WalStr::Path(p) => std::fs::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
         };
 
-        template::write_template(self, &wallpaper_str, colors, quiet)
+        let values = TemplateFields {
+            alpha: self.alpha.unwrap_or(100),
+            backend: &self.backend,
+            colorspace: &self.color_space,
+            palette: &self.palette,
+            image_path: &image_path,
+            colors,
+        };
+
+        template::write_template(&self.dir, templates_header, &values, quiet)
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration

@@ -3,9 +3,9 @@ use std::fs::read_to_string;
 use std::path::Path;
 use std::collections::HashMap;
 
-use crate::config::Config;
 use crate::colors::Colors;
 use crate::colors::Myrgb;
+use crate::config::Fields;
 use crate::palettes::Palette;
 use crate::backends::Backend;
 use crate::colorspaces::ColorSpace;
@@ -16,12 +16,12 @@ use minijinja::{Environment, context};
 use minijinja::value::ViaDeserialize;
 
 pub struct TemplateFields<'a> {
-    alpha: u8,
-    backend: &'a Backend,
-    palette: &'a Palette,
-    colorspace: &'a ColorSpace,
-    image_path: &'a str,
-    colors: &'a Colors,
+    pub alpha: u8,
+    pub backend: &'a Backend,
+    pub palette: &'a Palette,
+    pub colorspace: &'a ColorSpace,
+    pub image_path: &'a str,
+    pub colors: &'a Colors,
 }
 
 macro_rules! jinjafn {
@@ -111,7 +111,7 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
             // this regex is even better than pywal, doesn't match new lines :3
             // <https://regex101.com/r/AgVXKJ/1>
             .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
-            .render(&to_hash(&values))
+            .render(&to_hash(values))
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
 
@@ -123,77 +123,48 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
-pub fn write_template(conf: &Config, image_path: &str, cols: &Colors, quiet: bool) -> Result<()> {
-    let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
-    let config = &conf.dir;
-
-    let templates_header = match &conf.templates {
-        Some(s) => {
-            if ! quiet { println!("{init}Writing templates.."); }
-            s
-        },
-        None => {
-            if ! quiet { println!("{init}No templates found"); }
-            return Ok(())
-        },
-    };
-
-    let values = TemplateFields {
-        alpha: conf.alpha.unwrap_or(100),
-        backend: &conf.backend,
-        colorspace: &conf.color_space,
-        palette: &conf.palette,
-        image_path,
-        colors: cols,
-    };
-
+pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fields>, values: &TemplateFields, quiet: bool) -> Result<()> {
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
-    for e in templates_header {
-
-        //root path for the template file
-        let path = config.join(&e.1.template);
-
-        //root path for the target file (requires interpret `~` for home)
-        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let env = shellexpand::tilde(&e.1.target);
-        let target_path = Path::new(env.as_ref());
-
-        // for printing
-        let name = e.0.bold();
-        let target = &e.1.target.italic();
+    for (name, fields) in templates_header {
+        // facilitates strings printing
+        let name = name.bold();
+        let target = &fields.target.italic();
         let warn = "W".red();
         let warn = warn.bold();
 
-        // TODO handle `.recursive` field
-        if path.is_dir() {
-            if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
+        //root path for the template file
+        let path = config_dir.join(&fields.template);
 
+        //root path for the target file (requires interpret `~` for home)
+        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
+        let env = shellexpand::tilde(&fields.target);
+        let target_path = Path::new(env.as_ref());
+
+        let pywal = fields.pywal.unwrap_or(false);
+
+        if !path.is_dir() { // normal file
+            if ! quiet { println!("  * Templated {name} to '{target}'"); }
+            if let Err(err) = file_render(&path, target_path, pywal, values) {
+                eprintln!("[{warn}] {name}: {err}");
+                continue;
+            }
+        } else {
+            if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
             // read directory, encapsulating this into a function and then calling this recursively handle the `recursive` field?
             for i in path.read_dir()? {
                 let i = i?;
 
-                //println!("{i:?}");
                 let f = &i.file_name();
-                //println!(" THIS IS FILE {f:?}");
 
                 let target_path = target_path.join(f);
 
-                let target = target_path.display();
-                let target = target.italic();
+                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display(), target = target_path.display().italic()); }
 
-                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display()); }
-
-                if let Err(err) = file_render(&path.join(f), &target_path, e.1.pywal.unwrap_or(false), &values) {
+                if let Err(err) = file_render(&path.join(f), &target_path, pywal, values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
-            }
-        } else {
-            if ! quiet { println!("  * Templated {name} to '{target}'"); }
-            if let Err(err) = file_render(&path, target_path, e.1.pywal.unwrap_or(false), &values) {
-                eprintln!("[{warn}] {name}: {err}");
-                continue;
             }
         }
     }
