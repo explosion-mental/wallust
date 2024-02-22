@@ -5,6 +5,9 @@ fn main() {
 }
 
 #[cfg(all(feature = "themes", feature = "buildgen"))]
+/// This adds "random" to the COLS_KEY array such that it can be used as a clap constraint.
+/// This is a "workaround" only while making assets. Shell completions benefit from this since clap
+/// completions can put all the strings in the array into the completions itself.
 fn themes() {
     use wallust_themes::COLS_KEY;
 
