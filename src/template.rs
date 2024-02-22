@@ -6,11 +6,23 @@ use std::collections::HashMap;
 use crate::config::Config;
 use crate::colors::Colors;
 use crate::colors::Myrgb;
+use crate::palettes::Palette;
+use crate::backends::Backend;
+use crate::colorspaces::ColorSpace;
 
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use minijinja::{Environment, context};
 use minijinja::value::ViaDeserialize;
+
+pub struct TemplateFields<'a> {
+    alpha: u8,
+    backend: &'a Backend,
+    palette: &'a Palette,
+    colorspace: &'a ColorSpace,
+    image_path: &'a str,
+    colors: &'a Colors,
+}
 
 macro_rules! jinjafn {
     ($var:expr, $func_name:ident) => {
@@ -72,7 +84,7 @@ fn minijinja_err_chain(err: minijinja::Error) -> String {
 // Then create env or the hasmap as an option, and `.expect` to open it an pass it as file_render():
 // 1. If it's None, it will never reach expect.
 // 2. If it's Some, it will always be true an a valid value.
-pub fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, image_path: &str, values: &Colors) -> Result<(), String> {
+pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &TemplateFields) -> Result<(), String> {
     let filename = file.display();
     let filename = filename.italic();
 
@@ -89,18 +101,17 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, 
     // Template/render the file_contents
     let rendered = if ! pywal {
         let env = jinja_env();
-        let variables = jinja_values(values, image_path, conf.palette, conf.backend, conf.color_space);
-
         let name = file.display().to_string();
+        let v = minijinja::Value::from(values);
 
-        env.render_named_str(&name, &file_content, variables)
+        env.render_named_str(&name, &file_content, v)
             .map_err(minijinja_err_chain)?
     } else {
         new_string_template::template::Template::new(file_content)
             // this regex is even better than pywal, doesn't match new lines :3
             // <https://regex101.com/r/AgVXKJ/1>
             .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
-            .render(&values.to_hash(image_path, conf))
+            .render(&to_hash(&values))
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
 
@@ -112,7 +123,7 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, conf: &Config, 
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
-pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: bool) -> Result<()> {
+pub fn write_template(conf: &Config, image_path: &str, cols: &Colors, quiet: bool) -> Result<()> {
     let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "templates".magenta().bold());
     let config = &conf.dir;
 
@@ -125,6 +136,15 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
             if ! quiet { println!("{init}No templates found"); }
             return Ok(())
         },
+    };
+
+    let values = TemplateFields {
+        alpha: conf.alpha.unwrap_or(100),
+        backend: &conf.backend,
+        colorspace: &conf.color_space,
+        palette: &conf.palette,
+        image_path,
+        colors: cols,
     };
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
@@ -164,14 +184,14 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
 
                 if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display()); }
 
-                if let Err(err) = file_render(&path.join(f), &target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
+                if let Err(err) = file_render(&path.join(f), &target_path, e.1.pywal.unwrap_or(false), &values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
             }
         } else {
             if ! quiet { println!("  * Templated {name} to '{target}'"); }
-            if let Err(err) = file_render(&path, target_path, e.1.pywal.unwrap_or(false), conf, image_path, values) {
+            if let Err(err) = file_render(&path, target_path, e.1.pywal.unwrap_or(false), &values) {
                 eprintln!("[{warn}] {name}: {err}");
                 continue;
             }
@@ -183,7 +203,6 @@ pub fn write_template(conf: &Config, image_path: &str, values: &Colors, quiet: b
 
 pub fn jinja_env<'a>() -> Environment<'a> {
         let mut env = Environment::new();
-
         env.set_keep_trailing_newline(true); // keep the template file intact
 
         //filters
@@ -201,47 +220,46 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         env
 }
 
-pub fn jinja_values(
-    values: &Colors,
-    image_path: &str,
-    palette: crate::palettes::Palette,
-    backend: crate::backends::Backend,
-    colorspace: crate::colorspaces::ColorSpace,
-) -> minijinja::Value {
-    let v = minijinja::Value::from_serializable(&values);
-    context! {
-        ..v,
-        ..context! {
-            cursor     => values.foreground,
-            palette    => palette,
-            wallpaper  => image_path,
-            backend    => backend,
-            colorspace => colorspace,
-            colors     => values.into_iter().map(|x| x.to_string()).collect::<String>(),
+impl From<&TemplateFields<'_>> for minijinja::Value {
+    fn from(values: &TemplateFields<'_>) -> Self {
+        let c = &values.colors;
+        let v = minijinja::Value::from_serializable(c);
+
+        context! {
+            ..v,
+            ..context! {
+                cursor     => c.foreground,
+                palette    => values.palette,
+                wallpaper  => values.image_path,
+                backend    => values.backend,
+                colorspace => values.colorspace,
+                colors     => c.into_iter().map(|x| x.to_string()).collect::<String>(),
+            }
         }
+
     }
 }
 
-
 /// hash values
-fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str, String> {
+fn to_hash<'a>(t: &TemplateFields) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
-    let alpha = conf.alpha.unwrap_or(100);
+    let alpha = t.alpha;
+    let col = t.colors;
     // list of hexadecimal alpha values https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4
     let alphas_dec = [ "00", "03", "05", "08", "0A", "0D", "0F", "12", "14", "17", "1A", "1C", "1F", "21", "24", "26", "29", "2B", "2E", "30", "33", "36", "38", "3B", "3D", "40", "42", "45", "47", "4A", "4D", "4F", "52", "54", "57", "59", "5C", "5E", "61", "63", "66", "69", "6B", "6E", "70", "73", "75", "78", "7A", "7D", "80", "82", "85", "87", "8A", "8C", "8F", "91", "94", "96", "99", "9C", "9E", "A1", "A3", "A6", "A8", "AB", "AD", "B0", "B3", "B5", "B8", "BA", "BD", "BF", "C2", "C4", "C7", "C9", "CC", "CF", "D1", "D4", "D6", "D9", "DB", "DE", "E0", "E3", "E6", "E8", "EB", "ED", "F0", "F2", "F5", "F7", "FA", "FC", "FF", ];
 
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
     //full path to the image
-    map.insert("wallpaper", image_path.into());
+    map.insert("wallpaper", t.image_path.into());
     map.insert("alpha", alpha.to_string());
     map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
     map.insert("alpha_hex", alphas_dec.get(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100").to_string());
 
     // Include backend, colorspace and filter (palette)
-    map.insert("backend", conf.backend.to_string());
-    map.insert("colorspace", conf.color_space.to_string());
-    map.insert("palette", conf.palette.to_string());
+    map.insert("backend", t.backend.to_string());
+    map.insert("colorspace", t.colorspace.to_string());
+    map.insert("palette", t.palette.to_string());
 
     // normal output `#EEEEEE`
     map.insert("color0" , col.color0 .to_string());
@@ -412,11 +430,4 @@ fn to_hash<'a>(col: &Colors, image_path: &str, conf: &Config) -> HashMap<&'a str
     map.insert("background.blue", col.background.blue());
 
     map
-}
-
-
-impl Colors {
-    pub fn to_hash(&self, image_path: &str, conf: &Config) -> HashMap<&str, String> {
-        to_hash(self, image_path, conf)
-    }
 }
