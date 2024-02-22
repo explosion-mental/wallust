@@ -111,7 +111,7 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
             // this regex is even better than pywal, doesn't match new lines :3
             // <https://regex101.com/r/AgVXKJ/1>
             .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
-            .render(&to_hash(values))
+            .render(&values.to_hash())
             .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
     };
 
@@ -212,25 +212,26 @@ impl From<&TemplateFields<'_>> for minijinja::Value {
 }
 
 /// hash values
-fn to_hash<'a>(t: &TemplateFields) -> HashMap<&'a str, String> {
+impl TemplateFields<'_> {
+pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
-    let alpha = t.alpha;
-    let col = t.colors;
+    let alpha = self.alpha;
+    let col = self.colors;
     // list of hexadecimal alpha values https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4
     let alphas_dec = [ "00", "03", "05", "08", "0A", "0D", "0F", "12", "14", "17", "1A", "1C", "1F", "21", "24", "26", "29", "2B", "2E", "30", "33", "36", "38", "3B", "3D", "40", "42", "45", "47", "4A", "4D", "4F", "52", "54", "57", "59", "5C", "5E", "61", "63", "66", "69", "6B", "6E", "70", "73", "75", "78", "7A", "7D", "80", "82", "85", "87", "8A", "8C", "8F", "91", "94", "96", "99", "9C", "9E", "A1", "A3", "A6", "A8", "AB", "AD", "B0", "B3", "B5", "B8", "BA", "BD", "BF", "C2", "C4", "C7", "C9", "CC", "CF", "D1", "D4", "D6", "D9", "DB", "DE", "E0", "E3", "E6", "E8", "EB", "ED", "F0", "F2", "F5", "F7", "FA", "FC", "FF", ];
 
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
     //full path to the image
-    map.insert("wallpaper", t.image_path.into());
+    map.insert("wallpaper", self.image_path.into());
     map.insert("alpha", alpha.to_string());
     map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
     map.insert("alpha_hex", alphas_dec.get(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100").to_string());
 
     // Include backend, colorspace and filter (palette)
-    map.insert("backend", t.backend.to_string());
-    map.insert("colorspace", t.colorspace.to_string());
-    map.insert("palette", t.palette.to_string());
+    map.insert("backend", self.backend.to_string());
+    map.insert("colorspace", self.colorspace.to_string());
+    map.insert("palette", self.palette.to_string());
 
     // normal output `#EEEEEE`
     map.insert("color0" , col.color0 .to_string());
@@ -401,4 +402,5 @@ fn to_hash<'a>(t: &TemplateFields) -> HashMap<&'a str, String> {
     map.insert("background.blue", col.background.blue());
 
     map
+}
 }
