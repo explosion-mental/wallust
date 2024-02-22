@@ -1,13 +1,12 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Write;
+#![allow(non_upper_case_globals)]
 
+use wallust::backends::Backend;
 use wallust::colors::Colors;
 //use wallust::colors::HexConversion;
 use wallust::colors::Myrgb;
-use wallust::template;
-use wallust::config;
-use wallust::config::Fields;
+use wallust::palettes::Palette;
+use wallust::template::jinja_env;
+use wallust::template::TemplateFields;
 //use wallust::colors;
 
 //TODO add tests for every KEY combination
@@ -34,112 +33,94 @@ const COLS: &Colors = &Colors {
         color15: Myrgb(15, 0, 0), //# 0F 00 00
 };
 
-#[allow(non_upper_case_globals)]
 const wall_str: &str = "/home";
 
-#[allow(non_upper_case_globals)]
-/// Expected result to get on templated below. `wallpaper` is `/home` since it requires a valid path
-const expected_output: &str =
-r#"
-# Special
-wallpaper="/home"
-background='#EEEEEE'
-foreground='#DDDDDD'
-cursor='#DDDDDD'
+const Tfields: &TemplateFields = &TemplateFields {
+    alpha: 100,
+    backend: &Backend::Thumb,
+    palette: &Palette::Dark,
+    colorspace: &wallust::colorspaces::ColorSpace::LabFast,
+    image_path: wall_str,
+    colors: COLS,
 
-# Colors
-color0='#000000'
-color1='#010000'
-color2='#020000'
-color3='#030000'
-color4='#040000'
-color5='#050000'
-color6='#060000'
-color7='#070000'
-color8='#080000'
-color9='#090000'
-color10='#0A0000'
-color11='#0B0000'
-color12='#0C0000'
-color13='#0D0000'
-color14='#0E0000'
-color15='#0F0000'
-"#;
+};
+
+/// set up minijinja for rendering something
+fn jinja(content: &str) -> String {
+    let v = minijinja::Value::from(Tfields);
+    jinja_env().render_named_str("sample", content, v).unwrap()
+}
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
 #[test]
-fn variables() {
-    let template_sample =
-r#"
-# Special
-wallpaper="{{wallpaper}}"
-background='{{background}}'
-foreground='{{foreground}}'
-cursor='{{cursor}}'
+fn colors() {
+    let expected = [
+        "#000000",
+        "#010000",
+        "#020000",
+        "#030000",
+        "#040000",
+        "#050000",
+        "#060000",
+        "#070000",
+        "#080000",
+        "#090000",
+        "#0A0000",
+        "#0B0000",
+        "#0C0000",
+        "#0D0000",
+        "#0E0000",
+        "#0F0000",
+    ];
+    for i in 0..16 {
+        let mut sample = String::from("{{color");
+        sample.push_str(&i.to_string());
+        sample.push_str("}}");
 
-# Colors
-color0='{{color0}}'
-color1='{{color1}}'
-color2='{{color2}}'
-color3='{{color3}}'
-color4='{{color4}}'
-color5='{{color5}}'
-color6='{{color6}}'
-color7='{{color7}}'
-color8='{{color8}}'
-color9='{{color9}}'
-color10='{{color10}}'
-color11='{{color11}}'
-color12='{{color12}}'
-color13='{{color13}}'
-color14='{{color14}}'
-color15='{{color15}}'
-"#;
+        let result = jinja(&sample);
+        assert_eq!(expected[i], result);
+    }
+}
 
-    let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
+#[test]
+fn filters() {
+    let expected = [
+        COLS.color0,
+        COLS.color1,
+        COLS.color2,
+        COLS.color3,
+        COLS.color4,
+        COLS.color5,
+        COLS.color6,
+        COLS.color7,
+        COLS.color8,
+        COLS.color9,
+        COLS.color10,
+        COLS.color11,
+        COLS.color12,
+        COLS.color13,
+        COLS.color14,
+        COLS.color15,
+    ];
+    for i in 0..16 {
+        let c = format!("color{i}");
+        let br1 = "{{";
+        let br2 = "}}";
 
-    // file in which the template variables are
-    let template_path = tmpdir.path().join("colors-template.sh");
-    let mut template = File::create(&template_path).expect("should created a tmp file");
+        let strip = format!("{br1}{c} | strip {br2}");
+        let strip = jinja(&strip);
+        assert_eq!(expected[i].strip(), strip);
 
-    write!(template, "{template_sample}").expect("should write to tmp correctly");
-
-    // file in which, after templating, it's gonna be writeable
-    let target_path = tmpdir.path().join("colors.sh");
-    let mut _target = File::create(&target_path).expect("should created a tmp file");
-
-    // usual config
-    let c = config::Config {
-        check_contrast: None,
-        dir: tmpdir.path().into(),
-        templates: Some(HashMap::from([
-            ("test1".into(), Fields {
-                template: template_path.display().to_string(),
-                target:   target_path.display().to_string(),
-                pywal: Some(false),
-            }), ]),
-        ),
-        ..config::Config::default()
-    };
-
-    let e = c.templates.as_ref().unwrap();
-
-    template::write_template(&c, wall_str, COLS, true).expect("should parse correctly");
-
-    //store templated string
-    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
-
-    // templated file should be the same as expected in the target_sample
-    assert_eq!(expected_output, target_content);
-
-    // `rm`ing the temporal dir will also close the files inside it
-    tmpdir.close().expect("temporal directory should close successfully");
+        let rgb = format!("{br1}{c} | rgb {br2}");
+        let rgb = jinja(&rgb);
+        assert_eq!(expected[i].rgb(), rgb);
+    }
 }
 
 /// Like the above but with pywal syntax
 #[test]
-fn variables_pywal() {
-    let template_sample =
+fn pywal() {
+    let sample =
 r#"
 # Special
 wallpaper="{wallpaper}"
@@ -166,41 +147,39 @@ color14='{color14}'
 color15='{color15}'
 "#;
 
-    let tmpdir = tempfile::tempdir().expect("init new temporal named pipe");
+    let expected_output =
+r#"
+# Special
+wallpaper="/home"
+background='#EEEEEE'
+foreground='#DDDDDD'
+cursor='#DDDDDD'
 
-    // file in which the template variables are
-    let template_path = tmpdir.path().join("colors-template.sh");
-    let mut template = File::create(&template_path).expect("should created a tmp file");
-    write!(template, "{template_sample}").expect("should write to tmp correctly");
+# Colors
+color0='#000000'
+color1='#010000'
+color2='#020000'
+color3='#030000'
+color4='#040000'
+color5='#050000'
+color6='#060000'
+color7='#070000'
+color8='#080000'
+color9='#090000'
+color10='#0A0000'
+color11='#0B0000'
+color12='#0C0000'
+color13='#0D0000'
+color14='#0E0000'
+color15='#0F0000'
+"#;
+    let result = new_string_template::template::Template::new(sample)
+        // this regex is even better than pywal, doesn't match new lines :3
+        // <https://regex101.com/r/AgVXKJ/1>
+        .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
+        .render(&Tfields.to_hash())
+        .unwrap()
+        ;
 
-    // file in which, after templating, it's gonna be writeable
-    let target_path = tmpdir.path().join("colors.sh");
-    let mut _target = File::create(&target_path).expect("should created a tmp file");
-
-    // usual config
-    let c = config::Config {
-        check_contrast: None,
-        dir: tmpdir.path().into(),
-        templates: Some(HashMap::from([
-            ("test1".into(), Fields {
-                template: template_path.display().to_string(),
-                target:   target_path.display().to_string(),
-                pywal: Some(true),
-            }), ]),
-        ),
-        ..config::Config::default()
-    };
-
-    let e = c.templates.as_ref().unwrap();
-
-    template::write_template(&c, wall_str, COLS, true).expect("should parse correctly");
-
-    //store templated string
-    let target_content = std::fs::read_to_string(&e["test1"].target).expect("TARGET CONTENT");
-
-    // templated file should be the same as expected in the target_sample
-    assert_eq!(expected_output, target_content);
-
-    // `rm`ing the temporal dir will also close the files inside it
-    tmpdir.close().expect("temporal directory should close successfully");
+    assert_eq!(expected_output, result);
 }
