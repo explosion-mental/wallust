@@ -121,7 +121,8 @@ Recommended way is to use the `Makefile`, since this will install man pages and 
 2. Build it with `make`
 3. Install wallust (if necessary as root): `make install`
 
-Then you can do the following, which moves the binary into your `$CARGO_HOME/bin`
+Optionally, installing **only** the binary can be done with the following,
+which moves the binary into your `$CARGO_HOME/bin`:
 ```
 cargo install --path .
 ```
