@@ -112,6 +112,7 @@ fn main() {
 
     let template = format!(
 "# wallust {version}.*
+# You can copy this file to ~/.config/wallust/wallust.toml
 # -- global space -- #
 # values below can be overwritten by command line flags
 
