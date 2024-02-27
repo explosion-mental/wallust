@@ -312,7 +312,7 @@ impl Colors {
         "T ".color(self.color3 .col()).bold().blink(),
         "T ".color(self.color2 .col()).bold().blink(),
         "E ".color(self.color1 .col()).bold().blink(),
-        "! ".color(self.color0 .col()).bold().blink(),
+        "! ".color(self.foreground.col()).bold().blink(),
         );
     }
 
