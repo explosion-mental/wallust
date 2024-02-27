@@ -204,7 +204,7 @@ impl From<&TemplateFields<'_>> for minijinja::Value {
                 wallpaper  => values.image_path,
                 backend    => values.backend,
                 colorspace => values.colorspace,
-                colors     => c.into_iter().map(|x| x.to_string()).collect::<String>(),
+                colors     => c.into_iter().map(|x| x.to_string()).collect::<Vec<String>>(),
             }
         }
 
