@@ -15,6 +15,16 @@ _wallust() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
+'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'-q[Don'\''t print anything]' \
+'--quiet[Don'\''t print anything]' \
+'-s[Skip setting terminal sequences]' \
+'--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-s --skip-sequences)-u[Only update the current terminal]' \
+'(-s --skip-sequences)--update-current[Only update the current terminal]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
@@ -58,8 +68,6 @@ labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster opera
 complementary\:"uses \[\`complementary\`\]"))' \
 '--fallback-generator=[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
 complementary\:"uses \[\`complementary\`\]"))' \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '-p+[Choose which palette to use (overwrites config)]:PALETTE:((dark\:"8 dark colors, dark background and light contrast"
 dark16\:"Same as \`dark\` but uses the 16 colors trick"
 darkcomp\:"This is a \`dark\` variant that changes all colors to it'\''s complementary counterpart, giving the feeling of a '\''new palette'\'' but that still makes sense with the image provided"
@@ -103,20 +111,22 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--saturation=[Add saturation from 1% to 100% (overwrites config)]:SATURATION: ' \
 '-t+[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
 '--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
+'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '-k[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
 '--no-cache[Don'\''t cache the results]' \
-'-q[Don'\''t print anything]' \
-'--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
-'-T[Skip the templating process]' \
-'--skip-templates[Skip the templating process]' \
-'(-s --skip-sequences)-u[Only update the current terminal colros]' \
-'(-s --skip-sequences)--update-current[Only update the current terminal colros]' \
 '-w[Generates colors even if there is a cache version of it]' \
 '--overwrite-cache[Generates colors even if there is a cache version of it]' \
+'-q[Don'\''t print anything]' \
+'--quiet[Don'\''t print anything]' \
+'-s[Skip setting terminal sequences]' \
+'--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-s --skip-sequences)-u[Only update the current terminal]' \
+'(-s --skip-sequences)--update-current[Only update the current terminal]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 ':file -- Path to an image or json theme to use:_files' \
@@ -149,8 +159,8 @@ wallust\:"cached wallust files"))' \
 _arguments "${_arguments_options[@]}" \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-q --quiet)-p[Only preview the selected theme]' \
-'(-q --quiet)--preview[Only preview the selected theme]' \
+'-p[Only preview the selected theme]' \
+'--preview[Only preview the selected theme]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
 '-s[Skip setting terminal sequences]' \
@@ -166,12 +176,32 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (migrate)
 _arguments "${_arguments_options[@]}" \
+'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'-q[Don'\''t print anything]' \
+'--quiet[Don'\''t print anything]' \
+'-s[Skip setting terminal sequences]' \
+'--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-s --skip-sequences)-u[Only update the current terminal]' \
+'(-s --skip-sequences)--update-current[Only update the current terminal]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
 ;;
 (debug)
 _arguments "${_arguments_options[@]}" \
+'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'-q[Don'\''t print anything]' \
+'--quiet[Don'\''t print anything]' \
+'-s[Skip setting terminal sequences]' \
+'--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-s --skip-sequences)-u[Only update the current terminal]' \
+'(-s --skip-sequences)--update-current[Only update the current terminal]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0

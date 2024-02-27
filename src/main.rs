@@ -7,18 +7,13 @@ use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
 
 use wallust::{
-    args,
-    cache,
-    config,
-    config::WalStr,
-    themes,
-    gen_colors,
+    args::{self, Sequences}, cache, config::{self, WalStr}, gen_colors, themes
 };
 
 const ISSUE: &str = "please report this at <https://codeberg.org/explosion-mental/wallust/issues>";
 
 fn main() -> Result<()> {
-    let cli = args::Subcmds::parse();
+    let cli = args::Cli::parse();
     let info = "I".blue();
     let info = info.bold();
 
@@ -30,14 +25,20 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
-    match cli {
+    let quiet = cli.quiet;
+    let update_current = cli.update_current;
+    let skip_sequences = cli.skip_sequences;
+    let ignore_sequence = cli.ignore_sequence;
+    let skip_templates = cli.skip_templates;
+
+    match cli.subcmds {
         args::Subcmds::Run(s) => {
             // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
             let mut conf = config::Config::new(&original_config_path, s.config_path.as_deref(), s.config_dir.as_deref())?;
-            run(&mut conf, &cache_path, &s)?
+            run(&mut conf, &cache_path, &s, quiet, update_current, skip_templates, ignore_sequence, skip_sequences)?
         },
         #[cfg(feature = "themes")]
-        args::Subcmds::Theme { theme, ignore_sequence, quiet, skip_sequences, skip_templates, preview, update_current } => {
+        args::Subcmds::Theme { theme, preview } => {
             let conf = config::Config::new(&original_config_path, None, None)?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(&theme, quiet)?;
@@ -61,7 +62,7 @@ fn main() -> Result<()> {
             }
             if ! quiet { colors.done() }
         },
-        args::Subcmds::Cs { file, quiet, skip_sequences, skip_templates, format, update_current, ignore_sequence } => {
+        args::Subcmds::Cs { file, format } => {
             let conf = config::Config::new(&original_config_path, None, None)?;
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
@@ -86,7 +87,6 @@ fn main() -> Result<()> {
                 conf.write_entry(&WalStr::Path(&file), &colors, quiet)?;
             }
             if ! quiet { colors.done() }
-
         },
         args::Subcmds::Debug => {
             let conf = config::Config::new(&original_config_path, None, None)?;
@@ -200,7 +200,11 @@ Cache path: {}
 
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) -> Result<()> {
+fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
+    quiet: bool, update_current: bool, skip_templates: bool,
+    ignore_sequence: Option<Vec<Sequences>>,
+    skip_sequences: bool
+    ) -> Result<()> {
     let info = "I".blue();
     let info = info.bold();
 
@@ -211,20 +215,20 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) ->
     let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
-    if ! cli.quiet {
+    if ! quiet {
         println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
         conf.print();
     }
 
     // Whether to load data from cache or to generate one from scratch
-    if !cli.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
+    if !quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
     let colors = if !cli.overwrite_cache && cached_data.is_cached() {
-        if ! cli.quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
+        if ! quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {
         // generate colors
-        if ! cli.quiet {
+        if ! quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
 
             //ugly workaround for printing warning, gotta stop the spinner first
@@ -250,34 +254,34 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs) ->
         }
     };
 
-    if ! cli.quiet {
+    if ! quiet {
         //TODO add print_long to list `value: color` like
         colors.print();
     }
 
     // Set sequences
-    if ! cli.skip_sequences && ! cli.update_current {
-        if ! cli.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(cache_path, cli.ignore_sequence.as_deref())?;
+    if ! skip_sequences && ! update_current {
+        if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+        colors.sequences(cache_path, ignore_sequence.as_deref())?;
     }
 
-    if cli.update_current {
-        if ! cli.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-        print!("{}", colors.to_seq(cli.ignore_sequence.as_deref()));
+    if update_current {
+        if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+        print!("{}", colors.to_seq(ignore_sequence.as_deref()));
     }
 
-    if ! cli.skip_templates {
-        conf.write_entry(&WalStr::Path(&cli.file), &colors, cli.quiet)?;
+    if ! skip_templates {
+        conf.write_entry(&WalStr::Path(&cli.file), &colors, quiet)?;
     }
 
     // Cache colors
-    if !cli.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
+    if !quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
     if !cli.no_cache && !cached_data.is_cached() {
-        if ! cli.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
+        if ! quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
         cached_data.write(&colors)?;
     }
 
-    if ! cli.quiet { colors.done(); }
+    if ! quiet { colors.done(); }
 
     Ok(())
 }

@@ -9,12 +9,38 @@ use crate::{
     themes::Schemes,
 };
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use serde::Deserialize;
+
+#[derive(Debug, Parser)]
+pub struct Cli {
+    /// Won't send these colors sequences
+    #[arg(global = true, short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+    pub ignore_sequence: Option<Vec<Sequences>>,
+
+    /// Don't print anything
+    #[arg(global = true, short, long)]
+    pub quiet: bool,
+
+    /// Skip setting terminal sequences
+    #[arg(global = true, short, long)]
+    pub skip_sequences: bool,
+
+    /// Skip templating process
+    #[arg(global = true, short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
+    pub skip_templates: bool,
+
+    /// Only update the current terminal
+    #[arg(global = true, short, long, conflicts_with = "skip_sequences")]
+    pub update_current: bool,
+
+    #[clap(subcommand)]
+    pub subcmds: Subcmds,
+}
 
 
 /// Overall cli type for clap: Possible Subcommands
-#[derive(Debug, Parser)]
+#[derive(Debug, Subcommand, Clone)]
 #[command(version, about, long_about,
     after_help = format!("Remember to read man pages (man wallust.1, man wallust.5, ..)\nAnd the new v3 spec at {}", crate::config::V3)
     )]
@@ -30,26 +56,6 @@ pub enum Subcmds {
         /// it by trying one by one.
         #[arg(short, long)]
         format: Option<Schemes>,
-
-        /// Won't send these colors sequences
-        #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
-        ignore_sequence: Option<Vec<Sequences>>,
-
-        /// Don't print anything
-        #[arg(short, long)]
-        quiet: bool,
-
-        /// Skip setting terminal sequences
-        #[arg(short, long)]
-        skip_sequences: bool,
-
-        /// Skip templating process
-        #[arg(short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
-        skip_templates: bool,
-
-        /// Only update the current terminal
-        #[arg(short, long, conflicts_with = "skip_sequences")]
-        update_current: bool,
     },
 
     /// Apply a custom built in theme
@@ -60,29 +66,9 @@ pub enum Subcmds {
         #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
         theme: String,
 
-        /// Won't send these colors sequences
-        #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
-        ignore_sequence: Option<Vec<Sequences>>,
-
         /// Only preview the selected theme.
-        #[arg(short, long, conflicts_with = "quiet")]
+        #[arg(short, long)]
         preview: bool,
-
-        /// Don't print anything
-        #[arg(short, long)]
-        quiet: bool,
-
-        /// Skip setting terminal sequences
-        #[arg(short, long)]
-        skip_sequences: bool,
-
-        /// Skip templating process
-        #[arg(short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
-        skip_templates: bool,
-
-        /// Only update the current terminal
-        #[arg(short, long, conflicts_with = "skip_sequences")]
-        update_current: bool,
     },
     /// Migrate v2 config to v3 (might lose comments,)
     Migrate,
@@ -120,10 +106,6 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum)]
     pub fallback_generator: Option<crate::colorspaces::FallbackGenerator>,
 
-    /// Won't send these colors sequences
-    #[arg(short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
-    pub ignore_sequence: Option<Vec<Sequences>>,
-
     /// Ensure a readable contrast by checking colors in reference to the background (overwrites config)
     #[arg(short = 'k', long)]
     pub check_contrast: bool,
@@ -136,14 +118,6 @@ pub struct WallustArgs {
     #[arg(short, long, value_enum, value_name = "PALETTE")]
     pub palette: Option<Palette>,
 
-    /// Don't print anything
-    #[arg(short, long)]
-    pub quiet: bool,
-
-    /// Skip setting terminal sequences
-    #[arg(short, long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
-    pub skip_sequences: bool,
-
     /// Add saturation from 1% to 100% (overwrites config)
     #[arg(long, value_parser = 1..=100)]
     pub saturation: Option<i64>,
@@ -151,14 +125,6 @@ pub struct WallustArgs {
     /// Choose a custom threshold, between 1 and 100 (overwrites config)
     #[arg(short, long, value_parser = 1..=100)]
     pub threshold: Option<i64>,
-
-    /// Skip the templating process
-    #[arg(short = 'T', long)]
-    pub skip_templates: bool,
-
-    /// Only update the current terminal colros
-    #[arg(short, long, conflicts_with = "skip_sequences")]
-    pub update_current: bool,
 
     /// Generates colors even if there is a cache version of it
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
