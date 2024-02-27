@@ -554,12 +554,12 @@ impl Colors {
     /// ANSI escape codes tables and helpful guidelines:
     /// <https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797>
     /// As well as support for iTerm2 (macOS) and windows terminal, depending on the OS.
-    pub fn sequences(&self, _cache_path: &Path, ignore: Option<&[Sequences]>) -> anyhow::Result<()> {
+    pub fn sequences(&self, _cache_path: &Path, _ignore: Option<&[Sequences]>) -> anyhow::Result<()> {
         #[cfg(target_family = "windows")]
         return windows_term(self);
 
         #[cfg(target_family = "unix")]
-        return unix_term(self, _cache_path, ignore);
+        return unix_term(self, _cache_path, _ignore);
     }
 }
 
