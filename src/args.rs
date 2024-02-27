@@ -35,11 +35,11 @@ pub struct Cli {
     pub update_current: bool,
 
     /// Use FILE as the config file
-    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
-    pub config_path: Option<PathBuf>,
+    #[arg(short = 'C', long, conflicts_with = "config_dir")]
+    pub config_file: Option<PathBuf>,
 
-    /// Use DIR as the config directory
-    #[arg(short = 'd', long, conflicts_with = "config_path")]
+    /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+    #[arg(short = 'd', long, conflicts_with = "config_file")]
     pub config_dir: Option<PathBuf>,
 
 

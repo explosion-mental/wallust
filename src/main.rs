@@ -31,7 +31,7 @@ fn main() -> Result<()> {
     let ignore_sequence = cli.ignore_sequence;
     let skip_templates = cli.skip_templates;
 
-    let mut conf = config::Config::new(&original_config_path, cli.config_path.as_deref(), cli.config_dir.as_deref())?;
+    let mut conf = config::Config::new(&original_config_path, cli.config_file.as_deref(), cli.config_dir.as_deref())?;
 
     match cli.subcmds {
         args::Subcmds::Run(s) => {
