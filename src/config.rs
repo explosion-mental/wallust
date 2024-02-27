@@ -40,6 +40,16 @@ pub struct Config {
     /// How to 'generate' colors when there aren't enough colors to create the `palette`.
     /// This appears as "Artificially generating colors.." in cli
     pub fallback_generator: Option<crate::colorspaces::FallbackGenerator>,
+    /// templates: a new way of defining templates, giving the ability of naming stuff.
+    // [templates]
+    // dunst.src = 'C:\long\path'
+    // dunst.dst = '~/.config/dunst'
+    // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
+    pub templates: Option<HashMap<String, Fields>>,
+    /// toml table with template and config target (optional)
+    /// This is here only for `wallust migrate`
+    // and is an array of tables btw..
+    pub entry: Option<Vec<Entries>>,
 
     /// Config directory (wallust/) path
     #[serde(skip)]
@@ -48,18 +58,6 @@ pub struct Config {
     /// Config file (wallust.toml) path
     #[serde(skip)]
     pub file: PathBuf,
-
-    /// templates: a new way of defining templates, giving the ability of naming stuff.
-    // [templates]
-    // dunst.src = 'C:\long\path'
-    // dunst.dst = '~/.config/dunst'
-    // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
-    pub templates: Option<HashMap<String, Fields>>,
-
-    /// toml table with template and config target (optional)
-    /// This is here only for `wallust migrate`
-    // and is an array of tables btw..
-    pub entry: Option<Vec<Entries>>,
 }
 
 /// An entry within the config file, toml table

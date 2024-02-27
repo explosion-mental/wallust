@@ -34,6 +34,15 @@ pub struct Cli {
     #[arg(global = true, short, long, conflicts_with = "skip_sequences")]
     pub update_current: bool,
 
+    /// Use FILE as the config file
+    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
+    pub config_path: Option<PathBuf>,
+
+    /// Use DIR as the config directory
+    #[arg(short = 'd', long, conflicts_with = "config_path")]
+    pub config_dir: Option<PathBuf>,
+
+
     #[clap(subcommand)]
     pub subcmds: Subcmds,
 }
@@ -93,14 +102,6 @@ pub struct WallustArgs {
     /// Choose which colorspace to use (overwrites config)
     #[arg(short, long, value_enum)]
     pub colorspace: Option<ColorSpace>,
-
-    /// Use FILE as the config file
-    #[arg(short = 'C', long, value_name = "CONFIG_FILE")]
-    pub config_path: Option<PathBuf>,
-
-    /// Use DIR as the config directory
-    #[arg(short = 'd', long, conflicts_with = "config_path")]
-    pub config_dir: Option<PathBuf>,
 
     /// Choose which fallback generation method to use (overwrites config)
     #[arg(short, long, value_enum)]

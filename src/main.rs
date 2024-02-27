@@ -31,15 +31,15 @@ fn main() -> Result<()> {
     let ignore_sequence = cli.ignore_sequence;
     let skip_templates = cli.skip_templates;
 
+    let mut conf = config::Config::new(&original_config_path, cli.config_path.as_deref(), cli.config_dir.as_deref())?;
+
     match cli.subcmds {
         args::Subcmds::Run(s) => {
             // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
-            let mut conf = config::Config::new(&original_config_path, s.config_path.as_deref(), s.config_dir.as_deref())?;
             run(&mut conf, &cache_path, &s, quiet, update_current, skip_templates, ignore_sequence, skip_sequences)?
         },
         #[cfg(feature = "themes")]
         args::Subcmds::Theme { theme, preview } => {
-            let conf = config::Config::new(&original_config_path, None, None)?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(&theme, quiet)?;
             if ! quiet {
@@ -63,7 +63,6 @@ fn main() -> Result<()> {
             if ! quiet { colors.done() }
         },
         args::Subcmds::Cs { file, format } => {
-            let conf = config::Config::new(&original_config_path, None, None)?;
             if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
             // read_scheme or try_all_schemes
             let colors = match format {
@@ -89,7 +88,6 @@ fn main() -> Result<()> {
             if ! quiet { colors.done() }
         },
         args::Subcmds::Debug => {
-            let conf = config::Config::new(&original_config_path, None, None)?;
             use cache::CACHE_VER;
             println!(
 "Cache version: {CACHE_VER}
