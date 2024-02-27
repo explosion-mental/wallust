@@ -8,7 +8,7 @@ wallust \- Generate a 16 color scheme based on an image.
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH SYNOPSIS
-\fBwallust\fR [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+\fBwallust\fR [\fB\-i\fR|\fB\-\-ignore\-sequence\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-C\fR|\fB\-\-config\-file\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
 
 .SH "DESCRIPTION"
 .TS
@@ -17,15 +17,47 @@ tab(;) left,box;
 l   |   l |.
 \fBMethods\fP;\fBDescription\fP
 _
-\fBBackends\fP;How to extract the colors from the image (e.g. pywal uses convert).
+\fBBackends\fP;How to extract the colors from the image
+              ; (e.g. pywal uses convert).
 _
-\fBColorspace\fP;Get the most prominent color, and sort them according to the \fBpalette\fP, configurable with a threshold.
+\fBColorspace\fP;Get the most prominent color, and sort them
+                ; according to the \fBpalette\fP, configurable with a threshold.
 _
-\fBPalette\fP;Makes a scheme palette with the gathered colors (e.g. sets a light background).
+\fBPalette\fP;Makes a scheme palette with the gathered colors
+             ; (e.g. sets a light background).
 .TE
+
+.B Reminder
+The options below can be used after the subcommand, for example:
+"wallust --quiet run image.png" is the same as "wallust run --quiet image.png"
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH OPTIONS
+.TP
+\fB\-i\fR, \fB\-\-ignore\-sequence\fR=\fIIGNORE_SEQUENCE\fR
+Won\*(Aqt send these colors sequences
+.br
+
+.br
+[\fIpossible values: \fRbackground, foreground, cursor, color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, color12, color13, color14, color15]
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Don\*(Aqt print anything
+.TP
+\fB\-s\fR, \fB\-\-skip\-sequences\fR
+Skip setting terminal sequences
+.TP
+\fB\-T\fR, \fB\-\-skip\-templates\fR
+Skip templating process
+.TP
+\fB\-u\fR, \fB\-\-update\-current\fR
+Only update the current terminal
+.TP
+\fB\-C\fR, \fB\-\-config\-file\fR=\fICONFIG_FILE\fR
+Use FILE as the config file
+.TP
+\fB\-d\fR, \fB\-\-config\-dir\fR=\fICONFIG_DIR\fR
+Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
@@ -102,6 +134,17 @@ These types are formated like as HEX (e.g. '#0A0B0C')
 .BR background ,
 .BR foreground " and"
 .BR cursor .
+
+.B colors
+Additionally, this variable returns a vector of all the presented colors in the following order:
+starts with
+.I color0
+to
+.IR color15 ,
+.IR background ,
+.IR foreground and
+at the end, (index 18 if starting from 0),
+.IR  cursor .
 
 .TP
 .B MISCELLANEOUS
@@ -318,12 +361,31 @@ And yes, you can comment inside your template, the comments won't be rendered in
 .fi
 .RE
 
+There are more control flow instructions, like the for loop:
+
+.RS
+.nf
+\fC
+{# This will generate color0 = .. to color18,
+since `colors` contains background, foreground and cursor variables #}
+{% for c in colors %}
+color{{- loop.index }} = {{c-}}
+{% endfor %}
+\fP
+.fi
+.RE
+
+You can add a minus sign (-) at the start or the end of the delimiters to supress
+.BR "vertical spacing" [3]
+
 The syntax comes from the library being used, which is
 .I minijinja
 , a subset of the template engine `Jinja2'.
 
 You can read more at:
-.BR "Compatibility of minijinja" [3]
+.BR "Jinja2 official syntax" [4]
+and contrast features with the supported syntax at
+.BR "Compatibility of minijinja" [5]
 
 .SH "TEMPLATE EXAMPLE"
 You can use
@@ -430,14 +492,14 @@ anothervariable = {color8.rgb}
 .RE
 
 Don't forget to visit the
-.BR "full pywal spec" [4]
+.BR "full pywal spec" [6]
 
 .SH "SEE ALSO"
 .BR wallust (5),
 .BR wallust-run (1),
 .BR wallust-cs (1),
 .BR wallust-theme (1),
-.BR wallust-themes [5].
+.BR wallust-themes [7].
 .br
 
 .SH "NOTES"
@@ -457,17 +519,30 @@ Hexadecimal color code
 
 .TP 4
 .B "3."
+White space contron with the minus sign (-)
+.br
+.I http://jinja.pocoo.org/docs/templates/#whitespace-control
+
+.TP 4
+.B "4."
+Official Jinja2 documentation
+.br
+.I https://jinja.palletsprojects.com/en/2.10.x/
+
+.TP 4
+.B "5."
 Compatibility of Minijinja with Jinja2
 .br
 .I https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md
 
 .TP 4
-.B "4."
+.B "6."
 Full pywal template specification
+.br
 .I https://github.com/dylanaraps/pywal/wiki/User-Template-Files
 
 .TP 4
-.B "5."
+.B "7."
 Suggestions for new colorschemes returned by the
 .B themes
 subcommand should be filled here.

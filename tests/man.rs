@@ -12,12 +12,19 @@ tab(;) left,box;
 l   |   l |.
 \fBMethods\fP;\fBDescription\fP
 _
-\fBBackends\fP;How to extract the colors from the image (e.g. pywal uses convert).
+\fBBackends\fP;How to extract the colors from the image
+              ; (e.g. pywal uses convert).
 _
-\fBColorspace\fP;Get the most prominent color, and sort them according to the \fBpalette\fP, configurable with a threshold.
+\fBColorspace\fP;Get the most prominent color, and sort them
+                ; according to the \fBpalette\fP, configurable with a threshold.
 _
-\fBPalette\fP;Makes a scheme palette with the gathered colors (e.g. sets a light background).
+\fBPalette\fP;Makes a scheme palette with the gathered colors
+             ; (e.g. sets a light background).
 .TE
+
+.B Reminder
+The options below can be used after the subcommand, for example:
+"wallust --quiet run image.png" is the same as "wallust run --quiet image.png"
 "#;
 
 /// This goes below options and subcommands, miscellaneous stuff
@@ -71,6 +78,17 @@ These types are formated like as HEX (e.g. '#0A0B0C')
 .BR background ,
 .BR foreground " and"
 .BR cursor .
+
+.B colors
+Additionally, this variable returns a vector of all the presented colors in the following order:
+starts with
+.I color0
+to
+.IR color15 ,
+.IR background ,
+.IR foreground and
+at the end, (index 18 if starting from 0),
+.IR  cursor .
 
 .TP
 .B MISCELLANEOUS
@@ -287,12 +305,31 @@ And yes, you can comment inside your template, the comments won't be rendered in
 .fi
 .RE
 
+There are more control flow instructions, like the for loop:
+
+.RS
+.nf
+\fC
+{# This will generate color0 = .. to color18,
+since `colors` contains background, foreground and cursor variables #}
+{% for c in colors %}
+color{{- loop.index }} = {{c-}}
+{% endfor %}
+\fP
+.fi
+.RE
+
+You can add a minus sign (-) at the start or the end of the delimiters to supress
+.BR "vertical spacing" [3]
+
 The syntax comes from the library being used, which is
 .I minijinja
 , a subset of the template engine `Jinja2'.
 
 You can read more at:
-.BR "Compatibility of minijinja" [3]
+.BR "Jinja2 official syntax" [4]
+and contrast features with the supported syntax at
+.BR "Compatibility of minijinja" [5]
 
 .SH "TEMPLATE EXAMPLE"
 You can use
@@ -399,7 +436,7 @@ anothervariable = {color8.rgb}
 .RE
 
 Don't forget to visit the
-.BR "full pywal spec" [4]
+.BR "full pywal spec" [6]
 "##;
 
 
@@ -410,7 +447,7 @@ const footer_wallust:&str = r#"
 .BR wallust-run (1),
 .BR wallust-cs (1),
 .BR wallust-theme (1),
-.BR wallust-themes [5].
+.BR wallust-themes [7].
 .br
 
 .SH "NOTES"
@@ -430,17 +467,30 @@ Hexadecimal color code
 
 .TP 4
 .B "3."
+White space contron with the minus sign (-)
+.br
+.I http://jinja.pocoo.org/docs/templates/#whitespace-control
+
+.TP 4
+.B "4."
+Official Jinja2 documentation
+.br
+.I https://jinja.palletsprojects.com/en/2.10.x/
+
+.TP 4
+.B "5."
 Compatibility of Minijinja with Jinja2
 .br
 .I https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md
 
 .TP 4
-.B "4."
+.B "6."
 Full pywal template specification
+.br
 .I https://github.com/dylanaraps/pywal/wiki/User-Template-Files
 
 .TP 4
-.B "5."
+.B "7."
 Suggestions for new colorschemes returned by the
 .B themes
 subcommand should be filled here.
@@ -503,7 +553,7 @@ fn mk_man() {
     use std::fs::File;
     use std::io::Write;
 
-    let cmd = wallust::args::Subcmds::command();
+    let cmd = wallust::args::Cli::command();
 
     let v = clap::crate_version!().chars().collect::<Vec<_>>();
     let mut version = String::new();

@@ -8,7 +8,7 @@ wallust\-run \- Generate a palette from an image
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH SYNOPSIS
-\fBwallust\-run\fR [\fB\-a\fR|\fB\-\-alpha\fR] [\fB\-b\fR|\fB\-\-backend\fR] [\fB\-c\fR|\fB\-\-colorspace\fR] [\fB\-C\fR|\fB\-\-config\-path\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-f\fR|\fB\-\-fallback\-generator\fR] [\fB\-i\fR|\fB\-\-ignore\-sequence\fR] [\fB\-k\fR|\fB\-\-check\-contrast\fR] [\fB\-n\fR|\fB\-\-no\-cache\fR] [\fB\-p\fR|\fB\-\-palette\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-\-saturation\fR] [\fB\-t\fR|\fB\-\-threshold\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-w\fR|\fB\-\-overwrite\-cache\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
+\fBwallust\-run\fR [\fB\-a\fR|\fB\-\-alpha\fR] [\fB\-b\fR|\fB\-\-backend\fR] [\fB\-c\fR|\fB\-\-colorspace\fR] [\fB\-f\fR|\fB\-\-fallback\-generator\fR] [\fB\-k\fR|\fB\-\-check\-contrast\fR] [\fB\-n\fR|\fB\-\-no\-cache\fR] [\fB\-p\fR|\fB\-\-palette\fR] [\fB\-\-saturation\fR] [\fB\-t\fR|\fB\-\-threshold\fR] [\fB\-w\fR|\fB\-\-overwrite\-cache\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH OPTIONS
@@ -52,12 +52,6 @@ labmixed: Variant of `lab` that mixes the colors gathered, if not enough colors 
 labfast: Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast
 .RE
 .TP
-\fB\-C\fR, \fB\-\-config\-path\fR=\fICONFIG_FILE\fR
-Use FILE as the config file
-.TP
-\fB\-d\fR, \fB\-\-config\-dir\fR=\fICONFIG_DIR\fR
-Use DIR as the config directory
-.TP
 \fB\-f\fR, \fB\-\-fallback\-generator\fR=\fIFALLBACK_GENERATOR\fR
 Choose which fallback generation method to use (overwrites config)
 .br
@@ -70,13 +64,6 @@ interpolate: uses [`interpolate`]
 .IP \(bu 2
 complementary: uses [`complementary`]
 .RE
-.TP
-\fB\-i\fR, \fB\-\-ignore\-sequence\fR=\fIIGNORE_SEQUENCE\fR
-Won\*(Aqt send these colors sequences
-.br
-
-.br
-[\fIpossible values: \fRbackground, foreground, cursor, color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, color12, color13, color14, color15]
 .TP
 \fB\-k\fR, \fB\-\-check\-contrast\fR
 Ensure a readable contrast by checking colors in reference to the background (overwrites config)
@@ -133,23 +120,11 @@ softlightcomp: softlight with complementary colors
 softlightcomp16: softlight with complementary colors with 16 colors
 .RE
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
-Don\*(Aqt print anything
-.TP
-\fB\-s\fR, \fB\-\-skip\-sequences\fR
-Skip setting terminal sequences
-.TP
 \fB\-\-saturation\fR=\fISATURATION\fR
 Add saturation from 1% to 100% (overwrites config)
 .TP
 \fB\-t\fR, \fB\-\-threshold\fR=\fITHRESHOLD\fR
 Choose a custom threshold, between 1 and 100 (overwrites config)
-.TP
-\fB\-T\fR, \fB\-\-skip\-templates\fR
-Skip the templating process
-.TP
-\fB\-u\fR, \fB\-\-update\-current\fR
-Only update the current terminal colros
 .TP
 \fB\-w\fR, \fB\-\-overwrite\-cache\fR
 Generates colors even if there is a cache version of it
