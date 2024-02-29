@@ -2,9 +2,9 @@
 //! Default method to generate colors.
 use super::*;
 
-/// This parser only needs 6 colors [0..=5]. Sorted by [`LightFirst`]
-pub fn dark(cols: Cols) -> Colors {
-    let c = cols.to_rgb();
+/// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]
+pub fn dark(cols: Vec<Myrgb>, _orig: Vec<Myrgb>) -> Colors {
+    let c = cols;
     let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
 
     // this corresponds to [`LightFirst`] [`ColorOrder`]

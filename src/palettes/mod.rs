@@ -23,36 +23,37 @@ use crate::{
     colors::{
         Colors, Myrgb
     },
-    colorspaces::{Cols, ColorOrder}
+    colorspaces::ColorOrder,
+    //colorspaces::{BuildColors, ColorOrder},
 };
 
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
 
 mod dark;
-mod dark16;
-mod darkcomp;
-mod darkcomp16;
-
-mod harddark;
-mod harddark16;
-mod harddarkcomp;
-mod harddarkcomp16;
-
-mod light;
-mod light16;
-mod lightcomp;
-mod lightcomp16;
-
-mod softdark;
-mod softdark16;
-mod softdarkcomp;
-mod softdarkcomp16;
-
-mod softlight;
-mod softlight16;
-mod softlightcomp;
-mod softlightcomp16;
+// mod dark16;
+// mod darkcomp;
+// mod darkcomp16;
+//
+// mod harddark;
+// mod harddark16;
+// mod harddarkcomp;
+// mod harddarkcomp16;
+//
+// mod light;
+// mod light16;
+// mod lightcomp;
+// mod lightcomp16;
+//
+// mod softdark;
+// mod softdark16;
+// mod softdarkcomp;
+// mod softdarkcomp16;
+//
+// mod softlight;
+// mod softlight16;
+// mod softlightcomp;
+// mod softlightcomp16;
 
 
 /// Corresponds to the modules inside this module and `palette` parameter in the config file.
@@ -142,50 +143,50 @@ pub enum Palette {
     SoftLightComp16,
 }
 
-pub fn main(f: &F) -> fn(Cols) -> Colors {
+pub fn main(f: &F) -> fn(Vec<Myrgb>, Vec<Myrgb>) -> Colors {
     match f {
         F::Dark    => dark::dark,
-        F::Dark16  => dark16::dark16,
-        F::DarkComp => darkcomp::darkcomp,
-        F::DarkComp16 => darkcomp16::darkcomp16,
-
-        F::HardDark => harddark::harddark,
-        F::HardDark16 => harddark16::harddark16,
-        F::HardDarkComp => harddarkcomp::harddarkcomp,
-        F::HardDarkComp16 => harddarkcomp16::harddarkcomp16,
-
-        F::Light   => light::light,
-        F::Light16 => light16::light16,
-        F::LightComp => lightcomp::lightcomp,
-        F::LightComp16 => lightcomp16::lightcomp16,
-
-        F::SoftDark => softdark::softdark,
-        F::SoftDark16 => softdark16::softdark16,
-        F::SoftDarkComp => softdarkcomp::softdarkcomp,
-        F::SoftDarkComp16 => softdarkcomp16::softdarkcomp16,
-
-        F::SoftLight => softlight::softlight,
-        F::SoftLight16 => softlight16::softlight16,
-        F::SoftLightComp => softlightcomp::softlightcomp,
-        F::SoftLightComp16 => softlightcomp16::softlightcomp16,
-    }
-}
-
-/// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
-pub fn sort_ord(f: &F) -> ColorOrder {
-    match f {
-          F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
-        | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
-        | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
-        => ColorOrder::LightFirst,
-
-          F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
-        | F::Light | F::Light16 | F::LightComp | F::LightComp16
-        => ColorOrder::DarkFirst,
+        _ => todo!(),
+        // F::Dark16  => dark16::dark16,
+        // F::DarkComp => darkcomp::darkcomp,
+        // F::DarkComp16 => darkcomp16::darkcomp16,
+        //
+        // F::HardDark => harddark::harddark,
+        // F::HardDark16 => harddark16::harddark16,
+        // F::HardDarkComp => harddarkcomp::harddarkcomp,
+        // F::HardDarkComp16 => harddarkcomp16::harddarkcomp16,
+        //
+        // F::Light   => light::light,
+        // F::Light16 => light16::light16,
+        // F::LightComp => lightcomp::lightcomp,
+        // F::LightComp16 => lightcomp16::lightcomp16,
+        //
+        // F::SoftDark => softdark::softdark,
+        // F::SoftDark16 => softdark16::softdark16,
+        // F::SoftDarkComp => softdarkcomp::softdarkcomp,
+        // F::SoftDarkComp16 => softdarkcomp16::softdarkcomp16,
+        //
+        // F::SoftLight => softlight::softlight,
+        // F::SoftLight16 => softlight16::softlight16,
+        // F::SoftLightComp => softlightcomp::softlightcomp,
+        // F::SoftLightComp16 => softlightcomp16::softlightcomp16,
     }
 }
 
 impl F {
+    /// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
+    pub fn sort_ord(&self) -> ColorOrder {
+        match self {
+            F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
+                | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
+                | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
+                => ColorOrder::LightFirst,
+
+                F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
+                    | F::Light | F::Light16 | F::LightComp | F::LightComp16
+                    => ColorOrder::DarkFirst,
+        }
+    }
     /// Assign a color when printing in `main()`
     pub fn col(&self) -> AnsiColors {
         match self {

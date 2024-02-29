@@ -9,17 +9,16 @@
 //     like: 'making it the most hued colors acting as the `darkest`', so `DarkFirst` would get the
 //     most hued colors first, or the 'hard' ones (uwu)
 
+use std::cmp::Ordering;
 use std::fmt;
 
+// use crate::colors::Colors;
 use crate::colors::Myrgb;
 
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
-
-/// rename [`ColorSpace`] so it's shorter to type
-use self::ColorSpace as Cs;
 
 mod lab;
 
@@ -51,6 +50,9 @@ pub enum ColorOrder {
     /// `colors[0]` will be the darkest, and `colors.last()` will be the lightest
     DarkFirst,
 }
+
+/// rename [`ColorSpace`] so it's shorter to type
+use self::ColorSpace as Cs;
 
 /// Corresponds to the modules inside this module and `color_space` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
@@ -88,12 +90,18 @@ pub enum FallbackGenerator {
 
 /// Simple Histogram
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Histo<T> {
+pub struct Histo<T: ColorTrait> {
     /// SOME colorspace color
     color: T,
     /// number of times it has appeared
     count: usize,
 }
+
+pub struct Histograms<> {
+}
+
+pub trait ColorTrait {}
+impl ColorTrait for ::lab::Lab {}
 
 /// Type that stores and abstracts away the colorspace
 /// 1. Get configs (threshold and mix)
@@ -103,18 +111,14 @@ pub struct Histo<T> {
 ///      store the `histo` per se, as this requires the [`Cols`] type to add a generic argument,
 ///      threshold and colorspace doesn't seem to be useful in the `palettes` stage.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Cols {
+pub struct MyCol<T: ColorTrait> {
     /// The histogram
-    pub histo: Vec<Histo<::lab::Lab>>,
+    pub histo: Vec<Histo<T>>,
     /// Histogram without any custom sorting, so it stays from most prominent color `[0]` to the least one `.last()`
-    pub orig_histo: Vec<Histo<::lab::Lab>>,
-    /// explained in config.rs
-    pub threshold: u8,
-    /// what are we using?
-    pub c: ColorSpace,
+    pub orig_histo: Vec<Histo<T>>,
 }
 
-impl<T> From<Histo<T>> for Myrgb
+impl<T: ColorTrait> From<Histo<T>> for Myrgb
     where Myrgb: From<T>
 {
     fn from(h: Histo<T>) -> Self {
@@ -122,74 +126,43 @@ impl<T> From<Histo<T>> for Myrgb
     }
 }
 
-impl Cols {
-    /// Creates a new [`Cols`]
-    /// TODO in the future, to allow to work with other colorspaces, and thus working with
-    ///      generics, a whole new type should be created. A wrapper type that only stores the
-    ///      histo and it's methods (which will be traits) like `.sort_colors` and the like. This
-    ///      would require [`Cols`] to also be a generic, however, to avoid that, the histo should
-    ///      be defined in another function similar to the old `gen_cs` or directly on main,
-    ///      returning the wrapper type like `ColSp` which includes different methods by trait
-    ///      according to their colorspace.
-    pub fn new(cols: &[u8], threshold: u8, c: &Cs) -> Self {
-        #[allow(clippy::match_like_matches_macro)] //waiting for other colorspaces..
-        let mix = match c {
-            Cs::LabMixed => true,
-            _ => false,
-        };
-
-        let pred = match c {
-            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
-
-            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
-        };
-
-        let histo = lab::histo(cols, threshold, mix, pred);
-
-        Self {
-            orig_histo: vec![],
-            c: *c,
-            histo,
-            threshold,
-        }
-    }
-
-    /// Sort the colors, this depends on the colorspace being used
-    pub fn sort_colors(&mut self, method: &ColorOrder) {
-        match self.c {
-            Cs::Lab | Cs::LabMixed | Cs::LabFast => lab::sort_colors(&mut self.histo, method),
-        }
-    }
-
-    /// This function is called when the colors gathered are not enough. Usually implies calling
-    /// [`interpolate`] function, however there could be other ways or simply do nothing (this will
-    /// imply to quit the program, since later on the .len() it's evaluated and needs to be higher
-    /// than [`MAX_COLS`])
-    pub fn new_cols(&mut self, gen: &G) {
-
-        let pred = match self.c {
-            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
-
-            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
-        };
-
-        let method = match gen {
+impl FallbackGenerator {
+    pub fn gen(&self) -> impl Fn(Myrgb, Myrgb, u8) -> Vec<Myrgb> {
+        match self {
             G::Interpolate => interpolate,
             G::Complementary => complementary,
-        };
-
-        self.histo.append(&mut lab::new_cols(&self.histo, self.threshold, pred, method));
+        }
     }
+}
 
-    /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
-    pub fn to_rgb(&self) -> Vec<Myrgb> {
-        self.histo.iter().map(|&x| x.into()).collect::<Vec<_>>()
+impl ColorSpace {
+    pub fn color_constraint(&self) -> impl Fn(f32) -> bool {
+        match self {
+            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
+            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
+        }
     }
+}
 
-    /// Convert the whole [`Cols`] type to an array of [`Myrgb`]
-    pub fn to_rgb_orig(&self) -> Vec<Myrgb> {
-        self.orig_histo.iter().map(|&x| x.into()).collect::<Vec<_>>()
-    }
+pub type Cols<T> = Vec<Histo<T>>;
+#[derive(Debug, Clone, PartialEq)]
+pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
+
+/// This trait is for creating a new `Col` type.
+/// The Self parameter should always be an iteratable type
+pub trait BuildColors: Sized {
+    type Color: ColorTrait;
+    type Histogram: Sized;
+    fn read(bytes: &[u8]) -> Vec<Self::Color>;
+    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self;
+    fn color_generator(&self, threshold: u8, c: &Cs, gen: &G) -> Self;
+    /// Simple Sort algo that determines how to order colors
+    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
+    fn sort_algo(cs: &ColorOrder, a: &Self::Histogram, b: &Self::Histogram) -> Ordering;
+    // fn to_colors(&self) -> Colors;
+    fn to_myrgb(&self) -> Vec<Myrgb>;
+    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool;
+    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord;
 }
 
 impl Cs {
@@ -231,15 +204,23 @@ impl fmt::Display for Cs {
         }
     }
 }
+// pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)> {
+//     match c {
+//         Cs::Lab => histo::<::lab::Lab>(c, cols, threshold, gen, ord),
+//         _ => todo!()
+//     }
+// }
 
-pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G) -> Result<(Cols, bool)> {
+pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+    // where T: BuildColors<Color = T, Histogram = Histo<T>> + Clone + ColorTrait,
+{
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
-    let mut cols = Cols::new(cols, threshold, &c);
+    let mut histo = ColorHisto::new_colors(cols, threshold, &c);
 
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
-    if cols.histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
+    if histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
 
     // FORGET: testing this as much as I can, and `.dedup()`ing doesn't seem to remove "similar" colors.
     // dedup colors by
@@ -252,48 +233,58 @@ pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G) -> Result<(Cols, bool)> 
     //    similar colors, not resulting in an stable palette. By using these two methods below, we
     //    'asure' (lazyly) to have no duplicates, and thus, the benefit of 'more colors' won't
     //    imply 'bad scheme'.
-    cols.histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
-    cols.histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
+    // histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
+    // histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
     // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
     // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
     // labs.dedup();
+    histo.sort_by_key(|&a| ColorHisto::sort_by_key_fn(a));
+    histo.dedup_by(|a, b| ColorHisto::dedup_by_fn(a, b, threshold));
 
     // sort vec by count, most used colors first
-    cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
+    histo.sort_by(|a, b| b.count.cmp(&a.count));
 
     // remove excess elements
-    cols.histo.truncate(MAX_COLS.into());
+    histo.truncate(MAX_COLS.into());
 
     // Artificially generate colors with linear interpolation in between the colors that we already
     // have. However even this can even fail and not generate enough different colors, so there is
     // another check below
-    if cols.histo.len() < MIN_COLS.into() {
+    if histo.len() < MIN_COLS.into() {
         warn = true; // "artificially generation colors.."
 
-        // `interpolate()`ion and `.append()` new colors to `cols`
+        // `interpolate()`ion and `.append()` new colors to `
         //TODO give options on **how** to complete the colors:
         // - `interpolate()`ion, what's currently being used
         // - `.complementary()`, fill colors with it's complementary ones #13
-        cols.new_cols(gen);
+        let mut new = ColorHisto::color_generator(&histo, threshold, &c, gen);
+
+        histo.append(&mut new);
 
         // sort vec by count, most used colors first (if they are more than the MAX)
-        cols.histo.sort_by(|a, b| b.count.cmp(&a.count));
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
 
         // TODO Do another check on histo itself to update `.count` variables
         //       test if colors repetead again (on interpolation)
 
         // take the *necessary* most used colors
-        cols.histo.truncate(MAX_COLS.into());
+        histo.truncate(MAX_COLS.into());
     }
 
     // not enough colors, even after making new colors (if any)
-    if cols.histo.len() < MIN_COLS.into() { anyhow::bail!(NOT_ENOUGH_COLS); }
+    if histo.len() < MIN_COLS.into() { anyhow::bail!(NOT_ENOUGH_COLS); }
 
     // orig_histo will not be changed by `sort_colors`,
     // thus keeping the `top used colors` order in place
-    cols.orig_histo = cols.histo.clone();
+    let orig_histo = histo.clone();
 
-    Ok((cols, warn))
+    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
+    //histo = T::sort_algo(&Cs);
+    histo.sort_by(|a, b| ColorHisto::sort_algo(&ord, &a, &b));
+
+    Ok(
+        ((histo.to_myrgb(), orig_histo.to_myrgb()), warn)
+        )
 }
 
 /// Combines some colors to generate new ones

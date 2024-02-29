@@ -17,13 +17,13 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let (mut top, warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, &c.fallback_generator.unwrap_or_default())?;
+    let ((top, orig), warn) = colorspaces::main(c.color_space, &rgb8s, c.threshold, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    top.sort_colors(&palettes::sort_ord(&c.palette));
+    // top = topsort_algo(&palettes::sort_ord(&c.palette));
 
     // Apply a [`Palette`] that returns the [`Colors`] struct
-    let mut colors = palettes::main(&c.palette)(top);
+    let mut colors = palettes::main(&c.palette)(top, orig);
 
     if c.check_contrast.unwrap_or(false) {
         colors.check_contrast_all();

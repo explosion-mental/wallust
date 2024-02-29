@@ -5,6 +5,10 @@
 //! > The b* axis represents the blue-yellow opponents, with negative numbers toward
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
+use std::cmp::Ordering;
+use std::ops::Deref;
+use std::ops::DerefMut;
+
 use crate::colorspaces::*;
 
 use ::lab::rgb_bytes_to_labs;
@@ -73,14 +77,53 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
     new
 }
 
-pub fn sort_colors(histo: &mut [Hist], method: &ColorOrder) {
-    histo.sort_by(|a, b|
-        match method {
+impl Deref for ColorHisto<Spec> {
+    type Target = Vec<Histo<Spec>>;
+    fn deref(&self) -> &Vec<Histo<Spec>> { &self.0 }
+}
+
+impl DerefMut for ColorHisto<Spec> {
+    fn deref_mut(&mut self) -> &mut Vec<Histo<Spec>> { &mut self.0 }
+}
+
+impl From<Vec<Histo<Spec>>> for ColorHisto<Spec> {
+    fn from(c: Vec<Histo<Spec>>) -> Self {
+        Self(c)
+    }
+}
+
+impl BuildColors for ColorHisto<Spec> {
+    type Color = Spec;
+    type Histogram = Histo<Spec>;
+    fn read(bytes: &[u8]) -> Vec<Self::Color> {
+        rgb_bytes_to_labs(bytes)
+    }
+    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self {
+        let mut labs = Self::read(bytes);
+        labs.dedup();
+
+        gather_cols(labs, threshold, false, &c.color_constraint()).into()
+    }
+    fn color_generator(&self, threshold: u8, c: &Cs, gen: &FallbackGenerator) -> Self {
+        new_cols(self, threshold, c.color_constraint(), gen.gen()).into()
+    }
+    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering {
+        match cs {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
         }
-    );
+    }
+    fn to_myrgb(&self) -> Vec<Myrgb> {
+        self.0.iter().map(|x| x.color.into()).collect()
+    }
+    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool {
+        delta_e(a.color, b.color) <= threshold.into()
+    }
+    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord {
+        (a.color.l as u32, a.color.a as i32, a.color.b as i32)
+    }
 }
+
 
 /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
 /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
@@ -111,20 +154,20 @@ pub fn new_cols<F1, F2>(histo: &[Hist], threshold: u8, pred: F1, method: F2) -> 
     new_cols
 }
 
-pub fn histo<F>(cols: &[u8], threshold: u8, mix: bool, pred: F) -> Vec<Hist>
-    where F: Fn(f32) -> bool
-{
-    let mut labs = rgb_bytes_to_labs(cols);
-    labs.dedup();
-    // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
-    // that the colors aren't the most prominent ones (for the most part).
-    // However, avoiding `.dedup()` and not calling it, also changes the result.
-    // After some testing I decided that the most 'plausible' colors would be
-    // the one that requires `.dedup()`.
-    //labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
-
-    gather_cols(labs, threshold, mix, &pred)
-}
+// pub fn histo<F>(cols: &[u8], threshold: u8, mix: bool, pred: F) -> Vec<Hist>
+//     where F: Fn(f32) -> bool
+// {
+//     let mut labs = rgb_bytes_to_labs(cols);
+//     labs.dedup();
+//     // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
+//     // that the colors aren't the most prominent ones (for the most part).
+//     // However, avoiding `.dedup()` and not calling it, also changes the result.
+//     // After some testing I decided that the most 'plausible' colors would be
+//     // the one that requires `.dedup()`.
+//     //labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
+//
+//     gather_cols(labs, threshold, mix, &pred)
+// }
 
 fn gather_cols<F>(labs: Vec<Spec>, threshold: u8, mix: bool, pred: &F) -> Vec<Hist>
     where F: Fn(f32) -> bool
@@ -159,6 +202,10 @@ fn gather_cols<F>(labs: Vec<Spec>, threshold: u8, mix: bool, pred: &F) -> Vec<Hi
 /// (by criterion),
 #[inline]
 pub fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
+    // TODO properly analize the following
+    // an improved version of delta_e.. This has a limit threshold of 8, with pretty good results.
+    //https://github.com/Ogeon/palette/blob/c54efbd43c03267713da337bd72005c9d0390598/palette/src/lab.rs#L269
+    //(1.26 * delta_1994(lab_0, lab_1).powf(0.55)).round() as u32
     //delta_2000(lab_0, lab_1) as u32
     delta_1994(lab_0, lab_1) as u32
 }
