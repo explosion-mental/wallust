@@ -23,7 +23,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     // top = topsort_algo(&palettes::sort_ord(&c.palette));
 
     // Apply a [`Palette`] that returns the [`Colors`] struct
-    let mut colors = palettes::main(&c.palette)(top, orig);
+    let mut colors = c.palette.run(top, orig);
 
     if c.check_contrast.unwrap_or(false) {
         colors.check_contrast_all();

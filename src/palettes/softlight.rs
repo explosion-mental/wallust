@@ -1,11 +1,7 @@
-//! # softlight
-
-use super::*;
-
+/// # softlight
 /// light background, dark foreground. Uses the lightest colors, might not give enough contrast.
 /// Sorted by [`LightFirst`]
-pub fn softlight(co: Cols) -> Colors {
-    let c = co.to_rgb();
+pub fn softlight(c: Vec<Myrgb>, _orig: Vec<Myrgb>) -> Colors {
     Colors {
         /* First row */
         color1 : c[0],
@@ -22,6 +18,6 @@ pub fn softlight(co: Cols) -> Colors {
         color12: c[3],
         color13: c[4],
         color14: c[5],
-        ..super::light::light(co)
+        ..light(c, _orig)
     }
 }

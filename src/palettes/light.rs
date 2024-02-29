@@ -1,11 +1,6 @@
-//! # light
-use super::*;
-
+/// # light
 /// light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
-pub fn light(c: Cols) -> Colors {
-    let c = c.to_rgb();
-
-
+pub fn light(c: Vec<Myrgb>, _orig: Vec<Myrgb>) -> Colors {
     // This parser only needs 6 colors [0..=5]
     let lightest = c.last().expect("not empty");
     let darkest = c.first().expect("not empty");

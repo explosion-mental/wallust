@@ -30,31 +30,11 @@ use crate::{
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
 
-mod dark;
-// mod dark16;
-// mod darkcomp;
-// mod darkcomp16;
-//
-// mod harddark;
-// mod harddark16;
-// mod harddarkcomp;
-// mod harddarkcomp16;
-//
-// mod light;
-// mod light16;
-// mod lightcomp;
-// mod lightcomp16;
-//
-// mod softdark;
-// mod softdark16;
-// mod softdarkcomp;
-// mod softdarkcomp16;
-//
-// mod softlight;
-// mod softlight16;
-// mod softlightcomp;
-// mod softlightcomp16;
-
+include!("dark.rs");
+include!("harddark.rs");
+include!("light.rs");
+include!("softdark.rs");
+include!("softlight.rs");
 
 /// Corresponds to the modules inside this module and `palette` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
@@ -143,37 +123,35 @@ pub enum Palette {
     SoftLightComp16,
 }
 
-pub fn main(f: &F) -> fn(Vec<Myrgb>, Vec<Myrgb>) -> Colors {
-    match f {
-        F::Dark    => dark::dark,
-        _ => todo!(),
-        // F::Dark16  => dark16::dark16,
-        // F::DarkComp => darkcomp::darkcomp,
-        // F::DarkComp16 => darkcomp16::darkcomp16,
-        //
-        // F::HardDark => harddark::harddark,
-        // F::HardDark16 => harddark16::harddark16,
-        // F::HardDarkComp => harddarkcomp::harddarkcomp,
-        // F::HardDarkComp16 => harddarkcomp16::harddarkcomp16,
-        //
-        // F::Light   => light::light,
-        // F::Light16 => light16::light16,
-        // F::LightComp => lightcomp::lightcomp,
-        // F::LightComp16 => lightcomp16::lightcomp16,
-        //
-        // F::SoftDark => softdark::softdark,
-        // F::SoftDark16 => softdark16::softdark16,
-        // F::SoftDarkComp => softdarkcomp::softdarkcomp,
-        // F::SoftDarkComp16 => softdarkcomp16::softdarkcomp16,
-        //
-        // F::SoftLight => softlight::softlight,
-        // F::SoftLight16 => softlight16::softlight16,
-        // F::SoftLightComp => softlightcomp::softlightcomp,
-        // F::SoftLightComp16 => softlightcomp16::softlightcomp16,
-    }
-}
-
 impl F {
+    pub fn run(&self, c: Vec<Myrgb>, orig: Vec<Myrgb>) -> Colors {
+        match self {
+            F::Dark => dark(c, orig),
+            F::Dark16 => dark(c, orig).to_16col(),
+            F::DarkComp => dark(c, orig).to_comp(),
+            F::DarkComp16 => dark(c, orig).to_comp().to_16col(),
+
+            F::Light => light(c, orig),
+            F::Light16 => light(c, orig).to_16col(),
+            F::LightComp => light(c, orig).to_comp(),
+            F::LightComp16 => light(c, orig).to_comp().to_16col(),
+
+            F::HardDark => harddark(c, orig),
+            F::HardDark16 => harddark(c, orig).to_16col(),
+            F::HardDarkComp => harddark(c, orig).to_comp(),
+            F::HardDarkComp16 => harddark(c, orig).to_comp().to_16col(),
+
+            F::SoftDark => softdark(c, orig),
+            F::SoftDark16 => softdark(c, orig).to_16col(),
+            F::SoftDarkComp => softdark(c, orig).to_comp(),
+            F::SoftDarkComp16 => softdark(c, orig).to_comp().to_16col(),
+
+            F::SoftLight => softlight(c, orig),
+            F::SoftLight16 => softlight(c, orig).to_16col(),
+            F::SoftLightComp => softlight(c, orig).to_comp(),
+            F::SoftLightComp16 => softlight(c, orig).to_comp().to_16col(),
+        }
+    }
     /// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
     pub fn sort_ord(&self) -> ColorOrder {
         match self {

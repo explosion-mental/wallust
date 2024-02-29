@@ -1,7 +1,5 @@
-//! # dark
-//! Default method to generate colors.
-use super::*;
-
+/// # dark
+/// Default method to generate colors.
 /// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]
 pub fn dark(cols: Vec<Myrgb>, _orig: Vec<Myrgb>) -> Colors {
     let c = cols;

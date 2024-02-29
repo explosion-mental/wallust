@@ -1,11 +1,7 @@
-//! # harddark
-use super::*;
-
+/// # harddark
 /// dark background, light foreground, with dark hard hued colors.
 /// Sorted by [`DarkFirst`]
-pub fn harddark(co: Cols) -> Colors {
-    let c = co.to_rgb();
-    let orig = co.to_rgb_orig();
+pub fn harddark(c: Vec<Myrgb>, orig: Vec<Myrgb>) -> Colors {
     let bg = orig[0].darken(0.65);
 
     Colors {
@@ -25,6 +21,6 @@ pub fn harddark(co: Cols) -> Colors {
         color12: c[3],
         color13: c[4],
         color14: c[5],
-        ..super::dark::dark(co)
+        ..dark(c, orig)
     }
 }
