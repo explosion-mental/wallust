@@ -75,74 +75,36 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
     new
 }
 
-impl From<Vec<Histo<Spec>>> for ColorHisto<Spec> {
-    fn from(c: Vec<Histo<Spec>>) -> Self {
-        Self(c)
+impl Difference for Spec {
+    //TODO see delta_e
+    fn col_diff(&self, a: &Self) -> f32 {
+        delta_1994(self, a)
     }
 }
 
 impl BuildColors for ColorHisto<Spec> {
     type Color = Spec;
-    type Histogram = Histo<Spec>;
     fn read(bytes: &[u8]) -> Vec<Self::Color> {
         rgb_bytes_to_labs(bytes)
     }
-    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self {
-        let mut labs = Self::read(bytes);
-        labs.dedup();
 
-        gather_cols(labs, threshold, false, &c.color_constraint()).into()
-    }
-    fn color_generator(&self, threshold: u8, c: &Cs, gen: &FallbackGenerator) -> Self {
-        new_cols(self, threshold, c.color_constraint(), gen.gen()).into()
-    }
+    fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
+
+    fn to_vec(&self) -> Vec<Histo<Self::Color>> { self.0.clone() }
+
     fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering {
         match cs {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
         }
     }
-    fn to_myrgb(&self) -> Vec<Myrgb> {
-        self.0.iter().map(|x| x.color.into()).collect()
-    }
-    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool {
-        delta_e(a.color, b.color) <= threshold.into()
-    }
-    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord {
+    fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord {
         (a.color.l as u32, a.color.a as i32, a.color.b as i32)
     }
 }
 
 
-/// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
-/// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
-pub fn new_cols<F1, F2>(histo: &[Hist], threshold: u8, pred: F1, method: F2) -> Vec<Histo<Spec>>
-    where
-        F1: Fn(f32) -> bool,
-        F2: Fn(Myrgb, Myrgb, u8) -> Vec<Myrgb>,
-{
-    let mut new_cols = vec![];
-    // try to generate new colors with interpolation in between the already gathered colors
-    for comb in histo.iter().combinations(2) {
-        let color_a: Myrgb = comb[0].color.into();
-        let color_b: Myrgb = comb[1].color.into();
-
-        let rgbs = method(color_a, color_b, MAX_COLS)
-            .iter().map(|&x| Spec::from(x)).collect();
-
-        //similar to how it's done at the start of `lab()`
-        // save the new colors, or discard them if similar enough
-        // no more color mixing, we don't have much colors left.
-        new_cols.append(&mut gather_cols(rgbs, threshold, false, &pred));
-
-        let len = histo.len() + new_cols.len();
-
-        if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
-    }
-
-    new_cols
-}
-
+//TODO
 // pub fn histo<F>(cols: &[u8], threshold: u8, mix: bool, pred: F) -> Vec<Hist>
 //     where F: Fn(f32) -> bool
 // {
@@ -158,39 +120,13 @@ pub fn new_cols<F1, F2>(histo: &[Hist], threshold: u8, pred: F1, method: F2) -> 
 //     gather_cols(labs, threshold, mix, &pred)
 // }
 
-fn gather_cols<F>(labs: Vec<Spec>, threshold: u8, mix: bool, pred: &F) -> Vec<Hist>
-    where F: Fn(f32) -> bool
-{
-    let mut histo: Vec<Hist> = vec![];
-
-    'outter: for lab in labs {
-        if pred(lab.l)
-        // if (lab.l as u32) >= ( DARKEST as u32) //ignore really dark colors
-        // || (lab.l as u32) <= (LIGHTEST as u32) //ignore really light colors
-        {
-            // Check if whether the color is new or is already in the vec
-            for col in &mut histo {
-                // if any lab value is between a threshold, count it up
-                if delta_e(lab, col.color) <= threshold.into() {
-                    if mix { col.color = mixed(lab, col.color); }
-                    col.count += 1;
-                    continue 'outter;
-                }
-            }
-            histo.push(Histo { color: lab, count: 1 });
-        }
-    }
-
-    histo
-}
-
 /// Returns how much the colors differ
 ///
 /// ref: <https://www.easyrgb.com/en/math.php>
 /// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
 /// (by criterion),
 #[inline]
-pub fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
+pub fn delta_e(lab_0: &Spec, lab_1: &Spec) -> u32 {
     // TODO properly analize the following
     // an improved version of delta_e.. This has a limit threshold of 8, with pretty good results.
     //https://github.com/Ogeon/palette/blob/c54efbd43c03267713da337bd72005c9d0390598/palette/src/lab.rs#L269
@@ -202,7 +138,7 @@ pub fn delta_e(lab_0: Spec, lab_1: Spec) -> u32 {
 /// the 1994 simple euclidean formula
 #[allow(dead_code)]
 #[inline]
-fn delta_1994(current: Spec, previous: Spec) -> f32 {
+fn delta_1994(current: &Spec, previous: &Spec) -> f32 {
     (   ((previous.l - current.l).powf(2.0))
     +   ((previous.a - current.a).powf(2.0))
     +   ((previous.b - current.b).powf(2.0)) ).sqrt()

@@ -22,6 +22,7 @@ use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
 
+
 mod lab;
 
 const NOT_ENOUGH_COLS: &str =
@@ -124,13 +125,6 @@ impl FallbackGenerator {
 }
 
 impl ColorSpace {
-    pub fn color_constraint(&self) -> impl Fn(f32) -> bool {
-        match self {
-            Cs::Lab | Cs::LabMixed => |l| l >= lab::DARKEST || l <= lab::LIGHTEST,
-            Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
-        }
-    }
-
     /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
@@ -150,6 +144,25 @@ impl<T: ColorTrait> DerefMut for ColorHisto<T> {
     fn deref_mut(&mut self) -> &mut Vec<Histo<T>> { &mut self.0 }
 }
 
+impl<T: ColorTrait> From<Vec<Histo<T>>> for ColorHisto<T> {
+    fn from(c: Vec<Histo<T>>) -> Self {
+        Self(c)
+    }
+}
+
+impl<T: ColorTrait + Copy> From<ColorHisto<T>> for Vec<Myrgb>
+    where
+        Myrgb: From<T>
+{
+    fn from(c: ColorHisto<T>) -> Self {
+        c.0.iter().map(|x| x.color.into()).collect()
+    }
+}
+
+pub trait Difference {
+    fn col_diff(&self, a: &Self) -> f32;
+}
+
 /// Simple trait that groups all avaliable colorspaces
 pub trait ColorTrait {}
 
@@ -162,34 +175,83 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 
 /// This trait is for creating a new `ColorHisto` type.
 /// The Self parameter should always be a wrapper like Color Histo.
-pub trait BuildColors: Sized {
+pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>>{
     /// Colorspace to be used
-    type Color: ColorTrait;
-    /// Histogram to be used: Histo<Color>
-    type Histogram;
+    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color>;
 
+    fn to_vec(&self) -> Vec<Histo<Self::Color>>;
+
     /// generates a new Vec of Histograms
-    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self;
+    //fn new_colors(bytes, threshold: u8, c: &Cs) -> Self;
 
     /// This function is used when the colors gathered by new_colors are not enough.
     /// See .gen()
-    fn color_generator(&self, threshold: u8, c: &Cs, gen: &G) -> Self;
+    /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
+    /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
+    fn color_generator(histo: &[Histo<Self::Color>], threshold: u8, gen: &G) -> Vec<Histo<Self::Color>> {
+        let mut new_cols = vec![];
+        // try to generate new colors with interpolation in between the already gathered colors
+        for comb in histo.iter().combinations(2) {
+            let color_a: Myrgb = comb[0].color.into();
+            let color_b: Myrgb = comb[1].color.into();
+
+            let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
+                .iter().map(|&x| x.into()).collect();
+
+            //similar to how it's done at the start of `lab()`
+            // save the new colors, or discard them if similar enough
+            // no more color mixing, we don't have much colors left.
+            new_cols.append(&mut Self::gather_cols(rgbs, threshold, false).to_vec());
+
+            let len = histo.len() + new_cols.len();
+
+            if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+        }
+
+        new_cols
+    }
 
     /// Simple Sort algo that determines how to order colors
     /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
-    fn sort_algo(cs: &ColorOrder, a: &Self::Histogram, b: &Self::Histogram) -> Ordering;
+    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering;
 
-    /// Converts Self to Myrgb
-    fn to_myrgb(&self) -> Vec<Myrgb>;
+    fn filter_cols(a: Self::Color) -> bool;
+
+    fn gather_cols(labs: Vec<Self::Color>, threshold: u8, _mix: bool) -> Self {
+
+        let mut histo: Vec<Histo<Self::Color>> = vec![];
+
+        'outter: for lab in labs {
+            if Self::filter_cols(lab)
+                // if (lab.l as u32) >= ( DARKEST as u32) //ignore really dark colors
+                // || (lab.l as u32) <= (LIGHTEST as u32) //ignore really light colors
+                {
+                    // Check if whether the color is new or is already in the vec
+                    for col in &mut histo {
+                        // if any lab value is between a threshold, count it up
+                        if lab.col_diff(&col.color) <= threshold.into() {
+                            //if mix { col.color = mixed(lab, col.color); }
+                            col.count += 1;
+                            continue 'outter;
+                        }
+                    }
+                    histo.push(Histo { color: lab, count: 1 });
+                }
+        }
+
+        histo.into()
+    }
 
     /// how to .dedup_by
-    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool;
+    fn dedup_by_fn(a: &Histo<Self::Color>, b: &Histo<Self::Color>, threshold: u8) -> bool {
+        a.color.col_diff(&b.color) <= threshold as f32
+    }
 
     /// how to .sort_by_key
-    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord;
+    fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord;
 }
 
 impl fmt::Display for G {
@@ -210,6 +272,7 @@ impl fmt::Display for Cs {
             Cs::LabFast => write!(f, "LabFast"),
         }
     }
+
 }
 // pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)> {
 //     match c {
@@ -218,13 +281,15 @@ impl fmt::Display for Cs {
 //     }
 // }
 
-pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+pub fn main(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
     // where T: BuildColors<Color = T, Histogram = Histo<T>> + Clone + ColorTrait,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
-    let mut histo = ColorHisto::new_colors(cols, threshold, &c);
+    let color = ColorHisto::read(cols);
+
+    let mut histo = ColorHisto::gather_cols(color, threshold, false);
 
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
     if histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
@@ -264,7 +329,7 @@ pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Res
         //TODO give options on **how** to complete the colors:
         // - `interpolate()`ion, what's currently being used
         // - `.complementary()`, fill colors with it's complementary ones #13
-        let mut new = ColorHisto::color_generator(&histo, threshold, &c, gen);
+        let mut new = ColorHisto::color_generator(&histo, threshold, gen);
 
         histo.append(&mut new);
 
@@ -290,7 +355,7 @@ pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Res
     histo.sort_by(|a, b| ColorHisto::sort_algo(&ord, &a, &b));
 
     Ok(
-        ((histo.to_myrgb(), orig_histo.to_myrgb()), warn)
+        ((histo.into(), orig_histo.into()), warn)
         )
 }
 
