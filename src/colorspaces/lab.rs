@@ -6,8 +6,6 @@
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use std::cmp::Ordering;
-use std::ops::Deref;
-use std::ops::DerefMut;
 
 use crate::colorspaces::*;
 
@@ -75,15 +73,6 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
     // new.a = ((color1.a + color2.a) / 2.0) - 1.0;
     // new.b = ((color1.b + color2.b) / 2.0) - 1.0;
     new
-}
-
-impl Deref for ColorHisto<Spec> {
-    type Target = Vec<Histo<Spec>>;
-    fn deref(&self) -> &Vec<Histo<Spec>> { &self.0 }
-}
-
-impl DerefMut for ColorHisto<Spec> {
-    fn deref_mut(&mut self) -> &mut Vec<Histo<Spec>> { &mut self.0 }
 }
 
 impl From<Vec<Histo<Spec>>> for ColorHisto<Spec> {

@@ -11,6 +11,8 @@
 
 use std::cmp::Ordering;
 use std::fmt;
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 // use crate::colors::Colors;
 use crate::colors::Myrgb;
@@ -97,27 +99,6 @@ pub struct Histo<T: ColorTrait> {
     count: usize,
 }
 
-pub struct Histograms<> {
-}
-
-pub trait ColorTrait {}
-impl ColorTrait for ::lab::Lab {}
-
-/// Type that stores and abstracts away the colorspace
-/// 1. Get configs (threshold and mix)
-/// 2. Get labs (from u8 -> Lab)
-/// 3. return
-/// TODO Find a way to make this `colorspace` agnostic, in the sense that it should not require to
-///      store the `histo` per se, as this requires the [`Cols`] type to add a generic argument,
-///      threshold and colorspace doesn't seem to be useful in the `palettes` stage.
-#[derive(Debug, Clone, PartialEq)]
-pub struct MyCol<T: ColorTrait> {
-    /// The histogram
-    pub histo: Vec<Histo<T>>,
-    /// Histogram without any custom sorting, so it stays from most prominent color `[0]` to the least one `.last()`
-    pub orig_histo: Vec<Histo<T>>,
-}
-
 impl<T: ColorTrait> From<Histo<T>> for Myrgb
     where Myrgb: From<T>
 {
@@ -133,6 +114,13 @@ impl FallbackGenerator {
             G::Complementary => complementary,
         }
     }
+
+    pub fn col(&self) -> AnsiColors {
+        match self {
+            G::Interpolate => AnsiColors::Blue,
+            G::Complementary => AnsiColors::Green,
+        }
+    }
 }
 
 impl ColorSpace {
@@ -142,30 +130,7 @@ impl ColorSpace {
             Cs::LabFast => |l| (l as u32) >= (lab::DARKEST as u32) || (l as u32) <= (lab::LIGHTEST as u32),
         }
     }
-}
 
-pub type Cols<T> = Vec<Histo<T>>;
-#[derive(Debug, Clone, PartialEq)]
-pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
-
-/// This trait is for creating a new `Col` type.
-/// The Self parameter should always be an iteratable type
-pub trait BuildColors: Sized {
-    type Color: ColorTrait;
-    type Histogram: Sized;
-    fn read(bytes: &[u8]) -> Vec<Self::Color>;
-    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self;
-    fn color_generator(&self, threshold: u8, c: &Cs, gen: &G) -> Self;
-    /// Simple Sort algo that determines how to order colors
-    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
-    fn sort_algo(cs: &ColorOrder, a: &Self::Histogram, b: &Self::Histogram) -> Ordering;
-    // fn to_colors(&self) -> Colors;
-    fn to_myrgb(&self) -> Vec<Myrgb>;
-    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool;
-    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord;
-}
-
-impl Cs {
     /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
@@ -176,13 +141,55 @@ impl Cs {
     }
 }
 
-impl G {
-    pub fn col(&self) -> AnsiColors {
-        match self {
-            G::Interpolate => AnsiColors::Blue,
-            G::Complementary => AnsiColors::Green,
-        }
-    }
+impl<T: ColorTrait> Deref for ColorHisto<T> {
+    type Target = Vec<Histo<T>>;
+    fn deref(&self) -> &Vec<Histo<T>> { &self.0 }
+}
+
+impl<T: ColorTrait> DerefMut for ColorHisto<T> {
+    fn deref_mut(&mut self) -> &mut Vec<Histo<T>> { &mut self.0 }
+}
+
+/// Simple trait that groups all avaliable colorspaces
+pub trait ColorTrait {}
+
+impl ColorTrait for ::lab::Lab {}
+
+/// Simple wrapper for a vector of histograms.
+/// Abstracts away vector/slices operations by using Deref and DerefMut traits.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
+
+/// This trait is for creating a new `ColorHisto` type.
+/// The Self parameter should always be a wrapper like Color Histo.
+pub trait BuildColors: Sized {
+    /// Colorspace to be used
+    type Color: ColorTrait;
+    /// Histogram to be used: Histo<Color>
+    type Histogram;
+
+    /// Function that read the image rgb8 bytes and converts them into it's colorspace
+    fn read(bytes: &[u8]) -> Vec<Self::Color>;
+
+    /// generates a new Vec of Histograms
+    fn new_colors(bytes: &[u8], threshold: u8, c: &Cs) -> Self;
+
+    /// This function is used when the colors gathered by new_colors are not enough.
+    /// See .gen()
+    fn color_generator(&self, threshold: u8, c: &Cs, gen: &G) -> Self;
+
+    /// Simple Sort algo that determines how to order colors
+    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
+    fn sort_algo(cs: &ColorOrder, a: &Self::Histogram, b: &Self::Histogram) -> Ordering;
+
+    /// Converts Self to Myrgb
+    fn to_myrgb(&self) -> Vec<Myrgb>;
+
+    /// how to .dedup_by
+    fn dedup_by_fn(a: &Self::Histogram, b: &Self::Histogram, threshold: u8) -> bool;
+
+    /// how to .sort_by_key
+    fn sort_by_key_fn(a: Self::Histogram) -> impl Ord;
 }
 
 impl fmt::Display for G {
