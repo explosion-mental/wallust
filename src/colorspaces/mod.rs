@@ -287,6 +287,16 @@ pub fn main(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Re
     let mut warn = false;
 
     let color = ColorHisto::read(cols);
+//     let mut labs = rgb_bytes_to_labs(cols);
+//     labs.dedup();
+//     // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
+//     // that the colors aren't the most prominent ones (for the most part).
+//     // However, avoiding `.dedup()` and not calling it, also changes the result.
+//     // After some testing I decided that the most 'plausible' colors would be
+//     // the one that requires `.dedup()`.
+//     //labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
+//
+//     gather_cols(labs, threshold, mix, &pred)
 
     let mut histo = ColorHisto::gather_cols(color, threshold, false);
 
