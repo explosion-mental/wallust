@@ -145,14 +145,18 @@ impl<T: ColorTrait> DerefMut for ColorHisto<T> {
 }
 
 impl<T: ColorTrait> From<Vec<Histo<T>>> for ColorHisto<T> {
-    fn from(c: Vec<Histo<T>>) -> Self {
-        Self(c)
-    }
+    fn from(c: Vec<Histo<T>>) -> Self { Self(c) }
 }
+
+// Implement into since Vec is a foreign type
+impl<T: ColorTrait> Into<Vec<Histo<T>>> for ColorHisto<T> {
+    fn into(self) -> Vec<Histo<T>> { self.0 }
+}
+
 
 impl<T: ColorTrait + Copy> From<ColorHisto<T>> for Vec<Myrgb>
     where
-        Myrgb: From<T>
+Myrgb: From<T>
 {
     fn from(c: ColorHisto<T>) -> Self {
         c.0.iter().map(|x| x.color.into()).collect()
@@ -160,7 +164,7 @@ impl<T: ColorTrait + Copy> From<ColorHisto<T>> for Vec<Myrgb>
 }
 
 pub trait Difference {
-    fn col_diff(&self, a: &Self) -> f32;
+    fn col_diff(&self, a: &Self, threshold: u8) -> bool;
 }
 
 /// Simple trait that groups all avaliable colorspaces
@@ -175,14 +179,26 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 
 /// This trait is for creating a new `ColorHisto` type.
 /// The Self parameter should always be a wrapper like Color Histo.
-pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>>{
+/// The main logic of how these methods are used are in `main()`
+pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
     type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color>;
 
-    fn to_vec(&self) -> Vec<Histo<Self::Color>>;
+    /// What colors to avoid before adding. e.g. too dark/light
+    fn filter_cols(a: Self::Color) -> bool;
+
+    /// Simple Sort algo that determines how to order colors
+    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
+    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering;
+
+    /// how to .sort_by_key, this is colorspace specific
+    fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord;
+
+    /// Consumes self into a vec
+    fn to_vec(self) -> Vec<Histo<Self::Color>> { self.into() }
 
     /// This function is used when the colors gathered by new_colors are not enough.
     /// See .gen()
@@ -212,44 +228,29 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>>{
         new_cols
     }
 
-    /// Simple Sort algo that determines how to order colors
-    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
-    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering;
+    /// This is a generic way of creating a histogram.
+    fn gather_cols(colors: Vec<Self::Color>, threshold: u8, _mix: bool) -> Self {
+        let mut histogram: Vec<Histo<Self::Color>> = vec![];
 
-    fn filter_cols(a: Self::Color) -> bool;
-
-    fn gather_cols(labs: Vec<Self::Color>, threshold: u8, _mix: bool) -> Self {
-
-        let mut histo: Vec<Histo<Self::Color>> = vec![];
-
-        'outter: for lab in labs {
-            if Self::filter_cols(lab)
-                // if (lab.l as u32) >= ( DARKEST as u32) //ignore really dark colors
-                // || (lab.l as u32) <= (LIGHTEST as u32) //ignore really light colors
-                {
-                    // Check if whether the color is new or is already in the vec
-                    for col in &mut histo {
-                        // if any lab value is between a threshold, count it up
-                        if lab.col_diff(&col.color) <= threshold.into() {
-                            //if mix { col.color = mixed(lab, col.color); }
-                            col.count += 1;
-                            continue 'outter;
-                        }
+        'outter: for c in colors {
+            if Self::filter_cols(c) {
+                // Check if whether the color is new or is already in the vec
+                for hist in &mut histogram {
+                    // if any color is between a threshold, count it up
+                    if c.col_diff(&hist.color, threshold) {
+                        //if mix { col.color = mixed(lab, col.color); }
+                        hist.count += 1;
+                        continue 'outter;
                     }
-                    histo.push(Histo { color: lab, count: 1 });
                 }
+                // if we reach here, the color hasn't been found in the histrogram,
+                // so we found a new color.
+                histogram.push(Histo { color: c, count: 1 });
+            }
         }
 
-        histo.into()
+        histogram.into()
     }
-
-    /// how to .dedup_by
-    fn dedup_by_fn(a: &Histo<Self::Color>, b: &Histo<Self::Color>, threshold: u8) -> bool {
-        a.color.col_diff(&b.color) <= threshold as f32
-    }
-
-    /// how to .sort_by_key
-    fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord;
 }
 
 impl fmt::Display for G {
@@ -309,7 +310,7 @@ pub fn main(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Re
     // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
     // labs.dedup();
     histo.sort_by_key(|&a| ColorHisto::sort_by_key_fn(a));
-    histo.dedup_by(|a, b| ColorHisto::dedup_by_fn(a, b, threshold));
+    histo.dedup_by(|a, b| a.color.col_diff(&b.color, threshold));
 
     // sort vec by count, most used colors first
     histo.sort_by(|a, b| b.count.cmp(&a.count));

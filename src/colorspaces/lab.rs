@@ -76,9 +76,10 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
 
 impl Difference for Spec {
     //TODO see delta_e
-    fn col_diff(&self, a: &Self) -> f32 {
-        self.improved_difference(*a)
-        // delta_1994(self, a)
+    fn col_diff(&self, a: &Self, threshold: u8) -> bool {
+        //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
+        // self.improved_difference(*a) <= threshold.into()
+        delta_1994(self, a) <= threshold.into()
     }
 }
 
@@ -95,8 +96,6 @@ impl BuildColors for ColorHisto<Spec> {
     }
 
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
-
-    fn to_vec(&self) -> Vec<Histo<Self::Color>> { self.0.clone() }
 
     fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering {
         match cs {
