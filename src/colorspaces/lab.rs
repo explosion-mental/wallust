@@ -9,42 +9,8 @@ use std::cmp::Ordering;
 
 use crate::colorspaces::*;
 
-use ::lab::rgb_bytes_to_labs;
-use ::lab::Lab;
-
-impl Hist {
-    /// Mix similar Lab colors, to catch most similars ones.
-    /// NOTE: This reduces color quantity
-    #[allow(dead_code)]
-    fn mix(&mut self, new: Spec) {
-        self.color.l = self.color.l * 0.5 + new.l * 0.5;
-        //self.color.a = self.color.a * 0.5 + new.a * 0.5;
-        //self.color.b = self.color.b * 0.5 + new.b * 0.5;
-    }
-
-    /// Value is between 1.0 an 0.0
-    pub fn set_luminance(&mut self, amount: f32) {
-        if amount < 1.0 && amount > 0.0 {
-            self.color.l *= amount;
-        }
-    }
-}
-
-impl From<Spec> for Myrgb {
-    fn from(lab: Spec) -> Self {
-        let a = lab.to_rgb();
-        Self(a[0], a[1], a[2])
-    }
-}
-
-impl From<Myrgb> for Spec {
-    fn from(c: Myrgb) -> Self {
-        Lab::from_rgb(&[c.0, c.1, c.2])
-    }
-}
-
 /// Shadow the colorspace type (Spectrum)
-type Spec = Lab;
+type Spec = palette::Lab;
 
 /// shadow `Histo<Lab>` with Hist (since this module is all about LAB)
 type Hist = Histo<Spec>;
@@ -54,6 +20,39 @@ pub const DARKEST: f32 = 4.5;
 
 /// Maximuum Luminance (from L ab) required for a color to be accepted
 pub const LIGHTEST: f32 = 95.5;
+
+impl ColorTrait for Spec {}
+
+use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE};
+use palette::{IntoColor, Srgb};
+
+impl From<Spec> for Myrgb {
+    fn from(lab: Spec) -> Self {
+        let a: Srgb = lab.into_color();
+        let a: Srgb<u8> = a.into_format();
+        Self(a.red, a.green, a.blue)
+    }
+}
+
+impl From<Myrgb> for Spec {
+    fn from(c: Myrgb) -> Self {
+        let a = Srgb::from([c.0, c.1, c.2]);
+        let a: Srgb = a.into_format();
+        a.into_color()
+    }
+}
+
+impl From<Srgb<u8>> for Myrgb {
+    fn from(c: Srgb<u8>) -> Self {
+        Self(c.red, c.green, c.blue)
+    }
+}
+
+impl From<Myrgb> for Srgb<u8> {
+    fn from(c: Myrgb) -> Self {
+        Self::new(c.0, c.1, c.2)
+    }
+}
 
 /// Mixed all field of a LAB colorspace into one.
 /// While the proper way to do that is by converting lab to rgb and then mixing rgb (.blend) and
@@ -78,14 +77,21 @@ fn mixed(color1: Spec, color2: Spec) -> Spec {
 impl Difference for Spec {
     //TODO see delta_e
     fn col_diff(&self, a: &Self) -> f32 {
-        delta_1994(self, a)
+        self.improved_difference(*a)
+        // delta_1994(self, a)
     }
 }
+
+use palette::cast::ComponentsAs;
 
 impl BuildColors for ColorHisto<Spec> {
     type Color = Spec;
     fn read(bytes: &[u8]) -> Vec<Self::Color> {
-        rgb_bytes_to_labs(bytes)
+        let s: &[Srgb<u8>] = bytes.components_as();
+        s
+            .iter()
+            .map(|x| x.into_linear().into_color())
+            .collect()
     }
 
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }

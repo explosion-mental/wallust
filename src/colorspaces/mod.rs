@@ -184,13 +184,11 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>>{
 
     fn to_vec(&self) -> Vec<Histo<Self::Color>>;
 
-    /// generates a new Vec of Histograms
-    //fn new_colors(bytes, threshold: u8, c: &Cs) -> Self;
-
     /// This function is used when the colors gathered by new_colors are not enough.
     /// See .gen()
     /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
     /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
+    /// This was called 'new_colors()' (generates a new Vec of Histograms)
     fn color_generator(histo: &[Histo<Self::Color>], threshold: u8, gen: &G) -> Vec<Histo<Self::Color>> {
         let mut new_cols = vec![];
         // try to generate new colors with interpolation in between the already gathered colors
