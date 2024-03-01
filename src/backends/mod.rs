@@ -45,18 +45,18 @@ pub enum Backend {
     Kmeans,
 }
 
-pub fn main(backend: &Backend) -> fn(&Path) -> Result<Vec<u8>> {
-    match backend {
-        B::Full    => full::full,
-        B::Resized => resized::resized,
-        B::Wal     => wal::wal,
-        B::Thumb   => thumb::thumb,
-        B::FastResize => fast_resize::fast_resize,
-        B::Kmeans => kmeans::kmeans,
-    }
-}
-
 impl Backend {
+    /// match and return the proper backend
+    pub fn main(&self) -> fn(&Path) -> Result<Vec<u8>> {
+        match &self {
+            B::Full    => full::full,
+            B::Resized => resized::resized,
+            B::Wal     => wal::wal,
+            B::Thumb   => thumb::thumb,
+            B::FastResize => fast_resize::fast_resize,
+            B::Kmeans => kmeans::kmeans,
+        }
+    }
     /// This assigns a colors for a backend, used when printing
     pub fn col(&self) -> AnsiColors {
         match self {

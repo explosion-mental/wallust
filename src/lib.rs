@@ -13,7 +13,7 @@ pub mod themes;
 /// [`backends`] had some warnings or not (ugly workaround ik)
 pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::Result<(crate::colors::Colors, bool)> {
     // read image as raw rgb8 vecs
-    let rgb8s = backends::main(&c.backend)(file)?;
+    let rgb8s = c.backend.main()(file)?;
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
