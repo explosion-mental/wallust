@@ -21,9 +21,10 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
-
+use palette::Srgb;
 
 mod lab;
+mod hsv;
 
 const NOT_ENOUGH_COLS: &str =
 "\
@@ -108,6 +109,18 @@ impl<T: ColorTrait> From<Histo<T>> for Myrgb
     }
 }
 
+impl From<Srgb<u8>> for Myrgb {
+    fn from(c: Srgb<u8>) -> Self {
+        Self(c.red, c.green, c.blue)
+    }
+}
+
+impl From<Myrgb> for Srgb<u8> {
+    fn from(c: Myrgb) -> Self {
+        Self::new(c.0, c.1, c.2)
+    }
+}
+
 impl FallbackGenerator {
     pub fn gen(&self) -> impl Fn(Myrgb, Myrgb, u8) -> Vec<Myrgb> {
         match self {
@@ -169,8 +182,6 @@ pub trait Difference {
 
 /// Simple trait that groups all avaliable colorspaces
 pub trait ColorTrait {}
-
-impl ColorTrait for ::lab::Lab {}
 
 /// Simple wrapper for a vector of histograms.
 /// Abstracts away vector/slices operations by using Deref and DerefMut traits.
@@ -273,15 +284,18 @@ impl fmt::Display for Cs {
     }
 
 }
-// pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)> {
-//     match c {
-//         Cs::Lab => histo::<::lab::Lab>(c, cols, threshold, gen, ord),
-//         _ => todo!()
-//     }
-// }
 
-pub fn main(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)> {
+    match c {
+        Cs::Lab => histo::<palette::Lab>(c, cols, threshold, gen, ord),
+        Cs::LabFast => histo::<palette::Lch>(c, cols, threshold, gen, ord),
+        _ => todo!()
+    }
+}
+
+pub fn histo<T: Copy + ColorTrait + Difference>(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
     // where T: BuildColors<Color = T, Histogram = Histo<T>> + Clone + ColorTrait,
+    where ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
@@ -365,7 +379,7 @@ pub fn main(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Re
 
     Ok(
         ((histo.into(), orig_histo.into()), warn)
-        )
+    )
 }
 
 /// Combines some colors to generate new ones

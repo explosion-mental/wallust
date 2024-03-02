@@ -9,6 +9,7 @@ use std::cmp::Ordering;
 
 use super::*;
 
+use palette::color_difference::Ciede2000;
 use palette::{IntoColor, Srgb};
 
 /// Shadow the colorspace type (Spectrum)
@@ -93,18 +94,6 @@ impl From<Spec> for Myrgb {
 impl From<Myrgb> for Spec {
     fn from(c: Myrgb) -> Self {
         Srgb::from([c.0, c.1, c.2]).into_linear().into_color()
-    }
-}
-
-impl From<Srgb<u8>> for Myrgb {
-    fn from(c: Srgb<u8>) -> Self {
-        Self(c.red, c.green, c.blue)
-    }
-}
-
-impl From<Myrgb> for Srgb<u8> {
-    fn from(c: Myrgb) -> Self {
-        Self::new(c.0, c.1, c.2)
     }
 }
 
