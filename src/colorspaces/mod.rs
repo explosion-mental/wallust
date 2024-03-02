@@ -385,37 +385,26 @@ pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8
 }
 
 /// Combines some colors to generate new ones
-/// Using something similar to <https://github.com/ndavd/colinterp>
-/// I didn't find anything about interpolating CIE L,a*b* colors, only RGB ones, so I'm accepting
-/// converting into and from just for this operation (which should not overhead the program since
-/// at max is only 5 values in combination)
-/// This goes like this: `lab -> rgb -> interpolation -> lab -> sort_by -> rgb`
-/// `n` is the number of jumps, colors to generate (or at least to aim for that)
-/// Since all of these operation are in RGB colorspace, is a tool for all.
-fn interpolate(color_a: Myrgb, color_b: Myrgb, n: u8) -> Vec<Myrgb> {
-    //return (endValue - startValue) * stepNumber / lastStepNumber + startValue;
-    let mut palette: Vec<Myrgb> = vec![];
+/// ref: <https://docs.rs/palette/latest/palette/trait.Mix.html>
+/// This seems to be implemented in the palette crate for all colorspaces,
+/// so we can turn this generic TODO
+/// In that case, `complementary()` would be a generator that will need convertion.
+fn interpolate(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
+    use palette::Mix;
 
-    // cast to i16 to not overflow u8
-    let jump_r = (f32::from(color_b.0 as i16 - color_a.0 as i16)) / (f32::from(n) - 1.0);
-    let jump_g = (f32::from(color_b.1 as i16 - color_a.1 as i16)) / (f32::from(n) - 1.0);
-    let jump_b = (f32::from(color_b.2 as i16 - color_a.2 as i16)) / (f32::from(n) - 1.0);
+    let a = Srgb::<u8>::from(color_a).into_linear::<f32>();
+    let b = Srgb::<u8>::from(color_b).into_linear::<f32>();
 
-    let mut curr_r = f32::from(color_a.0);
-    let mut curr_g = f32::from(color_a.1);
-    let mut curr_b = f32::from(color_a.2);
+    let result_a = a.mix(b, 0.35);
+    let result_b = a.mix(b, 0.65);
 
-    for _ in 0..n {
-        let r = curr_r.round() as u8;
-        let g = curr_g.round() as u8;
-        let b = curr_b.round() as u8;
-        palette.push(Myrgb(r, g, b));
-        curr_r += jump_r;
-        curr_g += jump_g;
-        curr_b += jump_b;
-    }
+    let ret1 = Srgb::<u8>::from(result_a);
+    let ret2 = Srgb::<u8>::from(result_b);
 
-    palette
+    vec![
+        ret1.into(),
+        ret2.into()
+    ]
 }
 
 fn complementary(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
