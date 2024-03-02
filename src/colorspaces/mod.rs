@@ -138,6 +138,16 @@ impl FallbackGenerator {
 }
 
 impl ColorSpace {
+    /// Main function that matches agains the respective colorspace builder with BuildColors trait
+    pub fn main(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder)
+        -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+    {
+        match self {
+            Cs::Lab => histo::<palette::Lab>(bytes_rgb8, threshold, gen, ord),
+            Cs::LabFast => histo::<palette::Lch>(bytes_rgb8, threshold, gen, ord),
+            _ => todo!()
+        }
+    }
     /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
@@ -285,22 +295,14 @@ impl fmt::Display for Cs {
 
 }
 
-pub fn main(c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)> {
-    match c {
-        Cs::Lab => histo::<palette::Lab>(c, cols, threshold, gen, ord),
-        Cs::LabFast => histo::<palette::Lch>(c, cols, threshold, gen, ord),
-        _ => todo!()
-    }
-}
-
-pub fn histo<T: Copy + ColorTrait + Difference>(_c: Cs, cols: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
     // where T: BuildColors<Color = T, Histogram = Histo<T>> + Clone + ColorTrait,
     where ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
-    let color = ColorHisto::read(cols);
+    let color = ColorHisto::read(bytes_rgb8);
 //     let mut labs = rgb_bytes_to_labs(cols);
 //     labs.dedup();
 //     // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
