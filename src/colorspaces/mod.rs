@@ -24,7 +24,7 @@ use itertools::Itertools;
 use palette::Srgb;
 
 mod lab;
-mod hsv;
+mod lch;
 
 const NOT_ENOUGH_COLS: &str =
 "\
