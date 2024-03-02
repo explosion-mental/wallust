@@ -5,12 +5,9 @@
 //! > The b* axis represents the blue-yellow opponents, with negative numbers toward
 //! > blue and positive toward yellow.
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
-use std::cmp::Ordering;
-
 use super::*;
 
-use palette::color_difference::Ciede2000;
-use palette::{IntoColor, Srgb};
+use palette::IntoColor;
 
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lab;
@@ -60,29 +57,6 @@ impl BuildColors for ColorHisto<Spec> {
     }
 }
 
-/// Mixed all field of a LAB colorspace into one.
-/// While the proper way to do that is by converting lab to rgb and then mixing rgb (.blend) and
-/// then back to lab, I'm doing this hacky way in the meantime
-fn mixed(color1: Spec, color2: Spec) -> Spec {
-    let rgb1: Myrgb = color1.into();
-    let rgb2: Myrgb = color2.into();
-    let mut new: Spec = rgb1.blend(rgb2).into();
-
-    if new.l > LIGHTEST {
-        new.l = new.l - (LIGHTEST - new.l) - 1.0;
-    } else if new.l < DARKEST {
-        new.l = new.l + (DARKEST - new.l) + 1.0;
-    }
-
-    // new.l = ((color1.l + color2.l) / 2.0) - 1.0;
-    // new.a = ((color1.a + color2.a) / 2.0) - 1.0;
-    // new.b = ((color1.b + color2.b) / 2.0) - 1.0;
-    new
-}
-
-
-/* Boring convertion implementations */
-
 impl From<Spec> for Myrgb {
     fn from(lab: Spec) -> Self {
         let a: Srgb = lab.into_color();
@@ -98,7 +72,6 @@ impl From<Myrgb> for Spec {
 }
 
 /// Returns how much the colors differ
-///
 /// ref: <https://www.easyrgb.com/en/math.php>
 /// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
 /// (by criterion),
