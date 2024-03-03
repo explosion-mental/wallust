@@ -204,7 +204,7 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
-    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix;
+    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32>;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color>;
