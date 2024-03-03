@@ -75,9 +75,9 @@ pub enum ColorSpace {
     LabMixed,
     #[clap(alias = "lab-fast", name = "labfast")]
     #[serde(alias = "lab-fast")]
-    /// Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much
-    /// precise result. Images that work on lab/labmixed could not have enough colors for labfast.
-    LabFast,
+    /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
+    /// Could help when sorting.
+    Lch,
 }
 
 /// rename [`GenerateFallback`] so it's shorter to type
@@ -144,9 +144,9 @@ impl ColorSpace {
         -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
     {
         match self {
-            Cs::Lab => histo::<palette::Lab>(bytes_rgb8, threshold, gen, ord),
-            Cs::LabFast => histo::<palette::Lch>(bytes_rgb8, threshold, gen, ord),
-            _ => todo!()
+            Cs::Lab => main::<palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
+            Cs::LabMixed => main::<palette::Lab>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::Lch => main::<palette::Lch>(bytes_rgb8, threshold, gen, false, ord),
         }
     }
     /// Assign a color for the ColorSpace
@@ -154,7 +154,7 @@ impl ColorSpace {
         match self {
             Cs::Lab => AnsiColors::Blue,
             Cs::LabMixed => AnsiColors::Green,
-            Cs::LabFast => AnsiColors::Yellow,
+            Cs::Lch => AnsiColors::Magenta,
         }
     }
 }
@@ -275,30 +275,14 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
     }
 }
 
-impl fmt::Display for G {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            G::Interpolate => write!(f, "Interpolate"),
-            G::Complementary => write!(f, "Complementary"),
-        }
-    }
-}
-
-/// Display what [`Cs`] is in use. Used in cache and main.
-impl fmt::Display for Cs {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Cs::Lab => write!(f, "Lab"),
-            Cs::LabMixed => write!(f, "LabMixed"),
-            Cs::LabFast => write!(f, "LabFast"),
-        }
-    }
-
-}
-
-pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
-    // where T: BuildColors<Color = T, Histogram = Histo<T>> + Clone + ColorTrait,
-    where ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
+/// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
+/// `warn` is important for printing warnings, but it's only that, a warning.
+/// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
+pub fn main<T>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
+    -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+where
+    ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
+    T: Copy + ColorTrait + Difference,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
@@ -315,7 +299,7 @@ pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8
 //
 //     gather_cols(labs, threshold, mix, &pred)
 
-    let mut histo = ColorHisto::gather_cols(color, threshold, false);
+    let mut histo = ColorHisto::gather_cols(color, threshold, mix);
 
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
     if histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
@@ -383,6 +367,26 @@ pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8
     Ok(
         ((histo.into(), orig_histo.into()), warn)
     )
+}
+
+impl fmt::Display for G {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            G::Interpolate => write!(f, "Interpolate"),
+            G::Complementary => write!(f, "Complementary"),
+        }
+    }
+}
+
+/// Display what [`Cs`] is in use. Used in cache and main.
+impl fmt::Display for Cs {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Cs::Lab => write!(f, "Lab"),
+            Cs::LabMixed => write!(f, "LabMixed"),
+            Cs::Lch => write!(f, "Lch"),
+        }
+    }
 }
 
 /// Combines some colors to generate new ones
