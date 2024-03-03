@@ -22,6 +22,7 @@ use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
 use palette::Srgb;
+use palette::Mix;
 
 mod lab;
 mod lch;
@@ -203,7 +204,7 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
-    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy;
+    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color>;
@@ -250,7 +251,7 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
     }
 
     /// This is a generic way of creating a histogram.
-    fn gather_cols(colors: Vec<Self::Color>, threshold: u8, _mix: bool) -> Self {
+    fn gather_cols(colors: Vec<Self::Color>, threshold: u8, mix: bool) -> Self {
         let mut histogram: Vec<Histo<Self::Color>> = vec![];
 
         'outter: for c in colors {
@@ -259,7 +260,7 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
                 for hist in &mut histogram {
                     // if any color is between a threshold, count it up
                     if c.col_diff(&hist.color, threshold) {
-                        //if mix { col.color = mixed(lab, col.color); }
+                        if mix { hist.color = hist.color.mix(c, 0.5); }
                         hist.count += 1;
                         continue 'outter;
                     }
@@ -390,8 +391,6 @@ pub fn histo<T: Copy + ColorTrait + Difference>(bytes_rgb8: &[u8], threshold: u8
 /// so we can turn this generic TODO
 /// In that case, `complementary()` would be a generator that will need convertion.
 fn interpolate(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
-    use palette::Mix;
-
     let a = Srgb::<u8>::from(color_a).into_linear::<f32>();
     let b = Srgb::<u8>::from(color_b).into_linear::<f32>();
 
