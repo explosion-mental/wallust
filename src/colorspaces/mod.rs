@@ -73,11 +73,14 @@ pub enum ColorSpace {
     /// Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual
     /// lab (not recommended in small images)
     LabMixed,
-    #[clap(alias = "lab-fast", name = "labfast")]
-    #[serde(alias = "lab-fast")]
     /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
     /// Could help when sorting.
     Lch,
+    /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
+    /// Could help when sorting.
+    #[clap(alias = "lch-mixed", name = "lchmixed")] //claps prefers this-name
+    #[serde(alias = "lch-mixed")]
+    LchMixed,
 }
 
 /// rename [`GenerateFallback`] so it's shorter to type
@@ -146,7 +149,9 @@ impl ColorSpace {
         match self {
             Cs::Lab => main::<palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
             Cs::LabMixed => main::<palette::Lab>(bytes_rgb8, threshold, gen, true, ord),
+
             Cs::Lch => main::<palette::Lch>(bytes_rgb8, threshold, gen, false, ord),
+            Cs::LchMixed => main::<palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
         }
     }
     /// Assign a color for the ColorSpace
@@ -155,6 +160,7 @@ impl ColorSpace {
             Cs::Lab => AnsiColors::Blue,
             Cs::LabMixed => AnsiColors::Green,
             Cs::Lch => AnsiColors::Magenta,
+            Cs::LchMixed => AnsiColors::Magenta,
         }
     }
 }
@@ -385,6 +391,7 @@ impl fmt::Display for Cs {
             Cs::Lab => write!(f, "Lab"),
             Cs::LabMixed => write!(f, "LabMixed"),
             Cs::Lch => write!(f, "Lch"),
+            Cs::LchMixed => write!(f, "LchMixed"),
         }
     }
 }
