@@ -167,11 +167,6 @@ Default to 100, can be modified in the config file or with `--alpha`/`-a`.
 .TP
 .B alpha_dec
 Instead of 0 to 100, displays it from 0.00 to 1.00.
-.TP
-.B alpha_hex
-Displays alpha value as
-.BR "hexadecimal color code" [2]
-(e.g "FF")
 .RE
 
 .SH "TEMPLATE FILTERS"
@@ -181,6 +176,19 @@ The Jinja2 format calls them 'filters', making a distincion from 'functions'.
 Currently I haven't implemented any
 .B function
 because I haven't found a usecase (yet?).
+
+.TP
+.B UNSIGNED INT
+.RS
+.TP
+.B alpha_hexa
+Displays alpha value as
+.BR "hexadecimal color code" [2]
+(e.g "{{ 100 | alpha_hexa }}" outputs 'FF').
+This can only be used with numbers from 0 to 100, so you are free to use the variable
+.I alpha
+with this filter.
+.RE
 
 .TP
 .B COLORS
@@ -472,9 +480,8 @@ variants, just append it to the variable name (e.g. "color0.rgb", "background.bl
 .br
 
 .BR wallpaper ,
-.BR alpha ,
-.BR alpha_dec " and"
-.BR alpha_hex
+.BR alpha " and"
+.BR alpha_dec
 are also avaliable, these don't support the variants from above.
 
 .TP
