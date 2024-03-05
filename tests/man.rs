@@ -6,21 +6,32 @@ use clap::{Command, CommandFactory};
 const description_main: &str =
 r#"
 .SH "DESCRIPTION"
+.ad l
 .TS
-tab(;) left,box;
-
-l   |   l |.
-\fBMethods\fP;\fBDescription\fP
+box tab(!);
+cB | cB
+lwB | lw.
+Methods!Description
 _
-\fBBackends\fP;How to extract the colors from the image
-              ; (e.g. pywal uses convert).
+Backends!T{
+How to extract the colors from the image
+(e.g. pywal uses convert).
+T}
 _
-\fBColorspace\fP;Get the most prominent color, and sort them
-                ; according to the \fBpalette\fP, configurable with a threshold.
+Color Space!T{
+Get the most prominent color, and sort them
+according to the
+.B palette
+, configurable with a threshold.
+T}
 _
-\fBPalette\fP;Makes a scheme palette with the gathered colors
-             ; (e.g. sets a light background).
+Palette!T{
+Makes a scheme palette with the gathered colors
+(e.g. sets a light background).
+T}
 .TE
+.ad b
+
 
 .B Reminder
 The options below can be used after the subcommand, for example:
