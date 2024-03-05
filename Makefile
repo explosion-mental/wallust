@@ -47,6 +47,13 @@ man:
 config:
 	@${CARGO} test --quiet --features=buildgen --test=config
 
+dist: clean
+	mkdir -p wallust-${VERSION}
+	cp -R LICENSE Makefile README.md wallust.toml Cargo.toml Cargo.lock src/* man/* completions/* wallust-${VERSION}
+	tar -cf wallust-${VERSION}.tar wallust-${VERSION}
+	gzip wallust-${VERSION}.tar
+	rm -rf wallust-${VERSION}
+
 install-completions: ## installs completions files
 	mkdir -p ${DESTDIR}${ZSHPREFIX}
 	cp -f completions/_wallust ${DESTDIR}${ZSHPREFIX}/_wallust
@@ -55,17 +62,7 @@ install-completions: ## installs completions files
 	mkdir -p ${DESTDIR}${FISHPREFIX}
 	cp -f completions/wallust.fish ${DESTDIR}${FISHPREFIX}/wallust.fish
 
-dist: clean
-	mkdir -p wallust-${VERSION}
-	cp -R LICENSE Makefile README.md wallust.toml Cargo.toml Cargo.lock src/* man/* completions/* wallust-${VERSION}
-	tar -cf wallust-${VERSION}.tar wallust-${VERSION}
-	gzip wallust-${VERSION}.tar
-	rm -rf wallust-${VERSION}
-
-install: all install-completions
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f ${RELEASE}/wallust ${DESTDIR}${PREFIX}/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/wallust
+install-man: ## installs completions files
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
 	cp -f man/wallust.1 man/wallust-theme.1 man/wallust-cs.1 $(DESTDIR)$(MANPREFIX)/man1
@@ -74,6 +71,11 @@ install: all install-completions
 		${DESTDIR}${MANPREFIX}/man1/wallust-theme.1 \
 		${DESTDIR}${MANPREFIX}/man1/wallust-cs.1 \
 		${DESTDIR}${MANPREFIX}/man5/wallust.5
+
+install: all install-completions install-man
+	mkdir -p ${DESTDIR}${PREFIX}/bin
+	cp -f ${RELEASE}/wallust ${DESTDIR}${PREFIX}/bin
+	chmod 755 ${DESTDIR}${PREFIX}/bin/wallust
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/wallust \
