@@ -24,10 +24,11 @@ pub struct Cli {
 
     /// Skip setting terminal sequences
     #[arg(global = true, short, long)]
+    #[arg(global = true, short, long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
     pub skip_sequences: bool,
 
     /// Skip templating process
-    #[arg(global = true, short = 'T', long, conflicts_with = "update_current", conflicts_with = "ignore_sequence")]
+    #[arg(global = true, short = 'T', long)]
     pub skip_templates: bool,
 
     /// Only update the current terminal
