@@ -33,6 +33,9 @@ palette = { version = "0.7", default-features = false }
 regex = "1.10"
 minijinja = "1.0"
 
+# replacement for fs::canonalize but handles way better windows paths
+dunce = "1.0.4"
+
 clap  = { version = "4.3", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 

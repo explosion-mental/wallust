@@ -211,7 +211,7 @@ impl Config {
             // use the theme name otherwise
             WalStr::Theme(s) => s.to_string(),
             // make sure to display the absolute path of the wallpaper
-            WalStr::Path(p) => std::fs::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
+            WalStr::Path(p) => dunce::canonicalize(p).expect("PATH EXIST, validation from clap").display().to_string(),
         };
 
         let values = TemplateFields {
