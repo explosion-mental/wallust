@@ -10,7 +10,9 @@ use std::path::Path;
 use anyhow::Result;
 use num_traits::Pow;
 use owo_colors::{OwoColorize, Rgb};
+use palette::GetHue;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use palette::{Hsv, Srgb, IntoColor};
 
 use crate::args::Sequences;
 /// This is how the scheme it's organized, the `cursor` field it's the same as the foreground (only
@@ -218,15 +220,17 @@ impl Myrgb {
     }
 
     /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)
-    /// XXX easy_color seems to be an OK crate, however is there a more suitable crate for this?
-    /// XXX think about using palette crate (still looks too complicated for me and my use case)
     pub fn saturate(&self, amount: f32) -> Self {
-        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().expect("Format is correct since it's controled by u8 type");
-        let mut hsl: easy_color::HSL = initial.into();
-        hsl.set_saturation((amount * 100.0) as u32);
-        let rgb: easy_color::RGB = hsl.into();
+        use palette::Saturate;
 
-        Self(rgb.red(), rgb.green(), rgb.blue())
+        //initial
+        let a: Srgb<f32> = Srgb::from([self.0, self.1, self.2]).into_format();
+        let a: Hsv = a.into_color();
+        // saturate is not implemented for rgb
+        let rgb: Srgb<f32> = a.saturate(amount).into_color();
+        let rgb: Srgb<u8> = rgb.into_format();
+
+        Self(rgb.red, rgb.green, rgb.blue)
     }
 
     /// Get the complementary color of a color.
@@ -241,24 +245,27 @@ impl Myrgb {
     /// Blue    falls between 241 and 300 degrees.
     /// Magenta falls between 301 and 360 degrees.
     pub fn complementary(&self) -> Self {
-        let initial: easy_color::RGB = (self.0, self.1, self.2).try_into().expect("correct format because it's u8");
-        let mut hsv: easy_color::HSV = initial.into();
+        use palette::ShiftHue;
+        //initial
+        let a: Srgb<f32> = Srgb::from([self.0, self.1, self.2]).into_format();
+        let hsv: Hsv = a.into_color();
 
-        let h = hsv.hue();
-        let sum = match hsv.hue() {
-            0..=60    => 180 + h,
-            61..=120  => 240 + h,
-            121..=180 => 180 + h,
-            181..=240 => 240 - h,
-            241..=300 => 420 - h,
-            301..=360 => 540 - h,
+        // saturate is not implemented for rgb
+        let check = hsv.get_hue().into_positive_degrees() as u32;
+        let sum = match check {
+            0..=60    => 180,
+            61..=120  => 240,
+            121..=180 => 180,
+            181..=240 => -240,
+            241..=300 => -420,
+            301..=360 => -540,
             _ => 180,
         };
 
-        hsv.set_hue(sum);
-        let rgb: easy_color::RGB = hsv.into();
+        let rgb: Srgb<f32> = hsv.shift_hue(sum as f32).into_color();
+        let rgb: Srgb<u8> = rgb.into_format();
 
-        Self(rgb.red(), rgb.green(), rgb.blue())
+        Self(rgb.red, rgb.green, rgb.blue)
     }
 }
 

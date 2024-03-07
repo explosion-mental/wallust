@@ -27,7 +27,6 @@ dirs = "5.0"
 itertools = "0.12"
 fast_image_resize = "3.0"
 num-traits = "0.2"
-easy_color = "0.1"
 kmeans_colors = { version = "0.6.0", default-features = false, features = ["palette_color"] }
 palette = { version = "0.7", default-features = false }
 regex = "1.10"
