@@ -8,7 +8,6 @@ use std::io::Write;
 use std::path::Path;
 
 use anyhow::Result;
-use num_traits::Pow;
 use owo_colors::{OwoColorize, Rgb};
 use palette::GetHue;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
@@ -193,30 +192,6 @@ impl Myrgb {
         // }
 
         format!("\x1B]{index};{self}\x1B\\")
-    }
-
-    fn luminance(&self) -> f32 {
-        const GAMMA: f32 = 2.4;
-        const RED: f32 = 0.2126;
-        const GREEN: f32 = 0.7152;
-        const BLUE: f32 = 0.0722;
-
-        let a = [
-            f32::from(self.0), //r
-            f32::from(self.1), //g
-            f32::from(self.2), //b
-        ].map(|mut x| {
-            x /= 255.0;
-            if x <= 0.03928 {
-                x / 12.92
-            } else {
-                (x + 0.055 / 1.055).pow(GAMMA)
-            }
-        });
-
-        a[0] * RED   +
-        a[1] * GREEN +
-        a[2] * BLUE
     }
 
     /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)
@@ -405,12 +380,14 @@ impl Colors {
 
     /// Checks whether the foregound and backgroudnd of `[Colors]` contrast good enough.
     /// * from: <https://stackoverflow.com/questions/9733288/how-to-programmatically-calculate-the-contrast-ratio-between-two-colors#9733420>
+    /// * updated to: <https://docs.rs/palette/latest/palette/color_difference/trait.Wcag21RelativeContrast.html>
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
-        /// Currently the ratio is hardcoded to `4.5`, standard, but could be decreased at `3.0`
-        /// for bigger fonts (tested), but a more allround solution is `4.5` tho.
-        const RATIO: f32 = 4.5;
+        use palette::color_difference::Wcag21RelativeContrast;
 
-        contrast(a, b) >= RATIO
+        let a: Srgb<f32> = Srgb::from([a.0, a.1, a.2]).into_format();
+        let b: Srgb<f32> = Srgb::from([b.0, b.1, b.2]).into_format();
+
+        a.has_min_contrast_text(b)
     }
 
     /// Checks the contrast for all colors, pywal seems to ignore color0, color7, color8 and
@@ -570,16 +547,6 @@ impl Colors {
     }
 }
 
-/// returns the ratio between the two colors
-fn contrast(a: Myrgb, b: Myrgb) -> f32 {
-        let lum1 = a.luminance();
-        let lum2 = b.luminance();
-
-        let brightest = f32::max(lum1, lum2);
-        let darkest   = f32::min(lum1, lum2);
-
-        (brightest + 0.05) / (darkest + 0.05)
-}
 
 /// Set iTerm2 tab/window color
 /// `\a` is BELL in octal escape byte, `\x07` in hex
