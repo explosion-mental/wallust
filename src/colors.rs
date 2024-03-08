@@ -9,7 +9,7 @@ use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
 use palette::GetHue;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
-use palette::{Hsv, Srgb, IntoColor};
+use palette::{Hsv, Srgb, IntoColor, ShiftHue};
 
 use crate::args::Sequences;
 use crate::sequences;
@@ -110,6 +110,7 @@ pub trait SrgbString {
     fn strsrgb(&self) -> String;
     fn striped(&self) -> String;
     fn owo_col(&self) -> Rgb;
+    fn complementary(self) -> Self;
 }
 
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
@@ -126,6 +127,10 @@ impl SrgbString for Srgb {
     fn owo_col(&self) -> Rgb {
         let (r, g, b) = self.into_format::<u8>().into_components();
         Rgb(r, g, b)
+    }
+    fn complementary(self) -> Self {
+        let hsv: Hsv = self.into_color();
+        hsv.shift_hue(180.0).into_color()
     }
 }
 
@@ -260,7 +265,6 @@ impl Myrgb {
     /// Blue    falls between 241 and 300 degrees.
     /// Magenta falls between 301 and 360 degrees.
     pub fn complementary(&self) -> Self {
-        use palette::ShiftHue;
         //initial
         let hsv: Hsv = self.0.into_color();
 

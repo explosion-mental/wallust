@@ -1,29 +1,26 @@
 //! # Colorspaces
-//! This is just an interface to get the most (16) prominent colors, from darkest to lightest, as
-//! an rgb, [`Myrgb`] wrapper type, value. Different ways of collecting these can be achieve, and
-//! so this deserved it's own module.
-
-//TODO finally understood how pywal does it. To get a good "uniform" palette, instead of sorting
-//     with lightest or the top colors and the like, it should take into consideration the hue. If
-//     you understand this module (me) then extrapolating to words from here would be something
-//     like: 'making it the most hued colors acting as the `darkest`', so `DarkFirst` would get the
-//     most hued colors first, or the 'hard' ones (uwu)
+//! This modules has the job of reducing all the bytes given from the `backend` to two (2) vectors:
+//! 1. The first one is a sorted, see [`ColorOrder`], array.
+//! 2. The second one is about preserving the most dominant color order in the vector, ensuring the
+//!    first entry is the dominant (most repeated one).
 
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
-// use crate::colors::Colors;
 use crate::colors::Myrgb;
+use crate::colors::SrgbString;
 
 use anyhow::Result;
 use palette::convert::FromColorUnclamped;
+use palette::IntoColor;
+use palette::Clamp;
+use palette::Srgb;
+use palette::Mix;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
-use palette::Srgb;
-use palette::Mix;
 
 mod lab;
 mod lch;
@@ -127,7 +124,7 @@ impl From<Myrgb> for Srgb<u8> {
 }
 
 impl FallbackGenerator {
-    pub fn gen(&self) -> impl Fn(Myrgb, Myrgb, u8) -> Vec<Myrgb> {
+    pub fn gen(&self) -> impl Fn(Srgb, Srgb, u8) -> Vec<Srgb> {
         match self {
             G::Interpolate => interpolate,
             G::Complementary => complementary,
@@ -194,8 +191,6 @@ Myrgb: From<T>
     }
 }
 
-use palette::IntoColor;
-
 impl<T: ColorTrait + Copy + IntoColor<Srgb>> From<ColorHisto<T>> for Vec<Srgb>
 {
     fn from(c: ColorHisto<T>) -> Self {
@@ -220,7 +215,7 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
-    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32>;
+    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32> + IntoColor<Srgb> + FromColorUnclamped<Srgb> + Clamp;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color>;
@@ -247,11 +242,11 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
         let mut new_cols = vec![];
         // try to generate new colors with interpolation in between the already gathered colors
         for comb in histo.iter().combinations(2) {
-            let color_a: Myrgb = comb[0].color.into();
-            let color_b: Myrgb = comb[1].color.into();
+            let color_a: Srgb = comb[0].color.into_color();
+            let color_b: Srgb = comb[1].color.into_color();
 
             let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
-                .iter().map(|&x| x.into()).collect();
+                .iter().map(|&x| x.into_color()).collect();
 
             //similar to how it's done at the start of `lab()`
             // save the new colors, or discard them if similar enough
@@ -412,23 +407,20 @@ impl fmt::Display for Cs {
 /// This seems to be implemented in the palette crate for all colorspaces,
 /// so we can turn this generic TODO
 /// In that case, `complementary()` would be a generator that will need convertion.
-fn interpolate(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
-    let a = Srgb::<u8>::from(color_a).into_linear::<f32>();
-    let b = Srgb::<u8>::from(color_b).into_linear::<f32>();
+fn interpolate(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
+    let a = color_a.into_format();
+    let b = color_b.into_format();
 
     let result_a = a.mix(b, 0.35);
     let result_b = a.mix(b, 0.65);
 
-    let ret1 = Srgb::<u8>::from(result_a);
-    let ret2 = Srgb::<u8>::from(result_b);
-
     vec![
-        ret1.into(),
-        ret2.into()
+        result_a,
+        result_b,
     ]
 }
 
-fn complementary(color_a: Myrgb, color_b: Myrgb, _: u8) -> Vec<Myrgb> {
+fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
     vec![
         color_a.complementary(),
         color_b.complementary()
