@@ -154,7 +154,15 @@ Functions that only work with colors. These can be applied to a
 "#0A0B0C". These functions return a color in the mentioned format (hex rgb, like "#000000"), unless
 written otherwise (like rgb, rgba, the other filters that explicitly say it's output format). This
 allows to apply multiple filters at a time.
+
+.I Note
+If an 'alpha' value is mentioned, it's defined in the config file, as a cli flag and by default it's value is '100'.
 .RS
+.TP
+.B hexa
+Outputs the color in `hexa` format: e.g "#0A0B0CFF", where 'FF' is the alpha value.
+.I Note
+This, internally uses `alpha_hexa` filter from above.
 .TP
 .B rgb
 Output the color in `rgb`, separated by comas. (e.g. "10,11,12")

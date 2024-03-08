@@ -170,17 +170,25 @@ impl Myrgb {
         format!("{r},{g},{b}")
     }
 
-    /// .rgba output `235,235,235,1.0`
-    pub fn rgba(&self) -> String {
+    /// HEXA output (e.g. `#001122FF`, where FF is the alpha hex)
+    /// Alpha needs to be in hex format alrd
+    /// Ref: <https://net-informations.com/q/web/trans.html>
+    pub fn hexa(&self, alpha: &str) -> String {
         let (r, g, b) = self.to_rgb8();
-        let alpha = 1.0; //see top of the file for alpha explanation
+        format!("#{r}{g}{b}{alpha}")
+    }
+
+    /// .rgba output `235,235,235,1.0`
+    pub fn rgba(&self, alpha: f32) -> String {
+        let (r, g, b) = self.to_rgb8();
         format!("rgba({r},{g},{b},{alpha})")
     }
 
     /// xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
-    pub fn xrgba(&self) -> String {
+    /// Alpha needs to be in hex format alrd
+    pub fn xrgba(&self, alpha: &str) -> String {
         let (r, g, b) = self.to_rgb8();
-        format!("{r:02x}/{g:02x}/{b:02x}/ff")
+        format!("{r:02x}/{g:02x}/{b:02x}/{alpha}")
     }
 
     /// - xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator

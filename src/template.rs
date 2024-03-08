@@ -100,7 +100,7 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        let env = jinja_env();
+        let env = jinja_env(values.alpha);
         let name = file.display().to_string();
         let v = minijinja::Value::from(values);
 
@@ -172,7 +172,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
     Ok(())
 }
 
-pub fn jinja_env<'a>() -> Environment<'a> {
+pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
 
@@ -189,11 +189,17 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         jinjafn!(env, tostr => darken, f32);
         jinjafn!(env, tostr => saturate, f32);
 
-        fn hexa(input: usize) -> Result<String, minijinja::Error> {
+        fn hexa_for_alpha(input: usize) -> Result<String, minijinja::Error> {
             alpha_hexa(input)
                 .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, e))
         }
-        env.add_filter("alpha_hexa", hexa);
+        env.add_filter("alpha_hexa", hexa_for_alpha);
+
+        let hexa = move |value: ViaDeserialize<Myrgb>| -> String {
+            let a = alpha_hexa(alpha as usize).expect("number from 0..=100 validated by clap");
+            Myrgb::hexa(&value, &a)
+        };
+        env.add_filter("hexa", hexa);
 
         env
 }
@@ -241,14 +247,16 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     let mut map = HashMap::new();
     let alpha = self.alpha;
     let col = self.colors;
+    let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
+    let alpha_dec = f32::from(alpha) / 100.0;
 
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
     //full path to the image
     map.insert("wallpaper", self.image_path.into());
     map.insert("alpha", alpha.to_string());
-    map.insert("alpha_dec", format!("{:.2}", f32::from(alpha) / 100.0 ));
-    map.insert("alpha_hex", alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100"));
+    map.insert("alpha_dec", format!("{alpha_dec:.2}"));
+    map.insert("alpha_hex", alpha_hex.clone());
 
     // Include backend, colorspace and filter (palette)
     map.insert("backend", self.backend.to_string());
@@ -298,46 +306,46 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     map.insert("background.rgb", col.background.rgb());
 
     //.rgba output `235,235,235,1.0`
-    map.insert("color0.rgba" , col.color0 .rgba());
-    map.insert("color1.rgba" , col.color1 .rgba());
-    map.insert("color2.rgba" , col.color2 .rgba());
-    map.insert("color3.rgba" , col.color3 .rgba());
-    map.insert("color4.rgba" , col.color4 .rgba());
-    map.insert("color5.rgba" , col.color5 .rgba());
-    map.insert("color6.rgba" , col.color6 .rgba());
-    map.insert("color7.rgba" , col.color7 .rgba());
-    map.insert("color8.rgba" , col.color8 .rgba());
-    map.insert("color9.rgba" , col.color9 .rgba());
-    map.insert("color10.rgba", col.color10.rgba());
-    map.insert("color11.rgba", col.color11.rgba());
-    map.insert("color12.rgba", col.color12.rgba());
-    map.insert("color13.rgba", col.color13.rgba());
-    map.insert("color14.rgba", col.color14.rgba());
-    map.insert("color15.rgba", col.color15.rgba());
-    map.insert("cursor.rgba", col.foreground.rgba());
-    map.insert("foreground.rgba", col.foreground.rgba());
-    map.insert("background.rgba", col.background.rgba());
+    map.insert("color0.rgba" , col.color0 .rgba(alpha_dec));
+    map.insert("color1.rgba" , col.color1 .rgba(alpha_dec));
+    map.insert("color2.rgba" , col.color2 .rgba(alpha_dec));
+    map.insert("color3.rgba" , col.color3 .rgba(alpha_dec));
+    map.insert("color4.rgba" , col.color4 .rgba(alpha_dec));
+    map.insert("color5.rgba" , col.color5 .rgba(alpha_dec));
+    map.insert("color6.rgba" , col.color6 .rgba(alpha_dec));
+    map.insert("color7.rgba" , col.color7 .rgba(alpha_dec));
+    map.insert("color8.rgba" , col.color8 .rgba(alpha_dec));
+    map.insert("color9.rgba" , col.color9 .rgba(alpha_dec));
+    map.insert("color10.rgba", col.color10.rgba(alpha_dec));
+    map.insert("color11.rgba", col.color11.rgba(alpha_dec));
+    map.insert("color12.rgba", col.color12.rgba(alpha_dec));
+    map.insert("color13.rgba", col.color13.rgba(alpha_dec));
+    map.insert("color14.rgba", col.color14.rgba(alpha_dec));
+    map.insert("color15.rgba", col.color15.rgba(alpha_dec));
+    map.insert("cursor.rgba", col.foreground.rgba(alpha_dec));
+    map.insert("foreground.rgba", col.foreground.rgba(alpha_dec));
+    map.insert("background.rgba", col.background.rgba(alpha_dec));
 
     //.xrgba output `ee/ee/ee/ff`
-    map.insert("color0.xrgba" , col.color0 .xrgba());
-    map.insert("color1.xrgba" , col.color1 .xrgba());
-    map.insert("color2.xrgba" , col.color2 .xrgba());
-    map.insert("color3.xrgba" , col.color3 .xrgba());
-    map.insert("color4.xrgba" , col.color4 .xrgba());
-    map.insert("color5.xrgba" , col.color5 .xrgba());
-    map.insert("color6.xrgba" , col.color6 .xrgba());
-    map.insert("color7.xrgba" , col.color7 .xrgba());
-    map.insert("color8.xrgba" , col.color8 .xrgba());
-    map.insert("color9.xrgba" , col.color9 .xrgba());
-    map.insert("color10.xrgba", col.color10.xrgba());
-    map.insert("color11.xrgba", col.color11.xrgba());
-    map.insert("color12.xrgba", col.color12.xrgba());
-    map.insert("color13.xrgba", col.color13.xrgba());
-    map.insert("color14.xrgba", col.color14.xrgba());
-    map.insert("color15.xrgba", col.color15.xrgba());
-    map.insert("cursor.xrgba", col.foreground.xrgba());
-    map.insert("foreground.xrgba", col.foreground.xrgba());
-    map.insert("background.xrgba", col.background.xrgba());
+    map.insert("color0.xrgba" , col.color0 .xrgba(&alpha_hex));
+    map.insert("color1.xrgba" , col.color1 .xrgba(&alpha_hex));
+    map.insert("color2.xrgba" , col.color2 .xrgba(&alpha_hex));
+    map.insert("color3.xrgba" , col.color3 .xrgba(&alpha_hex));
+    map.insert("color4.xrgba" , col.color4 .xrgba(&alpha_hex));
+    map.insert("color5.xrgba" , col.color5 .xrgba(&alpha_hex));
+    map.insert("color6.xrgba" , col.color6 .xrgba(&alpha_hex));
+    map.insert("color7.xrgba" , col.color7 .xrgba(&alpha_hex));
+    map.insert("color8.xrgba" , col.color8 .xrgba(&alpha_hex));
+    map.insert("color9.xrgba" , col.color9 .xrgba(&alpha_hex));
+    map.insert("color10.xrgba", col.color10.xrgba(&alpha_hex));
+    map.insert("color11.xrgba", col.color11.xrgba(&alpha_hex));
+    map.insert("color12.xrgba", col.color12.xrgba(&alpha_hex));
+    map.insert("color13.xrgba", col.color13.xrgba(&alpha_hex));
+    map.insert("color14.xrgba", col.color14.xrgba(&alpha_hex));
+    map.insert("color15.xrgba", col.color15.xrgba(&alpha_hex));
+    map.insert("cursor.xrgba", col.foreground.xrgba(&alpha_hex));
+    map.insert("foreground.xrgba", col.foreground.xrgba(&alpha_hex));
+    map.insert("background.xrgba", col.background.xrgba(&alpha_hex));
 
     //.strip output `EEEEEE`
     map.insert("color0.strip" , col.color0 .strip());
