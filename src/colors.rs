@@ -71,18 +71,10 @@ impl<'de> Deserialize<'de> for Myrgb {
             where
                 E: Error,
             {
-                if value.len() != 7 || !value.starts_with('#') {
-                    return Err(Error::invalid_value(
-                        serde::de::Unexpected::Str(value),
-                        &self,
-                    ));
-                }
+                let s: Srgb<u8> = value.parse()
+                    .map_err(Error::custom)?;
 
-                let r = u8::from_str_radix(&value[1..3], 16).map_err(Error::custom)?;
-                let g = u8::from_str_radix(&value[3..5], 16).map_err(Error::custom)?;
-                let b = u8::from_str_radix(&value[5..7], 16).map_err(Error::custom)?;
-
-                Ok(Myrgb(r, g, b))
+                Ok(Myrgb(s.red, s.green, s.blue))
             }
         }
 
