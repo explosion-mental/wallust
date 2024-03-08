@@ -4,9 +4,9 @@
 /// Similar to [`dark()`] but colors in *inversed* order.
 /// Modifies the background to match the most prominent color.
 /// Sorted by [`LightFirst`],
-pub fn softdark(c: Vec<Myrgb>, orig: Vec<Myrgb>) -> Colors {
+pub fn softdark(c: Vec<Srgb>, orig: Vec<Srgb>) -> Colors {
     //let orig = c.to_rgb_orig();
-    let ee = Myrgb(238, 238, 238); //This is `#EEEEEE`
+    let ee = Srgb::<u8>::new(238, 238, 238); //This is `#EEEEEE`
     orig[0].lighten(0.3); //top color
 
 
@@ -21,10 +21,10 @@ pub fn softdark(c: Vec<Myrgb>, orig: Vec<Myrgb>) -> Colors {
     //on `softlight` the lightest color is `.color1`
     //Make sure these colors contrast properly
     ret.color8 = ret.color1.darken(0.3);
-    ret.color15 = ret.color1.blend(ee);
+    ret.color15 = ret.color1.blend(ee.into());
 
-    ret.background = bg;
-    ret.foreground = fg;
+    ret.background = bg.into();
+    ret.foreground = fg.into();
 
     ret
 }

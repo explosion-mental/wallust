@@ -42,7 +42,13 @@ pub struct Colors {
 /// since most of them include their own `RGB` type) and by including methods for convertion and
 /// modification to the color. Every backend should return `Myrgb`.
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Myrgb(pub u8, pub u8, pub u8);
+pub struct Myrgb(pub Srgb);
+impl From<Srgb> for Myrgb {
+    fn from(v: Srgb) -> Myrgb {
+        Myrgb(v)
+    }
+}
+
 
 impl Serialize for Myrgb {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -74,7 +80,7 @@ impl<'de> Deserialize<'de> for Myrgb {
                 let s: Srgb<u8> = value.parse()
                     .map_err(Error::custom)?;
 
-                Ok(Myrgb(s.red, s.green, s.blue))
+                Ok(Myrgb(s.into_format()))
             }
         }
 
@@ -86,59 +92,77 @@ impl<'de> Deserialize<'de> for Myrgb {
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
 impl fmt::Display for Myrgb {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "#{:02X}{:02X}{:02X}", self.0, self.1, self.2)
+        let (r, g, b) = self.0.into_format::<u8>().into_components();
+        write!(f, "#{r:02X}{g:02X}{b:02X}", )
     }
 }
+
+//default way of representing an SRGB for the palette crate
+pub trait SrgbString {
+    fn strsrgb(&self) -> String;
+}
+
+/// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
+impl SrgbString for Srgb {
+    fn strsrgb(&self) -> String {
+        let (r, g, b) = self.into_format::<u8>().into_components();
+        format!("#{r:02X}{g:02X}{b:02X}")
+    }
+}
+
 
 /// methods for [`Myrgb`] darken and lighten are basically from pywal `util.py` (just 'type safe' :p)
 impl Myrgb {
     /// to owo [`Rgb`]
     pub fn col(&self) -> Rgb {
-        Rgb(self.0, self.1, self.2)
+        let (r, g, b) = self.0.into_format::<u8>().into_components();
+        Rgb(r, g, b)
+    }
+
+    fn to_rgb8(&self) -> (u8, u8, u8) {
+        self.0.into_format::<u8>().into_components()
     }
 
     /// darkens rgb by amount (lossy)
     pub fn darken(&self, amount: f32) -> Self {
-        Self(
-            (f32::from(self.0) * (1.0 - amount)) as u8,
-            (f32::from(self.1) * (1.0 - amount)) as u8,
-            (f32::from(self.2) * (1.0 - amount)) as u8,
-        )
+        use palette::Darken;
+        Self(self.0.darken(amount))
     }
 
     /// ligthen rgb by amount (lossy)
     pub fn lighten(&self, amount: f32) -> Self {
-        Self(
-            (f32::from(self.0) + f32::from(255 - self.0) * amount) as u8,
-            (f32::from(self.1) + f32::from(255 - self.1) * amount) as u8,
-            (f32::from(self.2) + f32::from(255 - self.2) * amount) as u8,
-        )
+        use palette::Lighten;
+        Self(self.0.lighten(amount))
     }
 
     /// Mix with other [`Myrgb`]
     pub fn blend(&self, other: Self) -> Self {
-        Self(
-            (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
-            (0.5 * f32::from(self.1) + 0.5 * f32::from(other.1)) as u8,
-            (0.5 * f32::from(self.2) + 0.5 * f32::from(other.2)) as u8,
-
-        )
+        *self
+        // Self(
+        //     (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
+        //     (0.5 * f32::from(self.1) + 0.5 * f32::from(other.1)) as u8,
+        //     (0.5 * f32::from(self.2) + 0.5 * f32::from(other.2)) as u8,
+        //
+        // )
     }
 
     /// This outputs `235,235,235` as r,g,b
     pub fn rgb(&self) -> String {
-        format!("{},{},{}", self.0, self.1, self.2)
+        let (r, g, b) = self.to_rgb8();
+        format!("{r},{g},{b}")
     }
 
     /// .rgba output `235,235,235,1.0`
     pub fn rgba(&self) -> String {
+        let (r, g, b) = self.to_rgb8();
         let alpha = 1.0; //see top of the file for alpha explanation
-        format!("rgba({},{},{},{alpha})", self.0, self.1, self.2)
+        format!("rgba({r},{g},{b},{alpha})")
     }
 
     /// xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
     pub fn xrgba(&self) -> String {
-        format!("{:02x}/{:02x}/{:02x}/ff", self.0, self.1, self.2)
+        let (r, g, b) = self.to_rgb8();
+        format!("{r:02x}/{g:02x}/{b:02x}/ff")
     }
 
     /// - xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
@@ -146,19 +170,30 @@ impl Myrgb {
     /// - alpha is a variable itself, not contained in Colors. so it could be formatted standalone.
     /// (e.g. `{{color0 | xrgb}}{{"/"}}{{alpha_hex}}` )
     pub fn xrgb(&self) -> String {
-        format!("{:02x}/{:02x}/{:02x}", self.0, self.1, self.2)
+        let (r, g, b) = self.to_rgb8();
+        format!("{r:02x}/{g:02x}/{b:02x}")
     }
 
     /// This only "strips" the `#` from the usual output, leaving the following: `EEEEEE`
     pub fn strip(&self) -> String {
-        format!("{:02X}{:02X}{:02X}", self.0, self.1, self.2)
+        let (r, g, b) = self.to_rgb8();
+        format!("{r:02X}{g:02X}{b:02X}")
     }
 
     // Red green and blue values as u8s
     // XXX maybe also make red green and blue for hex values?
-    pub fn red  (&self) -> String { format!("{}", self.0) }
-    pub fn green(&self) -> String { format!("{}", self.1) }
-    pub fn blue (&self) -> String { format!("{}", self.2) }
+    pub fn red(&self) -> String {
+        let (r, _, _) = self.to_rgb8();
+        format!("{r}")
+    }
+    pub fn green(&self) -> String {
+        let (_, g, _) = self.to_rgb8();
+        format!("{g}")
+    }
+    pub fn blue(&self) -> String {
+        let (_, _, b) = self.to_rgb8();
+        format!("{b}")
+    }
 
     /// private fn that returns sequences
     /// "Convert a hex color to a text color sequence"
@@ -191,13 +226,11 @@ impl Myrgb {
         use palette::Saturate;
 
         //initial
-        let a: Srgb<f32> = Srgb::from([self.0, self.1, self.2]).into_format();
-        let a: Hsv = a.into_color();
+        let a: Hsv = self.0.into_color();
         // saturate is not implemented for rgb
         let rgb: Srgb<f32> = a.saturate(amount).into_color();
-        let rgb: Srgb<u8> = rgb.into_format();
 
-        Self(rgb.red, rgb.green, rgb.blue)
+        Self(rgb)
     }
 
     /// Get the complementary color of a color.
@@ -214,8 +247,7 @@ impl Myrgb {
     pub fn complementary(&self) -> Self {
         use palette::ShiftHue;
         //initial
-        let a: Srgb<f32> = Srgb::from([self.0, self.1, self.2]).into_format();
-        let hsv: Hsv = a.into_color();
+        let hsv: Hsv = self.0.into_color();
 
         // saturate is not implemented for rgb
         let check = hsv.get_hue().into_positive_degrees() as u32;
@@ -230,9 +262,8 @@ impl Myrgb {
         };
 
         let rgb: Srgb<f32> = hsv.shift_hue(sum as f32).into_color();
-        let rgb: Srgb<u8> = rgb.into_format();
 
-        Self(rgb.red, rgb.green, rgb.blue)
+        Self(rgb)
     }
 }
 
@@ -376,10 +407,7 @@ impl Colors {
     pub fn contrast_well(a: Myrgb, b: Myrgb) -> bool {
         use palette::color_difference::Wcag21RelativeContrast;
 
-        let a: Srgb<f32> = Srgb::from([a.0, a.1, a.2]).into_format();
-        let b: Srgb<f32> = Srgb::from([b.0, b.1, b.2]).into_format();
-
-        a.has_min_contrast_text(b)
+        a.0.has_min_contrast_text(b.0)
     }
 
     /// Checks the contrast for all colors, pywal seems to ignore color0, color7, color8 and
@@ -824,13 +852,6 @@ impl HexConversion for &str {
                 .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|e| e.into()))
                 .collect()
         }
-    }
-}
-
-/// From a vec to Myrgb
-impl From<Vec<u8>> for Myrgb {
-    fn from(v: Vec<u8>) -> Myrgb {
-        Myrgb(v[0], v[1], v[2])
     }
 }
 

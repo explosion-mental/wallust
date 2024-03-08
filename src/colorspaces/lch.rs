@@ -66,13 +66,12 @@ impl BuildColors for ColorHisto<Spec> {
 impl From<Spec> for Myrgb {
     fn from(lab: Spec) -> Self {
         let a: Srgb = lab.into_color();
-        let a: Srgb<u8> = a.into_format();
-        Self(a.red, a.green, a.blue)
+        Self(a)
     }
 }
 
 impl From<Myrgb> for Spec {
     fn from(c: Myrgb) -> Self {
-        Srgb::from([c.0, c.1, c.2]).into_linear().into_color()
+        c.0.into_color()
     }
 }

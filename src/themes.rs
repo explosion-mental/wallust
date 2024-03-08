@@ -152,7 +152,8 @@ pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
                 .iter()
                 .map(|x| {
                     let [b, g, r, _a] = x.to_le_bytes();
-                    Myrgb(r, g, b)
+                    let s = Srgb::<u8>::new(r, g, b);
+                    Myrgb(s.into_format())
                 })
             .collect::<Vec<_>>();
 
@@ -204,30 +205,32 @@ impl fmt::Display for Schemes {
     }
 }
 
+use palette::Srgb;
+
 impl WalTheme {
     fn to_colors(&self) -> Result<Colors> {
         let c = &self.colors;
         let s = &self.special;
         Ok(
             Colors {
-                background: s.background.as_str().decode_hex()?.into(),
-                foreground: s.foreground.as_str().decode_hex()?.into(),
-                color0 : c.color0.as_str().decode_hex()?.into(),
-                color1 : c.color1.as_str().decode_hex()?.into(),
-                color2 : c.color2.as_str().decode_hex()?.into(),
-                color3 : c.color3.as_str().decode_hex()?.into(),
-                color4 : c.color4.as_str().decode_hex()?.into(),
-                color5 : c.color5.as_str().decode_hex()?.into(),
-                color6 : c.color6.as_str().decode_hex()?.into(),
-                color7 : c.color7.as_str().decode_hex()?.into(),
-                color8 : c.color8.as_str().decode_hex()?.into(),
-                color9 : c.color9.as_str().decode_hex()?.into(),
-                color10: c.color10.as_str().decode_hex()?.into(),
-                color11: c.color11.as_str().decode_hex()?.into(),
-                color12: c.color12.as_str().decode_hex()?.into(),
-                color13: c.color13.as_str().decode_hex()?.into(),
-                color14: c.color14.as_str().decode_hex()?.into(),
-                color15: c.color15.as_str().decode_hex()?.into(),
+                background: s.background.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                foreground: s.foreground.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color0 : c.color0 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color1 : c.color1 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color2 : c.color2 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color3 : c.color3 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color4 : c.color4 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color5 : c.color5 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color6 : c.color6 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color7 : c.color7 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color8 : c.color8 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color9 : c.color9 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color10: c.color10.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color11: c.color11.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color12: c.color12.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color13: c.color13.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color14: c.color14.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color15: c.color15.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
             }
         )
     }
@@ -241,24 +244,24 @@ impl TerminalSexy {
 
         Ok(
             Colors {
-                background: bg.as_str().decode_hex()?.into(),
-                foreground: fg.as_str().decode_hex()?.into(),
-                color0 : c[0].as_str().decode_hex()?.into(),
-                color1 : c[1].as_str().decode_hex()?.into(),
-                color2 : c[2].as_str().decode_hex()?.into(),
-                color3 : c[3].as_str().decode_hex()?.into(),
-                color4 : c[4].as_str().decode_hex()?.into(),
-                color5 : c[5].as_str().decode_hex()?.into(),
-                color6 : c[6].as_str().decode_hex()?.into(),
-                color7 : c[7].as_str().decode_hex()?.into(),
-                color8 : c[8].as_str().decode_hex()?.into(),
-                color9 : c[9].as_str().decode_hex()?.into(),
-                color10: c[10].as_str().decode_hex()?.into(),
-                color11: c[11].as_str().decode_hex()?.into(),
-                color12: c[12].as_str().decode_hex()?.into(),
-                color13: c[13].as_str().decode_hex()?.into(),
-                color14: c[14].as_str().decode_hex()?.into(),
-                color15: c[15].as_str().decode_hex()?.into(),
+                background: bg.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                foreground: fg.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color0 : c[0 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color1 : c[1 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color2 : c[2 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color3 : c[3 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color4 : c[4 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color5 : c[5 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color6 : c[6 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color7 : c[7 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color8 : c[8 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color9 : c[9 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color10: c[10].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color11: c[11].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color12: c[12].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color13: c[13].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color14: c[14].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
+                color15: c[15].parse::<Srgb<u8>>()?.into_format::<u8>().into(),
             }
         )
     }

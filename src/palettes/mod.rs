@@ -18,10 +18,11 @@ use std::fmt;
 
 use owo_colors::AnsiColors;
 use serde::{Serialize, Deserialize};
+use palette::Srgb;
 
 use crate::{
     colors::{
-        Colors, Myrgb
+        Colors, Myrgb, SrgbString
     },
     colorspaces::ColorOrder,
     //colorspaces::{BuildColors, ColorOrder},
@@ -29,6 +30,8 @@ use crate::{
 
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
+
+use palette::{Darken, Lighten};
 
 include!("dark.rs");
 include!("harddark.rs");
@@ -124,7 +127,7 @@ pub enum Palette {
 }
 
 impl F {
-    pub fn run(&self, c: Vec<Myrgb>, orig: Vec<Myrgb>) -> Colors {
+    pub fn run(&self, c: Vec<Srgb>, orig: Vec<Srgb>) -> Colors {
         match self {
             F::Dark => dark(c, orig),
             F::Dark16 => dark(c, orig).to_16col(),

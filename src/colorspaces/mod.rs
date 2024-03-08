@@ -18,6 +18,7 @@ use std::ops::DerefMut;
 use crate::colors::Myrgb;
 
 use anyhow::Result;
+use palette::convert::FromColorUnclamped;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
@@ -115,13 +116,13 @@ impl<T: ColorTrait> From<Histo<T>> for Myrgb
 
 impl From<Srgb<u8>> for Myrgb {
     fn from(c: Srgb<u8>) -> Self {
-        Self(c.red, c.green, c.blue)
+        Self(c.into_format())
     }
 }
 
 impl From<Myrgb> for Srgb<u8> {
     fn from(c: Myrgb) -> Self {
-        Self::new(c.0, c.1, c.2)
+        c.0.into_format()
     }
 }
 
@@ -144,7 +145,7 @@ impl FallbackGenerator {
 impl ColorSpace {
     /// Main function that matches agains the respective colorspace builder with BuildColors trait
     pub fn main(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder)
-        -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+        -> Result<((Vec<Srgb>, Vec<Srgb>), bool)>
     {
         match self {
             Cs::Lab => main::<palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
@@ -190,6 +191,15 @@ Myrgb: From<T>
 {
     fn from(c: ColorHisto<T>) -> Self {
         c.0.iter().map(|x| x.color.into()).collect()
+    }
+}
+
+use palette::IntoColor;
+
+impl<T: ColorTrait + Copy + IntoColor<Srgb>> From<ColorHisto<T>> for Vec<Srgb>
+{
+    fn from(c: ColorHisto<T>) -> Self {
+        c.0.iter().map(|x| x.color.into_color()).collect()
     }
 }
 
@@ -285,10 +295,11 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
 pub fn main<T>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
-    -> Result<((Vec<Myrgb>, Vec<Myrgb>), bool)>
+    -> Result<((Vec<Srgb>, Vec<Srgb>), bool)>
 where
     ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
     T: Copy + ColorTrait + Difference,
+    palette::rgb::Rgb: FromColorUnclamped<T>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
