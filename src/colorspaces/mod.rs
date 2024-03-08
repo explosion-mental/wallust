@@ -14,6 +14,8 @@ use crate::colors::SrgbString;
 
 use anyhow::Result;
 use palette::convert::FromColorUnclamped;
+use palette::cast::ComponentsAs;
+use palette::rgb::Rgb;
 use palette::IntoColor;
 use palette::Clamp;
 use palette::Srgb;
@@ -215,10 +217,19 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
-    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32> + IntoColor<Srgb> + FromColorUnclamped<Srgb> + Clamp;
+    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32> + IntoColor<Srgb>
+        + FromColorUnclamped<Srgb>
+        + Clamp
+        + palette::convert::FromColorUnclamped<palette::rgb::Rgb<palette::encoding::Linear<palette::encoding::Srgb>>>;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
-    fn read(bytes: &[u8]) -> Vec<Self::Color>;
+    fn read(bytes: &[u8]) -> Vec<Self::Color> {
+        let s: &[Srgb<u8>] = bytes.components_as();
+        s
+            .iter()
+            .map(|x| x.into_linear().into_color())
+            .collect::<Vec<Self::Color>>()
+    }
 
     /// What colors to avoid before adding. e.g. too dark/light
     fn filter_cols(a: Self::Color) -> bool;
@@ -286,6 +297,8 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
     }
 }
 
+
+
 /// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
@@ -293,13 +306,14 @@ pub fn main<T>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &Color
     -> Result<((Vec<Srgb>, Vec<Srgb>), bool)>
 where
     ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
-    T: Copy + ColorTrait + Difference,
+    T: Copy + ColorTrait + Difference + FromColorUnclamped<Rgb> + Clamp,
     palette::rgb::Rgb: FromColorUnclamped<T>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
 
     let color = ColorHisto::read(bytes_rgb8);
+
 //     let mut labs = rgb_bytes_to_labs(cols);
 //     labs.dedup();
 //     // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
@@ -341,10 +355,32 @@ where
     // remove excess elements
     histo.truncate(MAX_COLS.into());
 
+    if histo.len() == 2 {
+    // If the colors are exactly two, create a long interpolation from it.
+        warn = true;
+        let mut new = gen.gen()(histo[0].color.into_color(), histo[1].color.into_color(), 8)
+            .iter()
+            .map(|&x| {
+                let c: T = x.into_color();
+                Histo { color: c, count: 1}
+            })
+            .collect::<Vec<Histo<T>>>();
+
+        histo.append(&mut new);
+
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+        // TODO Do another check on histo itself to update `.count` variables
+        //       test if colors repetead again (on interpolation)
+
+        // take the *necessary* most used colors
+        histo.truncate(MAX_COLS.into());
+
+    } else if histo.len() < MIN_COLS.into() {
     // Artificially generate colors with linear interpolation in between the colors that we already
     // have. However even this can even fail and not generate enough different colors, so there is
     // another check below
-    if histo.len() < MIN_COLS.into() {
         warn = true; // "artificially generation colors.."
 
         // `interpolate()`ion and `.append()` new colors to `
@@ -420,6 +456,7 @@ fn interpolate(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
     ]
 }
 
+//TODO implement triards or cuartets
 fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
     vec![
         color_a.complementary(),

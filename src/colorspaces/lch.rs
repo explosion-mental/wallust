@@ -4,7 +4,6 @@
 use super::*;
 
 use palette::IntoColor;
-use palette::cast::ComponentsAs;
 
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lch;
@@ -34,14 +33,6 @@ impl Difference for Spec {
 
 impl BuildColors for ColorHisto<Spec> {
     type Color = Spec;
-    fn read(bytes: &[u8]) -> Vec<Self::Color> {
-        let s: &[Srgb<u8>] = bytes.components_as();
-        s
-            .iter()
-            .map(|x| x.into_linear().into_color())
-            .collect()
-    }
-
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 
     fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering {
