@@ -82,6 +82,9 @@ impl<'de> Deserialize<'de> for Myrgb {
             where
                 E: Error,
             {
+                // don't error out on RRGGBBAA values, just ignore the alpha
+                let value = if value.len() == 8 || value.len() == 9 { &value[..value.len() - 2] } else { value };
+
                 let s: Srgb<u8> = value.parse()
                     .map_err(Error::custom)?;
 

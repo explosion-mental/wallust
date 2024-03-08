@@ -2,6 +2,7 @@
 use std::fs::read_to_string;
 use std::path::Path;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use crate::colors::Colors;
 use crate::colors::Myrgb;
@@ -172,23 +173,145 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
     Ok(())
 }
 
+use palette::{Srgb, Srgba, Hsv};
+use palette::{Darken, Lighten, IntoColor, Saturate};
+
+fn parse_srgb(s: &str) -> Result<Srgb<u8>, minijinja::Error> {
+    Srgb::<u8>::from_str(s)
+        .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{e}")))
+}
+
+fn parse_srgba(s: &str) -> Result<Srgba<u8>, minijinja::Error> {
+    Srgba::<u8>::from_str(s)
+        .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{e}")))
+}
+
 pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
+        use minijinja::Error;
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
 
-        //filters
+        /*filters*/
+
+        // These filters don't require special handling,
+        // since they will ignore and don't use alpha whatsoever
         jinjafn!(env, rgb);
         jinjafn!(env, xrgb);
-        jinjafn!(env, strip);
         jinjafn!(env, red);
         jinjafn!(env, green);
         jinjafn!(env, blue);
+
+        //TODO support alpha
         jinjafn!(env, tostr => complementary);
         jinjafn!(env, tostr => blend, deref => ViaDeserialize<Myrgb>);
-        jinjafn!(env, tostr => lighten, f32);
-        jinjafn!(env, tostr => darken, f32);
-        jinjafn!(env, tostr => saturate, f32);
 
+        /// Saturate function that accepts a RRGGBB or RRGGBBAA
+        fn saturate(s: String, arg: f32) -> Result<String, Error> {
+            let rgb = parse_srgb(&s);
+            let rgba = parse_srgba(&s);
+
+            let ret: String = match rgb {
+                Ok(o) => {
+                    let o: Hsv = o.into_format::<f32>().into_color();
+                    let o: Srgb = o.saturate(arg).into_color();
+                    let (r, g, b) = o.into_format::<u8>().into_components();
+                    format!("#{r:02X}{g:02X}{b:02X}")
+                },
+                Err(_) => {
+                    match rgba {
+                        Ok(o) => {
+                            let o: Hsv = o.into_format::<f32, f32>().into_color();
+                            let o: Srgba = o.saturate(arg).into_color();
+                            let (r, g, b, a) = o.into_format::<u8, u8>().into_components();
+                            format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                        },
+                        Err(_) => {
+                            return Err(minijinja::Error::new(
+                                minijinja::ErrorKind::InvalidOperation,
+                                format!("String '{s}' is not either a hex rgb nor hexa rgba."))
+                            )
+                        },
+                    }
+                }
+            };
+
+            Ok(ret)
+        }
+        env.add_filter("saturate", saturate);
+
+        /// Darken for usual RRGGBB and RRGGBBAA
+        fn darken(s: String, arg: f32) -> Result<String, Error> {
+            let rgb = parse_srgb(&s);
+            let rgba = parse_srgba(&s);
+
+            let ret: String = match rgb {
+                Ok(o) => {
+                    let o: Srgb<f32> = o.into_format();
+                    let (r, g, b) = o.darken(arg).into_format::<u8>().into_components();
+                    format!("#{r:02X}{g:02X}{b:02X}")
+                },
+                Err(_) => {
+                    match rgba {
+                        Ok(o) => {
+                            let o: Srgba<f32> = o.into_format();
+                            let (r, g, b, a) = o.darken(arg).into_format::<u8, u8>().into_components();
+                            format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                        },
+                        Err(_) => {
+                            return Err(minijinja::Error::new(
+                                minijinja::ErrorKind::InvalidOperation,
+                                format!("String '{s}' is not either a hex rgb nor hexa rgba."))
+                            )
+                        },
+                    }
+                }
+            };
+
+            Ok(ret)
+        }
+        env.add_filter("darken", darken);
+
+        /// Lighten with support for RRGGBBAA aka 'hexa' like values.
+        fn lighten(s: String, arg: f32) -> Result<String, Error> {
+            let rgb = parse_srgb(&s);
+            let rgba = parse_srgba(&s);
+
+            let ret: String = match rgb {
+                Ok(o) => {
+                    let o: Srgb<f32> = o.into_format();
+                    let (r, g, b) = o.lighten(arg).into_format::<u8>().into_components();
+                    format!("#{r:02X}{g:02X}{b:02X}")
+                },
+                Err(_) => {
+                    match rgba {
+                        Ok(o) => {
+                            let o: Srgba<f32> = o.into_format();
+                            let (r, g, b, a) = o.lighten(arg).into_format::<u8, u8>().into_components();
+                            format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                        },
+                        Err(_) => {
+                            return Err(minijinja::Error::new(
+                                minijinja::ErrorKind::InvalidOperation,
+                                format!("String '{s}' is not either a hex rgb nor hexa rgba."))
+                            )
+                        },
+                    }
+                }
+            };
+
+            Ok(ret)
+        }
+        env.add_filter("lighten", lighten);
+
+        /// Strips leading '#' no matter what it is.
+        fn strip(hex: String) -> String {
+            hex
+                .strip_prefix('#')
+                .unwrap_or(&hex).to_string()
+        }
+        env.add_filter("strip", strip);
+
+        /// converts alpha value into a hexadecimal one.
         fn hexa_for_alpha(input: usize) -> Result<String, minijinja::Error> {
             alpha_hexa(input)
                 .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, e))

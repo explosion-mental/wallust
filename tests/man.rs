@@ -68,7 +68,11 @@ When opening new terminals you will notice that the color sequences are not appl
 .TP
 .B COLORS
 .br
-These types are formated like as HEX (e.g. '#0A0B0C')
+These types are formated like as HEX rgb (e.g. '#0A0B0C') by default.
+However a
+.B "color literal"
+can be represented in multiple ways, like HEXA rgba (e.g. '#0A0B0CFF', where 'FF' is the
+transparency value) or HEX rgb without the leading '#' ('0a0b0c').
 
 .BR color0 ,
 .BR color1 ,
@@ -100,6 +104,7 @@ to
 .IR foreground and
 at the end, (index 18 if starting from 0),
 .IR  cursor .
+.I See TEMPLATE SYNTAX for a practical guide.
 
 .TP
 .B MISCELLANEOUS
