@@ -1,4 +1,5 @@
 #![allow(non_upper_case_globals)]
+#![allow(non_snake_case)]
 
 use wallust::backends::Backend;
 use wallust::colors::Colors;
@@ -8,47 +9,49 @@ use wallust::palettes::Palette;
 use wallust::template::jinja_env;
 use wallust::template::TemplateFields;
 //use wallust::colors;
+use palette::Srgb;
 
 //TODO add tests for every KEY combination
 
 /// Sample colors in use
-const COLS: &Colors = &Colors {
-        background: Myrgb(238, 238, 238), //#EEEEEE
-        foreground: Myrgb(221, 221, 221), //#DDDDDD
-        color0 : Myrgb(0 , 0, 0), //# 00 00 00
-        color1 : Myrgb(1 , 0, 0), //# 01 00 00
-        color2 : Myrgb(2 , 0, 0),
-        color3 : Myrgb(3 , 0, 0),
-        color4 : Myrgb(4 , 0, 0),
-        color5 : Myrgb(5 , 0, 0),
-        color6 : Myrgb(6 , 0, 0),
-        color7 : Myrgb(7 , 0, 0),
-        color8 : Myrgb(8 , 0, 0),
-        color9 : Myrgb(9 , 0, 0),
-        color10: Myrgb(10, 0, 0), //# 0A 00 00
-        color11: Myrgb(11, 0, 0),
-        color12: Myrgb(12, 0, 0),
-        color13: Myrgb(13, 0, 0),
-        color14: Myrgb(14, 0, 0),
-        color15: Myrgb(15, 0, 0), //# 0F 00 00
-};
+fn mycols() -> Colors {
+    Colors {
+        background: Myrgb(Srgb::new(238_u8, 238, 238).into_format()), //#EEEEEE
+        foreground: Myrgb(Srgb::new(221_u8, 221, 221).into_format()), //#DDDDDD
+        color0 : Myrgb(Srgb::new(0 , 0_u8, 0).into_format()), //# 00 00 00
+        color1 : Myrgb(Srgb::new(1 , 0_u8, 0).into_format()), //# 01 00 00
+        color2 : Myrgb(Srgb::new(2 , 0_u8, 0).into_format()),
+        color3 : Myrgb(Srgb::new(3 , 0_u8, 0).into_format()),
+        color4 : Myrgb(Srgb::new(4 , 0_u8, 0).into_format()),
+        color5 : Myrgb(Srgb::new(5 , 0_u8, 0).into_format()),
+        color6 : Myrgb(Srgb::new(6 , 0_u8, 0).into_format()),
+        color7 : Myrgb(Srgb::new(7 , 0_u8, 0).into_format()),
+        color8 : Myrgb(Srgb::new(8 , 0_u8, 0).into_format()),
+        color9 : Myrgb(Srgb::new(9 , 0_u8, 0).into_format()),
+        color10: Myrgb(Srgb::new(10, 0_u8, 0).into_format()), //# 0A 00 00
+        color11: Myrgb(Srgb::new(11, 0_u8, 0).into_format()),
+        color12: Myrgb(Srgb::new(12, 0_u8, 0).into_format()),
+        color13: Myrgb(Srgb::new(13, 0_u8, 0).into_format()),
+        color14: Myrgb(Srgb::new(14, 0_u8, 0).into_format()),
+        color15: Myrgb(Srgb::new(15, 0_u8, 0).into_format()), //# 0F 00 00
+    }
+}
 
 const wall_str: &str = "/home";
 
-const Tfields: &TemplateFields = &TemplateFields {
-    alpha: 100,
-    backend: &Backend::Thumb,
-    palette: &Palette::Dark,
-    colorspace: &wallust::colorspaces::ColorSpace::LabFast,
-    image_path: wall_str,
-    colors: COLS,
-
-};
 
 /// set up minijinja for rendering something
 fn jinja(content: &str) -> String {
+    let Tfields: &TemplateFields = &TemplateFields {
+        alpha: 100,
+        backend: &Backend::Thumb,
+        palette: &Palette::Dark,
+        colorspace: &wallust::colorspaces::ColorSpace::Lab,
+        image_path: wall_str,
+        colors: &mycols(),
+    };
     let v = minijinja::Value::from(Tfields);
-    jinja_env().render_named_str("sample", content, v).unwrap()
+    jinja_env(Tfields.alpha).render_named_str("sample", content, v).unwrap()
 }
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
@@ -84,6 +87,7 @@ fn colors() {
 
 #[test]
 fn filters() {
+    let COLS = mycols();
     let expected = [
         COLS.color0,
         COLS.color1,
@@ -120,6 +124,15 @@ fn filters() {
 /// Like the above but with pywal syntax
 #[test]
 fn pywal() {
+    let Tfields: &TemplateFields = &TemplateFields {
+        alpha: 100,
+        backend: &Backend::Thumb,
+        palette: &Palette::Dark,
+        colorspace: &wallust::colorspaces::ColorSpace::Lab,
+        image_path: wall_str,
+        colors: &mycols(),
+    };
+
     let sample =
 r#"
 # Special
