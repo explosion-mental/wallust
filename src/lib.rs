@@ -8,6 +8,7 @@ pub mod config;
 pub mod palettes;
 pub mod template;
 pub mod themes;
+pub mod sequences;
 
 /// How [`crate::colors::Colors`] is filled, returns the colors itself and a bool that indicates whether
 /// [`backends`] had some warnings or not (ugly workaround ik)
