@@ -10,7 +10,7 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 
 use crate::colors::Myrgb;
-use crate::colors::SrgbString;
+use crate::colors::Compl;
 
 use anyhow::Result;
 use palette::convert::FromColorUnclamped;
@@ -460,6 +460,6 @@ fn interpolate(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
 fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
     vec![
         color_a.complementary(),
-        color_b.complementary()
+        color_b.complementary(),
     ]
 }

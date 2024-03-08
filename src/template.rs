@@ -201,9 +201,116 @@ pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
         jinjafn!(env, green);
         jinjafn!(env, blue);
 
-        //TODO support alpha
-        jinjafn!(env, tostr => complementary);
-        jinjafn!(env, tostr => blend, deref => ViaDeserialize<Myrgb>);
+        /// Blending for usual RRGGBB and RRGGBBAA
+        //TODO make this less ugly "but, it werks"
+        fn blend(a: String, b: String) -> Result<String, Error> {
+            let rgb = parse_srgb(&a);
+            let rgba = parse_srgba(&a);
+
+            let rgb1 = parse_srgb(&b);
+            let rgba1 = parse_srgba(&b);
+
+            let ret: String = match rgb {
+                Ok(o) => {
+                    match rgb1 {
+                        Ok(o1) => {
+                            // SHOULD BE RRGGBB
+                            let new = crate::colors::blend(o.into_format(), o1.into_format());
+                            let (r, g, b) = new.into_format::<u8>().into_components();
+                            format!("#{r:02X}{g:02X}{b:02X}")
+                        },
+                        Err(_) => {
+                            match rgba1 {
+                                Ok(o1a) => {
+                                    // final output SHOULD BE RRGGBBAA
+                                    let new = crate::colors::blend_alpha(o.into_format().into(), o1a.into_format());
+                                    let (r, g, b, a) = new.into_format::<u8, u8>().into_components();
+                                    format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                                },
+                                Err(_) => {
+                                    return Err(minijinja::Error::new(
+                                            minijinja::ErrorKind::InvalidOperation,
+                                            format!("String '{b}' is not either a hex rgb nor hexa rgba."))
+                                    )
+                                }
+                            }
+                        },
+                    }
+                },
+                Err(_) => {
+                    match rgba {
+                        Ok(oa) => {
+                            match rgb1 {
+                                Ok(o1) => {
+                                    // SHOULD BE RRGGBB
+                                    let new = crate::colors::blend((*oa).into_format().into(), o1.into_format());
+                                    let (r, g, b) = new.into_format::<u8>().into_components();
+                                    format!("#{r:02X}{g:02X}{b:02X}")
+                                },
+                                Err(_) => {
+                                    match rgba1 {
+                                        Ok(o1a) => {
+                                            // final output SHOULD BE RRGGBBAA
+                                            let new = crate::colors::blend_alpha(oa.into_format().into(), o1a.into_format());
+                                            let (r, g, b, a) = new.into_format::<u8, u8>().into_components();
+                                            format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                                        },
+                                        Err(_) => {
+                                            return Err(minijinja::Error::new(
+                                                    minijinja::ErrorKind::InvalidOperation,
+                                                    format!("String '{b}' is not either a hex rgb nor hexa rgba."))
+                                            )
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                        Err(_) => {
+                            return Err(minijinja::Error::new(
+                                minijinja::ErrorKind::InvalidOperation,
+                                format!("String '{a}' is not either a hex rgb nor hexa rgba."))
+                            )
+                        },
+                    }
+                }
+            };
+
+            Ok(ret)
+        }
+        env.add_filter("blend", blend);
+
+        /// Complementary for usual RRGGBB and RRGGBBAA
+        fn complementary(s: String) -> Result<String, Error> {
+            use crate::colors::Compl;
+            let rgb = parse_srgb(&s);
+            let rgba = parse_srgba(&s);
+
+            let ret: String = match rgb {
+                Ok(o) => {
+                    let o: Srgb<f32> = o.into_format();
+                    let (r, g, b) = o.complementary().into_format::<u8>().into_components();
+                    format!("#{r:02X}{g:02X}{b:02X}")
+                },
+                Err(_) => {
+                    match rgba {
+                        Ok(o) => {
+                            let o: Srgba<f32> = o.into_format();
+                            let (r, g, b, a) = o.complementary().into_format::<u8, u8>().into_components();
+                            format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
+                        },
+                        Err(_) => {
+                            return Err(minijinja::Error::new(
+                                minijinja::ErrorKind::InvalidOperation,
+                                format!("String '{s}' is not either a hex rgb nor hexa rgba."))
+                            )
+                        },
+                    }
+                }
+            };
+
+            Ok(ret)
+        }
+        env.add_filter("complementary", complementary);
 
         /// Saturate function that accepts a RRGGBB or RRGGBBAA
         fn saturate(s: String, arg: f32) -> Result<String, Error> {

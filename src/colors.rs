@@ -7,7 +7,7 @@ use std::path::Path;
 
 use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
-use palette::GetHue;
+use palette::{convert::FromColorUnclamped, GetHue};
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use palette::{Hsv, Srgb, IntoColor, ShiftHue};
 
@@ -42,18 +42,6 @@ pub struct Colors {
 /// modification to the color. Every backend should return `Myrgb`.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Myrgb(pub Srgb);
-
-impl From<Srgb> for Myrgb {
-    fn from(v: Srgb) -> Myrgb {
-        Myrgb(v)
-    }
-}
-
-impl From<&Srgb> for Myrgb {
-    fn from(v: &Srgb) -> Myrgb {
-        Myrgb(*v)
-    }
-}
 
 impl Serialize for Myrgb {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -105,12 +93,44 @@ impl fmt::Display for Myrgb {
     }
 }
 
+pub trait Compl: palette::Clamp + Sized + FromColorUnclamped<Hsv>
+where
+    Hsv: FromColorUnclamped<Self>,
+{
+    fn complementary(self) -> Self {
+        let hsv: Hsv = self.into_color();
+        hsv.shift_hue(180.0).into_color()
+    }
+}
+
+impl Compl for Srgb {}
+impl Compl for palette::Srgba {}
+
+/// My blending, not sure what technical name it has (TODO)
+/// gathered this from pywal.
+pub fn blend(a: Srgb, b: Srgb) -> Srgb {
+    Srgb::new(
+        0.5 * f32::from(a.red) + 0.5 * f32::from(b.red),
+        0.5 * f32::from(a.green) + 0.5 * f32::from(b.green),
+        0.5 * f32::from(a.blue) + 0.5 * f32::from(b.blue),
+    )
+}
+
+use palette::Srgba;
+pub fn blend_alpha(a: Srgba, b: Srgba) -> Srgba {
+    Srgba::new(
+        0.5 * f32::from(a.red) + 0.5 * f32::from(b.red),
+        0.5 * f32::from(a.green) + 0.5 * f32::from(b.green),
+        0.5 * f32::from(a.blue) + 0.5 * f32::from(b.blue),
+        0.5 * f32::from(a.alpha) + 0.5 * f32::from(b.alpha),
+    )
+}
+
 //default way of representing an SRGB for the palette crate
 pub trait SrgbString {
     fn strsrgb(&self) -> String;
     fn striped(&self) -> String;
     fn owo_col(&self) -> Rgb;
-    fn complementary(self) -> Self;
 }
 
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
@@ -127,10 +147,6 @@ impl SrgbString for Srgb {
     fn owo_col(&self) -> Rgb {
         let (r, g, b) = self.into_format::<u8>().into_components();
         Rgb(r, g, b)
-    }
-    fn complementary(self) -> Self {
-        let hsv: Hsv = self.into_color();
-        hsv.shift_hue(180.0).into_color()
     }
 }
 
@@ -583,6 +599,18 @@ impl Colors {
 
         #[cfg(target_family = "unix")]
         return sequences::unix_term(self, _cache_path, _ignore);
+    }
+}
+
+impl From<Srgb> for Myrgb {
+    fn from(v: Srgb) -> Myrgb {
+        Myrgb(v)
+    }
+}
+
+impl From<&Srgb> for Myrgb {
+    fn from(v: &Srgb) -> Myrgb {
+        Myrgb(*v)
     }
 }
 
