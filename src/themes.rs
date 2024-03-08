@@ -8,7 +8,7 @@
 use std::fmt;
 use std::path::Path;
 
-use crate::colors::{Colors, HexConversion};
+use crate::colors::Colors;
 
 use anyhow::Result;
 use serde::Deserialize;

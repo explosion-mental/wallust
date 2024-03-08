@@ -9,11 +9,12 @@
 //!                we care bout this one
 //! ```
 use anyhow::Context;
+use palette::cast::AsComponents;
 
 use crate::backends::*;
-use crate::colors::HexConversion;
 use std::process::Command;
 use std::str;
+use palette::Srgb;
 
 /// use Image Magick to get colors
 pub fn wal(f: &Path) -> Result<Vec<u8>> {
@@ -30,13 +31,13 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
 "Couldn't run `convert` command.
 Make sure to have it installed if you wish to use this backend, else try another one.")?;
 
-    let mut cols: Vec<u8> = Vec::with_capacity(16); // there will be no more than 16 colors
+    let mut cols: Vec<Srgb<u8>> = Vec::with_capacity(16); // there will be no more than 16 colors
 
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(2);
         let hex = s.next().expect("Should always be present e.g. #EEEEEE");
-        cols.append(&mut hex.decode_hex()?);
+        cols.push(hex.parse()?);
     }
 
-    Ok(cols)
+    Ok(cols.as_components().to_vec())
 }
