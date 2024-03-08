@@ -100,6 +100,7 @@ impl fmt::Display for Myrgb {
 pub trait SrgbString {
     fn strsrgb(&self) -> String;
     fn striped(&self) -> String;
+    fn owo_col(&self) -> Rgb;
 }
 
 /// Display [`Myrgb`] like hex (e.g. `(238, 238, 238)` as `#EEEEEE`)
@@ -113,13 +114,17 @@ impl SrgbString for Srgb {
         let (r, g, b) = self.into_format::<u8>().into_components();
         format!("{r:02X}{g:02X}{b:02X}")
     }
+    fn owo_col(&self) -> Rgb {
+        let (r, g, b) = self.into_format::<u8>().into_components();
+        Rgb(r, g, b)
+    }
 }
 
 
 /// methods for [`Myrgb`] darken and lighten are basically from pywal `util.py` (just 'type safe' :p)
 impl Myrgb {
     /// to owo [`Rgb`]
-    pub fn col(&self) -> Rgb {
+    pub fn owo_col(&self) -> Rgb {
         let (r, g, b) = self.0.into_format::<u8>().into_components();
         Rgb(r, g, b)
     }
@@ -141,7 +146,8 @@ impl Myrgb {
     }
 
     /// Mix with other [`Myrgb`]
-    pub fn blend(&self, other: Self) -> Self {
+    //TODO
+    pub fn blend(&self, _other: Self) -> Self {
         *self
         // Self(
         //     (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
@@ -267,22 +273,22 @@ impl Colors {
 {}{}{}{}{}{}{}{}
 
 ",
-        "    ".on_color(self.color0.col()),
-        "    ".on_color(self.color1.col()),
-        "    ".on_color(self.color2.col()),
-        "    ".on_color(self.color3.col()),
-        "    ".on_color(self.color4.col()),
-        "    ".on_color(self.color5.col()),
-        "    ".on_color(self.color6.col()),
-        "    ".on_color(self.color7.col()),
-        "    ".on_color(self.color8.col()),
-        "    ".on_color(self.color9.col()),
-        "    ".on_color(self.color10.col()),
-        "    ".on_color(self.color11.col()),
-        "    ".on_color(self.color12.col()),
-        "    ".on_color(self.color13.col()),
-        "    ".on_color(self.color14.col()),
-        "    ".on_color(self.color15.col()),
+        "    ".on_color(self.color0 .owo_col()),
+        "    ".on_color(self.color1 .owo_col()),
+        "    ".on_color(self.color2 .owo_col()),
+        "    ".on_color(self.color3 .owo_col()),
+        "    ".on_color(self.color4 .owo_col()),
+        "    ".on_color(self.color5 .owo_col()),
+        "    ".on_color(self.color6 .owo_col()),
+        "    ".on_color(self.color7 .owo_col()),
+        "    ".on_color(self.color8 .owo_col()),
+        "    ".on_color(self.color9 .owo_col()),
+        "    ".on_color(self.color10.owo_col()),
+        "    ".on_color(self.color11.owo_col()),
+        "    ".on_color(self.color12.owo_col()),
+        "    ".on_color(self.color13.owo_col()),
+        "    ".on_color(self.color14.owo_col()),
+        "    ".on_color(self.color15.owo_col()),
         );
     }
 
@@ -293,22 +299,22 @@ impl Colors {
 "
 {}{}{}{}{}{space}{}{}{}{space}{}{}{}{}{}{}{}{}
 ",
-        "E ".color(self.color15.col()).bold().blink(),
-        "N ".color(self.color14.col()).bold().blink(),
-        "J ".color(self.color13.col()).bold().blink(),
-        "O ".color(self.color12.col()).bold().blink(),
-        "Y ".color(self.color11.col()).bold().blink(),
-        "T ".color(self.color10.col()).bold().blink(),
-        "H ".color(self.color9 .col()).bold().blink(),
-        "E ".color(self.color8 .col()).bold().blink(),
-        "P ".color(self.color7 .col()).bold().blink(),
-        "A ".color(self.color6 .col()).bold().blink(),
-        "L ".color(self.color5 .col()).bold().blink(),
-        "E ".color(self.color4 .col()).bold().blink(),
-        "T ".color(self.color3 .col()).bold().blink(),
-        "T ".color(self.color2 .col()).bold().blink(),
-        "E ".color(self.color1 .col()).bold().blink(),
-        "! ".color(self.foreground.col()).bold().blink(),
+        "E ".color(self.color15.owo_col()).bold().blink(),
+        "N ".color(self.color14.owo_col()).bold().blink(),
+        "J ".color(self.color13.owo_col()).bold().blink(),
+        "O ".color(self.color12.owo_col()).bold().blink(),
+        "Y ".color(self.color11.owo_col()).bold().blink(),
+        "T ".color(self.color10.owo_col()).bold().blink(),
+        "H ".color(self.color9 .owo_col()).bold().blink(),
+        "E ".color(self.color8 .owo_col()).bold().blink(),
+        "P ".color(self.color7 .owo_col()).bold().blink(),
+        "A ".color(self.color6 .owo_col()).bold().blink(),
+        "L ".color(self.color5 .owo_col()).bold().blink(),
+        "E ".color(self.color4 .owo_col()).bold().blink(),
+        "T ".color(self.color3 .owo_col()).bold().blink(),
+        "T ".color(self.color2 .owo_col()).bold().blink(),
+        "E ".color(self.color1 .owo_col()).bold().blink(),
+        "! ".color(self.foreground.owo_col()).bold().blink(),
         );
     }
 
