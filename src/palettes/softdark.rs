@@ -7,11 +7,9 @@
 pub fn softdark(c: Vec<Srgb>, orig: Vec<Srgb>) -> Colors {
     //let orig = c.to_rgb_orig();
     let ee = Srgb::<u8>::new(238, 238, 238); //This is `#EEEEEE`
-    orig[0].lighten(0.3); //top color
-
 
     //let bg = ret.foreground.darken(0.2);
-    let bg = orig[0];//.blend(ret.foreground);
+    let bg = orig[0].lighten(0.3);//.blend(ret.foreground);
 
     let mut ret = softlight(c, orig);
     //lighten fg to maintain a good contrast and darken a bit the bg (super safe)

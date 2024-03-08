@@ -42,12 +42,18 @@ pub struct Colors {
 /// modification to the color. Every backend should return `Myrgb`.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Myrgb(pub Srgb);
+
 impl From<Srgb> for Myrgb {
     fn from(v: Srgb) -> Myrgb {
         Myrgb(v)
     }
 }
 
+impl From<&Srgb> for Myrgb {
+    fn from(v: &Srgb) -> Myrgb {
+        Myrgb(*v)
+    }
+}
 
 impl Serialize for Myrgb {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -147,14 +153,15 @@ impl Myrgb {
 
     /// Mix with other [`Myrgb`]
     //TODO
-    pub fn blend(&self, _other: Self) -> Self {
-        *self
-        // Self(
-        //     (0.5 * f32::from(self.0) + 0.5 * f32::from(other.0)) as u8,
-        //     (0.5 * f32::from(self.1) + 0.5 * f32::from(other.1)) as u8,
-        //     (0.5 * f32::from(self.2) + 0.5 * f32::from(other.2)) as u8,
-        //
-        // )
+    pub fn blend(&self, other: Self) -> Self {
+        let me = self.0;
+        let other = other.0;
+        let new = Srgb::new(
+            0.5 * f32::from(me.red) + 0.5 * f32::from(other.red),
+            0.5 * f32::from(me.green) + 0.5 * f32::from(other.green),
+            0.5 * f32::from(me.blue) + 0.5 * f32::from(other.blue),
+        );
+        Self(new)
     }
 
     /// This outputs `235,235,235` as r,g,b
