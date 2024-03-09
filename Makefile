@@ -86,32 +86,30 @@ uninstall:
 		${FISHPREFIX}/wallust.fish
 pkg-nix-with-assets:
 	@${CARGO} build --release --target ${NIX}
-	mkdir -p wallust-${VERSION}-${NIX}/
-	cp -f target/${NIX}/release/wallust wallust-${VERSION}-${NIX}/wallust
-	cp -fr completions/ wallust-${VERSION}-${NIX}
-	cp -fr man/ wallust-${VERSION}-${NIX}
-	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust-${VERSION}-${NIX}
-	rm -fr wallust wallust-${VERSION}-${NIX}
+	mkdir -p wallust-${VERSION}-${NIX}-with-assets/
+	cp -f target/${NIX}/release/wallust wallust-${VERSION}-${NIX}-with-assets/wallust
+	cp -fr completions/ wallust-${VERSION}-${NIX}-with-assets
+	cp -fr man/ wallust-${VERSION}-${NIX}-with-assets
+	tar czvf wallust-${VERSION}-${NIX}-with-assets.tar.gz wallust-${VERSION}-${NIX}-with-assets
+	rm -fr wallust wallust-${VERSION}-${NIX}-with-assets
 
 pkg-nix:
 	@${CARGO} build --release --target ${NIX}
-	mkdir -p wallust-${VERSION}-${NIX}/
 	cp -f target/${NIX}/release/wallust wallust
 	tar czvf wallust-${VERSION}-${NIX}.tar.gz wallust
 	rm -f wallust
 
 pkg-win-with-assets:
 	@${CARGO} build --release --target ${WIN}
-	mkdir -p wallust-${VERSION}-${WIN}/
-	cp -f target/${WIN}/release/wallust.exe wallust-${VERSION}-${WIN}/wallust.exe
-	cp -fr completions/ wallust-${VERSION}-${WIN}
-	cp -fr man/ wallust-${VERSION}-${WIN}
-	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust-${VERSION}-${WIN}
-	rm -fr wallust.exe wallust-${VERSION}-${WIN}
+	mkdir -p wallust-${VERSION}-${WIN}-with-assets/
+	cp -f target/${WIN}/release/wallust.exe wallust-${VERSION}-${WIN}-with-assets/wallust.exe
+	cp -fr completions/ wallust-${VERSION}-${WIN}-with-assets
+	cp -fr man/ wallust-${VERSION}-${WIN}-with-assets
+	tar czvf wallust-${VERSION}-${WIN}-with-assets.tar.gz wallust-${VERSION}-${WIN}-with-assets
+	rm -fr wallust.exe wallust-${VERSION}-${WIN}-with-assets
 
 pkg-win: ## can't be generalized out because of the .exe
 	@${CARGO} build --release --target ${WIN}
-	mkdir -p wallust-${VERSION}-${WIN}/
 	cp -f target/${WIN}/release/wallust.exe wallust.exe
 	tar czvf wallust-${VERSION}-${WIN}.tar.gz wallust.exe
 	rm -f wallust.exe
