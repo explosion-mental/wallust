@@ -154,7 +154,7 @@ const SCHEME_NAME: &str = "wallust";
 
 /// searches for `settings.json` file to change the scheme in windows cli
 #[cfg(target_family = "windows")]
-fn windows_term(cols: &Colors) -> Result<()> {
+pub fn windows_term(cols: &Colors) -> Result<()> {
     let Some(dir) = dirs::data_local_dir() else {
         anyhow::bail!("Couldn't get %LOCALAPPDATA%, quitting..");
     };
