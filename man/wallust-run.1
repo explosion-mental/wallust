@@ -49,7 +49,9 @@ lab: Uses Cie L*a*b color space
 .IP \(bu 2
 labmixed: Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)
 .IP \(bu 2
-labfast: Variant of `lab` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast
+lch: CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting
+.IP \(bu 2
+lchmixed: CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting
 .RE
 .TP
 \fB\-f\fR, \fB\-\-fallback\-generator\fR=\fIFALLBACK_GENERATOR\fR
