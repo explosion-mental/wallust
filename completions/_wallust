@@ -17,14 +17,20 @@ _wallust() {
     _arguments "${_arguments_options[@]}" \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
@@ -56,14 +62,12 @@ fastresize\:"A much faster resize algo that uses SIMD. For some reason it fails 
 kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, Requires more tweaking and more in depth testing but, for the most part, "it just werks""))' \
 '-c+[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
-labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast"))' \
+lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"))' \
 '--colorspace=[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
-labfast\:"Variant of \`lab\` that avoids floating arithmetic, thus, faster operations but not that much precise result. Images that work on lab/labmixed could not have enough colors for labfast"))' \
-'-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'--config-path=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-path)-d+[Use DIR as the config directory]:CONFIG_DIR:_files' \
-'(-C --config-path)--config-dir=[Use DIR as the config directory]:CONFIG_DIR:_files' \
+lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"))' \
 '-f+[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
 complementary\:"uses \[\`complementary\`\]"))' \
 '--fallback-generator=[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
@@ -113,6 +117,10 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-k[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
@@ -121,12 +129,14 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--overwrite-cache[Generates colors even if there is a cache version of it]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 ':file -- Path to an image or json theme to use:_files' \
@@ -142,14 +152,20 @@ terminal-sexy\:"uses <https\://terminal.sexy> JSON export"
 wallust\:"cached wallust files"))' \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 ':file -- Path to the file that has a colorscheme:_files' \
@@ -159,16 +175,22 @@ wallust\:"cached wallust files"))' \
 _arguments "${_arguments_options[@]}" \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-p[Only preview the selected theme]' \
 '--preview[Only preview the selected theme]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 ':theme -- A custom built in theme to choose from:(dkeg-petal base16-paraiso sexy-s3r0-modified sexy-rasi solarized-dark sexy-muse base16-rebecca base16-classic-dark dkeg-leaf dkeg-harbing base16-atelier-forest-light sexy-simple_rainbow base16-bright base16-embers base16-chalk dkeg-flapr sexy-tangoesque base16-twilight sexy-visibone base16-brewer sexy-x-dotshare sexy-astromouse dkeg-bulb base16-summerfruit-light dkeg-chaires base16-black-metal-funeral base16-black-metal-burzum base16-codeschool base16-cupcake tempus_autumn dkeg-link sexy-gslob-nature-suede sexy-hybrid base16-materialer-dark dkeg-view dkeg-blumune base16-zenburn base16-gruvbox-pale dkeg-sprout sexy-mikado dkeg-scag base16-macintosh base16-black-metal-khold base16-atelier-plateau-dark base16-unikitty-light base16-google-light base16-materialer-light base16-pop base16-flat base16tooth base16-black-metal-venom base16-atelier-sulphurpool-dark base16-atelier-estuary-light sexy-zenburn base16-eighties sexy-eqie6 base16-3024 sexy-dwmrob base16-black-metal-marduk dkeg-brownstone dkeg-escen sexy-user-77-mashup-colors base16-mocha base16-mexico tempus_dusk base16-grayscale-light dkeg-novmbr dkeg-urban tempus_rift sexy-thwump dkeg-transposet tempus_future dkeg-stv base16-railscasts sexy-mikazuki base16-tomorrow base16-unikitty-dark sexy-jasonwryan dkeg-tealights base16-solarflare dkeg-raild sexy-invisibone base16-material-palenight dkeg-scape base16-black-metal-gorgoroth base16-solarized-light base16-black-metal-bathory base16-outrun dkeg-bark dkeg-spire sexy-sexcolors base16-woodland dkeg-simplicity base16-monokai base16-mellow-purple base16-xcode-dusk base16-porple base16-isotope dkeg-fendr dkeg-sundr sexy-nancy base16-classic-light dkeg-5725 base16-atelier-lakeside-dark sexy-navy-and-ivory 3024-light monokai base16-oceanicnext sexy-euphrasia sexy-visibone-alt-2 dkeg-mattd base16-atelier-seaside-light base16-atelier-savanna-light base16-atelier-heath-light dkeg-vans dkeg-coco sexy-gjm sexy-kasugano base16-atelier-sulphurpool-light base16-nord base16-black-metal-nile base16-tomorrow-night sexy-material base16-cupertino sexy-tlh srcery base16-phd base16-github tempus_summer base16-gruvbox-soft-dark base16-bespin sexy-rydgel dkeg-forst dkeg-slate sexy-theme2 base16-marrakesh sexy-colorfulcolors sexy-neon dkeg-diner base16-apathy sexy-gnometerm sexy-parker_brothers sexy-mostly-bright sexy-doomicideocean base16-atelier-dune-light zenburn sexy-rezza dkeg-relax ashes-light dkeg-provrb dkeg-skigh base16-tube dkeg-amiox sexy-numixdarkest base16-atelier-forest-dark sexy-pretty-and-pastel sexy-splurge base16-irblack base16-materia base16-gruvbox-hard-light dkeg-owl base16-atelier-heath-dark sexy-insignificato gruvbox darktooth sexy-trim-yer-beard sexy-dotshare dkeg-designr dkeg-poly base16-brushtrees base16-dracula base16-atelier-lakeside-light tempus_totus base16-atelier-cave-dark sexy-hund tempus_fugit base16-black-metal-mayhem base16-default-light dkeg-shade base16-default-dark vscode base16-atelier-plateau-light base16-hopscotch base16-grayscale-dark base16-atelier-estuary-dark base16-icy 3024-dark sexy-cloud rose-pine sexy-phrak1 base16-snazzy rose-pine-moon sexy-deafened dkeg-fury dkeg-blok base16-summerfruit-dark base16-pico sexy-sweetlove sexy-belge dkeg-victory sexy-bitmute base16-spacemacs sexy-orangish tempus_dawn dkeg-blend dkeg-book github base16-circus base16-gruvbox-medium-dark dkeg-prevail dkeg-depth base16-black-metal-immortal dkeg-soundwave sexy-gotham base16-atelier-seaside-dark tempus_warp base16-onedark dkeg-pastely base16-harmonic-light sexy-vacuous2 tempus_winter base16-atelier-savanna-dark base16-ashes rose-pine-dawn sexy-swayr sexy-digerati base16-google-dark sexy-monokai dkeg-branch dkeg-squares sexy-tartan tempus_spring base16-one base16-black-metal tempus_past base16-gruvbox-medium-light dkeg-bluetype base16-atelier-cave-light dkeg-subtle solarized-light base16-gruvbox-hard-dark base16-atelier-dune-dark sexy-tango dkeg-wintry base16-greenscreen base16-harmonic-dark base16-ocean dkeg-parkd sexy-derp dkeg-paints ashes-dark dkeg-kit base16-solarized-dark base16-seti sexy-dawn base16-gruvbox-soft-light hybrid-material dkeg-corduroy dkeg-traffic base16-shapeshifter base16-material random)' \
@@ -178,14 +200,20 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
@@ -194,14 +222,20 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'-s[Skip setting terminal sequences]' \
-'--skip-sequences[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)-T[Skip templating process]' \
-'(-u --update-current -i --ignore-sequence)--skip-templates[Skip templating process]' \
+'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
 '(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
+'(-C --config-file -d --config-dir)--no-config[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
