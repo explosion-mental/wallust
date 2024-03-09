@@ -18,10 +18,22 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let ((top, orig), warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
+    let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
 
-    // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-    // top = topsort_algo(&palettes::sort_ord(&c.palette));
+    if c.threshold.is_none() { // automatically handled by wallust.
+        // if warn is true it means there is a problem and it requires to call 'fallback_generator'
+        // when false, there was nothing wrong.
+        let mut i = 1;
+        while warn {
+            // println!("{warn} {}", c.true_th - i);
+            let newth = c.true_th - i;
+            ((top, orig), warn) = c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
+            i += 1;
+            // While this case MAY.. be possible, who knows really, we add a simple "non loop forever" exit.
+            // This should be 'impossible' since `colorspaces` module checks if at least two colors are there.
+            if newth == 1 { anyhow::bail!("UNRECHEABLE! please report this.") }
+        }
+    }
 
     // Apply a [`Palette`] that returns the [`Colors`] struct
     let mut colors = c.palette.run(top, orig);

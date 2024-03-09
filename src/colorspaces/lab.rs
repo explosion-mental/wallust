@@ -24,8 +24,8 @@ impl Difference for Spec {
         #[allow(unused)]
         use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE};
         //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
-        // self.improved_difference(*a) <= threshold.into()
-        delta_1994(self, a) <= threshold.into()
+        self.improved_difference(*a) <= threshold.into()
+        // delta_1994(self, a) <= threshold.into()
     }
 }
 

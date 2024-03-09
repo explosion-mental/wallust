@@ -168,7 +168,7 @@ impl ColorSpace {
     /// TODO allow to loop from a higher (best) to lower value
     pub fn def_threshold(&self) -> u8 {
         match self {
-            Cs::Lab | Cs::LabMixed => 8,
+            Cs::Lab | Cs::LabMixed => 17,
             Cs::Lch | Cs::LchMixed => 20,
         }
     }
