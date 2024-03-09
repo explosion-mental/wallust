@@ -15,14 +15,10 @@ pub const LIGHTEST: f32 = 95.5;
 impl ColorTrait for Spec {}
 
 impl Difference for Spec {
-    //TODO see delta_e
     fn col_diff(&self, a: &Self, threshold: u8) -> bool {
-        #[allow(unused)]
-        use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE, Ciede2000};
-        //ImprovedCiede2000::<Scalar = u8>::improved_difference(self, a);
-        // TODO
-        // threshold / 2 seems to work out pretty okish
-        self.improved_difference(*a) <= f32::from(threshold) / 2.0
+        use palette::color_difference::ImprovedCiede2000;
+        self.improved_difference(*a) <= f32::from(threshold)
+        // use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE, Ciede2000};
         // self.difference(*a) <= threshold.into()
         // self.improved_difference(*a) <= threshold.into()
         // delta_1994(self, a) <= threshold.into()

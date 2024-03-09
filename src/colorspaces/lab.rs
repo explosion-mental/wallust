@@ -19,12 +19,11 @@ pub const LIGHTEST: f32 = 95.5;
 impl ColorTrait for Spec {}
 
 impl Difference for Spec {
-    //TODO see delta_e
     fn col_diff(&self, a: &Self, threshold: u8) -> bool {
-        #[allow(unused)]
-        use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE};
-        //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
+        use palette::color_difference::ImprovedCiede2000;
         self.improved_difference(*a) <= threshold.into()
+        // use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE};
+        //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
         // delta_1994(self, a) <= threshold.into()
     }
 }
@@ -56,22 +55,4 @@ impl From<Myrgb> for Spec {
     fn from(c: Myrgb) -> Self {
         c.0.into_color()
     }
-}
-
-/// Returns how much the colors differ
-/// ref: <https://www.easyrgb.com/en/math.php>
-/// NOTE: using `delta_1994()` instead of `delta_2000()` improves around 50% of of performance
-/// (by criterion),
-// TODO properly analize the following
-// an improved version of delta_e.. This has a limit threshold of 8, with pretty good results.
-//https://github.com/Ogeon/palette/blob/c54efbd43c03267713da337bd72005c9d0390598/palette/src/lab.rs#L269
-//(1.26 * delta_1994(lab_0, lab_1).powf(0.55)).round() as u32
-//delta_2000(lab_0, lab_1) as u32
-/// the 1994 simple euclidean formula
-#[allow(dead_code)]
-#[inline]
-fn delta_1994(current: &Spec, previous: &Spec) -> f32 {
-    (   ((previous.l - current.l).powf(2.0))
-    +   ((previous.a - current.a).powf(2.0))
-    +   ((previous.b - current.b).powf(2.0)) ).sqrt()
 }

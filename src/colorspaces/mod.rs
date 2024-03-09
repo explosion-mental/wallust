@@ -165,7 +165,6 @@ impl ColorSpace {
     }
     /// automatic threshold
     /// TODO needs more testing
-    /// TODO allow to loop from a higher (best) to lower value
     pub fn def_threshold(&self) -> u8 {
         match self {
             Cs::Lab | Cs::LabMixed => 17,
@@ -367,7 +366,7 @@ where
     if histo.len() == 2 {
     // If the colors are exactly two, create a long interpolation from it.
         warn = true;
-        let mut new = gen.gen()(histo[0].color.into_color(), histo[1].color.into_color(), 8)
+        let mut new = gen.gen()(histo[0].color.into_color(), histo[1].color.into_color(), MIN_COLS)
             .iter()
             .map(|&x| {
                 let c: T = x.into_color();
@@ -380,9 +379,6 @@ where
         // sort vec by count, most used colors first (if they are more than the MAX)
         histo.sort_by(|a, b| b.count.cmp(&a.count));
 
-        // TODO Do another check on histo itself to update `.count` variables
-        //       test if colors repetead again (on interpolation)
-
         // take the *necessary* most used colors
         histo.truncate(MAX_COLS.into());
 
@@ -392,19 +388,14 @@ where
     // another check below
         warn = true; // "artificially generation colors.."
 
-        // `interpolate()`ion and `.append()` new colors to `
-        //TODO give options on **how** to complete the colors:
-        // - `interpolate()`ion, what's currently being used
-        // - `.complementary()`, fill colors with it's complementary ones #13
+        // fallback_generator
+        // XXX Is this really necesary with the new "automatic handling of the threshold?"
         let mut new = ColorHisto::color_generator(&histo, threshold, gen);
 
         histo.append(&mut new);
 
         // sort vec by count, most used colors first (if they are more than the MAX)
         histo.sort_by(|a, b| b.count.cmp(&a.count));
-
-        // TODO Do another check on histo itself to update `.count` variables
-        //       test if colors repetead again (on interpolation)
 
         // take the *necessary* most used colors
         histo.truncate(MAX_COLS.into());
@@ -450,7 +441,6 @@ impl fmt::Display for Cs {
 /// Combines some colors to generate new ones
 /// ref: <https://docs.rs/palette/latest/palette/trait.Mix.html>
 /// This seems to be implemented in the palette crate for all colorspaces,
-/// so we can turn this generic TODO
 /// In that case, `complementary()` would be a generator that will need convertion.
 fn interpolate(color_a: Srgb, color_b: Srgb, n: u8) -> Vec<Srgb> {
     let steps = 1.0 / f32::from(n);
