@@ -1277,7 +1277,7 @@ dependencies = [
 
 [[package]]
 name = "wallust"
-version = "3.0.0-alpha"
+version = "3.0.0-beta"
 dependencies = [
  "anyhow",
  "clap",
