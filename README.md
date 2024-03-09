@@ -10,7 +10,7 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-2.6.gif "wallust gif")
 > sources: [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg) - [scenic view of mountains](https://www.pexels.com/photo/scenic-view-of-mountains-during-dawn-1261728) - [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg)
 
-**If comming from v2, please check [how to prepare for v3](v3.md).**
+**If comming from v2, please check [v3 breaking changes](v3.md).**
 
 ## Usage
 ```
@@ -18,10 +18,13 @@ wallust run my_wallpaper.png
 ```
 _use `wallust -h` for an overview and `wallust --help` for a more detailed explanation_
 
-For **detailed** docs:
+For ease of use you can check **detailed** docs with man pages (rather than `cmd -h`ing everytime):
 - `man wallust`, information about terminal colors and **template syntax**;
 - `man wallust.5`, config docs;
 - `man wallust-subcommand`, displays a man page for _subcommand_.
+
+Just in case there are also versions of some man pages as plain ascii at the
+[wiki](https://codeberg.org/explosion-mental/wallust/wiki).
 
 ## Features
 - Includes [man pages](man/) and [completions](completions/)!
@@ -39,8 +42,9 @@ For **detailed** docs:
     * Windows: `{FOLDERID_LocalAppData}`
 - Read pywal/terminal-sexy colorschemes with `wallust cs`.
 - Built-in [themes](https://codeberg.org/explosion-mental/wallust-themes) with ` wallust theme` (compile time feature).
-- Configuration file, `wallust.toml`:
-    * When no config file, the [default config file](wallust.toml) will be generated.
+- Optional Configuration file, [`wallust.toml`](./wallust.toml):
+    * wallust checks for `~/.config/wallust/wallust.toml` for the config file, if not found it will use default implementations.
+    * Configuration variables are avaliable as cli flags.
 	* **Optional** templating with a [subset of _Jinja2_](https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md) or [_pywal_](https://github.com/dylanaraps/pywal/wiki/User-Template-Files#available-variables-and-syntax) syntax if selected.
 	* Configurable methods for backends, colorspaces, palettes and threshold.
     * OS dependant path:
