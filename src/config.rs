@@ -22,8 +22,9 @@ use serde::Deserialize;
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
     /// threshold to use to differentiate colors
+    #[serde(default)]
     #[serde(deserialize_with = "validate_threshold")]
-    pub threshold: u8,
+    pub threshold: Option<u8>,
     /// Which backend to use, see backends.rs
     pub backend: crate::backends::Backend,
     /// Which palette to use, see palettes.rs
@@ -58,6 +59,10 @@ pub struct Config {
     /// Config file (wallust.toml) path
     #[serde(skip)]
     pub file: PathBuf,
+
+    /// True threshold gathered from threshold.
+    #[serde(skip)]
+    pub true_th: u8,
 }
 
 /// An entry within the config file, toml table
@@ -150,6 +155,7 @@ impl Config {
 
         ret.dir = config_dir;
         ret.file = config.to_path_buf();
+        ret.true_th = 0;
 
         //println!("{:#?}", ret);
 
@@ -172,13 +178,17 @@ impl Config {
                 )
         } else { empty };
 
+        let th = match self.threshold {
+            Some(s) => format!("Using a threshold of {s} in between colors."),
+            None => format!("Not defined, using {} default thresholds.", "best".bold()),
+        };
+
         println!(
 "[{i}] {back_f}: Using {back} backend parser
-[{i}] {th_f}: Using delta of {th} in between colors
+[{i}] {th_f}: {th}
 [{i}] {cs_f}: Using {cs} colorspace variation
 [{i}] {palette_f}: Using {palette} palette{k}{sat}",
             back     = self.backend.bold().color(self.backend.col()),
-            th       = self.threshold.bold().color(self.threshold_col()),
             palette  = self.palette.bold().color(self.palette.col()),
             cs       = self.color_space.bold().color(self.color_space.col()),
             i        = "I".blue().bold(),
@@ -241,7 +251,7 @@ impl Config {
         }
 
         if let Some(t) = cli.threshold {
-            self.threshold = t as u8; //t is [1..=100]
+            self.threshold = Some(t as u8); //t is [1..=100]
         }
 
         if let Some(a) = cli.alpha {
@@ -263,7 +273,7 @@ impl Config {
 
     /// thershold color for owo_colors
     pub fn threshold_col(&self) -> AnsiColors {
-        match self.threshold {
+        match self.true_th {
             1 => AnsiColors::Yellow,
             2 => AnsiColors::Cyan,
             3..=10 => AnsiColors::Green,
@@ -311,7 +321,7 @@ Config file: {file}
 Configuration options:
     backend        = {b}
     color_space    = {c}
-    threshold      = {t}
+    threshold      = {t:?}
     palette        = {f}
     check_contrast = {con:?}
     saturation     = {sat:?}
@@ -331,14 +341,19 @@ Templates:
     }
 }
 
-fn validate_threshold<'de, D>(d: D) -> Result<u8, D::Error>
+fn validate_threshold<'de, D>(d: D) -> Result<Option<u8>, D::Error>
     where D: serde::de::Deserializer<'de>
 {
     use serde::de;
 
-    let value = u8::deserialize(d)?;
 
-    if value <= 100 { return Ok(value); }
+    let value = Option::deserialize(d)?;
+    let value = match value {
+        Some(s) => s,
+        None => return Ok(None),
+    };
+
+    if value <= 100 { return Ok(Some(value)); }
 
     Err(de::Error::invalid_value(de::Unexpected::Unsigned(value as u64), &"a value between 0 and 100."))
 }

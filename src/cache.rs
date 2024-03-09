@@ -81,7 +81,7 @@ impl Cache {
             .join(c.backend.to_string())
             .join(c.color_space.to_string())
             .join(c.palette.to_string())
-            .join(c.threshold.to_string())
+            .join(c.true_th.to_string())
             .join(sat)
         ;
 

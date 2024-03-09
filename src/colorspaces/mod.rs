@@ -163,6 +163,15 @@ impl ColorSpace {
             Cs::LchMixed => AnsiColors::Magenta,
         }
     }
+    /// automatic threshold
+    /// TODO needs more testing
+    /// TODO allow to loop from a higher (best) to lower value
+    pub fn def_threshold(&self) -> u8 {
+        match self {
+            Cs::Lab | Cs::LabMixed => 8,
+            Cs::Lch | Cs::LchMixed => 20,
+        }
+    }
 }
 
 impl<T: ColorTrait> Deref for ColorHisto<T> {
