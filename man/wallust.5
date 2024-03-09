@@ -10,61 +10,150 @@ wallust \- TOML configuration file format.
 .PP
 Some general variables that can be configured in the wallust.toml file.
 
+.I "Keep in mind that backend, palette and colorspace share possible values with the cli,"
+see
+.BR wallust(1) .
+
 .TP
 .B "backend"
 Allows you to choose which method to use in order to parse the image.
 
+.RS
+.TP
+.B full
+Read and return the whole image pixels more precision slower.
+.TP
+.B resized
+Resizes the image before parsing mantaining it s aspect ratio.
+.TP
+.B wal
+Uses image magick convert to generate the colors like pywal.
+.TP
+.B thumb
+Faster algo hardcoded to x no ratio respected.
+.TP
+.B fastresize
+A much faster resize algo that uses SIMD. For some reason it fails on some images where resized doesn t for this reason it doesn t replace but rather it s a new option.
+.TP
+.B kmeans
+Kmeans is an algo that divides and picks pixels all around the image. Requires more tweaking and more in depth testing but for the most part it just werks.
+.RE
+
+
 .TP
 .B "color_space"
-What colorspace to use to produce and select the most prominent colors.
+What colorspace to use to gather the most prominent colors.
+
+.RS
+.TP
+.B lab
+Uses Cie L a b color space.
+.I (mixed)
+.TP
+.B lch
+CIE Lch, you can understand this color space like LAB but with chrome and hue added, which Could help when sorting.
+.I (mixed)
+
+.RE
+
+.RS
+There is one variant:
+.BR mixed ,
+which mixes colors when collecting them into a histogram.
+.RE
 
 .TP
 .B "threshold"
-Thershold is the difference between similar colors, used by the colorspace, identified by a whole number. The recommended value is 20.
+Wallust automatically uses the
+.B "best threshold"
+(by my testings) if this variable isn't defined.
 
-\" centered, box is also an option, but left justified makes more sense.
+If you really want to define this variable, keep in mind the following. Thershold is the
+.B "difference between similar colors"
+, used inside the colorspace. While each colorspace may have different results
+with different thresholds, meaning
+.B "you should try which one works for you best"
+, an "overall" and general table looks like this:
+
+.ad l
 .TS
- left,box;
-
-l |l |.
-\fBNumber\fP	\fBDescription\fP
+box tab(!);
+cB | cB
+lwB | lw.
+Number!Description
 _
-\fB1\fP	Not perceptible by human eyes.
+1!Not Perceptible by human eyes.
 _
-\fB1 \- 2\fP	Perceptible through close observation.
+1 \- 2!Perceptible through close observation.
 _
-\fB2 \- 10\fP	Perceptible at a glance.
+2 \- 10!Perceptible at a glance.
 _
-\fB11 \- 49\fP	Colors are more similar than opposite.
+11 \- 49!Colors are more similar than opposite.
 _
-\fB100\fP	Colors are exact opposite
+100!Colors are exact opposite.
 .TE
+.ad b
 
 .TP
 .B "palette"
+
 Uses the colors gathered from `color_space` in a way that makes sense, resulting in a scheme palette.
 .br
-.I Some notes:
-.RS 14
-.IP \[bu] 2
-No matter the
-.B palette
-, the colors will always be 16: color0 to color15 (not including background, foreground and cursor). The
-.B 16col
-variation, only indicates a slight luminance change for color from 1 \- 6, making an
-.I ilusion
-of generating more colors and diferenciate which is which.
-.IP \[bu]
-The
-.B complementary
-variant completely
-.I replaces
-all the original colors with it's complementary counterpart. Since a pleasant wallpaper will, usually, have complementary colors of the colors already present, the scheme palette may not vary that much.
+
+.RS
+.TP
+.B dark
+Dark colors dark background and light contrast.
+.I (16, comp, comp16)
+.TP
+.B harddark
+Same as dark with hard hue colors.
+.I (16, comp, comp16)
+.TP
+.B light
+Light bg dark fg.
+.I (16, comp, comp16)
+.TP
+.B softdark
+Variant of softlight uses the lightest colors and a dark background could be interpreted as dark inversed.
+.I (16, comp, comp16)
+.TP
+.B softlight
+Light with soft pastel colors counterpart of harddark.
+.I (16, comp, comp16)
+.RE
+
+.RS
+There are some variants to the principal palettes schemes which you can use by appending the variant to the name e.g. 'dark16', 'lightcomp', 'harddarkcomp16' and so on, each palette indicates, in parenthesis, which variants are avaliable. A description of the overall variants:
+.br
+.RE
+
+.RS
+.TP
+.B 16
+Makes shades of colors, creating the ilusion of "16 different colors".
+.TP
+.B comp
+Stands for Complementary and completly changes the palette to it's complementary counterpart.
+.TP
+.B comp16
+Complementary palette with 16 shades.
 .RE
 
 .TP
 .BI "check_constrast" " optional"
 Ensures a "readable contrast" Should only be enabled when you notice an unreadable contrast frequently happening with your images. The reference color for the contrast is the background color. (default: disabled)
+
+.TP
+.BI "fallback_generator" " optional"
+This field chooses a method to use when the gathered colors aren't enough:
+.RS
+.TP
+.B interpolation
+(default) Tries to pick two colors and built gradients over them
+.B complementary
+Uses the complementary colors of two colors, or more (if needed), colors.
+.RE
 
 .TP
 .BI "saturation" " optional"

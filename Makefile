@@ -44,8 +44,6 @@ completions:
 # also no need to rebuilt it on install, since by default, the repo includes them.
 man:
 	@${CARGO} test --quiet --features=buildgen --test=man
-config:
-	@${CARGO} test --quiet --features=buildgen --test=config
 
 dist: clean
 	mkdir -p wallust-${VERSION}
