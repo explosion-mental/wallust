@@ -36,13 +36,16 @@ pub struct Cli {
     pub update_current: bool,
 
     /// Use FILE as the config file
-    #[arg(short = 'C', long, conflicts_with = "config_dir")]
+    #[arg(global = true, short = 'C', long, conflicts_with = "config_dir")]
     pub config_file: Option<PathBuf>,
 
     /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
-    #[arg(short = 'd', long, conflicts_with = "config_file")]
+    #[arg(global = true, short = 'd', long, conflicts_with = "config_file")]
     pub config_dir: Option<PathBuf>,
 
+    /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+    #[arg(global = true, short = 'N', long, conflicts_with = "config_file", conflicts_with = "config_dir")]
+    pub no_config: bool,
 
     #[clap(subcommand)]
     pub subcmds: Subcmds,

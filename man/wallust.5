@@ -10,6 +10,9 @@ wallust \- TOML configuration file format.
 .PP
 Some general variables that can be configured in the wallust.toml file.
 
+.BR "All variables are optional" ,
+as wallust can work without a config file and choose default implementations.
+
 .I "Keep in mind that backend, palette and colorspace share possible values with the cli,"
 see
 .BR wallust(1) .
@@ -141,11 +144,11 @@ Complementary palette with 16 shades.
 .RE
 
 .TP
-.BI "check_constrast" " optional"
+.B check_constrast
 Ensures a "readable contrast" Should only be enabled when you notice an unreadable contrast frequently happening with your images. The reference color for the contrast is the background color. (default: disabled)
 
 .TP
-.BI "fallback_generator" " optional"
+.B fallback_generator
 This field chooses a method to use when the gathered colors aren't enough:
 .RS
 .TP
@@ -156,7 +159,7 @@ Uses the complementary colors of two colors, or more (if needed), colors.
 .RE
 
 .TP
-.BI "saturation" " optional"
+.B saturation
 Color saturation, usually something higher than 50 increases the saturation and below decreases it (on a scheme with strong and vivid colors).
 .br
 .I Possible values:
@@ -164,7 +167,7 @@ Color saturation, usually something higher than 50 increases the saturation and 
 (default: disabled)
 
 .TP
-.BI "alpha" " optional"
+.B alpha
 Alpha value for templating (default: 100)
 
 .SH "TEMPLATES"

@@ -2,10 +2,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
-use std::fs;
 use std::fs::read_to_string;
-use std::fs::File;
-use std::io::Write;
 
 use crate::args::WallustArgs;
 use crate::colors::Colors;
@@ -26,11 +23,14 @@ pub struct Config {
     #[serde(deserialize_with = "validate_threshold")]
     pub threshold: Option<u8>,
     /// Which backend to use, see backends.rs
-    pub backend: crate::backends::Backend,
+    #[serde(rename = "backend")]
+    pub backend_de: Option<crate::backends::Backend>,
     /// Which palette to use, see palettes.rs
-    pub palette: crate::palettes::Palette,
+    #[serde(rename = "palette")]
+    pub palette_de: Option<crate::palettes::Palette>,
     /// Which colorspace to use, see colorspaces.rs
-    pub color_space: crate::colorspaces::ColorSpace,
+    #[serde(rename = "color_space")]
+    pub color_space_de: Option<crate::colorspaces::ColorSpace>,
     /// Optional alpha value
     pub alpha: Option<u8>,
     /// This flags ensures good contrast between images, by doing some w3m calculations.
@@ -60,9 +60,20 @@ pub struct Config {
     #[serde(skip)]
     pub file: PathBuf,
 
+    /* TRUE VALUES */
+
     /// True threshold gathered from threshold.
     #[serde(skip)]
     pub true_th: u8,
+
+    #[serde(skip)]
+    pub backend: crate::backends::Backend,
+
+    #[serde(skip)]
+    pub color_space: crate::colorspaces::ColorSpace,
+
+    #[serde(skip)]
+    pub palette: crate::palettes::Palette,
 }
 
 /// An entry within the config file, toml table
@@ -108,7 +119,7 @@ pub const V3: &str = "<https://codeberg.org/explosion-mental/wallust/src/tag/3.0
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(original_config_path: &PathBuf, config_file: Option<&Path>, config_dir: Option<&Path>) -> Result<Config> {
+    pub fn new(original_config_path: &PathBuf, config_file: Option<&Path>, config_dir: Option<&Path>, no_config: bool) -> Result<Config> {
 
         // check config file or generate one if not one isn't found
         let custom = config_file;
@@ -133,29 +144,28 @@ impl Config {
         let def_conf = config_dir.join("wallust.toml");
 
         // is the user using `--config-path`
-        let (config, default_path) = match custom {
+        let (config, _default_path) = match custom {
             None => (def_conf, true),
             Some(s) => (s.to_owned(), false),
         };
 
-        // Create cache dir (with all of it's parents) ONLY if the flag `--config-path` isn't in use
-        if ! Path::new(&config).exists() && default_path && is_original {
-            let msg = if default_path { format!("creating default one at {}", config.display()) } else { "".into() };
-            eprintln!("[{}] Config file not found.. {msg}", "W".red().bold());
-            fs::create_dir_all(&config_dir)?;
-            File::create(&config)?
-                .write_all(include_bytes!("../wallust.toml"))?;
-        }
-
-        let s = "If you are switching from v2 to v3, use `wallust migrate`.\nMake sure to read {V3} as well.";
-        let mut ret: Config = toml::from_str(
-            &read_to_string(&config)
-                .with_context(|| format!("Failed to read file {}:\n{s}", config.display()))?
-        ).with_context(|| format!("Failed to deserialize config file {}:\n{s}", config.display()))?;
+        let mut ret = if !config.exists() || no_config {
+            Config::default()
+        } else {
+            let s = || format!("Failed to read file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.\nMake sure to read {V3} as well.", config.display());
+            toml::from_str(
+                &read_to_string(&config).with_context(s)?
+            ).with_context(s)?
+        };
 
         ret.dir = config_dir;
         ret.file = config.to_path_buf();
         ret.true_th = 0;
+
+        // defined or defaults.
+        ret.backend = ret.backend_de.unwrap_or_default();
+        ret.color_space = ret.color_space_de.unwrap_or_default();
+        ret.palette = ret.palette_de.unwrap_or_default();
 
         //println!("{:#?}", ret);
 
