@@ -110,19 +110,19 @@ impl Compl for palette::Srgba {}
 /// gathered this from pywal.
 pub fn blend(a: Srgb, b: Srgb) -> Srgb {
     Srgb::new(
-        0.5 * f32::from(a.red) + 0.5 * f32::from(b.red),
-        0.5 * f32::from(a.green) + 0.5 * f32::from(b.green),
-        0.5 * f32::from(a.blue) + 0.5 * f32::from(b.blue),
+        0.5 * a.red   + 0.5 * b.red,
+        0.5 * a.green + 0.5 * b.green,
+        0.5 * a.blue  + 0.5 * b.blue,
     )
 }
 
 use palette::Srgba;
 pub fn blend_alpha(a: Srgba, b: Srgba) -> Srgba {
     Srgba::new(
-        0.5 * f32::from(a.red) + 0.5 * f32::from(b.red),
-        0.5 * f32::from(a.green) + 0.5 * f32::from(b.green),
-        0.5 * f32::from(a.blue) + 0.5 * f32::from(b.blue),
-        0.5 * f32::from(a.alpha) + 0.5 * f32::from(b.alpha),
+        0.5 * a.red   + 0.5 * b.red,
+        0.5 * a.green + 0.5 * b.green,
+        0.5 * a.blue  + 0.5 * b.blue,
+        0.5 * a.alpha + 0.5 * b.alpha,
     )
 }
 
@@ -180,9 +180,9 @@ impl Myrgb {
         let me = self.0;
         let other = other.0;
         let new = Srgb::new(
-            0.5 * f32::from(me.red) + 0.5 * f32::from(other.red),
-            0.5 * f32::from(me.green) + 0.5 * f32::from(other.green),
-            0.5 * f32::from(me.blue) + 0.5 * f32::from(other.blue),
+            0.5 * me.red   + 0.5 * other.red,
+            0.5 * me.green + 0.5 * other.green,
+            0.5 * me.blue  + 0.5 * other.blue,
         );
         Self(new)
     }
