@@ -7,8 +7,6 @@
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use super::*;
 
-use palette::IntoColor;
-
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lab;
 

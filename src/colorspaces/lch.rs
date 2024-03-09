@@ -3,8 +3,6 @@
 //! ref: <https://docs.rs/palette/latest/palette/lch/struct.Lch.html>
 use super::*;
 
-use palette::IntoColor;
-
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lch;
 
