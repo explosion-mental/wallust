@@ -220,7 +220,11 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
 
     // print some info that's gonna be used
     if ! quiet {
-        println!("[{info}] {img}: {f}", f = cli.file.display(), img = "image".magenta().bold());
+        let f = match cli.file.file_name() {
+            Some(s) => s.to_string_lossy(),
+            None => cli.file.to_string_lossy(),
+        };
+        println!("[{info}] {img}: {f}", img = "image".magenta().bold());
         conf.print();
     }
 
