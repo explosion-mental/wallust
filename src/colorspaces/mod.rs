@@ -443,20 +443,20 @@ impl fmt::Display for Cs {
 /// This seems to be implemented in the palette crate for all colorspaces,
 /// so we can turn this generic TODO
 /// In that case, `complementary()` would be a generator that will need convertion.
-fn interpolate(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
+fn interpolate(color_a: Srgb, color_b: Srgb, n: u8) -> Vec<Srgb> {
+    let steps = 1.0 / f32::from(n);
+
+    let mut v = vec![];
     let a = color_a.into_format();
     let b = color_b.into_format();
 
-    let result_a = a.mix(b, 0.35);
-    let result_b = a.mix(b, 0.65);
-
-    vec![
-        result_a,
-        result_b,
-    ]
+    for i in 1..=n {
+        v.push(a.mix(b, steps * f32::from(i)))
+    }
+    v
 }
 
-//TODO implement triards or cuartets
+//TODO implement triards, cuartets, quints
 fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
     vec![
         color_a.complementary(),
