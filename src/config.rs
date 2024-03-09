@@ -14,7 +14,6 @@ use owo_colors::{AnsiColors, OwoColorize};
 use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
-//TODO wallust should be able to work without a config file?
 #[derive(Debug, Deserialize, Default)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {

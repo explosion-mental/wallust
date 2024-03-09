@@ -175,8 +175,7 @@ impl Myrgb {
         Self(self.0.lighten(amount))
     }
 
-    /// Mix with other [`Myrgb`]
-    //TODO
+    /// see blend from above the file.
     pub fn blend(&self, other: Self) -> Self {
         let me = self.0;
         let other = other.0;
