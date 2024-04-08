@@ -21,14 +21,24 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
 
     if c.threshold.is_none() { // automatically handled by wallust.
+
+        //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
+
+
         // if warn is true it means there is a problem and it requires to call 'fallback_generator'
         // when false, there was nothing wrong.
         let mut i = 1;
+
+        //TODO if no warn (meaning the first `c.color_space.main` call ran without issues)
+        //do the opposite of what's below: increase the threshold until warn is true
         while warn {
-            // println!("{warn} {}", c.true_th - i);
             let newth = c.true_th - i;
+            //println!("HEEEY {warn} and th is {newth}");
+
+            // TODO maybe split ColorSpace::main into more steps so this call has less usage
             ((top, orig), warn) = c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
             i += 1;
+
             // While this case MAY.. be possible, who knows really, we add a simple "non loop forever" exit.
             // This should be 'impossible' since `colorspaces` module checks if at least two colors are there.
             if newth == 1 { anyhow::bail!("UNRECHEABLE! please report this.") }
