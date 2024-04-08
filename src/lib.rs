@@ -18,7 +18,11 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
 
     // get the top 16 most used colors, ordered from the darkest to lightest. Different color
     // spaces can be used here.
-    let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
+    // let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
+
+    let mut top = vec![];
+    let mut orig = vec![];
+    let mut warn = true;
 
     if c.threshold.is_none() { // automatically handled by wallust.
 
@@ -29,19 +33,25 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
         // when false, there was nothing wrong.
         let mut i = 1;
 
+        // Default error
+        let mut err = anyhow::anyhow!("The image should have at least 2 different colors.");
+
         //TODO if no warn (meaning the first `c.color_space.main` call ran without issues)
         //do the opposite of what's below: increase the threshold until warn is true
         while warn {
             let newth = c.true_th - i;
-            //println!("HEEEY {warn} and th is {newth}");
+            // println!("HEEEY {warn} and th is {newth}");
 
             // TODO maybe split ColorSpace::main into more steps so this call has less usage
-            ((top, orig), warn) = c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
+            match c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord()) {
+                Ok(o) => ((top, orig), warn) = o,
+                Err(e) => err = e,
+            }
             i += 1;
 
             // While this case MAY.. be possible, who knows really, we add a simple "non loop forever" exit.
             // This should be 'impossible' since `colorspaces` module checks if at least two colors are there.
-            if newth == 1 { anyhow::bail!("UNRECHEABLE! please report this.") }
+            if newth == 1 { anyhow::bail!("{err}") }
         }
     }
 
