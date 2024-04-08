@@ -12,7 +12,7 @@ pub mod sequences;
 
 /// How [`crate::colors::Colors`] is filled, returns the colors itself and a bool that indicates whether
 /// [`backends`] had some warnings or not (ugly workaround ik)
-pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::Result<(crate::colors::Colors, bool)> {
+pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th: bool) -> anyhow::Result<(crate::colors::Colors, bool)> {
     // read image as raw rgb8 vecs
     let rgb8s = c.backend.main()(file)?;
 
@@ -26,7 +26,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     // Here we start with true so it runs at least once.
     let mut warn = true;
 
-    if c.threshold.is_none() { // automatically handled by wallust.
+    if c.threshold.is_none() || dynamic_th { // automatically handled by wallust.
 
         //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
 

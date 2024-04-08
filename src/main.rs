@@ -240,7 +240,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
 
             //ugly workaround for printing warning, gotta stop the spinner first
-            match gen_colors(&cli.file, conf) {
+            match gen_colors(&cli.file, conf, cli.dynamic_threshold) {
                 Ok((o, warn)) => {
                     let gen = conf.fallback_generator.unwrap_or_default();
                     let not_enough = format!(
@@ -258,7 +258,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
                 },
             }
         } else {
-            gen_colors(&cli.file, conf)?.0
+            gen_colors(&cli.file, conf, cli.dynamic_threshold)?.0
         }
     };
 

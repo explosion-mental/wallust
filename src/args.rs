@@ -131,6 +131,10 @@ pub struct WallustArgs {
     #[arg(short, long, value_parser = 1..=100)]
     pub threshold: Option<i64>,
 
+    /// Dynamically changes the threshold to be best fit
+    #[arg(long)]
+    pub dynamic_threshold: bool,
+
     /// Generates colors even if there is a cache version of it
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
