@@ -12,7 +12,6 @@ use std::ops::DerefMut;
 use crate::colors::Myrgb;
 use crate::colors::Compl;
 
-use anyhow::Result;
 use palette::convert::FromColorUnclamped;
 use palette::cast::ComponentsAs;
 use palette::rgb::Rgb;
@@ -23,19 +22,10 @@ use palette::Mix;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
+use thiserror::Error;
 
 mod lab;
 mod lch;
-
-const NOT_ENOUGH_COLS: &str =
-"\
-Not enough colors to create a scheme, even after trying to artificially generate new ones.
-Try changing the threshold or the backend.
-It may very well be that the image doesn't have enough colors.
-Quitting...\
-";
-
-const ERR_TWO_COLS: &str = "Image should at least have two different pixel colors.";
 
 /// Currently this works in function with the palettes methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
@@ -44,6 +34,22 @@ const MIN_COLS: u8 = 6;
 /// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
 /// the top MAX_COLS lab colors.
 const MAX_COLS: u8 = 16;
+
+#[derive(Error, Debug)]
+pub enum ColorSpaceError {
+    #[error("\
+Not enough colors to create a scheme, even after trying to artificially generate new ones.
+Try changing the threshold or the backend.
+It may very well be that the image doesn't have enough colors.
+Quitting...\
+    ")]
+    NotEnough,
+    #[error("Image should at least have two different pixel colors.")]
+    TwoColors,
+}
+
+
+
 
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
@@ -144,7 +150,7 @@ impl FallbackGenerator {
 impl ColorSpace {
     /// Main function that matches agains the respective colorspace builder with BuildColors trait
     pub fn main(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder)
-        -> Result<((Vec<Srgb>, Vec<Srgb>), bool)>
+        -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
     {
         match self {
             Cs::Lab => main::<palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
@@ -311,7 +317,7 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
 pub fn main<T>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
-    -> Result<((Vec<Srgb>, Vec<Srgb>), bool)>
+    -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
 where
     ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
     T: Copy + ColorTrait + Difference + FromColorUnclamped<Rgb> + Clamp,
@@ -336,7 +342,7 @@ where
     let mut histo = ColorHisto::gather_cols(color, threshold, mix);
 
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
-    if histo.len() < 2 { anyhow::bail!(ERR_TWO_COLS); }
+    if histo.len() < 2 { return Err(ColorSpaceError::TwoColors) }
 
     // FORGET: testing this as much as I can, and `.dedup()`ing doesn't seem to remove "similar" colors.
     // dedup colors by
@@ -402,7 +408,7 @@ where
     }
 
     // not enough colors, even after making new colors (if any)
-    if histo.len() < MIN_COLS.into() { anyhow::bail!(NOT_ENOUGH_COLS); }
+    if histo.len() < MIN_COLS.into() { return Err(ColorSpaceError::NotEnough) }
 
     // orig_histo will not be changed by `sort_colors`,
     // thus keeping the `top used colors` order in place

@@ -16,12 +16,14 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
     // read image as raw rgb8 vecs
     let rgb8s = c.backend.main()(file)?;
 
-    // get the top 16 most used colors, ordered from the darkest to lightest. Different color
-    // spaces can be used here.
+    // get the top 16 most used colors, ordered from the darkest to lightest.
+    // Different color spaces can be used here.
     // let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
 
     let mut top = vec![];
     let mut orig = vec![];
+
+    // Here we start with true so it runs at least once.
     let mut warn = true;
 
     if c.threshold.is_none() { // automatically handled by wallust.
@@ -31,13 +33,16 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
 
         // if warn is true it means there is a problem and it requires to call 'fallback_generator'
         // when false, there was nothing wrong.
+
+        // counter
         let mut i = 1;
 
         // Default error
-        let mut err = anyhow::anyhow!("The image should have at least 2 different colors.");
+        let mut err = colorspaces::ColorSpaceError::NotEnough;
 
         //TODO if no warn (meaning the first `c.color_space.main` call ran without issues)
         //do the opposite of what's below: increase the threshold until warn is true
+
         while warn {
             let newth = c.true_th - i;
             // println!("HEEEY {warn} and th is {newth}");
@@ -45,14 +50,20 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config) -> anyhow::
             // TODO maybe split ColorSpace::main into more steps so this call has less usage
             match c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord()) {
                 Ok(o) => ((top, orig), warn) = o,
+                // overwrite error
                 Err(e) => err = e,
             }
+
             i += 1;
 
             // While this case MAY.. be possible, who knows really, we add a simple "non loop forever" exit.
             // This should be 'impossible' since `colorspaces` module checks if at least two colors are there.
             if newth == 1 { anyhow::bail!("{err}") }
         }
+
+        if top.is_empty() { anyhow::bail!("{err}") }
+    } else {
+        ((top, orig), warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
     }
 
     // Apply a [`Palette`] that returns the [`Colors`] struct

@@ -13,8 +13,9 @@ homepage = "https://codeberg.org/explosion-mental/wallust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+thiserror = "1.0"
 anyhow = "1.0"
-image = "0.24"
+image = "0.25"
 owo-colors = "4.0"
 toml = "0.8"
 toml_edit = "0.22"
