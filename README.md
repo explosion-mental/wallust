@@ -193,7 +193,7 @@ Having design ideas or suggestios is also very welcome.
 
 ## TODOs
 for more, grep the src for TODO `rg TODO`
-- use `thiserror` for errors in the modules (there aren't that many)
+- think about creating a user friendly `mdbook` like
 - Learn more from "Material You" implementations, what I've seen is that it
   looses some colors and hues to mantain contrast.
 
