@@ -47,9 +47,6 @@ Quitting...\
     TwoColors,
 }
 
-
-
-
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
 /// Using these with [`full`] or [`resize`] backends, the LightFirst will give a more pastel
@@ -336,11 +333,7 @@ where
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
     if histo.len() < 2 { return Err(ColorSpaceError::TwoColors) }
 
-    // FORGET: testing this as much as I can, and `.dedup()`ing doesn't seem to remove "similar" colors.
-    // dedup colors by
-    // ---> this is wrong lmao, delta_e is da wae//cols.histo.dedup_by(|a, b| a.color == b.color);
-
-    // The above is wrong, I've tested a lot and:
+    // XXX I've tested a lot and: (requires more in depth findings)
     // 1. using `dedup_by` without `sort_by_key` seems to not get much colors.
     // 2. obviously sorting without `dedup`ing won't do much.
     // 3. to get more colors `.truncate()` should accept `MAX_COLS`, however this used to get many
@@ -368,7 +361,7 @@ where
             .iter()
             .map(|&x| {
                 let c: T = x.into_color();
-                Histo { color: c, count: 1}
+                Histo { color: c, count: 1 }
             })
             .collect::<Vec<Histo<T>>>();
 
@@ -381,10 +374,11 @@ where
         histo.truncate(MAX_COLS.into());
 
     } else if histo.len() < MIN_COLS.into() {
-    // Artificially generate colors with linear interpolation in between the colors that we already
-    // have. However even this can even fail and not generate enough different colors, so there is
-    // another check below
-        warn = true; // "artificially generation colors.."
+        // Artificially generate colors with linear interpolation in between the colors that we already
+        // have. However even this can even fail and not generate enough different colors, so there is
+        // another check below
+
+        warn = true;
 
         // fallback_generator
         // XXX Is this really necesary with the new "automatic handling of the threshold?"
@@ -402,6 +396,7 @@ where
     // not enough colors, even after making new colors (if any)
     if histo.len() < MIN_COLS.into() { return Err(ColorSpaceError::NotEnough) }
 
+    // TODO don't clone and sort here, since this is function runs multiple times (most of the time)
     // orig_histo will not be changed by `sort_colors`,
     // thus keeping the `top used colors` order in place
     let orig_histo = histo.clone();
