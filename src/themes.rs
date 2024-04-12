@@ -131,8 +131,9 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
 pub const RAND: &str = "random";
 
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json [`WalTheme`] format
+/// If None, the theme was not found.
 #[cfg(feature = "themes")]
-pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
+pub fn built_in_theme(theme_key: &str, quiet: bool) -> Option<Colors> {
     use wallust_themes::COLS_KEY;
     use wallust_themes::COLS_VALUE;
     use crate::colors::Myrgb;
@@ -157,30 +158,30 @@ pub fn built_in_theme(theme_key: &str, quiet: bool) -> Result<Colors> {
                 })
             .collect::<Vec<_>>();
 
-            Ok(
-            Colors {
-                color0:  c[0],
-                color1:  c[1],
-                color2:  c[2],
-                color3:  c[3],
-                color4:  c[4],
-                color5:  c[5],
-                color6:  c[6],
-                color7:  c[7],
-                color8:  c[8],
-                color9:  c[9],
-                color10: c[10],
-                color11: c[11],
-                color12: c[12],
-                color13: c[13],
-                color14: c[14],
-                color15: c[15],
-                background: c[16],
-                foreground: c[17],
-            }
+            Some(
+                Colors {
+                    color0:  c[0],
+                    color1:  c[1],
+                    color2:  c[2],
+                    color3:  c[3],
+                    color4:  c[4],
+                    color5:  c[5],
+                    color6:  c[6],
+                    color7:  c[7],
+                    color8:  c[8],
+                    color9:  c[9],
+                    color10: c[10],
+                    color11: c[11],
+                    color12: c[12],
+                    color13: c[13],
+                    color14: c[14],
+                    color15: c[15],
+                    background: c[16],
+                    foreground: c[17],
+                }
             )
         },
-        None => anyhow::bail!("Theme not found. Quitting..."),
+        None => None,
     }
 }
 

@@ -416,7 +416,7 @@ where
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
     //histo = T::sort_algo(&Cs);
-    histo.sort_by(|a, b| ColorHisto::sort_algo(&ord, &a, &b));
+    histo.sort_by(|a, b| ColorHisto::sort_algo(ord, a, b));
 
     Ok(
         ((histo.into(), orig_histo.into()), warn)

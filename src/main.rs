@@ -25,6 +25,7 @@ fn main() -> Result<()> {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
 
+    // globals
     let quiet = cli.quiet;
     let update_current = cli.update_current;
     let skip_sequences = cli.skip_sequences;
@@ -41,7 +42,7 @@ fn main() -> Result<()> {
         #[cfg(feature = "themes")]
         args::Subcmds::Theme { theme, preview } => {
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
-            let colors = themes::built_in_theme(&theme, quiet)?;
+            let colors = themes::built_in_theme(&theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
             if ! quiet {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview

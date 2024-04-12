@@ -41,7 +41,7 @@ pub fn dark(cols: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
         color7 : col7, // fg
 
         /* Second row */
-        color8 : col8.into(), // brighter than col0
+        color8 : col8, // brighter than col0
         color9 : c[5].into(),
         color10: c[4].into(),
         color11: c[3].into(),

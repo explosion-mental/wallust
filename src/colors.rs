@@ -159,7 +159,7 @@ impl Myrgb {
         Rgb(r, g, b)
     }
 
-    fn to_rgb8(&self) -> (u8, u8, u8) {
+    fn to_rgb8(self) -> (u8, u8, u8) {
         self.0.into_format::<u8>().into_components()
     }
 
