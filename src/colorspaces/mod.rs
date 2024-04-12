@@ -14,7 +14,6 @@ use crate::colors::Compl;
 
 use palette::convert::FromColorUnclamped;
 use palette::cast::ComponentsAs;
-use palette::rgb::Rgb;
 use palette::IntoColor;
 use palette::Clamp;
 use palette::Srgb;
@@ -111,9 +110,7 @@ pub struct Histo<T: ColorTrait> {
     count: usize,
 }
 
-impl<T: ColorTrait> From<Histo<T>> for Myrgb
-    where Myrgb: From<T>
-{
+impl<T: ColorTrait> From<Histo<T>> for Myrgb {
     fn from(h: Histo<T>) -> Self {
         h.color.into()
     }
@@ -192,34 +189,36 @@ impl<T: ColorTrait> From<Vec<Histo<T>>> for ColorHisto<T> {
     fn from(c: Vec<Histo<T>>) -> Self { Self(c) }
 }
 
-// Implement into since Vec is a foreign type
-impl<T: ColorTrait> Into<Vec<Histo<T>>> for ColorHisto<T> {
-    fn into(self) -> Vec<Histo<T>> { self.0 }
+impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Histo<T>> {
+    fn from(val: ColorHisto<T>) -> Self { val.0 }
 }
 
-
-impl<T: ColorTrait + Copy> From<ColorHisto<T>> for Vec<Myrgb>
-    where
-Myrgb: From<T>
-{
-    fn from(c: ColorHisto<T>) -> Self {
-        c.0.iter().map(|x| x.color.into()).collect()
-    }
+impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Myrgb> {
+    fn from(c: ColorHisto<T>) -> Self { c.0.iter().map(|x| x.color.into()).collect() }
 }
 
-impl<T: ColorTrait + Copy + IntoColor<Srgb>> From<ColorHisto<T>> for Vec<Srgb>
-{
-    fn from(c: ColorHisto<T>) -> Self {
-        c.0.iter().map(|x| x.color.into_color()).collect()
-    }
+impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Srgb> {
+    fn from(c: ColorHisto<T>) -> Self { c.0.iter().map(|x| x.color.into_color()).collect() }
 }
 
+/// Method to use for color difference (deltaE)
 pub trait Difference {
     fn col_diff(&self, a: &Self, threshold: u8) -> bool;
 }
 
 /// Simple trait that groups all avaliable colorspaces
-pub trait ColorTrait {}
+// TODO meassure the required traits.
+pub trait ColorTrait:
+        Copy
+        + Difference
+        + Into<Myrgb>
+        + From<Myrgb>
+        + IntoColor<Srgb>
+        + Mix<Scalar = f32>
+        + FromColorUnclamped<Srgb>
+        + Clamp
+        + palette::convert::FromColorUnclamped<palette::rgb::Rgb<palette::encoding::Linear<palette::encoding::Srgb>>>
+{}
 
 /// Simple wrapper for a vector of histograms.
 /// Abstracts away vector/slices operations by using Deref and DerefMut traits.
@@ -231,10 +230,7 @@ pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
     /// Colorspace to be used
-    type Color: ColorTrait + Difference + Into<Myrgb> + From<Myrgb> + Copy + Mix<Scalar = f32> + IntoColor<Srgb>
-        + FromColorUnclamped<Srgb>
-        + Clamp
-        + palette::convert::FromColorUnclamped<palette::rgb::Rgb<palette::encoding::Linear<palette::encoding::Srgb>>>;
+    type Color: ColorTrait;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<Self::Color> {
@@ -311,17 +307,13 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
     }
 }
 
-
-
 /// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
-pub fn main<T>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
+pub fn main<T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
     -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
 where
     ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
-    T: Copy + ColorTrait + Difference + FromColorUnclamped<Rgb> + Clamp,
-    palette::rgb::Rgb: FromColorUnclamped<T>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
