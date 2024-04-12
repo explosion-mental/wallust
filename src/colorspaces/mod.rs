@@ -203,13 +203,20 @@ pub trait Difference {
     fn col_diff(&self, a: &Self, threshold: u8) -> bool;
 }
 
+impl<T: ColorTrait> From<T> for Myrgb {
+    fn from(lab: T) -> Self {
+        let a: Srgb = lab.into_color();
+        Self(a)
+    }
+}
+
+
 /// Simple trait that groups all avaliable colorspaces
 // TODO meassure the required traits.
 pub trait ColorTrait:
         Copy
         + Difference
         + Into<Myrgb>
-        + From<Myrgb>
         + IntoColor<Srgb>
         + Mix<Scalar = f32>
         + FromColorUnclamped<Srgb>

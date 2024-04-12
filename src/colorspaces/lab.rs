@@ -44,15 +44,3 @@ impl BuildColors for ColorHisto<Spec> {
     }
 }
 
-impl From<Spec> for Myrgb {
-    fn from(lab: Spec) -> Self {
-        let a: Srgb = lab.into_color();
-        Self(a)
-    }
-}
-
-impl From<Myrgb> for Spec {
-    fn from(c: Myrgb) -> Self {
-        c.0.into_color()
-    }
-}
