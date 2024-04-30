@@ -437,7 +437,7 @@ pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
 impl From<&TemplateFields<'_>> for minijinja::Value {
     fn from(values: &TemplateFields<'_>) -> Self {
         let c = &values.colors;
-        let v = minijinja::Value::from_serializable(c);
+        let v = minijinja::Value::from_serialize(c);
 
         context! {
             ..v,
