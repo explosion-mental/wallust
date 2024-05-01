@@ -32,11 +32,15 @@ impl BuildColors for ColorHisto<Spec> {
     type Color = Spec;
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 
-    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering {
-        match cs {
+    fn sort_col(self, cs: &ColorOrder) -> Self {
+        let mut new = self;
+
+        new.sort_by(|a, b| match cs {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
-        }
+        });
+
+        new
     }
 
     fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord {

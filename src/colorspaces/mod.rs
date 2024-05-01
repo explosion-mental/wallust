@@ -250,7 +250,7 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
 
     /// Simple Sort algo that determines how to order colors
     /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
-    fn sort_algo(cs: &ColorOrder, a: &Histo<Self::Color>, b: &Histo<Self::Color>) -> Ordering;
+    fn sort_col(self, cs: &ColorOrder) -> Self;
 
     /// how to .sort_by_key, this is colorspace specific
     fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord;
@@ -410,7 +410,8 @@ where
 
     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
     //histo = T::sort_algo(&Cs);
-    histo.sort_by(|a, b| ColorHisto::sort_algo(ord, a, b));
+    //histo.sort_by(|a, b| ColorHisto::sort_algo(ord, a, b));
+    let histo = histo.sort_col(ord);
 
     Ok(
         ((histo.into(), orig_histo.into()), warn)
