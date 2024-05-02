@@ -19,6 +19,7 @@ use std::fmt;
 use owo_colors::AnsiColors;
 use serde::{Serialize, Deserialize};
 use palette::Srgb;
+use palette::{Darken, Lighten};
 
 use crate::{
     colors::{
@@ -30,8 +31,6 @@ use crate::{
 
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
-
-use palette::{Darken, Lighten};
 
 include!("dark.rs");
 include!("harddark.rs");
@@ -158,14 +157,14 @@ impl F {
     /// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
     pub fn sort_ord(&self) -> ColorOrder {
         match self {
-            F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
-                | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
-                | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
+              F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
+            | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
+            | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
                 => ColorOrder::LightFirst,
 
-                F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
-                    | F::Light | F::Light16 | F::LightComp | F::LightComp16
-                    => ColorOrder::DarkFirst,
+              F::Light | F::Light16 | F::LightComp | F::LightComp16
+            | F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
+                => ColorOrder::DarkFirst,
         }
     }
     /// Assign a color when printing in `main()`
