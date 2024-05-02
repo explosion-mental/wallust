@@ -3,6 +3,8 @@
 //! ref: <https://docs.rs/palette/latest/palette/lch/struct.Lch.html>
 use super::*;
 
+pub struct Lch;
+
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lch;
 
@@ -25,7 +27,7 @@ impl Difference for Spec {
     }
 }
 
-impl BuildColors for ColorHisto<Spec> {
+impl BuildColors for ColorHisto<Spec, Lch> {
     type Color = Spec;
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 

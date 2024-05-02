@@ -7,6 +7,8 @@
 //! ref: <https://en.wikipedia.org/wiki/CIELAB_color_space>
 use super::*;
 
+pub struct Lab;
+
 /// Shadow the colorspace type (Spectrum)
 type Spec = palette::Lab;
 
@@ -28,7 +30,7 @@ impl Difference for Spec {
     }
 }
 
-impl BuildColors for ColorHisto<Spec> {
+impl BuildColors for ColorHisto<Spec, Lab> {
     type Color = Spec;
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 

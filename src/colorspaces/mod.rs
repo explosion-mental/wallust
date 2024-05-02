@@ -6,6 +6,7 @@
 
 use std::cmp::Ordering;
 use std::fmt;
+use std::marker::PhantomData;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
@@ -25,6 +26,7 @@ use thiserror::Error;
 
 mod lab;
 mod lch;
+mod lchansi;
 
 /// Currently this works in function with the palettes methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
@@ -83,6 +85,10 @@ pub enum ColorSpace {
     #[clap(alias = "lch-mixed", name = "lchmixed")] //claps prefers this-name
     #[serde(alias = "lch-mixed")]
     LchMixed,
+
+    #[clap(alias = "lch-ansi", name = "lchansi")] //claps prefers this-name
+    #[serde(alias = "lch-ansi")]
+    LchAnsi,
 }
 
 /// rename [`GenerateFallback`] so it's shorter to type
@@ -107,24 +113,6 @@ pub struct Histo<T: ColorTrait> {
     count: usize,
 }
 
-impl<T: ColorTrait> From<Histo<T>> for Myrgb {
-    fn from(h: Histo<T>) -> Self {
-        h.color.into()
-    }
-}
-
-impl From<Srgb<u8>> for Myrgb {
-    fn from(c: Srgb<u8>) -> Self {
-        Self(c.into_format())
-    }
-}
-
-impl From<Myrgb> for Srgb<u8> {
-    fn from(c: Myrgb) -> Self {
-        c.0.into_format()
-    }
-}
-
 impl FallbackGenerator {
     pub fn gen(&self) -> impl Fn(Srgb, Srgb, u8) -> Vec<Srgb> {
         match self {
@@ -147,13 +135,15 @@ impl ColorSpace {
         -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
     {
         match self {
-            Cs::Lab => main::<palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
-            Cs::LabMixed => main::<palette::Lab>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::Lab => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
+            Cs::LabMixed => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, true, ord),
 
-            Cs::Lch => main::<palette::Lch>(bytes_rgb8, threshold, gen, false, ord),
-            Cs::LchMixed => main::<palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::Lch => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, false, ord),
+            Cs::LchMixed => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::LchAnsi => main::<lchansi::LchAnsi, palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
         }
     }
+
     /// Assign a color for the ColorSpace
     pub fn col(&self) -> AnsiColors {
         match self {
@@ -161,6 +151,7 @@ impl ColorSpace {
             Cs::LabMixed => AnsiColors::Green,
             Cs::Lch => AnsiColors::Magenta,
             Cs::LchMixed => AnsiColors::Magenta,
+            Cs::LchAnsi => AnsiColors::Cyan,
         }
     }
     /// automatic threshold
@@ -168,35 +159,61 @@ impl ColorSpace {
     pub fn def_threshold(&self) -> u8 {
         match self {
             Cs::Lab | Cs::LabMixed => 17,
-            Cs::Lch | Cs::LchMixed => 20,
+            Cs::Lch | Cs::LchMixed | Cs::LchAnsi => 20,
         }
     }
 }
 
-impl<T: ColorTrait> Deref for ColorHisto<T> {
+impl<T: ColorTrait> From<Histo<T>> for Myrgb {
+    fn from(h: Histo<T>) -> Self {
+        h.color.into()
+    }
+}
+
+impl From<Srgb<u8>> for Myrgb {
+    fn from(c: Srgb<u8>) -> Self {
+        Self(c.into_format())
+    }
+}
+
+impl From<Myrgb> for Srgb<u8> {
+    fn from(c: Myrgb) -> Self {
+        c.0.into_format()
+    }
+}
+
+impl<T: ColorTrait, U> Deref for ColorHisto<T, U> {
     type Target = Vec<Histo<T>>;
     fn deref(&self) -> &Vec<Histo<T>> { &self.0 }
 }
 
-impl<T: ColorTrait> DerefMut for ColorHisto<T> {
+impl<T: ColorTrait, U> DerefMut for ColorHisto<T, U> {
     fn deref_mut(&mut self) -> &mut Vec<Histo<T>> { &mut self.0 }
 }
 
-impl<T: ColorTrait> From<Vec<Histo<T>>> for ColorHisto<T> {
-    fn from(c: Vec<Histo<T>>) -> Self { Self(c) }
+impl<T: ColorTrait, U> From<Vec<Histo<T>>> for ColorHisto<T, U> {
+    fn from(c: Vec<Histo<T>>) -> Self { Self(c, PhantomData::<U>) }
 }
 
-impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Histo<T>> {
-    fn from(val: ColorHisto<T>) -> Self { val.0 }
+impl<T: ColorTrait, U> From<ColorHisto<T, U>> for Vec<Histo<T>> {
+    fn from(val: ColorHisto<T, U>) -> Self { val.0 }
 }
 
-impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Myrgb> {
-    fn from(c: ColorHisto<T>) -> Self { c.0.iter().map(|x| x.color.into()).collect() }
+impl<T: ColorTrait, U> From<ColorHisto<T, U>> for Vec<Myrgb> {
+    fn from(c: ColorHisto<T, U>) -> Self { c.0.iter().map(|x| x.color.into()).collect() }
 }
 
-impl<T: ColorTrait> From<ColorHisto<T>> for Vec<Srgb> {
-    fn from(c: ColorHisto<T>) -> Self { c.0.iter().map(|x| x.color.into_color()).collect() }
+//impl<T: ColorTrait, U> From<ColorHisto<T, U>> for Vec<palette::rgb::Rgb> {
+impl<T: ColorTrait, U> From<ColorHisto<T, U>> for Vec<Srgb> {
+    fn from(c: ColorHisto<T, U>) -> Self { c.0.iter().map(|x| x.color.into_color()).collect() }
 }
+
+// impl<T: ColorTrait, U> Into<Vec<palette::rgb::Rgb>> for ColorHisto<T, U> {
+//     fn into(self) -> Vec<Srgb> {
+//         self.iter().map(|x| x.color.into_color()).collect()
+//     }
+//     //fn from(c: ColorHisto<T, U>) -> Self { c.0.iter().map(|x| x.color.into_color()).collect() }
+// }
 
 /// Method to use for color difference (deltaE)
 pub trait Difference {
@@ -227,23 +244,18 @@ pub trait ColorTrait:
 /// Simple wrapper for a vector of histograms.
 /// Abstracts away vector/slices operations by using Deref and DerefMut traits.
 #[derive(Debug, Clone, PartialEq)]
-pub struct ColorHisto<T: ColorTrait>(Vec<Histo<T>>);
+pub struct ColorHisto<T: ColorTrait, U>(Vec<Histo<T>>, PhantomData<U>);
 
 /// This trait is for creating a new `ColorHisto` type.
 /// The Self parameter should always be a wrapper like Color Histo.
 /// The main logic of how these methods are used are in `main()`
 pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Self::Color>>> {
+//pub trait BuildColors {
     /// Colorspace to be used
     type Color: ColorTrait;
 
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
-    fn read(bytes: &[u8]) -> Vec<Self::Color> {
-        let s: &[Srgb<u8>] = bytes.components_as();
-        s
-            .iter()
-            .map(|x| x.into_linear().into_color())
-            .collect::<Vec<Self::Color>>()
-    }
+    fn read(bytes: &[u8]) -> Vec<Self::Color> { read(bytes) }
 
     /// What colors to avoid before adding. e.g. too dark/light
     fn filter_cols(a: Self::Color) -> bool;
@@ -314,10 +326,10 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
 /// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
-pub fn main<T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
+pub fn main<U, T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
     -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
 where
-    ColorHisto<T>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
+    ColorHisto<T, U>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
 {
     // This is to indicate if there were any warnings, since we can't print them directly
     let mut warn = false;
@@ -414,7 +426,7 @@ where
     let histo = histo.sort_col(ord);
 
     Ok(
-        ((histo.into(), orig_histo.into()), warn)
+        ((histo.into(), ColorHisto(orig_histo, PhantomData::<lab::Lab>).into()), warn)
     )
 }
 
@@ -435,6 +447,7 @@ impl fmt::Display for Cs {
             Cs::LabMixed => write!(f, "LabMixed"),
             Cs::Lch => write!(f, "Lch"),
             Cs::LchMixed => write!(f, "LchMixed"),
+            Cs::LchAnsi => write!(f, "LchAnsi"),
         }
     }
 }
@@ -462,4 +475,75 @@ fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
         color_a.complementary(),
         color_b.complementary(),
     ]
+}
+
+
+/* generic impl */
+
+
+/// Function that read the image rgb8 bytes and converts them into it's colorspace
+fn read<T: ColorTrait>(bytes: &[u8]) -> Vec<T> {
+    let s: &[Srgb<u8>] = bytes.components_as();
+    s
+        .iter()
+        .map(|x| x.into_linear().into_color())
+        .collect::<Vec<T>>()
+}
+
+
+
+/// This function is used when the colors gathered by new_colors are not enough.
+/// See .gen()
+/// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
+/// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
+/// This was called 'new_colors()' (generates a new Vec of Histograms)
+fn color_generator<T: ColorTrait, U>(histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
+    where ColorHisto<T, U>: BuildColors<Color = T>,
+{
+    let mut new_cols = vec![];
+    // try to generate new colors with interpolation in between the already gathered colors
+    for comb in histo.iter().combinations(2) {
+        let color_a: Srgb = comb[0].color.into_color();
+        let color_b: Srgb = comb[1].color.into_color();
+
+        let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
+            .iter().map(|&x| x.into_color()).collect();
+
+        //similar to how it's done at the start of `lab()`
+        // save the new colors, or discard them if similar enough
+        // no more color mixing, we don't have much colors left.
+        new_cols.append(&mut gather_cols(rgbs, threshold, false).to_vec());
+
+        let len = histo.len() + new_cols.len();
+
+        if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+    }
+
+    new_cols
+}
+
+/// This is a generic way of creating a histogram.
+fn gather_cols<T: ColorTrait, U>(colors: Vec<T>, threshold: u8, mix: bool) -> ColorHisto<T, U>
+    where ColorHisto<T, U>: BuildColors<Color = T>,
+{
+    let mut histogram: Vec<Histo<T>> = vec![];
+
+    'outter: for c in colors {
+        if ColorHisto::filter_cols(c) {
+            // Check if whether the color is new or is already in the vec
+            for hist in &mut histogram {
+                // if any color is between a threshold, count it up
+                if c.col_diff(&hist.color, threshold) {
+                    if mix { hist.color = hist.color.mix(c, 0.5); }
+                    hist.count += 1;
+                    continue 'outter;
+                }
+            }
+            // if we reach here, the color hasn't been found in the histrogram,
+            // so we found a new color.
+            histogram.push(Histo { color: c, count: 1 });
+        }
+    }
+
+    histogram.into()
 }
