@@ -43,6 +43,8 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
 
         let avg = |i: &[f32]| i.iter().sum::<f32>() / i.len() as f32;
 
+
+        //TODO check lightness to not be black or white
         let col = |range: &std::ops::Range<f32>| -> Histo<Self::Color> {
             let mut hues = vec![];
             let mut lights = vec![];
@@ -64,16 +66,34 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
             }
 
             let fallback = avg(&f);
-            println!("{fallback:?}");
+            //println!("{fallback:?}");
 
             //artificially make "redish"
-            if hues.is_empty() { hues.push(fallback); }
-            if lights.is_empty() { hues.push(50.0); }
-            if chromes.is_empty() { hues.push(128.0); }
+            let hue   = if hues.is_empty() { fallback } else { avg(&hues) };
 
-            let c   = avg(&chromes);
-            let l   = avg(&lights);
-            let hue = avg(&hues);
+            let c     = if chromes.is_empty() { 128.0 } else {
+                let a = avg(&chromes);
+                if a <= 64.0 {
+                    a + 30.0
+                } else if a > 120.0 {
+                    a - 60.0
+                } else {
+                    a
+                }
+            };
+
+            let     l = if lights.is_empty() { 80.0 } else {
+                let a = avg(&lights);
+                if a <= 10.0 {
+                    a + 30.0
+                } else if a > 90.0 {
+                    a - 30.0
+                } else {
+                    a
+                }
+            };
+
+            //println!("L {l} | c {c} | h {hue}");
 
             Histo { color: Spec::new(l, c, LabHue::new(hue)), count: 10000 }
         };
@@ -103,7 +123,7 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
             //histogram.push( Histo { color: Spec::new(80.0, 128.0, LabHue::new(red)), count: 10000 } );
         ];
 
-        println!("{histogram:#?}");
+        //println!("{histogram:#?}");
 
         histogram.into()
     }
