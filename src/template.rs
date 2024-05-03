@@ -85,7 +85,7 @@ fn minijinja_err_chain(err: minijinja::Error) -> String {
 // Then create env or the hasmap as an option, and `.expect` to open it an pass it as file_render():
 // 1. If it's None, it will never reach expect.
 // 2. If it's Some, it will always be true an a valid value.
-pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &TemplateFields) -> Result<(), String> {
+pub fn file_render(env: &mut Environment, file: &Path, target_path: &Path, pywal: bool, values: &TemplateFields) -> Result<(), String> {
     let filename = file.display();
     let filename = filename.italic();
 
@@ -101,9 +101,15 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
 
     // Template/render the file_contents
     let rendered = if ! pywal {
-        let env = jinja_env(values.alpha);
+        jinja_update_alpha(env, values.alpha);
         let name = file.display().to_string();
         let v = minijinja::Value::from(values);
+
+        //env.add_template(&name, &file_content);
+        // env.add_template_owned(name, file_content).map_err(minijinja_err_chain)?;
+        //
+        // let t = env.get_template(&file.display().to_string()).map_err(minijinja_err_chain)?;
+        // t.render(v)
 
         env.render_named_str(&name, &file_content, v)
             .map_err(minijinja_err_chain)?
@@ -125,8 +131,15 @@ pub fn file_render(file: &Path, target_path: &Path, pywal: bool, values: &Templa
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
 pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fields>, values: &TemplateFields, quiet: bool) -> Result<()> {
+
+    let mut jinjaenv = jinja_env();
+    //XXX loader makes avaliable the (easy) use of `import` and such
+    jinjaenv.set_loader(minijinja::path_loader(config_dir));
+
+
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated(?) file to entry.path
+
     for (name, fields) in templates_header {
         // facilitates strings printing
         let name = name.bold();
@@ -146,7 +159,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
         if !path.is_dir() { // normal file
             if ! quiet { println!("  * Templated {name} to '{target}'"); }
-            if let Err(err) = file_render(&path, target_path, pywal, values) {
+            if let Err(err) = file_render(&mut jinjaenv, &path, target_path, pywal, values) {
                 eprintln!("[{warn}] {name}: {err}");
                 continue;
             }
@@ -162,7 +175,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
                 if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display(), target = target_path.display().italic()); }
 
-                if let Err(err) = file_render(&path.join(f), &target_path, pywal, values) {
+                if let Err(err) = file_render(&mut jinjaenv, &path.join(f), &target_path, pywal, values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
@@ -186,7 +199,7 @@ fn parse_srgba(s: &str) -> Result<Srgba<u8>, minijinja::Error> {
         .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{e}")))
 }
 
-pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
+pub fn jinja_env<'a>() -> Environment<'a> {
         use minijinja::Error;
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
@@ -243,7 +256,7 @@ pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
                             match rgb1 {
                                 Ok(o1) => {
                                     // SHOULD BE RRGGBB
-                                    let new = crate::colors::blend((*oa).into_format().into(), o1.into_format());
+                                    let new = crate::colors::blend((*oa).into_format::<f32>().into(), o1.into_format());
                                     let (r, g, b) = new.into_format::<u8>().into_components();
                                     format!("#{r:02X}{g:02X}{b:02X}")
                                 },
@@ -251,7 +264,7 @@ pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
                                     match rgba1 {
                                         Ok(o1a) => {
                                             // final output SHOULD BE RRGGBBAA
-                                            let new = crate::colors::blend_alpha(oa.into_format().into(), o1a.into_format());
+                                            let new = crate::colors::blend_alpha(oa.into_format::<f32, f32>().into(), o1a.into_format());
                                             let (r, g, b, a) = new.into_format::<u8, u8>().into_components();
                                             format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
                                         },
@@ -425,13 +438,16 @@ pub fn jinja_env<'a>(alpha: u8) -> Environment<'a> {
         }
         env.add_filter("alpha_hexa", hexa_for_alpha);
 
-        let hexa = move |value: ViaDeserialize<Myrgb>| -> String {
-            let a = alpha_hexa(alpha as usize).expect("number from 0..=100 validated by clap");
-            Myrgb::hexa(&value, &a)
-        };
-        env.add_filter("hexa", hexa);
-
         env
+}
+
+fn jinja_update_alpha(env: &mut Environment, alpha: u8) {
+    env.remove_filter("hexa");
+    let hexa = move |value: ViaDeserialize<Myrgb>| -> String {
+        let a = alpha_hexa(alpha as usize).expect("number from 0..=100 validated by clap");
+        Myrgb::hexa(&value, &a)
+    };
+    env.add_filter("hexa", hexa);
 }
 
 impl From<&TemplateFields<'_>> for minijinja::Value {

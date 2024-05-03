@@ -31,7 +31,6 @@ num-traits = "0.2"
 kmeans_colors = { version = "0.6.0", default-features = false, features = ["palette_color"] }
 palette = { version = "0.7", default-features = false }
 regex = "1.10"
-minijinja = "2.0"
 
 # replacement for fs::canonalize but handles way better windows paths
 dunce = "1.0.4"
@@ -41,6 +40,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 # optionals
 documented = { version = "0.3.0", optional = true }
+minijinja  = { version = "2.0", features = ["loader"] }
 fastrand  = { version = "2.0", optional = true }
 strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
