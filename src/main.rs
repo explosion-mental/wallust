@@ -114,8 +114,8 @@ Cache path: {}
             let mut doc = contents.parse::<DocumentMut>()?;
 
             // true means quit
-            let entryflag;
-            let templateflag;
+            let entry_is_empty;
+            let template_is_empty;
 
             match doc.get("entry") {
                 Some(entries) => {
@@ -126,7 +126,7 @@ Cache path: {}
                             return Ok(());
                         },
                     };
-                    entryflag = false;
+                    entry_is_empty = false;
                     for (i, e) in entries.clone().into_iter().enumerate() {
                         let name = &format!("migrated{}", i + 1);
                         doc["templates"][name]["src"] = e["template"].clone();
@@ -141,13 +141,13 @@ Cache path: {}
                         }
                     }
                 },
-                None => entryflag = true,
+                None => entry_is_empty = true,
             }
 
             match doc.get_mut("templates") {
                 Some(templates) => {
 
-                    templateflag = false;
+                    template_is_empty = false;
 
                     let fields = match templates.as_table_mut() {
                         Some(s) => s,
@@ -171,12 +171,12 @@ Cache path: {}
                     // inline is shorter :3 (refactor all added templates as inline)
                     if let Some(t) = templates.as_inline_table_mut() { t.fmt() }
                 },
-                None => templateflag = true,
+                None => template_is_empty = true,
             }
 
-            let filterflag = doc.get("filter").is_none();
+            let filter_is_empty = doc.get("filter").is_none();
 
-            if entryflag && filterflag && templateflag {
+            if (entry_is_empty || filter_is_empty) || template_is_empty {
                 println!("Config format Ok.\nIf you wish to define templates read `man wallust.5` for the config spec.");
                 return Ok(());
             }
@@ -186,7 +186,7 @@ Cache path: {}
             // hacky stuff: remove entry by being an empty array and rename palette by replace method
             doc.remove("entry");
             let new = doc.to_string();
-            let new = if !filterflag { new.replace("filter", "palette") } else { new };
+            let new = if !filter_is_empty { new.replace("filter", "palette") } else { new };
 
             // renaeme the original config
             std::fs::rename(&file, &old)?;
