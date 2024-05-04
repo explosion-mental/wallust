@@ -99,7 +99,7 @@ Cache path: {}
             );
         },
         args::Subcmds::Migrate => {
-            use toml_edit::{Document, value};
+            use toml_edit::{DocumentMut, value};
 
             let dir  = original_config_path.join("wallust");
             let file = dir.join("wallust.toml");
@@ -111,7 +111,7 @@ Cache path: {}
             }
 
             let contents = std::fs::read_to_string(&file)?;
-            let mut doc = contents.parse::<Document>()?;
+            let mut doc = contents.parse::<DocumentMut>()?;
 
             // true means quit
             let entryflag;
