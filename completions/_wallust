@@ -63,11 +63,13 @@ kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, R
 '-c+[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"))' \
+lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchansi\:""))' \
 '--colorspace=[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"))' \
+lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchansi\:""))' \
 '-f+[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
 complementary\:"uses \[\`complementary\`\]"))' \
 '--fallback-generator=[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
@@ -125,6 +127,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
 '--no-cache[Don'\''t cache the results]' \
+'--dynamic-threshold[Dynamically changes the threshold to be best fit]' \
 '-w[Generates colors even if there is a cache version of it]' \
 '--overwrite-cache[Generates colors even if there is a cache version of it]' \
 '-q[Don'\''t print anything]' \

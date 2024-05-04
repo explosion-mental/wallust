@@ -69,6 +69,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --check-contrast 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)'
             cand -n 'Don''t cache the results'
             cand --no-cache 'Don''t cache the results'
+            cand --dynamic-threshold 'Dynamically changes the threshold to be best fit'
             cand -w 'Generates colors even if there is a cache version of it'
             cand --overwrite-cache 'Generates colors even if there is a cache version of it'
             cand -q 'Don''t print anything'

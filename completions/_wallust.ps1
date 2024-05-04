@@ -73,6 +73,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--check-contrast', 'check-contrast', [CompletionResultType]::ParameterName, 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)')
             [CompletionResult]::new('-n', 'n', [CompletionResultType]::ParameterName, 'Don''t cache the results')
             [CompletionResult]::new('--no-cache', 'no-cache', [CompletionResultType]::ParameterName, 'Don''t cache the results')
+            [CompletionResult]::new('--dynamic-threshold', 'dynamic-threshold', [CompletionResultType]::ParameterName, 'Dynamically changes the threshold to be best fit')
             [CompletionResult]::new('-w', 'w', [CompletionResultType]::ParameterName, 'Generates colors even if there is a cache version of it')
             [CompletionResult]::new('--overwrite-cache', 'overwrite-cache', [CompletionResultType]::ParameterName, 'Generates colors even if there is a cache version of it')
             [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Don''t print anything')

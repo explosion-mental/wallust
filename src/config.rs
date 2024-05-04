@@ -14,6 +14,8 @@ use owo_colors::{AnsiColors, OwoColorize};
 use serde::Deserialize;
 
 /// Representation of the toml config file `wallust.toml`
+///
+/// Maybe divide into `Internal` and `TomlConfig`.
 #[derive(Debug, Deserialize, Default)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 pub struct Config {
@@ -46,9 +48,13 @@ pub struct Config {
     // dunst.dst = '~/.config/dunst'
     // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
     pub templates: Option<HashMap<String, Fields>>,
-    /// toml table with template and config target (optional)
+    /// Allows to change the path of the templates
+    ///  default: "~/.config/wallust/templates/"
+    //pub templates_dir: PathBuf,
+
+    #[deprecated]
+    /// TOML: array of tables for "template" and "target"
     /// This is here only for `wallust migrate`
-    // and is an array of tables btw..
     pub entry: Option<Vec<Entries>>,
 
     /// Config directory (wallust/) path
@@ -59,7 +65,7 @@ pub struct Config {
     #[serde(skip)]
     pub file: PathBuf,
 
-    /* TRUE VALUES */
+    /* TRUE VALUES , used internally */
 
     /// True threshold gathered from threshold.
     #[serde(skip)]

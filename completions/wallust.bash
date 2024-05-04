@@ -313,7 +313,7 @@ _wallust() {
             return 0
             ;;
         wallust__run)
-            opts="-a -b -c -f -k -n -p -t -w -i -q -s -T -u -C -d -N -h --alpha --backend --colorspace --fallback-generator --check-contrast --no-cache --palette --saturation --threshold --overwrite-cache --ignore-sequence --quiet --skip-sequences --skip-templates --update-current --config-file --config-dir --no-config --help <FILE>"
+            opts="-a -b -c -f -k -n -p -t -w -i -q -s -T -u -C -d -N -h --alpha --backend --colorspace --fallback-generator --check-contrast --no-cache --palette --saturation --threshold --dynamic-threshold --overwrite-cache --ignore-sequence --quiet --skip-sequences --skip-templates --update-current --config-file --config-dir --no-config --help <FILE>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -336,11 +336,11 @@ _wallust() {
                     return 0
                     ;;
                 --colorspace)
-                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed lchansi" -- "${cur}"))
                     return 0
                     ;;
                 -c)
-                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed lchansi" -- "${cur}"))
                     return 0
                     ;;
                 --fallback-generator)

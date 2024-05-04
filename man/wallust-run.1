@@ -8,7 +8,7 @@ wallust\-run \- Generate a palette from an image
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH SYNOPSIS
-\fBwallust\-run\fR [\fB\-a\fR|\fB\-\-alpha\fR] [\fB\-b\fR|\fB\-\-backend\fR] [\fB\-c\fR|\fB\-\-colorspace\fR] [\fB\-f\fR|\fB\-\-fallback\-generator\fR] [\fB\-k\fR|\fB\-\-check\-contrast\fR] [\fB\-n\fR|\fB\-\-no\-cache\fR] [\fB\-p\fR|\fB\-\-palette\fR] [\fB\-\-saturation\fR] [\fB\-t\fR|\fB\-\-threshold\fR] [\fB\-w\fR|\fB\-\-overwrite\-cache\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
+\fBwallust\-run\fR [\fB\-a\fR|\fB\-\-alpha\fR] [\fB\-b\fR|\fB\-\-backend\fR] [\fB\-c\fR|\fB\-\-colorspace\fR] [\fB\-f\fR|\fB\-\-fallback\-generator\fR] [\fB\-k\fR|\fB\-\-check\-contrast\fR] [\fB\-n\fR|\fB\-\-no\-cache\fR] [\fB\-p\fR|\fB\-\-palette\fR] [\fB\-\-saturation\fR] [\fB\-t\fR|\fB\-\-threshold\fR] [\fB\-\-dynamic\-threshold\fR] [\fB\-w\fR|\fB\-\-overwrite\-cache\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH OPTIONS
@@ -52,6 +52,8 @@ labmixed: Variant of `lab` that mixes the colors gathered, if not enough colors 
 lch: CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting
 .IP \(bu 2
 lchmixed: CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting
+.IP \(bu 2
+lchansi
 .RE
 .TP
 \fB\-f\fR, \fB\-\-fallback\-generator\fR=\fIFALLBACK_GENERATOR\fR
@@ -127,6 +129,9 @@ Add saturation from 1% to 100% (overwrites config)
 .TP
 \fB\-t\fR, \fB\-\-threshold\fR=\fITHRESHOLD\fR
 Choose a custom threshold, between 1 and 100 (overwrites config)
+.TP
+\fB\-\-dynamic\-threshold\fR
+Dynamically changes the threshold to be best fit
 .TP
 \fB\-w\fR, \fB\-\-overwrite\-cache\fR
 Generates colors even if there is a cache version of it

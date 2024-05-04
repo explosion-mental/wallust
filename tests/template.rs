@@ -51,7 +51,7 @@ fn jinja(content: &str) -> String {
         colors: &mycols(),
     };
     let v = minijinja::Value::from(Tfields);
-    jinja_env(Tfields.alpha).render_named_str("sample", content, v).unwrap()
+    jinja_env().render_named_str("sample", content, v).unwrap()
 }
 
 /// Test template variables: `{color0}` - `{color15}`, bg, fg, cursor and wallpaper
