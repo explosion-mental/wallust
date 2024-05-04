@@ -276,50 +276,12 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
     /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
     /// This was called 'new_colors()' (generates a new Vec of Histograms)
     fn color_generator(histo: &[Histo<Self::Color>], threshold: u8, gen: &G) -> Vec<Histo<Self::Color>> {
-        let mut new_cols = vec![];
-        // try to generate new colors with interpolation in between the already gathered colors
-        for comb in histo.iter().combinations(2) {
-            let color_a: Srgb = comb[0].color.into_color();
-            let color_b: Srgb = comb[1].color.into_color();
-
-            let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
-                .iter().map(|&x| x.into_color()).collect();
-
-            //similar to how it's done at the start of `lab()`
-            // save the new colors, or discard them if similar enough
-            // no more color mixing, we don't have much colors left.
-            new_cols.append(&mut Self::gather_cols(rgbs, threshold, false).to_vec());
-
-            let len = histo.len() + new_cols.len();
-
-            if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
-        }
-
-        new_cols
+        color_generator::<Self::Color, Self>(histo, threshold, gen)
     }
 
     /// This is a generic way of creating a histogram.
     fn gather_cols(colors: Vec<Self::Color>, threshold: u8, mix: bool) -> Self {
-        let mut histogram: Vec<Histo<Self::Color>> = vec![];
-
-        'outter: for c in colors {
-            if Self::filter_cols(c) {
-                // Check if whether the color is new or is already in the vec
-                for hist in &mut histogram {
-                    // if any color is between a threshold, count it up
-                    if c.col_diff(&hist.color, threshold) {
-                        if mix { hist.color = hist.color.mix(c, 0.5); }
-                        hist.count += 1;
-                        continue 'outter;
-                    }
-                }
-                // if we reach here, the color hasn't been found in the histrogram,
-                // so we found a new color.
-                histogram.push(Histo { color: c, count: 1 });
-            }
-        }
-
-        histogram.into()
+        gather_cols(colors, threshold, mix)
     }
 }
 
@@ -497,8 +459,7 @@ fn read<T: ColorTrait>(bytes: &[u8]) -> Vec<T> {
 /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
 /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
 /// This was called 'new_colors()' (generates a new Vec of Histograms)
-fn color_generator<T: ColorTrait, U>(histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
-    where ColorHisto<T, U>: BuildColors<Color = T>,
+fn color_generator<T: ColorTrait, U: BuildColors<Color = T>> (histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
 {
     let mut new_cols = vec![];
     // try to generate new colors with interpolation in between the already gathered colors
@@ -512,7 +473,7 @@ fn color_generator<T: ColorTrait, U>(histo: &[Histo<T>], threshold: u8, gen: &G)
         //similar to how it's done at the start of `lab()`
         // save the new colors, or discard them if similar enough
         // no more color mixing, we don't have much colors left.
-        new_cols.append(&mut gather_cols(rgbs, threshold, false).to_vec());
+        new_cols.append(&mut gather_cols::<T, U>(rgbs, threshold, false).to_vec());
 
         let len = histo.len() + new_cols.len();
 
@@ -523,13 +484,12 @@ fn color_generator<T: ColorTrait, U>(histo: &[Histo<T>], threshold: u8, gen: &G)
 }
 
 /// This is a generic way of creating a histogram.
-fn gather_cols<T: ColorTrait, U>(colors: Vec<T>, threshold: u8, mix: bool) -> ColorHisto<T, U>
-    where ColorHisto<T, U>: BuildColors<Color = T>,
+fn gather_cols<T: ColorTrait, U: BuildColors<Color = T>>(colors: Vec<T>, threshold: u8, mix: bool) -> U
 {
     let mut histogram: Vec<Histo<T>> = vec![];
 
     'outter: for c in colors {
-        if ColorHisto::filter_cols(c) {
+        if U::filter_cols(c) {
             // Check if whether the color is new or is already in the vec
             for hist in &mut histogram {
                 // if any color is between a threshold, count it up
