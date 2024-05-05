@@ -14,7 +14,7 @@ use palette::cast::AsComponents;
 use crate::backends::*;
 use std::process::Command;
 use std::str;
-use palette::Srgb;
+use palette::{Srgb, Srgba};
 
 /// use Image Magick to get colors
 pub fn wal(f: &Path) -> Result<Vec<u8>> {
@@ -36,7 +36,8 @@ Make sure to have it installed if you wish to use this backend, else try another
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(2);
         let hex = s.next().expect("Should always be present e.g. #EEEEEE");
-        cols.push(hex.parse()?);
+        let hex : Srgb<u8> = *hex.parse::<Srgba<u8>>()?.into_format::<u8, u8>();
+        cols.push(hex);
     }
 
     Ok(cols.as_components().to_vec())
