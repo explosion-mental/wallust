@@ -68,7 +68,7 @@ fn main() -> Result<()> {
             // read_scheme or try_all_schemes
             let colors = match format {
                 Some(s) => themes::read_scheme(&file, &s)?,
-                None => themes::try_all_schemes(&file)?,
+                None => themes::try_all_schemes(&file, quiet)?,
             };
 
             if ! quiet { colors.print(); }

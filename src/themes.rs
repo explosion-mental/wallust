@@ -97,7 +97,7 @@ fn deser_scheme(contents: &str, format: &Schemes) -> Result<Colors> {
 use owo_colors::{OwoColorize, AnsiColors};
 
 /// Try all possible [`Schemes`] for the file
-pub fn try_all_schemes(file: &Path) -> Result<Colors> {
+pub fn try_all_schemes(file: &Path, quiet: bool) -> Result<Colors> {
     let info = "I".blue().bold().to_string();
     let cs = "colorscheme format".magenta().bold().to_string();
 
@@ -112,7 +112,7 @@ pub fn try_all_schemes(file: &Path) -> Result<Colors> {
     for i in &a {
         match deser_scheme(&contents, i) {
             Ok(o) => {
-                println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col()));
+                if ! quiet { println!("[{info}] {cs}: Using {}", i.to_string().to_ascii_lowercase().color(i.col())); }
                 return Ok(o);
             },
             Err(_) => { continue; },
