@@ -5,8 +5,8 @@
 //! ## Sample output of `convert` is like the following:
 //! ```txt
 //!   0,0: (92,64,54)  #5C4036  srgb(36.1282%,25.1188%,21.1559%)
-//!   skip   skip         ^
-//!                we care bout this one
+//!   skip      ^
+//       we care bout this one
 //! ```
 use anyhow::Context;
 use palette::cast::AsComponents;
@@ -33,10 +33,20 @@ Make sure to have it installed if you wish to use this backend, else try another
 
     let mut cols: Vec<Srgb<u8>> = Vec::with_capacity(16); // there will be no more than 16 colors
 
+    println!("\n\n\n");
+    println!("HEY {}", str::from_utf8(&im.stdout).unwrap());
+
     for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
-        let mut s = line.split_ascii_whitespace().skip(2);
-        let hex = s.next().expect("Should always be present e.g. #EEEEEE");
-        let hex : Srgb<u8> = *hex.parse::<Srgba<u8>>()?.into_format::<u8, u8>();
+        let mut s = line.split_ascii_whitespace().skip(1);
+        let hex = s.next().expect("Should always be present e.g. (0,0,0)");
+        println!("{hex}");
+        //let hex : Srgb<u8> = *hex.parse::<Srgba<u8>>()?.into_format::<u8, u8>();
+        let hex = &hex[1..hex.len() - 1];
+        let rgbs: Vec<u8> = hex
+                                .split(',')
+                                .map(|x| x.parse::<u8>().expect("Should be a number"))
+                                .collect();
+        let hex = Srgb::new(rgbs[0], rgbs[1], rgbs[2]);
         cols.push(hex);
     }
 
