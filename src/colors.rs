@@ -7,8 +7,9 @@ use std::path::Path;
 
 use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
-use palette::{convert::FromColorUnclamped, GetHue};
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use palette::color_theory::Complementary;
+use palette::convert::FromColorUnclamped;
 use palette::{Hsv, Srgb, IntoColor, ShiftHue};
 
 use crate::args::Sequences;
@@ -99,6 +100,7 @@ where
 {
     fn complementary(self) -> Self {
         let hsv: Hsv = self.into_color();
+        let hsv = hsv.complementary();
         hsv.shift_hue(180.0).into_color()
     }
 }
@@ -269,34 +271,12 @@ impl Myrgb {
     }
 
     /// Get the complementary color of a color.
-    /// Rather than doing something generic like
-    /// <https://stackoverflow.com/questions/9577590/formula-to-find-the-split-complementaries-of-a-color#12014465>
-    /// I decided to go to the exact oposite.
-    /// # Reminder, Hue value from HSV:
-    /// Red     falls between 0   and 60  degrees.
-    /// Yellow  falls between 61  and 120 degrees.
-    /// Green   falls between 121 and 180 degrees.
-    /// Cyan    falls between 181 and 240 degrees.
-    /// Blue    falls between 241 and 300 degrees.
-    /// Magenta falls between 301 and 360 degrees.
+    /// Ref:
+    /// https://docs.rs/palette/latest/palette/color_theory/trait.Complementary.html
     pub fn complementary(&self) -> Self {
-        //initial
         let hsv: Hsv = self.0.into_color();
-
-        // saturate is not implemented for rgb
-        let check = hsv.get_hue().into_positive_degrees() as u32;
-        let sum = match check {
-            0..=60    => 180,
-            61..=120  => 240,
-            121..=180 => 180,
-            181..=240 => -240,
-            241..=300 => -420,
-            301..=360 => -540,
-            _ => 180,
-        };
-
-        let rgb: Srgb<f32> = hsv.shift_hue(sum as f32).into_color();
-
+        let hsv = hsv.complementary();
+        let rgb: Srgb = hsv.into_color();
         Self(rgb)
     }
 }
