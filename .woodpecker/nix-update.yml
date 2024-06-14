@@ -5,5 +5,5 @@ when:
 steps:
   update-flake:
     image: nixos/nix
-  commands:
-    - nix flake update
+    commands:
+      - nix flake update
