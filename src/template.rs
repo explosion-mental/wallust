@@ -438,6 +438,18 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         }
         env.add_filter("alpha_hexa", hexa_for_alpha);
 
+        use std::path::PathBuf;
+
+        /// converts alpha value into a hexadecimal one.
+        fn basename(p: ViaDeserialize<PathBuf>) -> Result<String, minijinja::Error> {
+            let name = p.file_name();
+            match name {
+                None => Err(minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, "Cannot get basename")),
+                Some(s) => Ok(s.to_string_lossy().to_string()),
+            }
+        }
+        env.add_filter("basename", basename);
+
         env
 }
 
