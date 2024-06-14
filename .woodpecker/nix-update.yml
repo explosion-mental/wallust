@@ -1,0 +1,9 @@
+when:
+  - event: cron
+    cron: flake-lock-update
+
+steps:
+  update-flake:
+    image: nixos/nix
+  commands:
+    - nix flake update
