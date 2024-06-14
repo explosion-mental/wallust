@@ -252,8 +252,8 @@ impl Myrgb {
 
     /// Convert a hex color to a special sequence.
     /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
-    fn set_special(&self, index: u32, iterm_name: &str) -> String {
-        sequences::set_special(&self.0, index, iterm_name)
+    fn set_special(&self, index: u32) -> String {
+        sequences::set_special(&self.0, index)
     }
 
     /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)
@@ -521,25 +521,25 @@ impl Colors {
         let bg = [
             // special colors, see above the fn
             //backgroud is between 16..=20
-            c.background.set_special(11, "h"),
-            c.background.set_special(19, "m"),
+            c.background.set_special(11),
+            c.background.set_special(19),
             c.background.set_color(232),
             c.background.set_color(257),
-            c.background.set_special(708, ""),
+            c.background.set_special(708),
         ];
 
 
         let fg = [
             //foreground is between 21..=23
-            c.foreground.set_special(10, "g"),
-            c.foreground.set_special(17, "k"),
+            c.foreground.set_special(10),
+            c.foreground.set_special(17),
             c.foreground.set_color(256),
         ];
 
         let cursor = [
             //cursor is between 24..=len()
-            c.foreground.set_special(12, "l"), //cursor
-            c.foreground.set_special(13, "j"), //mouse
+            c.foreground.set_special(12), //cursor
+            c.foreground.set_special(13), //mouse
         ];
 
         let arr;

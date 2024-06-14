@@ -17,19 +17,12 @@ use crate::args::Sequences;
 pub fn set_color(color: &Srgb, index: u32) -> String {
     let s = color.strsrgb();
 
-    if cfg!(target_os = "macos") && index < 20 {
-        return format!("\x1B]P%1x{s}\x1B\\");
-    }
-
     format!("\x1B]4;{index};{s}\x1B\\")
 }
 
 /// Convert a hex color to a special sequence.
 /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
-pub fn set_special(color: &Srgb, index: u32, iterm_name: &str) -> String {
-    if cfg!(target_os = "macos") && !iterm_name.is_empty() {
-        return format!("\x1B]P{iterm_name}{}\x1B\\", color.striped());
-    }
+pub fn set_special(color: &Srgb, index: u32) -> String {
 
     // if (11..=708).contains(&index) && alpha != 100 {
     //     return format!("\x1B]{index};[{alpha}]{self}\x1B\\");
