@@ -1,0 +1,8 @@
+
+steps:
+  cargo_clippy:
+    image: "rust:1.78"
+    commands:
+      - rustup component add clippy
+      - cargo clippy --all-targets --features console -- -D warnings
+    when: pull_request
