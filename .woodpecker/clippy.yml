@@ -4,4 +4,5 @@ steps:
     commands:
       - rustup component add clippy
       - cargo clippy --all-targets -- -D warnings
-    when: pull_request
+    when:
+      - event: pull_request
