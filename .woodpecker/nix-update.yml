@@ -1,9 +1,40 @@
+environment:
+  UPDATE_FLAKES_GIT_MSG: "[CI] Update flakes.nix"
+  UPDATE_FLAKES_GIT_MSG_BODY: "This Pull Request was made automatically by Woodpecker-CI, please check `.woodpecker/nix-update.yml`."
+  UPDATE_FLAKES_GIT_BRANCH: update-flakes
+
 when:
   - event: cron
     cron: flake-lock-update
 
 steps:
-  update-flake:
+  update:
     image: nixos/nix
+    # supposedly only nix update is needed
     commands:
-    - nix flake update
+      - export REPO_URL="https://$${CI_REPO_OWNER}:$${TOKEN}@codeberg.org/$${CI_REPO_OWNER}/$${CI_REPO_NAME}.git"
+      - git config --global user.email "woodpecker-ci@noreply.org"
+      - git config --global user.name "Woodpecker-CI"
+      - git remote set-url origin "$${REPO_URL}"
+      - nix flake update
+      - if git status | grep -q modified; then git add . && git commit -m $${UPDATE_FLAKES_GIT_MSG} && git push --force origin dev:$${UPDATE_FLAKES_GIT_BRANCH}; fi
+    secrets: [ TOKEN ]
+
+  flakes-pr:
+    image: johnwalkerx/gitea-pull-request-create-plugin:latest
+    pull: true
+    settings:
+      gitea_address: https://codeberg.org
+      gitea_token:
+        from_secret: token
+      owner: ${CI_REPO_OWNER}
+      repo: ${CI_REPO_NAME}
+      branch: flake-lock-update
+      base_branch: dev
+      pr_title: ${UPDATE_FLAKES_GIT_MSG}
+      pr_body: ${UPDATE_FLAKES_GIT_MSG_BODY}
+      skip_on_missing_branch: true
+      close_pr_if_empty: true
+      delete_branch_if_pr_empty: true
+      merge_when_checks_succeed: false
+      delete_branch_after_merge: true
