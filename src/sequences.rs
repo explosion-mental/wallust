@@ -32,15 +32,14 @@ pub fn set_special(color: &Srgb, index: u32) -> String {
 }
 
 /// Set iTerm2 tab/window color
-/// `\a` is BELL in octal escape byte, `\x07` in hex
 #[cfg(target_os = "macos")]
 fn set_iterm_tab_color(c: &Colors) -> String {
-    let col = c.background.rgb();
+    let col = c.background;
     format!(
-"\x1B]6;1;bg;red;brightness;{col}\x07\\\
-\x1B]6;1;bg;green;brightness;{col}\x07\\\
-\x1B]6;1;bg;blue;brightness;{col}\x07\\\
-"
+"\x1B]6;1;bg;red;brightness;{}\x1B\\\
+\x1B]6;1;bg;green;brightness;{}\x1B\\\
+\x1B]6;1;bg;blue;brightness;{}\x1B\\\
+", col.red(), col.green(), col.blue()
     )
 }
 
