@@ -2,7 +2,7 @@ when:
   - branch: [ dev, master ]
 
 steps:
-  clippy:
+  cargo_check:
     image: rust:1.78
     # A simple check ensures a compilation
     # XXX While there could have been a clippy here,
