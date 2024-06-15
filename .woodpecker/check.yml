@@ -1,0 +1,8 @@
+steps:
+  clippy:
+    image: rust:1.78
+    # A simple check ensures a compilation
+    # XXX While there could have been a clippy here,
+    #     my main concern is whether it builds or not.
+    commands:
+    - cargo check --all-targets

@@ -6,4 +6,4 @@ steps:
   update-flake:
     image: nixos/nix
     commands:
-      - nix flake update
+    - nix flake update
