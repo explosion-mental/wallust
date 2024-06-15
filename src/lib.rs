@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+#![allow(clippy::useless_conversion)]
 //! wallust - Generate a colorscheme based on an image
 pub mod args;
 pub mod backends;

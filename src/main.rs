@@ -197,6 +197,7 @@ Cache path: {}
 
 }
 
+#[allow(clippy::too_many_arguments)]
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
 fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,

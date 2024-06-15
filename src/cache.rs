@@ -128,7 +128,7 @@ impl Cache {
     }
 
     pub fn reached_gen(&mut self) {
-        self.path = self.gen.clone();
+        self.path.clone_from(&self.gen);
     }
 
     /// Write values to cache
