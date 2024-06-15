@@ -1,8 +1,9 @@
+when:
+  branch: pull_request
+
 steps:
-  cargo_clippy:
-    image: "rust:1.78"
-    commands:
-      - rustup component add clippy
-      - cargo clippy --all-targets -- -D warnings
-    when:
-      - event: pull_request
+  clippy:
+    image: rust:1.78
+    commands: |
+      rustup component add clippy
+      cargo clippy --all-targets -- -D warnings
