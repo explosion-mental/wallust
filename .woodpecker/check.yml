@@ -1,5 +1,7 @@
 when:
-  - branch: [ dev, master ]
+  - event: pull_request
+  - event: push
+    branch: [ dev, master ]
 
 steps:
   cargo_check:
