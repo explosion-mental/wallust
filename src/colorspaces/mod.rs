@@ -113,6 +113,19 @@ pub struct Histo<T: ColorTrait> {
     count: usize,
 }
 
+impl<T: ColorTrait> Histo<T> {
+    /// Creates a new histogram
+    pub fn new(color: T, count: usize) -> Self {
+        Self { color, count }
+    }
+
+    /// Creates a new histogram with a fixed count
+    pub fn new_no_count(color: T) -> Self {
+        Self { color, count: usize::max_value() }
+        // Self { color, count: 0 }
+    }
+}
+
 impl FallbackGenerator {
     pub fn gen(&self) -> impl Fn(Srgb, Srgb, u8) -> Vec<Srgb> {
         match self {
