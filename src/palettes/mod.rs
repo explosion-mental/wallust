@@ -32,11 +32,21 @@ use crate::{
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
 
-include!("dark.rs");
-include!("harddark.rs");
-include!("light.rs");
-include!("softdark.rs");
-include!("softlight.rs");
+// include!("dark.rs");
+// include!("harddark.rs");
+// include!("light.rs");
+// include!("softdark.rs");
+// include!("softlight.rs");
+mod dark;
+mod harddark;
+mod light;
+mod softdark;
+mod softlight;
+use dark::dark;
+use harddark::harddark;
+use light::light;
+use softdark::softdark;
+use softlight::softlight;
 
 /// Corresponds to the modules inside this module and `palette` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]

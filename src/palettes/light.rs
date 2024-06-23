@@ -1,3 +1,5 @@
+use super::*;
+
 /// # light
 /// light background, dark foreground. So the [`ColorOrder`] of [`DarkFirst`] makes sense here.
 pub fn light(c: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {

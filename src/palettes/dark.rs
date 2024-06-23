@@ -1,3 +1,5 @@
+use super::*;
+
 /// # dark
 /// Default method to generate colors.
 /// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]
