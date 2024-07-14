@@ -66,9 +66,10 @@ install-man: ## installs completions files
 	cp -f man/wallust.1 man/wallust-theme.1 man/wallust-cs.1 $(DESTDIR)$(MANPREFIX)/man1
 	cp -f man/wallust.5 $(DESTDIR)$(MANPREFIX)/man5
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/wallust.1 \
-		${DESTDIR}${MANPREFIX}/man1/wallust-theme.1 \
-		${DESTDIR}${MANPREFIX}/man1/wallust-cs.1 \
-		${DESTDIR}${MANPREFIX}/man5/wallust.5
+                  ${DESTDIR}${MANPREFIX}/man1/wallust.5 \
+                  ${DESTDIR}${MANPREFIX}/man1/wallust-cs.1 \
+                  ${DESTDIR}${MANPREFIX}/man1/wallust-run.1 \
+                  ${DESTDIR}${MANPREFIX}/man1/wallust-theme.1
 
 install: all install-completions install-man
 	mkdir -p ${DESTDIR}${PREFIX}/bin
