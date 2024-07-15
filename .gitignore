@@ -5,4 +5,4 @@ test.png
 *.jpeg
 # Nix
 result
-/mdbook/book
+/docs/book

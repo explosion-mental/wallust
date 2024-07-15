@@ -1,5 +1,11 @@
 # Building from source
 
+## With cargo
+```
+cargo install wallust
+```
+This will use the lastest (non pre-release) version.
+
 ## With git
 Simply `git clone https://codeberg.org/explosion-mental/wallust`.
 
@@ -20,9 +26,3 @@ or build it and copy the binary to one folder present in your `$PATH` like
 cargo build --release
 cp -f ./target/release/wallust /usr/local/bin
 ```
-
-## With cargo
-```
-cargo install wallust
-```
-This will use the lastest (non pre-release) version.
