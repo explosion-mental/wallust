@@ -18,14 +18,14 @@ pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     //custom shrink
     let s = |x| if x > 512 { x / 4 } else { x };
 
-    let pixels = img.into_rgba8();
+    let pixels = img.into_rgba8().into_raw();
 
     // source image
     let src = ImageRef::new(
         true_w,
         true_h,
         &pixels,
-        PixelType::U8,
+        PixelType::U8x4,
     )?;
 
     //destination (where to write new resized image)
@@ -40,7 +40,7 @@ pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     let mut resizer = Resizer::new();
     // By default, Resizer multiplies and divides by alpha channel
     // images with U8x2, U8x4, U16x2 and U16x4 pixels.
-    resizer.resize(&src, &mut dst, None).unwrap();
+    resizer.resize(&src, &mut dst, None)?;
 
     //resize
     // fir::Resizer::new(fir::ResizeAlg::Nearest)
