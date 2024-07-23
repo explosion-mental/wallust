@@ -4,7 +4,7 @@ use crate::backends::*;
 
 /// Resize it, then get read the image
 pub fn resized(f: &Path) -> Result<Vec<u8>> {
-    let img = image::io::Reader::open(f)?
+    let img = image::ImageReader::open(f)?
         .with_guessed_format()?
         .decode()?;
 

@@ -4,7 +4,7 @@ use crate::backends::*;
 pub fn full(f: &Path) -> Result<Vec<u8>> {
     // Init image, then convert it into rgb and finally to LAB
     Ok(
-        image::io::Reader::open(f)?
+        image::ImageReader::open(f)?
             .with_guessed_format()?
             .decode()?
             .into_rgb8()

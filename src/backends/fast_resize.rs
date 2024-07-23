@@ -9,7 +9,7 @@ use image::GenericImageView;
 /// `green` "glitched" colors, that's why we don't use `shrink()` from `resized` module in here
 pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     //read the image and guess format
-    let img = image::io::Reader::open(f)?
+    let img = image::ImageReader::open(f)?
         .with_guessed_format()?
         .decode()?;
 
