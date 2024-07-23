@@ -1,4 +1,6 @@
-# wallust v3.0.*-BETA
+# wallust v3.0.*
+#
+# If comming from v2: https://explosion-mental.codeberg.page/wallust/v3.html#wallusttoml
 #
 # THIS IS A SAMPLE AND EASY TO COMPREHEND CONFIG, for more info:
 #    `man wallust.5` or check the wiki in the repo
