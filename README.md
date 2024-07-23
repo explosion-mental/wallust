@@ -112,14 +112,24 @@ cp -f ./target/release/wallust /usr/local/bin
 [//]: # (ANCHOR_END: installation-src)
 
 # Background
-I've started this tool mainly for _speed_ reasons[^0], since I have a
+I've started this tool mainly for _speed_ reasons given that I use a
 [keybinding](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/config.h#L346)
 that [runs pywal](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/demwm_random_wall#L19)
-to a random wallpaper with a noticeable delay. I tried ["rewriting" pywal in C](https://github.com/explosion-mental/wast)
-after watching a tsoding video where he implmements a histogram in C for manipulating an image. That was the little push I needed
-start this journey.
+with a random wallpaper image, this resulted in a noticeable delay in between.
 
-[0]: While that was the goal, big images are still gonna be big no matter the language you write your implementation, that's why there are different backends for different tastes :).
+Of course, now I know that pywal uses image magick `convert` to gather the
+colors, which wallust can also use with the `wal` backend. Integrated native
+methods, and even much more sofisticated algorithms like `kmeans` or the SIMD
+backend `fast_resize`, made the need to let the user decide what fit best.
+
+While the goal was focused on speed, the use case move on to upgrade
+functionality that both wallust and _archived_ python tool shared.
+
+I use rust given the great wide library (crates) that it offered and it's native capabilities.
+I also tried [rewriting pywal in C](https://github.com/explosion-mental/wast)
+after watching a tsoding video where he implmements a histogram in C for
+manipulating an image. That was the little push I needed start this journey.
+
 
 # Related
 - [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
