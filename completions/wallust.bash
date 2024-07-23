@@ -352,11 +352,11 @@ _wallust() {
                     return 0
                     ;;
                 --palette)
-                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 darkansi harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
                     return 0
                     ;;
                 -p)
-                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 darkansi harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
                     return 0
                     ;;
                 --saturation)

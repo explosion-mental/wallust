@@ -72,6 +72,9 @@ pub enum Palette {
     #[serde(alias = "dark-comp16")]
     DarkComp16,
 
+    /// This variant is meant to work with `lchansi` colorspace, which will maintain 'tty' like
+    /// color order and only adjusting the colors acording to the theme. A possible solution for
+    /// LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal.
     #[clap(alias  = "dark-ansi", name = "darkansi")]
     #[serde(alias = "dark-ansi")]
     DarkAnsi,

@@ -86,6 +86,8 @@ pub enum ColorSpace {
     #[serde(alias = "lch-mixed")]
     LchMixed,
 
+    /// Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray.
+    /// This works best with 'darkansi' palette, allowing a constant color order.
     #[clap(alias = "lch-ansi", name = "lchansi")] //claps prefers this-name
     #[serde(alias = "lch-ansi")]
     LchAnsi,

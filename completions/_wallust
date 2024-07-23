@@ -14,7 +14,7 @@ _wallust() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
@@ -45,7 +45,7 @@ _wallust() {
         curcontext="${curcontext%:*:*}:wallust-command-$line[1]:"
         case $line[1] in
             (run)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '-a+[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA: ' \
 '--alpha=[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA: ' \
 '-b+[Choose which backend to use (overwrites config)]:BACKEND:((full\:"Read and return the whole image pixels (more precision, slower)"
@@ -64,12 +64,12 @@ kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, R
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
 lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchansi\:""))' \
+lchansi\:"Variant of Lch which preserves 8 colors\: black, red, green, yellow, blue, magenta, cyan and gray. This works best with '\''darkansi'\'' palette, allowing a constant color order"))' \
 '--colorspace=[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
 lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchansi\:""))' \
+lchansi\:"Variant of Lch which preserves 8 colors\: black, red, green, yellow, blue, magenta, cyan and gray. This works best with '\''darkansi'\'' palette, allowing a constant color order"))' \
 '-f+[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
 complementary\:"uses \[\`complementary\`\]"))' \
 '--fallback-generator=[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
@@ -78,6 +78,7 @@ complementary\:"uses \[\`complementary\`\]"))' \
 dark16\:"Same as \`dark\` but uses the 16 colors trick"
 darkcomp\:"This is a \`dark\` variant that changes all colors to it'\''s complementary counterpart, giving the feeling of a '\''new palette'\'' but that still makes sense with the image provided"
 darkcomp16\:"16 variation of the dark complementary variant"
+darkansi\:"This variant is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
 harddark\:"Same as \`dark\` with hard hue colors"
 harddark16\:"Harddark with 16 color variation"
 harddarkcomp\:"complementary colors variation of harddark scheme"
@@ -98,6 +99,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 dark16\:"Same as \`dark\` but uses the 16 colors trick"
 darkcomp\:"This is a \`dark\` variant that changes all colors to it'\''s complementary counterpart, giving the feeling of a '\''new palette'\'' but that still makes sense with the image provided"
 darkcomp16\:"16 variation of the dark complementary variant"
+darkansi\:"This variant is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
 harddark\:"Same as \`dark\` with hard hue colors"
 harddark16\:"Harddark with 16 color variation"
 harddarkcomp\:"complementary colors variation of harddark scheme"
@@ -146,7 +148,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 && ret=0
 ;;
 (cs)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '-f+[Specify a custom format. Without this option, wallust will sequentially try to decode it by trying one by one]:FORMAT:((pywal\:"uses the wal colorscheme format, see <https\://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>"
 terminal-sexy\:"uses <https\://terminal.sexy> JSON export"
 wallust\:"cached wallust files"))' \
@@ -175,7 +177,7 @@ wallust\:"cached wallust files"))' \
 && ret=0
 ;;
 (theme)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
@@ -200,7 +202,7 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (migrate)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
@@ -222,7 +224,7 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (debug)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
@@ -244,7 +246,7 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 ":: :_wallust__help_commands" \
 "*::: :->help" \
 && ret=0
@@ -256,27 +258,27 @@ _arguments "${_arguments_options[@]}" \
         curcontext="${curcontext%:*:*}:wallust-help-command-$line[1]:"
         case $line[1] in
             (run)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (cs)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (theme)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (migrate)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (debug)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
         esac
@@ -305,20 +307,10 @@ _wallust__cs_commands() {
     local commands; commands=()
     _describe -t commands 'wallust cs commands' commands "$@"
 }
-(( $+functions[_wallust__help__cs_commands] )) ||
-_wallust__help__cs_commands() {
-    local commands; commands=()
-    _describe -t commands 'wallust help cs commands' commands "$@"
-}
 (( $+functions[_wallust__debug_commands] )) ||
 _wallust__debug_commands() {
     local commands; commands=()
     _describe -t commands 'wallust debug commands' commands "$@"
-}
-(( $+functions[_wallust__help__debug_commands] )) ||
-_wallust__help__debug_commands() {
-    local commands; commands=()
-    _describe -t commands 'wallust help debug commands' commands "$@"
 }
 (( $+functions[_wallust__help_commands] )) ||
 _wallust__help_commands() {
@@ -332,6 +324,16 @@ _wallust__help_commands() {
     )
     _describe -t commands 'wallust help commands' commands "$@"
 }
+(( $+functions[_wallust__help__cs_commands] )) ||
+_wallust__help__cs_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust help cs commands' commands "$@"
+}
+(( $+functions[_wallust__help__debug_commands] )) ||
+_wallust__help__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust help debug commands' commands "$@"
+}
 (( $+functions[_wallust__help__help_commands] )) ||
 _wallust__help__help_commands() {
     local commands; commands=()
@@ -342,25 +344,25 @@ _wallust__help__migrate_commands() {
     local commands; commands=()
     _describe -t commands 'wallust help migrate commands' commands "$@"
 }
-(( $+functions[_wallust__migrate_commands] )) ||
-_wallust__migrate_commands() {
-    local commands; commands=()
-    _describe -t commands 'wallust migrate commands' commands "$@"
-}
 (( $+functions[_wallust__help__run_commands] )) ||
 _wallust__help__run_commands() {
     local commands; commands=()
     _describe -t commands 'wallust help run commands' commands "$@"
 }
-(( $+functions[_wallust__run_commands] )) ||
-_wallust__run_commands() {
-    local commands; commands=()
-    _describe -t commands 'wallust run commands' commands "$@"
-}
 (( $+functions[_wallust__help__theme_commands] )) ||
 _wallust__help__theme_commands() {
     local commands; commands=()
     _describe -t commands 'wallust help theme commands' commands "$@"
+}
+(( $+functions[_wallust__migrate_commands] )) ||
+_wallust__migrate_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust migrate commands' commands "$@"
+}
+(( $+functions[_wallust__run_commands] )) ||
+_wallust__run_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust run commands' commands "$@"
 }
 (( $+functions[_wallust__theme_commands] )) ||
 _wallust__theme_commands() {

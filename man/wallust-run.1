@@ -53,7 +53,7 @@ lch: CIE Lch, you can understand this color space like LAB but with chrome and h
 .IP \(bu 2
 lchmixed: CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting
 .IP \(bu 2
-lchansi
+lchansi: Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray. This works best with \*(Aqdarkansi\*(Aq palette, allowing a constant color order
 .RE
 .TP
 \fB\-f\fR, \fB\-\-fallback\-generator\fR=\fIFALLBACK_GENERATOR\fR
@@ -90,6 +90,8 @@ dark16: Same as `dark` but uses the 16 colors trick
 darkcomp: This is a `dark` variant that changes all colors to it\*(Aqs complementary counterpart, giving the feeling of a \*(Aqnew palette\*(Aq but that still makes sense with the image provided
 .IP \(bu 2
 darkcomp16: 16 variation of the dark complementary variant
+.IP \(bu 2
+darkansi: This variant is meant to work with `lchansi` colorspace, which will maintain \*(Aqtty\*(Aq like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal
 .IP \(bu 2
 harddark: Same as `dark` with hard hue colors
 .IP \(bu 2
