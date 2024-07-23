@@ -47,9 +47,9 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
         let red     = ColSettings { hue_start:   0.0, hue_end:  60.0, light_def: 50.0, chroma_def: 181.0 };
         let yellow  = ColSettings { hue_start:  61.0, hue_end: 120.0, light_def: 80.0, chroma_def: 128.0 };
         let green   = ColSettings { hue_start: 121.0, hue_end: 180.0, light_def: 50.0, chroma_def: 128.0 };
-        let cyan    = ColSettings { hue_start: 181.0, hue_end: 240.0, light_def: 80.0, chroma_def: 128.0 };
-        let blue    = ColSettings { hue_start: 241.0, hue_end: 300.0, light_def: 50.0, chroma_def: 181.0 };
-        let magenta = ColSettings { hue_start: 301.0, hue_end: 360.0, light_def: 70.0, chroma_def: 128.0 };
+        let cyan    = ColSettings { hue_start: 181.0, hue_end: 210.0, light_def: 80.0, chroma_def: 128.0 };
+        let blue    = ColSettings { hue_start: 211.0, hue_end: 280.0, light_def: 40.0, chroma_def: 181.0 };
+        let magenta = ColSettings { hue_start: 281.0, hue_end: 360.0, light_def: 70.0, chroma_def: 128.0 };
 
         let mut cols = colors.clone();
 
@@ -104,8 +104,8 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
             }
 
             if ret.count != 777 { //dummy value gone
-                ret
-                //Histo::new_no_count(Spec::new(ret.color.l, 10.0, ret.color.hue))
+                //ret
+                Histo::new_no_count(Spec::new(ret.color.l, 15.0, ret.color.hue))
             } else {
                 // I'm very agressive with gray here, since it's more 'uncommon' than pitch black.
                 let a = avg(&lights);
