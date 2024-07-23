@@ -121,7 +121,7 @@ impl<T: ColorTrait> Histo<T> {
 
     /// Creates a new histogram with a fixed count
     pub fn new_no_count(color: T) -> Self {
-        Self { color, count: usize::max_value() }
+        Self { color, count: usize::MAX }
         // Self { color, count: 0 }
     }
 }
