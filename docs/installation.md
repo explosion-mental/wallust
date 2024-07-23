@@ -2,6 +2,8 @@
 
 *wallust* can run on Linux, BSDs, MacOS and Windows.
 
+{{#include ../README.md:repology}}
+
 - For Linux, first check if your [distro already has it packaged](installation-distro.md).
 - You can also check out [Building from source](installation-src.md), to compile the program.
 

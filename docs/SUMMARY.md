@@ -6,8 +6,6 @@
 - [Installation](./installation.md)
     - [Distribution Packages](./installation-distro.md)
     - [Building from source](./installation-src.md)
-- [Packaging](./packaging.md)
-    - [Makefile](./packaging-make.md)
 
 # Reference
 - [Migration to v3 Guide](./v3.md)
@@ -16,5 +14,10 @@
     - [Variables](./template-variables.md)
     - [Filters](./template-filters.md)
     - [Pywal compatibility](./template-pywal.md)
+
+# Dev
+- [Contribute!](./contribute.md)
+- [Packaging](./packaging.md)
+    - [Makefile](./packaging-make.md)
 
 [Screenshots](./ss.md)

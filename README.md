@@ -31,10 +31,6 @@ For ease of use you can check **detailed** docs with man pages (rather than `cmd
 
 There is also a [**web page**](https://explosion-mental.codeberg.page/wallust) for documentation! It's based on plain markdown, so you could also read it locally at `docs/` directory.
 
-<a href="https://repology.org/project/wallust/versions">
-  <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
-</a>
-
 [//]: # (ANCHOR: feats)
 ## Features
 - Includes [man pages](man/) and [completions](completions/)!
@@ -70,23 +66,53 @@ There is also a [**web page**](https://explosion-mental.codeberg.page/wallust) f
 
 [//]: # (ANCHOR_END: feats)
 
-## Contribute!
-**Use the [dev](https://codeberg.org/explosion-mental/wallust/src/branch/dev) branch**
+# Installation
 
-Show some of your taste by adding a [backend](./src/backends/mod.rs),
-[colorspace](./src/colorspaces/mod.rs), [scheme palettes](./src/palettes/mod.rs),
-and/or a [custom theme](https://codeberg.org/explosion-mental/wallust-themes).
+You can see if your distro has **wallust** in their repos by the following
+chart. For detail information you can check some [distro installation instruction](./docs/installation-distro.md)
+that the maintainers have left.
 
-Having design ideas or suggestios is also very welcome.
+[//]: # (ANCHOR: repology)
 
-## TODOs
-for more, grep the src for TODO `rg TODO`
-- think about creating a user friendly `mdbook` like
-- Learn more from "Material You" implementations, what I've seen is that it
-  looses some colors and hues to mantain contrast.
+<a href="https://repology.org/project/wallust/versions">
+  <img align="right" width="192" src="https://repology.org/badge/vertical-allrepos/wallust.svg">
+</a>
 
-## Background
-I've started this tool mainly for _speed_ reasons[0], since I have a
+[//]: # (ANCHOR_END: repology)
+
+[//]: # (ANCHOR: installation-src)
+
+## With cargo
+```
+cargo install wallust
+```
+This will use the lastest (non pre-release) version.
+
+## With git
+Simply `git clone https://codeberg.org/explosion-mental/wallust`.
+
+Recommended way is to use the `Makefile`, since this will install man pages and completions.
+1. Edit `Makefile` to meet your local setup (should be fine as is for most linux distros).
+2. Build it with `make`
+3. Install wallust (if necessary as root): `make install`
+
+Optionally, installing **only** the binary can be done with the following,
+which moves the binary into your `$CARGO_HOME/bin`:
+```
+cargo install --path .
+```
+
+or build it and copy the binary to one folder present in your `$PATH` like
+`/usr/local/bin`
+```
+cargo build --release
+cp -f ./target/release/wallust /usr/local/bin
+```
+
+[//]: # (ANCHOR_END: installation-src)
+
+# Background
+I've started this tool mainly for _speed_ reasons[^0], since I have a
 [keybinding](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/config.h#L346)
 that [runs pywal](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/demwm_random_wall#L19)
 to a random wallpaper with a noticeable delay. I tried ["rewriting" pywal in C](https://github.com/explosion-mental/wast)
@@ -95,7 +121,7 @@ start this journey.
 
 [0]: While that was the goal, big images are still gonna be big no matter the language you write your implementation, that's why there are different backends for different tastes :).
 
-## Related
+# Related
 - [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
 - [wallust-templates - some templates for known programs](https://codeberg.org/explosion-mental/wallust-templates)
 - [pywal - 🎨Generate and change color-schemes on the fly](https://github.com/dylanaraps/pywal)
