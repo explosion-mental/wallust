@@ -1,12 +1,14 @@
 # wallust - Generate colors from an image
- [//]: # (ANCHOR: badges)
+[//]: # (ANCHOR: badges)
+
 [![crates io](https://img.shields.io/crates/v/wallust?style=flat-square&color=red)](https://crates.io/crates/wallust)
 [![downloads](https://img.shields.io/crates/d/wallust?style=flat-square&color=yellow)](https://crates.io/crates/wallust)
 [![license](https://img.shields.io/crates/l/wallust?style=flat-square)](https://codeberg.org/explosion-mental/wallust/src/branch/main/LICENSE)
 [![dependency status](https://deps.rs/repo/codeberg/explosion-mental/wallust/status.svg?style=flat-square)](https://deps.rs/repo/codeberg/explosion-mental/wallust)
 [![CodeBerg](https://img.shields.io/badge/Hosted_at-Codeberg-%232185D0?style=flat-square&logo=CodeBerg)](https://codeberg.org/explosion-mental/wallust)
 [![MatrixChat](https://matrix.to/img/matrix-badge.svg)](https://matrix.to/#/#wal-lust:matrix.org)
- [//]: # (ANCHOR_END: badges)
+
+[//]: # (ANCHOR_END: badges)
 <br>
 
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-2.6.gif "wallust gif")
