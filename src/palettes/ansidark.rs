@@ -1,9 +1,9 @@
 use super::*;
 
-/// # dark
-/// Default method to generate colors.
-/// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]
-pub fn darkansi(c: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
+/// # ansidark
+/// Usually should take 8 colors from lchansi, but there are workaround for MIN_COLS (6).
+/// Sorted by [`LightFirst`]
+pub fn ansidark(c: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
 
     let col7 = {
         let ee = Myrgb(Srgb::<u8>::new(238, 238, 238).into_format()); //This is `#EEEEEE`

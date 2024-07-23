@@ -37,15 +37,15 @@ use self::Palette as F;
 // include!("light.rs");
 // include!("softdark.rs");
 // include!("softlight.rs");
+mod ansidark;
 mod dark;
-mod darkansi;
 mod harddark;
 mod light;
 mod softdark;
 mod softlight;
 
+use ansidark::ansidark;
 use dark::dark;
-use darkansi::darkansi;
 use harddark::harddark;
 use light::light;
 use softdark::softdark;
@@ -72,12 +72,13 @@ pub enum Palette {
     #[serde(alias = "dark-comp16")]
     DarkComp16,
 
-    /// This variant is meant to work with `lchansi` colorspace, which will maintain 'tty' like
-    /// color order and only adjusting the colors acording to the theme. A possible solution for
-    /// LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal.
+    /// This is not a 'dark' variant, is a new palette that is meant to work with `lchansi`
+    /// colorspace, which will maintain 'tty' like color order and only adjusting the colors
+    /// acording to the theme. A possible solution for LS_COLORS and the like. Should workout with
+    /// other colorspace, but the result may not be optimal.
     #[clap(alias  = "dark-ansi", name = "darkansi")]
     #[serde(alias = "dark-ansi")]
-    DarkAnsi,
+    AnsiDark,
 
     /// Same as `dark` with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
@@ -153,7 +154,7 @@ impl F {
             F::DarkComp => dark(c, orig).to_comp(),
             F::DarkComp16 => dark(c, orig).to_comp().to_16col(),
 
-            F::DarkAnsi => darkansi(c, orig),
+            F::AnsiDark => ansidark(c, orig),
 
             F::Light => light(c, orig),
             F::Light16 => light(c, orig).to_16col(),
@@ -186,7 +187,7 @@ impl F {
 
               F::Light | F::Light16 | F::LightComp | F::LightComp16
             | F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
-            | F::DarkAnsi
+            | F::AnsiDark
                 => ColorOrder::DarkFirst,
         }
     }
@@ -198,7 +199,7 @@ impl F {
             F::DarkComp => AnsiColors::BrightBlue,
             F::DarkComp16 => AnsiColors::BrightBlue,
 
-            F::DarkAnsi => AnsiColors::BrightBlue,
+            F::AnsiDark => AnsiColors::Red,
 
             F::HardDark => AnsiColors::Green,
             F::HardDark16 => AnsiColors::BrightGreen,
@@ -232,7 +233,7 @@ impl fmt::Display for F {
             F::DarkComp   => write!(f, "DarkComp"),
             F::DarkComp16 => write!(f, "DarkComp16"),
 
-            F::DarkAnsi => write!(f, "DarkAnsi"),
+            F::AnsiDark => write!(f, "AnsiDark"),
 
             F::HardDark       => write!(f, "HardDark"),
             F::HardDark16     => write!(f, "HardDark16"),
