@@ -95,6 +95,7 @@ start this journey.
 
 ## Related
 - [wallust-themes - built in wallust colorschemes](https://codeberg.org/explosion-mental/wallust-themes)
+- [wallust-templates - some templates for known programs](https://codeberg.org/explosion-mental/wallust-templates)
 - [pywal - 🎨Generate and change color-schemes on the fly](https://github.com/dylanaraps/pywal)
 - [pywal16 - 16 colors fork of pywal](https://github.com/eylles/pywal16)
 - [wpgtk - 🎴a colorscheme, wallpaper and template manager for *nix](https://github.com/deviantfero/wpgtk)
