@@ -18,14 +18,14 @@ pub fn fast_resize(f: &Path) -> Result<Vec<u8>> {
     //custom shrink
     let s = |x| if x > 512 { x / 4 } else { x };
 
-    let pixels = img.into_rgba8().into_raw();
+    let pixels = img.into_rgb8().into_raw();
 
     // source image
     let src = ImageRef::new(
         true_w,
         true_h,
         &pixels,
-        PixelType::U8x4,
+        PixelType::U8x3, //u8 u8 u8 (r g b)
     )?;
 
     //destination (where to write new resized image)
