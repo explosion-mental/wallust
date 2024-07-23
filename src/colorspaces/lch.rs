@@ -38,17 +38,23 @@ impl BuildColors for ColorHisto<Spec, Lch> {
         new.sort_by(|a, b| match cs {
             // ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             // ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+
+            ColorOrder::LightFirst => a.color.chroma.partial_cmp(&b.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+            ColorOrder::DarkFirst  => b.color.chroma.partial_cmp(&a.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+
             // ColorOrder::LightFirst => b.color.hue.into_inner().partial_cmp(&a.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
             // ColorOrder::DarkFirst  => a.color.hue.into_inner().partial_cmp(&b.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
-            ColorOrder::LightFirst => (b.color.l, b.color.chroma).partial_cmp(&(a.color.l, a.color.chroma)).unwrap_or(Ordering::Equal),
-            ColorOrder::DarkFirst  => (a.color.l, a.color.chroma).partial_cmp(&(b.color.l, b.color.chroma)).unwrap_or(Ordering::Equal),
+
+            // ColorOrder::LightFirst => (b.color.l, b.color.chroma).partial_cmp(&(a.color.l, a.color.chroma)).unwrap_or(Ordering::Equal),
+            // ColorOrder::DarkFirst  => (a.color.l, a.color.chroma).partial_cmp(&(b.color.l, b.color.chroma)).unwrap_or(Ordering::Equal),
         });
         new
     }
 
     fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord {
         // a.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal)
-        (a.color.l as i32, a.color.hue.into_inner() as i32)
+        // (a.color.l as i32, a.color.hue.into_inner() as i32)
+        a.color.chroma as i32
         // (a.color.l as u32, a.color.chroma as i32, a.color.hue.into_inner() as i32)
     }
 }

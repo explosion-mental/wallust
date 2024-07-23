@@ -4,7 +4,6 @@
 //! 2. The second one is about preserving the most dominant color order in the vector, ensuring the
 //!    first entry is the dominant (most repeated one).
 
-use std::cmp::Ordering;
 use std::fmt;
 use std::marker::PhantomData;
 use std::ops::Deref;
