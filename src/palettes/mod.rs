@@ -179,11 +179,11 @@ impl F {
               F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
             | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
             | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
-            | F::DarkAnsi
                 => ColorOrder::LightFirst,
 
               F::Light | F::Light16 | F::LightComp | F::LightComp16
             | F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
+            | F::DarkAnsi
                 => ColorOrder::DarkFirst,
         }
     }
