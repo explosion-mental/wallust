@@ -61,7 +61,7 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
             let mut hues = vec![];
             let mut chromas = vec![];
 
-            let dark = 10.0;
+            let dark = 5.0;
 
             for c in &cols {
                 if c.l < dark {
@@ -74,12 +74,18 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
             }
 
             if ret.count != 777 { //dummy value gone
-                ret
-                //Histo::new(Spec::new(0.0, 0.0, LabHue::new(0.0)), 777)
+                //ret
+                Histo::new_no_count(Spec::new(ret.color.l, 15.0, ret.color.hue))
             } else {
                 let a = avg(&lights);
-                let l = (dark + 2.0*a) / 3.0;
-                Histo::new_no_count(Spec::new(l, avg(&chromas), LabHue::new(avg(&hues))))
+                let l = (7.0*dark + a) / 8.0;
+
+                let avg_c = avg(&chromas);
+                let chroma = (2.0*0.0 + avg_c) / 3.0;
+                Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))))
+                // let r = Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))));
+                // println!("{r:?}");
+                // r
             }
         };
 
@@ -113,9 +119,10 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
 
                 let avg_c = avg(&chromas);
                 let chroma = (2.0*0.0 + avg_c) / 3.0;
-                let r = Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))));
-                println!("{r:?}");
-                r
+                // let r = Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))));
+                //println!("{r:?}");
+                //r
+                Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))))
             }
         };
 
