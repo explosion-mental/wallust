@@ -38,11 +38,14 @@ use self::Palette as F;
 // include!("softdark.rs");
 // include!("softlight.rs");
 mod dark;
+mod darkansi;
 mod harddark;
 mod light;
 mod softdark;
 mod softlight;
+
 use dark::dark;
+use darkansi::darkansi;
 use harddark::harddark;
 use light::light;
 use softdark::softdark;
@@ -68,6 +71,10 @@ pub enum Palette {
     #[clap(alias  = "dark-comp16", name = "darkcomp16")]
     #[serde(alias = "dark-comp16")]
     DarkComp16,
+
+    #[clap(alias  = "dark-ansi", name = "darkansi")]
+    #[serde(alias = "dark-ansi")]
+    DarkAnsi,
 
     /// Same as `dark` with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
@@ -143,6 +150,8 @@ impl F {
             F::DarkComp => dark(c, orig).to_comp(),
             F::DarkComp16 => dark(c, orig).to_comp().to_16col(),
 
+            F::DarkAnsi => darkansi(c, orig),
+
             F::Light => light(c, orig),
             F::Light16 => light(c, orig).to_16col(),
             F::LightComp => light(c, orig).to_comp(),
@@ -170,6 +179,7 @@ impl F {
               F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
             | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
             | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
+            | F::DarkAnsi
                 => ColorOrder::LightFirst,
 
               F::Light | F::Light16 | F::LightComp | F::LightComp16
@@ -184,6 +194,8 @@ impl F {
             F::Dark16 => AnsiColors::BrightBlue,
             F::DarkComp => AnsiColors::BrightBlue,
             F::DarkComp16 => AnsiColors::BrightBlue,
+
+            F::DarkAnsi => AnsiColors::BrightBlue,
 
             F::HardDark => AnsiColors::Green,
             F::HardDark16 => AnsiColors::BrightGreen,
@@ -216,6 +228,8 @@ impl fmt::Display for F {
             F::Dark16     => write!(f, "Dark16"),
             F::DarkComp   => write!(f, "DarkComp"),
             F::DarkComp16 => write!(f, "DarkComp16"),
+
+            F::DarkAnsi => write!(f, "DarkAnsi"),
 
             F::HardDark       => write!(f, "HardDark"),
             F::HardDark16     => write!(f, "HardDark16"),

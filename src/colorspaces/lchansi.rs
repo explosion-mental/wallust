@@ -16,6 +16,16 @@ pub const DARKEST: f32 = 4.5;
 /// Maximuum Luminance (from L ab) required for a color to be accepted
 pub const LIGHTEST: f32 = 95.5;
 
+/// Used for a better handle of colors and it's (perception) 'limits'
+struct ColSettings {
+    hue_start: f32,
+    hue_end: f32,
+    light_def: f32,
+    chroma_def: f32,
+}
+
+fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
+
 impl BuildColors for ColorHisto<Spec, LchAnsi> {
     type Color = Spec;
     fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
@@ -33,98 +43,83 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
     /// Ref: https://docs.rs/palette/latest/palette/lch/struct.Lch.html
     // comments below are from the palette docs
     fn gather_cols(colors: Vec<Self::Color>, _threshold: u8, _mix: bool) -> Self {
-        let red     = &(0.0..60.0);
-        let yellow  = &(61.0..120.0);
-        let green   = &(121.0..180.0);
-        let cyan    = &(181.0..240.0);
-        let blue    = &(241.0..300.0);
-        let magenta = &(301.0..360.0);
 
-        let avg = |i: &[f32]| i.iter().sum::<f32>() / i.len() as f32;
+        let red     = ColSettings { hue_start:   0.0, hue_end:  60.0, light_def: 50.0, chroma_def: 181.0 };
+        let yellow  = ColSettings { hue_start:  61.0, hue_end: 120.0, light_def: 80.0, chroma_def: 128.0 };
+        let green   = ColSettings { hue_start: 121.0, hue_end: 180.0, light_def: 50.0, chroma_def: 128.0 };
+        let cyan    = ColSettings { hue_start: 181.0, hue_end: 240.0, light_def: 80.0, chroma_def: 128.0 };
+        let blue    = ColSettings { hue_start: 241.0, hue_end: 300.0, light_def: 50.0, chroma_def: 181.0 };
+        let magenta = ColSettings { hue_start: 301.0, hue_end: 360.0, light_def: 70.0, chroma_def: 128.0 };
 
         let mut cols = colors.clone();
 
-        //TODO check lightness to not be black or white
-        let mut col = |range: &std::ops::Range<f32>| -> Histo<Self::Color> {
-            let mut hues = vec![];
+        let black = {
+            //dummy
+            let mut ret = Histo::new(Spec::new(0.0, 0.0, LabHue::new(0.0)), 777);
+
             let mut lights = vec![];
-            let mut chromes = vec![];
+            let mut hues = vec![];
+            let mut chromas = vec![];
 
-            // // get values that fit within the colors range
-            // for i in 0..cols.len() {
-            //     let hue = cols[i].get_hue().into_inner();
-            //     if range.contains(&hue) {
-            //         hues.push(hue);
-            //         lights.push(cols[i].l);
-            //         chromes.push(cols[i].chroma);
-            //         rems.push(i);
-            //     }
-            //     println!("{i}")
-            // }
+            let dark = 10.0;
 
-            cols.retain(|color| {
-                let hue = color.get_hue().into_inner();
-                if range.contains(&hue) {
-                    hues.push(hue);
-                    lights.push(color.l);
-                    chromes.push(color.chroma);
-                    true
-                } else {
-                    false
+            for c in &cols {
+                if c.l < dark {
+                    ret = Histo::new_no_count(*c);
+                    break;
                 }
-            });
+                lights.push(c.l);
+                hues.push(c.hue.into_inner());
+                chromas.push(c.chroma);
+            }
 
-            //artificially make the color in between
-            let hue = if hues.is_empty() {
-                let mut fallback = vec![];
-                for i in range.start as usize..range.end as usize {
-                    fallback.push(i as f32);
-                }
-                let x = avg(&fallback);
-                let m = {
-                    let range = red.start as i32..red.end as i32;
-                    let sum: i32 = range.clone().sum();
-                    let count = range.count() as f32;
-                    sum as f32 / count
-                };
-                //weighted ecuation
-                (m + 2.0*x) / 3.0
+            if ret.count != 777 { //dummy value gone
+                ret
+                //Histo::new(Spec::new(0.0, 0.0, LabHue::new(0.0)), 777)
             } else {
-                avg(&hues)
-            };
-
-            // C* is the colorfulness of the color. It’s similar to saturation. 0.0 gives gray
-            // scale colors, and numbers around 128-181 gives fully saturated colors. The upper
-            // limit of 128 should include the whole L*a*b* space and some more.
-            let chroma = if chromes.is_empty() { 128.0 } else {
-                let a = avg(&chromes);
-                (64.0 + 2.0*a) / 3.0
-                // if a <= 64.0 {
-                //     a + 30.0
-                // } else if a > 120.0 {
-                //     a - 60.0
-                // } else {
-                //     a
-                // }
-            };
-
-            // L* is the lightness of the color. 0.0 gives absolute black and 100.0 gives the
-            // brightest white.
-            let light = if lights.is_empty() { 80.0 } else {
                 let a = avg(&lights);
-                (60.0 + 2.0*a) / 3.0
-                // if a <= 10.0 {
-                //     a + 30.0
-                // } else if a > 90.0 {
-                //     a - 30.0
-                // } else {
-                //     a
-                // }
-            };
-            //println!("L {light} | c {chroma} | h {hue}");
-            Histo::new_no_count(Spec::new(light, chroma, LabHue::new(hue)))
+                let l = (dark + 2.0*a) / 3.0;
+                Histo::new_no_count(Spec::new(l, avg(&chromas), LabHue::new(avg(&hues))))
+            }
         };
 
+        let gray = {
+            //dummy
+            let mut ret = Histo::new(Spec::new(0.0, 0.0, LabHue::new(0.0)), 777);
+
+            let mut lights = vec![];
+            let mut hues = vec![];
+            let mut chromas = vec![];
+
+            let lighty = 95.0;
+
+            for c in &cols {
+                if c.l > lighty {
+                    ret = Histo::new_no_count(*c);
+                    break;
+                }
+                lights.push(c.l);
+                hues.push(c.hue.into_inner());
+                chromas.push(c.chroma);
+            }
+
+            if ret.count != 777 { //dummy value gone
+                ret
+                //Histo::new_no_count(Spec::new(ret.color.l, 10.0, ret.color.hue))
+            } else {
+                // I'm very agressive with gray here, since it's more 'uncommon' than pitch black.
+                let a = avg(&lights);
+                let l = (4.0*lighty + a) / 5.0; //usually gets >80
+
+                let avg_c = avg(&chromas);
+                let chroma = (2.0*0.0 + avg_c) / 3.0;
+                let r = Histo::new_no_count(Spec::new(l, chroma, LabHue::new(avg(&hues))));
+                println!("{r:?}");
+                r
+            }
+        };
+
+        //color0 black
         // color1 red
         // color2 green
         // color3 yellow
@@ -132,23 +127,24 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
         // color5 magenta
         // color6 cyan
         // color7 gray or dark white
-
         // color8 bright black or grey
         // and then it repats with bright variants..
 
+        //XXX keep in mind that the order presented here is for reference
+        //    since every palette, independently chooses the order. This is why
+        //    there is a need for some information exchange between ColorSpaces <-> Palettes.
         let histogram = vec![
-            col(red),
-            col(green),
-            col(yellow),
-            col(blue),
-            col(magenta),
-            col(cyan),
-            Histo::new_no_count(Spec::new(80.0, 128.0, LabHue::new(360.0))),
-            Histo::new_no_count(Spec::new(80.0, 120.0, LabHue::new(200.0))),
-            Histo::new_no_count(Spec::new(10.0, 10.0, LabHue::new(200.0))),
-            Histo::new_no_count(Spec::new(20.0, 175.0, LabHue::new(10.0))),
-            //histogram.push( Histo { color: Spec::new(80.0, 128.0, LabHue::new(red)), count: 10000 } );
+            black,
+            get_colors(&mut cols, red),
+            get_colors(&mut cols, green),
+            get_colors(&mut cols, yellow),
+            get_colors(&mut cols, blue),
+            get_colors(&mut cols, magenta),
+            get_colors(&mut cols, cyan),
+            gray,
         ];
+
+        assert!(histogram.len() >= MIN_COLS.into(), "Histogram has less colors than required.");
 
         //println!("{histogram:#?}");
         histogram.into()
@@ -164,4 +160,82 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
 
     /// no sorting here as well.
     fn sort_by_key_fn(_a: Histo<Self::Color>) -> impl Ord { }
+}
+
+
+///TODO check lightness to not be black or white
+fn get_colors(cols: &mut Vec<Spec>, color: ColSettings) -> Histo<Spec> {
+    let mut hues = vec![];
+    let mut lights = vec![];
+    let mut chromes = vec![];
+
+    // // get values that fit within the colors range
+    // for i in 0..cols.len() {
+    //     let hue = cols[i].get_hue().into_inner();
+    //     if range.contains(&hue) {
+    //         hues.push(hue);
+    //         lights.push(cols[i].l);
+    //         chromes.push(cols[i].chroma);
+    //         rems.push(i);
+    //     }
+    //     println!("{i}")
+    // }
+
+    cols.retain(|c| {
+        let hue = c.get_hue().into_inner();
+        if (color.hue_start..color.hue_end).contains(&hue) {
+            hues.push(hue);
+            lights.push(c.l);
+            chromes.push(c.chroma);
+            true
+        } else {
+            false
+        }
+    });
+
+    //artificially make the color in between
+    let hue = if hues.is_empty() {
+        let mut fallback = vec![];
+        for i in color.hue_start as usize..color.hue_end as usize {
+            fallback.push(i as f32);
+        }
+        let x = avg(&fallback);
+        //get half (avg) of the hue
+        let m = color.hue_start + color.hue_end / 2.0;
+        //weighted ecuation
+        (m + 2.0*x) / 3.0
+    } else {
+        avg(&hues)
+    };
+
+    // C* is the colorfulness of the color. It’s similar to saturation. 0.0 gives gray
+    // scale colors, and numbers around 128-181 gives fully saturated colors. The upper
+    // limit of 128 should include the whole L*a*b* space and some more.
+    let chroma = if chromes.is_empty() { color.chroma_def } else {
+        let a = avg(&chromes);
+        (color.chroma_def + 2.0*a) / 3.0
+            // if a <= 64.0 {
+            //     a + 30.0
+            // } else if a > 120.0 {
+            //     a - 60.0
+            // } else {
+            //     a
+            // }
+    };
+
+    // L* is the lightness of the color. 0.0 gives absolute black and 100.0 gives the
+    // brightest white.
+    let light = if lights.is_empty() { color.light_def } else {
+        let a = avg(&lights);
+        (color.light_def + 2.0*a) / 3.0
+            // if a <= 10.0 {
+            //     a + 30.0
+            // } else if a > 90.0 {
+            //     a - 30.0
+            // } else {
+            //     a
+            // }
+    };
+    //println!("L {light} | c {chroma} | h {hue}");
+    Histo::new_no_count(Spec::new(light, chroma, LabHue::new(hue)))
 }

@@ -147,13 +147,15 @@ impl ColorSpace {
     pub fn main(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder)
         -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
     {
+        // TODO reorganize this
+        // * maybe assign variables inside the module to put it here, like `lchansi::LchAnsi::Mixed` and so on
         match self {
-            Cs::Lab => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, false, ord),
-            Cs::LabMixed => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::Lab => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, false, ord, true),
+            Cs::LabMixed => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, true, ord, true),
 
-            Cs::Lch => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, false, ord),
-            Cs::LchMixed => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
-            Cs::LchAnsi => main::<lchansi::LchAnsi, palette::Lch>(bytes_rgb8, threshold, gen, true, ord),
+            Cs::Lch => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, false, ord, true),
+            Cs::LchMixed => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, true, ord, true),
+            Cs::LchAnsi => main::<lchansi::LchAnsi, palette::Lch>(bytes_rgb8, threshold, gen, true, ord, false),
         }
     }
 
@@ -301,7 +303,7 @@ pub trait BuildColors: Sized + From<Vec<Histo<Self::Color>>> + Into<Vec<Histo<Se
 /// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
 /// `warn` is important for printing warnings, but it's only that, a warning.
 /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
-pub fn main<U, T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder)
+pub fn main<U, T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder, dedup: bool)
     -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
 where
     ColorHisto<T, U>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
@@ -327,6 +329,7 @@ where
     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
     if histo.len() < 2 { return Err(ColorSpaceError::TwoColors) }
 
+    if dedup {
     // XXX I've tested a lot and: (requires more in depth findings)
     // 1. using `dedup_by` without `sort_by_key` seems to not get much colors.
     // 2. obviously sorting without `dedup`ing won't do much.
@@ -347,6 +350,7 @@ where
 
     // remove excess elements
     histo.truncate(MAX_COLS.into());
+    }
 
     if histo.len() == 2 {
     // If the colors are exactly two, create a long interpolation from it.
