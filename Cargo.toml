@@ -55,6 +55,8 @@ clap  = { version = "4.3", features = ["derive", "cargo"] }
 
 [build-dependencies]
 wallust_themes = "1.0"
+clap        = { version = "4.5", default-features = false, features = ["std", "cargo"] }
+vergen-git2 = { version = "1.0", default-features = false, features = ["cargo", "emit_and_set"] }
 
 [features]
 default = [ "themes" ]
