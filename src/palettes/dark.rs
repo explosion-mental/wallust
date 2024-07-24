@@ -11,15 +11,16 @@ pub fn dark(cols: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
     let lightest = c.first().expect("not empty");
     let darkest = c.last().expect("not empty");
 
-    let bg = darkest.darken(0.8);
+    //let bg = darkest.darken(0.8);
     let fg = lightest.lighten(0.65);
 
     // get the first char of the darkest color
-    let d = darkest.strsrgb();
     // let f = format!("{:02x}", darkest.0).chars().last().expect("garanted to have 2 elements by the fmt");
 
     // Darken the background color slightly, just like pywal
-    let col0  = if &d[0..1] != "0" { bg } else { darkest.darken(0.4) };
+    // TODO maybe just check `chroma` or the like value
+    let (col0, bg) = getbg(*darkest);
+
 
     let col7  = ee.blend(lightest.into());
 
@@ -52,4 +53,34 @@ pub fn dark(cols: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
         color14: c[0].into(),
         color15: col15, //a little darken than col7
     }
+}
+
+/// Generates bg from a color0 (c)
+fn getbg(c: Srgb) -> (Srgb, Srgb) {
+    use palette::IntoColor;
+    use palette::Desaturate;
+
+    let new: palette::Lch = c.into_format().into_color();
+    // XXX mostly to keep the 'desaturated' look of the background, classic feel of good old `dark`
+    // palette (and behaviour from pywal)
+    let new = new.desaturate(0.8);
+
+    let mut color0 = new;
+    let mut bg = new;
+
+    if new.l < 20.0 {
+        //color0 it's lighter, needs darkening
+        color0 = color0.lighten(0.2);
+    } else if new.l < 60.0 {
+        color0 = color0.darken_fixed(0.3);
+        bg = bg.darken_fixed(0.4);
+    } else if new.l < 80.0 {
+        color0 = bg.darken_fixed(0.5);
+        bg = bg.darken_fixed(0.7);
+    } else { //more than 80% lighning
+        color0 = color0.darken_fixed(0.6);
+        bg = bg.darken_fixed(0.8);
+    }
+
+    (color0.into_color(), bg.into_color())
 }
