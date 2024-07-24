@@ -2,10 +2,9 @@ fn main() {
     #[cfg(all(feature = "themes", feature = "buildgen"))]
     themes();
 
-    let out = std::env::var_os("OUT_DIR").unwrap();
-    let ver = std::path::Path::new(&out).join("version.rs");
+    //version (sha date)
     let s = format!(r#""{} {}""#, clap::crate_version!(), version());
-    std::fs::write(ver, s).unwrap();
+    std::fs::write(outdir().join("version.rs"), s).unwrap();
 }
 
 /// git short sha1 and date stuff, only when wallust is at a unstable version
@@ -43,24 +42,18 @@ fn version() -> String {
 /// completions can put all the strings in the array into the completions itself.
 fn themes() {
     use wallust_themes::COLS_KEY;
-
     println!("cargo:rerun-if-changed=build.rs");
-
-    let out = std::env::var_os("OUT_DIR").unwrap();
-    let out = std::path::Path::new(&out);
 
     let mut val = COLS_KEY.to_vec();
     val.push("random");
+    let mut val: Vec<_> = val.iter().map(|i| format!(r#""{i}","#)).collect(); //"string",
+    val.insert(0, "[".to_string()); //start of array
+    val.push("]".to_string());
 
-    let mut s = String::new();
-    s.push('[');
-    for i in val {
-        s.push('"');
-        s.push_str(i);
-        s.push('"');
-        s.push(',');
-    }
-    s.push(']');
+    std::fs::write(outdir().join("args.rs"), val.join("")).unwrap();
+}
 
-    std::fs::write(out.join("args.rs"), &s).unwrap();
+fn outdir() -> std::path::PathBuf {
+    let out = std::env::var_os("OUT_DIR").unwrap();
+    std::path::Path::new(&out).into()
 }
