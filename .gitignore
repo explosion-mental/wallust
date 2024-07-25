@@ -4,6 +4,6 @@ test.png
 *.jpg
 *.jpeg
 *.gif
+book/
 # Nix
 result
-/docs/book
