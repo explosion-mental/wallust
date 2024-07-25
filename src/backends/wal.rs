@@ -8,33 +8,36 @@
 //!   skip      ^
 //!       we care bout this one
 //! ```
-
-use anyhow::Context;
-use palette::cast::AsComponents;
-
 use crate::backends::*;
 use std::process::Command;
 use std::str;
 use palette::Srgb;
+use palette::cast::AsComponents;
 
-/// use Image Magick to get colors
+/// Inspired by how pywal uses Image Magick :)
 pub fn wal(f: &Path) -> Result<Vec<u8>> {
-    let im = Command::new("convert")
-        .arg(f)
-        .arg("-resize")
-        .arg("25%")
-        .arg("-colors")
-        .arg("16")
-        .arg("-unique-colors")
-        .arg("txt:-")
-        .output()
-        .with_context(||
-"Couldn't run `convert` command.
-Make sure to have it installed if you wish to use this backend, else try another one.")?;
-
     let mut cols: Vec<Srgb<u8>> = Vec::with_capacity(16); // there will be no more than 16 colors
 
-    for line in str::from_utf8(&im.stdout)?.lines().skip(1) {
+    let magick_command = has_im()?;
+
+    let mut raw_colors = imagemagick(16 + 1, f, &magick_command)?;
+
+    // we start with 1, since we already 'did' an iteration by initializing the variable.
+    for i in 1..20 {
+        raw_colors = imagemagick(16 + i, f, &magick_command)?;
+
+        if raw_colors.lines().count() > 16 { break }
+
+        if i == 19 {
+            anyhow::bail!("Imagemagick couldn't generate a suitable palette.");
+        } else {
+            // No need to print, just keep trying.
+            // eprintln!("Imagemagick couldn't generate a palette.");
+            // eprintln!("Trying a larger palette size {}", 16 + i);
+        }
+    }
+
+    for line in raw_colors.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(1);
         let hex = s.next().expect("Should always be present, without spaces in between e.g. (0,0,0)");
         //let hex : Srgb<u8> = *hex.parse::<Srgba<u8>>()?.into_format::<u8, u8>();
@@ -48,4 +51,44 @@ Make sure to have it installed if you wish to use this backend, else try another
     }
 
     Ok(cols.as_components().to_vec())
+}
+
+fn imagemagick(color_count: u8, img: &Path, magick_command: &str) -> Result<String> {
+    // in case the file is a gif.
+    let img = format!("{}[0]", img.display());
+
+    let im = Command::new(magick_command)
+        .args([
+            &img,
+            "-resize", "25%",
+            "-colors", &color_count.to_string(),
+            "-unique-colors",
+            "txt:-",
+        ])
+        .output()
+        .expect("This should run, given that `has_im()` should fail first, unless IM flags are deprecated.");
+
+    Ok(str::from_utf8(&im.stdout)?.to_owned())
+}
+
+///whether to use `magick` or good old `convert`
+fn has_im() -> Result<String> {
+    let m = String::from("magick");
+    let c = String::from("convert");
+
+    // .output() is used to 'eat' the output, instead of .spawn()
+    match Command::new(&m).output() {
+        Ok(_) => Ok(m),
+        Err(e) => {
+            match Command::new(&c).output() {
+                Ok(_) => Ok(c),
+                Err(e2) => Err(anyhow::anyhow!("Neither `magick` nor `convert` is invokable:\n{e} {e2}")),
+            }
+            // if let std::io::ErrorKind::NotFound = e.kind() {
+            //     Ok("convert".to_owned())
+            // } else {
+            //     Err(anyhow::anyhow!("An error ocurred while executing magick: {e}"))
+            // }
+        },
+    }
 }
