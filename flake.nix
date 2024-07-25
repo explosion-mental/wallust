@@ -2,49 +2,63 @@
   description = "Wallust, a better pywal";
 
   # Nixpkgs / NixOS version to use.
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  inputs.utils.url = "github:numtide/flake-utils";
-  inputs.flake-compat = {
-    url = "github:edolstra/flake-compat";
-    flake = false;
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    fenix.url = "github:nix-community/fenix/monthly";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
-    utils,
+    flake-parts,
+    flake-compat,
     ...
-  }:
-    {
-      overlays.default = final: prev: {
-        wallust = final.callPackage ./build.nix {};
-      };
-    }
-    // utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [self.overlays.default];
-      };
-    in {
-      packages = {
-        inherit (pkgs) wallust;
-        default = pkgs.wallust;
-      };
+  } @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      # can be extended, but these have proper binary cache support in nixpkgs
+      # as of writing.
+      systems = [
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
 
-      formatter = pkgs.alejandra;
+      perSystem = {
+        self',
+        config,
+        pkgs,
+        ...
+      }: let
+        toolchain = inputs.fenix.packages.${pkgs.system}.minimal.toolchain;
+      in {
+        packages.default = config.packages.wallust;
+        packages.wallust = pkgs.callPackage ./build.nix {
+          rustPlatform = pkgs.makeRustPlatform {
+            cargo = toolchain;
+            rustc = toolchain;
+          };
+        };
 
-      devShells.default = pkgs.callPackage ({
-        mkShell,
-        rustc,
-        cargo,
-        gnumake,
-        pkg-config,
-        man,
-        imagemagick,
-        wallust,
-      }:
-        mkShell {
-          inherit (wallust) nativeBuildInputs buildInputs;
-        }) {};
-    });
+        formatter = pkgs.alejandra;
+
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [config.packages.default];
+        };
+      };
+    };
+
+  # Allows the user to use nix-community cache when using `nix run <thisFlake>`.
+  nixConfig = {
+    extra-substituters = ["https://nix-community.cachix.org"];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+  };
 }

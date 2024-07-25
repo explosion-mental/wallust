@@ -15,7 +15,7 @@ in
 
     cargoLock.lockFile = ./Cargo.lock;
 
-    nativeBuildInputs = [ makeWrapper installShellFiles ];
+    nativeBuildInputs = [makeWrapper installShellFiles];
 
     postInstall = ''
       installManPage man/wallust*
