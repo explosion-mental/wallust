@@ -16,7 +16,7 @@ steps:
   push-changes:
     image: appleboy/drone-git-push
     settings:
-      remote: ssh://git@codeberg.org:explosion-mental/wallust.git
+      remote: git@codeberg.org:explosion-mental/wallust.git
       branch: flake-lock-update
       local_ref: flake-lock-update
       ssh_key:
