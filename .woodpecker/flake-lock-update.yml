@@ -1,0 +1,44 @@
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      branch: flake-lock-update
+when:
+  - event: cron
+    cron: flake-lock-update
+
+steps:
+  update:
+    image: nixos/nix
+    commands: |
+      nix flake update
+  push-changes:
+    image: appleboy/drone-git-push
+    settings:
+      remote: ssh://git@codeberg.org:explosion-mental/wallust.git
+      branch: flake-lock-update
+      local_ref: flake-lock-update
+      ssh_key:
+        from_secret: berg_ssh
+      commit: true
+      commit_message: "flake.lock: update"
+      author_name: "WoodpeckerCI"
+      author_email: "woodpecker@flake.sh"
+  make-pr:
+    image: johnwalkerx/gitea-pull-request-create-plugin:latest
+    pull: true
+    settings:
+      gitea_address: https://codeberg.org
+      gitea_token:
+        from_secret: BERG_PAT
+      owner: ${CI_REPO_OWNER}
+      repo: ${CI_REPO_NAME}
+      branch: flake-lock-update
+      base_branch: dev
+      pr_title: "flake.lock: update"
+      pr_body: PR automatically created by Woodpecker CI
+      skip_on_missing_branch: false
+      close_pr_if_empty: true
+      delete_branch_if_pr_empty: true
+      merge_when_checks_succeed: false
+      delete_branch_after_merge: true
