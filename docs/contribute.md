@@ -9,7 +9,9 @@ Having design ideas or suggestios is also very welcome.
 
 
 ## TODOs
-for more, grep the src for TODO `rg TODO`
+Some food for thought.
+
+For more, grep the src for TODO `rg TODO`
 
 - `wallust init`, which will scan your system for common aplication in which
  there is an avaliable theme template at

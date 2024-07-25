@@ -52,6 +52,12 @@ dist: clean
 	gzip wallust-${VERSION}.tar
 	rm -rf wallust-${VERSION}
 
+docs: book/
+	mdbook build
+
+serve-docs: book/
+	mdbook serve
+
 install-completions: ## installs completions files
 	mkdir -p ${DESTDIR}${ZSHPREFIX}
 	cp -f completions/_wallust ${DESTDIR}${ZSHPREFIX}/_wallust

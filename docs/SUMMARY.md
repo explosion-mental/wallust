@@ -3,17 +3,31 @@
 [Introduction](./intro.md)
 
 # Guide
-- [Installation](./installation.md)
-    - [Distribution Packages](./installation-distro.md)
-    - [Building from source](./installation-src.md)
+- [Installation](./installation/README.md)
+    - [Distribution Packages](./installation/distro.md)
+    - [Building from source](./installation/src.md)
 
 # Reference
 - [Migration to v3 Guide](./v3.md)
-- [Configuration File](./config.md)
-- [Templates](./template.md)
-    - [Variables](./template-variables.md)
-    - [Filters](./template-filters.md)
-    - [Pywal compatibility](./template-pywal.md)
+
+- [Parameters](./parameters/README.md)
+    - [Alpha](./parameters/alpha.md)
+    - [Backend](./parameters/backend.md)
+    - [Check Contrast](./parameters/check_contrast.md)
+    - [Color Space](./parameters/colorspace.md)
+    - [Fallback Generator](./parameters/fallback_generator.md)
+    - [Palette](./parameters/palette.md)
+    - [Saturation](./parameters/saturation.md)
+    - [Threshold](./parameters/threshold.md)
+
+- [Configuration File](./config/README.md)
+    - [Defining a Template](./config/template.md)
+    - [Example](./config/example.md)
+
+- [Template](./template/README.md)
+    - [Variables](./template/variables.md)
+    - [Filters](./template/filters.md)
+    - [Pywal compatibility](./template/pywal.md)
 
 # Dev
 - [Contribute!](./contribute.md)

@@ -18,4 +18,3 @@ and download the `tar.gz` file.
 tar -xf wallust-TARGET.tar.gz
 ```
 
-
