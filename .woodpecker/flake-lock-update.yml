@@ -32,7 +32,7 @@ steps:
       gitea_address: https://codeberg.org
       gitea_token:
         from_secret: BERG_PAT
-      owner: ${CI_REPO_OWNER}
+      owner: "WoodpeckerCI"
       repo: ${CI_REPO_NAME}
       branch: flake-lock-update
       base_branch: dev

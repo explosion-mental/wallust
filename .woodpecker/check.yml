@@ -1,7 +1,9 @@
 when:
+  - path: 'src/*'
   - event: pull_request
   - event: push
     branch: [ dev, master ]
+
 
 steps:
   cargo_check:
