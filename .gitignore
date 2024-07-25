@@ -3,6 +3,7 @@ test.png
 *.png
 *.jpg
 *.jpeg
+*.gif
 # Nix
 result
 /docs/book
