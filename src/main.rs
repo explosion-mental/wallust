@@ -7,7 +7,7 @@ use owo_colors::OwoColorize;
 use spinners::{Spinner, Spinners};
 
 use wallust::{
-    args::{self, Sequences}, cache, config::{self, WalStr}, gen_colors, themes
+    args, cache, config::{self, WalStr}, gen_colors, themes
 };
 
 const ISSUE: &str = "please report this at <https://codeberg.org/explosion-mental/wallust/issues>";
@@ -18,6 +18,8 @@ fn main() -> Result<()> {
     let info = info.bold();
 
     // init directories
+    //TODO no need to be here, althought they are visually pleasant, given that one may provide
+    //`--config-file` even after this.
     let Some(original_config_path) = dirs::config_dir() else {
         anyhow::bail!("Config path for the platform could not be found, {ISSUE}");
     };
@@ -26,18 +28,18 @@ fn main() -> Result<()> {
     };
 
     // globals
-    let quiet = cli.quiet;
-    let update_current = cli.update_current;
-    let skip_sequences = cli.skip_sequences;
-    let ignore_sequence = cli.ignore_sequence;
-    let skip_templates = cli.skip_templates;
+    let quiet = cli.globals.quiet;
+    let update_current  = cli.globals.update_current;
+    let skip_sequences  = &cli.globals.skip_sequences;
+    let ignore_sequence = &cli.globals.ignore_sequence;
+    let skip_templates  = &cli.globals.skip_templates;
 
-    let mut conf = config::Config::new(&original_config_path, cli.config_file.as_deref(), cli.config_dir.as_deref(), cli.no_config)?;
+    let mut conf = config::Config::new(&original_config_path, cli.globals.config_file.as_deref(), cli.globals.config_dir.as_deref(), cli.globals.no_config)?;
 
     match cli.subcmds {
         args::Subcmds::Run(s) => {
             // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
-            run(&mut conf, &cache_path, &s, quiet, update_current, skip_templates, ignore_sequence, skip_sequences)?
+            run(&mut conf, &cache_path, &s, &cli.globals)?
         },
         #[cfg(feature = "themes")]
         args::Subcmds::Theme { theme, preview } => {
@@ -197,14 +199,9 @@ Cache path: {}
 
 }
 
-#[allow(clippy::too_many_arguments)]
 /// Usual `wallust image.png` call, without any subcommands.
 // This used to be old main()
-fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
-    quiet: bool, update_current: bool, skip_templates: bool,
-    ignore_sequence: Option<Vec<Sequences>>,
-    skip_sequences: bool
-    ) -> Result<()> {
+fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g: &args::Globals) -> Result<()> {
     let info = "I".blue();
     let info = info.bold();
 
@@ -221,7 +218,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
     let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
-    if ! quiet {
+    if !g.quiet {
         let f = match cli.file.file_name() {
             Some(s) => s.to_string_lossy(),
             None => cli.file.to_string_lossy(),
@@ -231,14 +228,14 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
     }
 
     // Whether to load data from cache or to generate one from scratch
-    if !quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
+    if !g.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
     let colors = if !cli.overwrite_cache && cached_data.is_cached() {
-        if ! quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
+        if !g.quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
         cached_data.read()?
     } else {
         // generate colors
-        if ! quiet {
+        if !g.quiet {
             let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
 
             //ugly workaround for printing warning, gotta stop the spinner first
@@ -264,34 +261,34 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs,
         }
     };
 
-    if ! quiet {
+    if !g.quiet {
         //TODO add print_long to list `value: color` like
         colors.print();
     }
 
     // Set sequences
-    if ! skip_sequences && ! update_current {
-        if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(cache_path, ignore_sequence.as_deref())?;
+    if !g.skip_sequences && !g.update_current {
+        if !g.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+        colors.sequences(cache_path, g.ignore_sequence.as_deref())?;
     }
 
-    if update_current {
-        if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-        print!("{}", colors.to_seq(ignore_sequence.as_deref()));
+    if g.update_current {
+        if !g.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+        print!("{}", colors.to_seq(g.ignore_sequence.as_deref()));
     }
 
-    if ! skip_templates {
-        conf.write_entry(&WalStr::Path(&cli.file), &colors, quiet)?;
+    if !g.skip_templates {
+        conf.write_entry(&WalStr::Path(&cli.file), &colors, g.quiet)?;
     }
 
     // Cache colors
-    if !quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
+    if !g.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
     if !cli.no_cache && !cached_data.is_cached() {
-        if ! quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
+        if !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
         cached_data.write(&colors)?;
     }
 
-    if ! quiet { colors.done(); }
+    if !g.quiet { colors.done(); }
 
     Ok(())
 }

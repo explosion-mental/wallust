@@ -12,8 +12,9 @@ use crate::{
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
 
+/// These flags can go before AND after the subcommand, like `wallust -q run image.png` or `wallust run image.png -q`
 #[derive(Debug, Parser)]
-pub struct Cli {
+pub struct Globals {
     /// Won't send these colors sequences
     #[arg(global = true, short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
     pub ignore_sequence: Option<Vec<Sequences>>,
@@ -46,6 +47,12 @@ pub struct Cli {
     /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
     #[arg(global = true, short = 'N', long, conflicts_with = "config_file", conflicts_with = "config_dir")]
     pub no_config: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct Cli {
+    #[clap(flatten)]
+    pub globals: Globals,
 
     #[clap(subcommand)]
     pub subcmds: Subcmds,
