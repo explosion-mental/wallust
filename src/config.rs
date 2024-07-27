@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::fs::read_to_string;
 
 use crate::args::WallustArgs;
+use crate::args::Globals;
 use crate::colors::Colors;
 use crate::template;
 use crate::template::TemplateFields;
@@ -25,13 +26,13 @@ pub struct Config {
     pub threshold: Option<u8>,
     /// Which backend to use, see backends.rs
     #[serde(rename = "backend")]
-    pub backend_de: Option<crate::backends::Backend>,
+    pub backend_user: Option<crate::backends::Backend>,
     /// Which palette to use, see palettes.rs
     #[serde(rename = "palette")]
-    pub palette_de: Option<crate::palettes::Palette>,
+    pub palette_user: Option<crate::palettes::Palette>,
     /// Which colorspace to use, see colorspaces.rs
     #[serde(rename = "color_space")]
-    pub color_space_de: Option<crate::colorspaces::ColorSpace>,
+    pub color_space_user: Option<crate::colorspaces::ColorSpace>,
     /// Optional alpha value
     pub alpha: Option<u8>,
     /// This flags ensures good contrast between images, by doing some w3m calculations.
@@ -124,53 +125,51 @@ pub const V3: &str = "<https://explosion-mental.codeberg.page/wallust/v3.html>";
 
 impl Config {
     /// Constructs [`Config`] by reading the config file
-    pub fn new(original_config_path: &PathBuf, config_file: Option<&Path>, config_dir: Option<&Path>, no_config: bool) -> Result<Config> {
+    pub fn new(g: &Globals) -> Result<Config> {
 
-        // check config file or generate one if not one isn't found
-        let custom = config_file;
+        // first check if user give out a custom config-dir
+        let dir = match &g.config_dir {
+            Some(s) => s,
+            None => {
+                let Some(original_config_path) = dirs::config_dir() else {
+                    anyhow::bail!("Config path for the platform could not be found.");
+                };
+                &original_config_path.join("wallust")
+            }
+        };
 
-        // true -> uses original_config_path
-        // false -> uses a custom path
-        let mut is_original = true;
-
-        // check config dir
-        let config = match config_dir {
-            Some(path) => { //only in this case, the config dir is altered
-                is_original = false;
-                path
+        // then we check for a custom config-file
+        let config = match &g.config_file {
+            Some(s) => {
+                // check if exist first, since we don't need a config file,
+                // we use default Configuration options when it doesn't
+                // but since this is a CLI FLAG, make sure it exist first.
+                if !s.exists() { anyhow::bail!("Configuration file provided doesn't exist: {}", s.display()); }
+                s
             },
-            None => original_config_path,
+            // if not, we use the default path: `dir/wallust.toml`
+            None => &dir.join("wallust.toml"),
         };
 
-        // init `.config/wallust/wallust.toml`
-        let join_dir = if is_original { "wallust" } else { "" };
 
-        let config_dir = config.join(join_dir);
-        let def_conf = config_dir.join("wallust.toml");
-
-        // is the user using `--config-path`
-        let (config, _default_path) = match custom {
-            None => (def_conf, true),
-            Some(s) => (s.to_owned(), false),
-        };
-
-        let mut ret = if !config.exists() || no_config {
+        let mut ret = if !config.exists() { // don't care if it doesn't exist.
+            println!("[{info}] {t}: No configuration file found, using default values.", info = "I".blue().bold(), t = "config".magenta().bold());
             Config::default()
         } else {
             let s = || format!("Failed to read file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.\nMake sure to read {V3} as well.", config.display());
             toml::from_str(
-                &read_to_string(&config).with_context(s)?
+                &read_to_string(config).with_context(s)?
             ).with_context(s)?
         };
 
-        ret.dir = config_dir;
-        ret.file = config.to_path_buf();
-        ret.true_th = 0;
+        ret.dir = dir.into();
+        ret.file = config.into();
+        ret.true_th = 0; //dummy placeholder
 
         // defined or defaults.
-        ret.backend = ret.backend_de.unwrap_or_default();
-        ret.color_space = ret.color_space_de.unwrap_or_default();
-        ret.palette = ret.palette_de.unwrap_or_default();
+        ret.backend = ret.backend_user.unwrap_or_default();
+        ret.color_space = ret.color_space_user.unwrap_or_default();
+        ret.palette = ret.palette_user.unwrap_or_default();
 
         //println!("{:#?}", ret);
 

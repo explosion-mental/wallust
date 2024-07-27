@@ -18,11 +18,6 @@ fn main() -> Result<()> {
     let info = info.bold();
 
     // init directories
-    //TODO no need to be here, althought they are visually pleasant, given that one may provide
-    //`--config-file` even after this.
-    let Some(original_config_path) = dirs::config_dir() else {
-        anyhow::bail!("Config path for the platform could not be found, {ISSUE}");
-    };
     let Some(cache_path) = dirs::cache_dir() else {
         anyhow::bail!("The cache path for the platform could not be found, {ISSUE}");
     };
@@ -34,7 +29,7 @@ fn main() -> Result<()> {
     let ignore_sequence = &cli.globals.ignore_sequence;
     let skip_templates  = &cli.globals.skip_templates;
 
-    let mut conf = config::Config::new(&original_config_path, cli.globals.config_file.as_deref(), cli.globals.config_dir.as_deref(), cli.globals.no_config)?;
+    let mut conf = config::Config::new(&cli.globals)?;
 
     match cli.subcmds {
         args::Subcmds::Run(s) => {
@@ -103,8 +98,8 @@ Cache path: {}
         args::Subcmds::Migrate => {
             use toml_edit::{DocumentMut, value};
 
-            let dir  = original_config_path.join("wallust");
-            let file = dir.join("wallust.toml");
+            let dir  = conf.dir;
+            let file = conf.file;
             let old  = dir.join("wallust-old.toml");
 
             if ! file.exists() {
