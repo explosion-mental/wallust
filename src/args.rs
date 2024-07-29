@@ -13,7 +13,7 @@ use clap::{Parser, Subcommand};
 use serde::Deserialize;
 
 /// These flags can go before AND after the subcommand, like `wallust -q run image.png` or `wallust run image.png -q`
-#[derive(Debug, Parser)]
+#[derive(Debug, Parser, Default)]
 pub struct Globals {
     /// Won't send these colors sequences
     #[arg(global = true, short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]

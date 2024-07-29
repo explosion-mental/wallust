@@ -51,6 +51,7 @@ criterion = { version = "0.5", features = ["html_reports"] }
 word_iter = "0.2.1"
 clap_complete = "4.5"
 clap_mangen = "0.2"
+dirs = "5.0"
 
 [build-dependencies]
 wallust_themes = "1.0"
