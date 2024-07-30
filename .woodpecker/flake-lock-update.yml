@@ -24,7 +24,7 @@ steps:
       commit: true
       commit_message: "flake.lock: update"
       author_name: "WoodpeckerCI"
-      author_email: "woodpecker@flake.sh"
+      author_email: "woodpecker@codeberg.org"
   make-pr:
     image: johnwalkerx/gitea-pull-request-create-plugin:latest
     pull: true

@@ -24,7 +24,7 @@ steps:
       commit: true
       commit_message: "Cargo.lock: update"
       author_name: "WoodpeckerCI"
-      author_email: "woodpecker@flake.sh"
+      author_email: "woodpecker@codeberg.org"
 
   make-pr:
     image: johnwalkerx/gitea-pull-request-create-plugin:latest
@@ -35,7 +35,7 @@ steps:
         from_secret: BERG_PAT
       owner: "WoodpeckerCI"
       repo: ${CI_REPO_NAME}
-      branch: flake-lock-update
+      branch: update-deps
       base_branch: dev
       pr_title: "Cargo.lock: update"
       pr_body: PR automatically created by Woodpecker CI
