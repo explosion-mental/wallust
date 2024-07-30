@@ -1,13 +1,36 @@
+# when:
+#   - event: [ push, pull_request ]
+#     path: 'docs/*'
 when:
-  - event: [ push, pull_request ]
-    path: 'docs/*'
+  branch: dev
+  event: push
+  path: 'docs/*'
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
 
 steps:
-  mdbook:
-    image: alpine
-    commands: |
-      mkdir bin
-      # https://rust-lang.github.io/mdBook/continuous-integration.html#pre-compiled-binaries
-      # While this will require manual version bump up, is the simplest way.
-      curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=bin
-      bin/mdbook build
+  build:
+    image: peaceiris/mdbook:latest
+    # also at PRs
+    when:
+      - event: [ pull_request ]
+    commands:
+      - mdbook build
+
+  publish:
+    image: bitnami/git
+    secrets: [ berg_pat ]
+    environment:
+      - MDBOOK_OUTPUT=book
+    commands:
+      - git config --global user.email "woodpecker@codeberg.org"
+      - git config --global user.name "Woodpecker CI"
+      - git clone -b pages https://$berg_pat@codeberg.org/$CI_REPO.git $CI_REPO_NAME
+      - cp -ar $MDBOOK_OUTPUT $CI_REPO_NAME/
+      - cp .domains $CI_REPO_NAME || true
+      - cd $CI_REPO_NAME
+      - git add .
+      - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
+      - git push
