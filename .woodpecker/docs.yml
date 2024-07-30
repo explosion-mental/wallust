@@ -1,6 +1,7 @@
 # when:
 #   - event: [ push, pull_request ]
 #     path: 'docs/*'
+
 when:
   branch: dev
   event: push
@@ -15,7 +16,8 @@ steps:
     image: peaceiris/mdbook:latest
     # also at PRs
     when:
-      - event: [ pull_request ]
+      - event: [ push, pull_request ]
+        path: 'docs/*'
     commands:
       - mdbook build
 
