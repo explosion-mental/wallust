@@ -1,11 +1,11 @@
 when:
-  - path: 'docs/*'
+  - event: [ push, pull_request ]
+    path: 'docs/*'
 
 steps:
-  cargo_check:
+  mdbook:
     image: alpine
     commands: |
-      cargo check --all-targets
       mkdir bin
       # https://rust-lang.github.io/mdBook/continuous-integration.html#pre-compiled-binaries
       # While this will require manual version bump up, is the simplest way.
