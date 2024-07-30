@@ -8,7 +8,7 @@ keywords = [ "cli", "template", "colorscheme", "theme" ]
 categories = [ "command-line-utilities" ]
 description = "Generate a 16 color scheme based on an image."
 repository = "https://codeberg.org/explosion-mental/wallust"
-homepage = "https://codeberg.org/explosion-mental/wallust"
+homepage = "https://explosion-mental.codeberg.page/wallust"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
