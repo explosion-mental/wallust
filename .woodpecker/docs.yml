@@ -14,10 +14,6 @@ clone:
 steps:
   build:
     image: peaceiris/mdbook:latest
-    # also at PRs
-    when:
-      - event: [ push, pull_request ]
-        path: 'docs/*'
     commands:
       - mdbook build
 
