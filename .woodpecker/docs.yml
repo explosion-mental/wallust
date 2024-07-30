@@ -5,9 +5,9 @@ steps:
   cargo_check:
     image: alpine
     commands: |
-    cargo check --all-targets
-    mkdir bin
-    # https://rust-lang.github.io/mdBook/continuous-integration.html#pre-compiled-binaries
-    # While this will require manual version bump up, is the simplest way.
-    curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=bin
-    bin/mdbook build
+      cargo check --all-targets
+      mkdir bin
+      # https://rust-lang.github.io/mdBook/continuous-integration.html#pre-compiled-binaries
+      # While this will require manual version bump up, is the simplest way.
+      curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=bin
+      bin/mdbook build
