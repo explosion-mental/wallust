@@ -6,13 +6,11 @@ clone:
 when:
   - event: cron
     cron: update-deps
-
 steps:
   update:
     image: rust:1.79
     commands: |
       cargo update
-
   push-changes:
     image: appleboy/drone-git-push
     settings:
@@ -25,7 +23,6 @@ steps:
       commit_message: "Cargo.lock: update"
       author_name: "WoodpeckerCI"
       author_email: "woodpecker@codeberg.org"
-
   make-pr:
     image: johnwalkerx/gitea-pull-request-create-plugin:latest
     pull: true

@@ -6,7 +6,6 @@ clone:
 when:
   - event: cron
     cron: flake-lock-update
-
 steps:
   update:
     image: nixos/nix
