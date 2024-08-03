@@ -1,0 +1,14 @@
+when:
+  - path: 'src/*'
+  - event: pull_request
+  - event: push
+    branch: [ dev, master ]
+
+steps:
+  build:
+    image: nixos/nix
+    commands: |
+      echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
+      echo 'accept-flake-config = true' >> /etc/nix/nix.conf
+      nix flake show
+      nix build --print-build-logs --print-out-paths
