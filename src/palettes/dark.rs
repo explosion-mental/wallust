@@ -1,5 +1,10 @@
 use super::*;
 
+//TODO use constants in each module
+//const COLOR_ORDER = ColorOrder::LightFirst
+//const MIN_COLORS = 6;
+// TODO also, just create functions that sort the colors accordingly, no need to do it inside `colorspace` module.
+
 /// # dark
 /// Default method to generate colors.
 /// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]
