@@ -3,6 +3,7 @@
 //! ref: <https://docs.rs/palette/latest/palette/lch/struct.Lch.html>
 use super::*;
 
+#[derive(Debug)]
 pub struct Lch;
 
 /// Shadow the colorspace type (Spectrum)
@@ -13,6 +14,10 @@ pub const DARKEST: f32 = 4.5;
 
 /// Maximuum Luminance (from L ab) required for a color to be accepted
 pub const LIGHTEST: f32 = 95.5;
+
+/// This is so there are more vivid colors!
+/// even another filter to avoid blank `black/white`.
+const MIN_CHROMA: f32 = 15.0;
 
 impl ColorTrait for Spec {}
 
@@ -29,24 +34,27 @@ impl Difference for Spec {
 
 impl BuildColors for ColorHisto<Spec, Lch> {
     type Color = Spec;
-    fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
+    fn filter_cols(a: Self::Color) -> bool { (a.l >= DARKEST || a.l <= LIGHTEST) && a.chroma > MIN_CHROMA }
 
     fn sort_col(self, cs: &ColorOrder) -> Self {
+        use std::cmp::Ordering;
         let mut new = self; //take ownership
+
+        // for i in new.iter() { println!("{}", i.color.chroma); }
 
         // TODO use light or chrome/hue
         new.sort_by(|a, b| match cs {
             // ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             // ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
 
-            ColorOrder::LightFirst => a.color.chroma.partial_cmp(&b.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
-            ColorOrder::DarkFirst  => b.color.chroma.partial_cmp(&a.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+            // ColorOrder::LightFirst => a.color.chroma.partial_cmp(&b.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+            // ColorOrder::DarkFirst  => b.color.chroma.partial_cmp(&a.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
 
             // ColorOrder::LightFirst => b.color.hue.into_inner().partial_cmp(&a.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
             // ColorOrder::DarkFirst  => a.color.hue.into_inner().partial_cmp(&b.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
 
-            // ColorOrder::LightFirst => (b.color.l, b.color.chroma).partial_cmp(&(a.color.l, a.color.chroma)).unwrap_or(Ordering::Equal),
-            // ColorOrder::DarkFirst  => (a.color.l, a.color.chroma).partial_cmp(&(b.color.l, b.color.chroma)).unwrap_or(Ordering::Equal),
+            ColorOrder::LightFirst => (b.color.l, a.color.chroma).partial_cmp(&(a.color.l, b.color.chroma)).unwrap_or(Ordering::Equal),
+            ColorOrder::DarkFirst  => (a.color.l, b.color.chroma).partial_cmp(&(b.color.l, a.color.chroma)).unwrap_or(Ordering::Equal),
         });
         new
     }
