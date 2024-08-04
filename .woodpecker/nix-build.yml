@@ -1,8 +1,8 @@
 when:
-  - path: 'src/*'
-  - event: pull_request
-  - event: push
-    branch: [ dev, master ]
+  branch: [ dev, master ]
+  event: [ push, pull_request ]
+  path: 'src/*'
+
 
 steps:
   build:

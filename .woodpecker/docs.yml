@@ -5,7 +5,8 @@
 when:
   branch: dev
   event: push
-  path: 'docs/*'
+  path:
+    include: [ 'docs/*', 'book.toml', 'README.md' ]
 
 clone:
   git:
@@ -18,7 +19,8 @@ steps:
       - mdbook build
     when:
       - event: [pull_request, push]
-        path: 'docs/*'
+        path:
+          include: [ 'docs/*', 'book.toml', 'README.md' ]
 
   publish:
     image: bitnami/git
@@ -37,4 +39,5 @@ steps:
       - git push
     when:
       - event: push
-        path: 'docs/*'
+        path:
+          include: [ 'docs/*', 'book.toml', 'README.md' ]
