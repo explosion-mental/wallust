@@ -70,7 +70,7 @@ There is also a [**web page**](https://explosion-mental.codeberg.page/wallust) f
 # Installation
 
 You can see if your distro has **wallust** in their repos by the following
-chart. For detail information you can check some [distro installation instruction](./docs/installation-distro.md)
+chart. For detail information you can check some [distro installation instruction](./docs/installation/distro.md)
 that the maintainers have left.
 
 [//]: # (ANCHOR: repology)
