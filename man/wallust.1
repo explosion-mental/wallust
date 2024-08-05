@@ -8,7 +8,7 @@ wallust \- Generate a 16 color scheme based on an image.
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH SYNOPSIS
-\fBwallust\fR [\fB\-i\fR|\fB\-\-ignore\-sequence\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-C\fR|\fB\-\-config\-file\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-N\fR|\fB\-\-no\-config\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+\fBwallust\fR [\fB\-i\fR|\fB\-\-ignore\-sequence\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-C\fR|\fB\-\-config\-file\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-\-templates\-dir\fR] [\fB\-N\fR|\fB\-\-no\-config\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
 
 .SH "DESCRIPTION"
 .ad l
@@ -65,10 +65,13 @@ Skip templating process
 Only update the current terminal
 .TP
 \fB\-C\fR, \fB\-\-config\-file\fR=\fICONFIG_FILE\fR
-Use FILE as the config file
+Use CONFIG_FILE as the config file
 .TP
 \fB\-d\fR, \fB\-\-config\-dir\fR=\fICONFIG_DIR\fR
-Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+.TP
+\fB\-\-templates\-dir\fR=\fITEMPLATES_DIR\fR
+Uses TEMPLATE_DIR as the template directory
 .TP
 \fB\-N\fR, \fB\-\-no\-config\fR
 Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)

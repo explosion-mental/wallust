@@ -17,10 +17,11 @@ _wallust() {
     _arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
 '(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
@@ -121,10 +122,11 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-k[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
@@ -157,10 +159,11 @@ terminal-sexy\:"uses <https\://terminal.sexy> JSON export"
 wallust\:"cached wallust files"))' \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
 '(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
@@ -180,10 +183,11 @@ wallust\:"cached wallust files"))' \
 _arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-p[Only preview the selected theme]' \
 '--preview[Only preview the selected theme]' \
 '-q[Don'\''t print anything]' \
@@ -205,10 +209,11 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
 '(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
@@ -227,10 +232,11 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
-'(-d --config-dir)-C+[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-d --config-dir)--config-file=[Use FILE as the config file]:CONFIG_FILE:_files' \
-'(-C --config-file)-d+[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
-'(-C --config-file)--config-dir=[Uses DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
 '(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \

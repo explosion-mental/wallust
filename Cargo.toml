@@ -22,7 +22,7 @@ toml_edit = "0.22"
 serde_json = "1.0"
 shellexpand = "3.1"
 glob = "0.3"
-new_string_template = "1.4"
+new_string_template = "1.4" # hold
 spinners = "4.1"
 dirs = "5.0"
 itertools = "0.13"
@@ -39,14 +39,14 @@ clap  = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
 # optionals
-documented = { version = "0.4.0", optional = true }
+documented = { version = "0.5.0", optional = true }
 minijinja  = { version = "2.1", features = ["loader"] }
 fastrand  = { version = "2.1", optional = true }
 strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
 
 [dev-dependencies]
-tempfile = "3.10"
+tempfile = "3.11"
 criterion = { version = "0.5", features = ["html_reports"] }
 word_iter = "0.2.1"
 clap_complete = "4.5"

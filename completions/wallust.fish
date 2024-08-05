@@ -1,6 +1,6 @@
 # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.
 function __fish_wallust_global_optspecs
-	string join \n i/ignore-sequence= q/quiet s/skip-sequences T/skip-templates u/update-current C/config-file= d/config-dir= N/no-config h/help V/version
+	string join \n i/ignore-sequence= q/quiet s/skip-sequences T/skip-templates u/update-current C/config-file= d/config-dir= templates-dir= N/no-config h/help V/version
 end
 
 function __fish_wallust_needs_command
@@ -25,8 +25,9 @@ function __fish_wallust_using_subcommand
 end
 
 complete -c wallust -n "__fish_wallust_needs_command" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_needs_command" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_needs_command" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_needs_command" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_needs_command" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_needs_command" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_needs_command" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_needs_command" -s s -l skip-sequences -d 'Skip setting terminal sequences'
 complete -c wallust -n "__fish_wallust_needs_command" -s T -l skip-templates -d 'Skip templating process'
@@ -48,8 +49,9 @@ complete -c wallust -n "__fish_wallust_using_subcommand run" -s p -l palette -d 
 complete -c wallust -n "__fish_wallust_using_subcommand run" -l saturation -d 'Add saturation from 1% to 100% (overwrites config)' -r
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s t -l threshold -d 'Choose a custom threshold, between 1 and 100 (overwrites config)' -r
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_using_subcommand run" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_using_subcommand run" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand run" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand run" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand run" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s k -l check-contrast -d 'Ensure a readable contrast by checking colors in reference to the background (overwrites config)'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s n -l no-cache -d 'Don\'t cache the results'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -l dynamic-threshold -d 'Dynamically changes the threshold to be best fit'
@@ -62,8 +64,9 @@ complete -c wallust -n "__fish_wallust_using_subcommand run" -s N -l no-config -
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s f -l format -d 'Specify a custom format. Without this option, wallust will sequentially try to decode it by trying one by one' -r -f -a "{pywal\t'uses the wal colorscheme format, see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>',terminal-sexy\t'uses <https://terminal.sexy> JSON export',wallust\t'cached wallust files'}"
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_using_subcommand cs" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_using_subcommand cs" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand cs" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand cs" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand cs" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s s -l skip-sequences -d 'Skip setting terminal sequences'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s T -l skip-templates -d 'Skip templating process'
@@ -71,8 +74,9 @@ complete -c wallust -n "__fish_wallust_using_subcommand cs" -s u -l update-curre
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s N -l no-config -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_using_subcommand theme" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_using_subcommand theme" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand theme" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand theme" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand theme" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s p -l preview -d 'Only preview the selected theme'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s s -l skip-sequences -d 'Skip setting terminal sequences'
@@ -81,8 +85,9 @@ complete -c wallust -n "__fish_wallust_using_subcommand theme" -s u -l update-cu
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s N -l no-config -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand migrate" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s s -l skip-sequences -d 'Skip setting terminal sequences'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s T -l skip-templates -d 'Skip templating process'
@@ -90,8 +95,9 @@ complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s u -l update-
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s N -l no-config -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s i -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "{background\t'',foreground\t'',cursor\t'',color0\t'',color1\t'',color2\t'',color3\t'',color4\t'',color5\t'',color6\t'',color7\t'',color8\t'',color9\t'',color10\t'',color11\t'',color12\t'',color13\t'',color14\t'',color15\t''}"
-complete -c wallust -n "__fish_wallust_using_subcommand debug" -s C -l config-file -d 'Use FILE as the config file' -r -F
-complete -c wallust -n "__fish_wallust_using_subcommand debug" -s d -l config-dir -d 'Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand debug" -s C -l config-file -d 'Use CONFIG_FILE as the config file' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand debug" -s d -l config-dir -d 'Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)' -r -F
+complete -c wallust -n "__fish_wallust_using_subcommand debug" -l templates-dir -d 'Uses TEMPLATE_DIR as the template directory' -r -F
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s s -l skip-sequences -d 'Skip setting terminal sequences'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s T -l skip-templates -d 'Skip templating process'
