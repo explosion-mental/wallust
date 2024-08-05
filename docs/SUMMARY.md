@@ -24,10 +24,12 @@
     - [Defining a Template](./config/template.md)
     - [Example](./config/example.md)
 
-- [Template](./template/README.md)
-    - [Variables](./template/variables.md)
-    - [Filters](./template/filters.md)
-    - [Pywal compatibility](./template/pywal.md)
+- [Templates](./templates/README.md)
+    - [Syntax](./templates/syntax.md)
+    - [Variables](./templates/variables.md)
+    - [Filters](./templates/filters.md)
+    - [Example](./templates/example.md)
+    - [Pywal compatibility](./templates/pywal.md)
 
 # Dev
 - [Contribute!](./contribute.md)

@@ -4,7 +4,7 @@ The Jinja2 format calls them 'filters', making a distincion from 'functions'.
 
 Currently I haven't implemented any **function** because I haven't found a usecase (yet?).
 
-## UNSIGNED INT
+## Filters that take an _UNSIGNED INT_
 
 ### alpha_hexa
 Displays alpha value as
@@ -13,7 +13,7 @@ Displays alpha value as
 This can only be used with numbers from 0 to 100, so you are free to use the
 variable _alpha_ with this filter.
 
-## COLORS
+## Filters that take the _color_ type
 Functions that only work with colors. These can be applied to a _color_, which
 can be the COLOR variables listed in "Variables" section, or a literal color
 like "`#0A0B0C`". These functions return a color in the mentioned format (hex

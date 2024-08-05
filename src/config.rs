@@ -161,9 +161,7 @@ impl Config {
                 if !s.exists() { anyhow::bail!("Templates dir provided doesn't exist: {}", s.display()); }
                 s
             },
-            // TODO BREAKING CHANGE, default location of templates.
-            // None => &dir.join("templates"),
-            None => dir,
+            None => &dir.join("templates"),
         };
 
         let mut ret = if !config.exists() { // don't care if it doesn't exist.

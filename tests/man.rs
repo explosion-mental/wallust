@@ -394,9 +394,9 @@ set inputbar-bg    "{{background | complementary}}"
 .RE
 .sp
 Then you can add this file to
-.I ~/.config/wallust/
+.I ~/.config/wallust/templates
 and use the config file to template it. For example,
-.I "zathura.template = ~/.config/wallust/zathurarc"
+.I "zathura.template = 'zathurarc'"
 , and then define a
 .I target
 field, see

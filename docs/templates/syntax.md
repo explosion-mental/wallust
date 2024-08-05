@@ -1,8 +1,7 @@
 # Template Syntax
 
-You can use **wallust** generated colors in a program by _templating_ the
-colors in it's config file. Here is an overview of the general syntax of a
-template.
+Here is an overview of the general syntax of a template.
+
 
 You reference variables in the following syntax:
 
@@ -96,28 +95,3 @@ You can read more at:
 [**Jinja2 official syntax**](https://jinja.palletsprojects.com/en/2.10.x)
 and contrast features with the supported syntax at
 [**Compatibility of minijinja**](https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md)
-
-# Example
-
-```
-# zathurarc config sample
-...
-
-# colors
-set default-bg     "{{background}}"
-set default-fg     "{{foreground}}"
-
-# make it a bit lighter than background
-set statusbar-bg   "{{background | lighten(0.3)}}"
-
-# make it darken by blending to a darken color
-set statusbar-fg   "{{foreground | blend("#eeeeee")}}"
-
-# use it's complementary
-set inputbar-bg    "{{background | complementary}}"
-```
-
-Then you can add this file to `~/.config/wallust`
-and use the config file to **template** it. For example,
-`zathura.template = ~/.config/wallust/zathurarc`, and then define a
-**target** field, see wallust (5).

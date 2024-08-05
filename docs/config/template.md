@@ -7,8 +7,10 @@ allowing you to define Widows like paths, e.g. `'C:\Users\Desktop\'`.
 
 ## template
 A relative path that points to a file where wallust.toml is located, usually at
-`~/.config/wallust/`. This file can also be a directory, which will be
+`~/.config/wallust/templates`. This file can also be a directory, which will be
 templated **non-recursively** (only the first recursion, like `du ... --max-depth 1`)
+
+Check out [`templates`](../templates/README.md) section for more.
 
 ## target
 Absolute path in which to place a file with generated templated values. This

@@ -1,6 +1,6 @@
 # Template Variables
 
-## "COLOR" type
+## The _"color"_ type
 These types are formated like as HEX rgb (e.g. '#0A0B0C') by default. However a
 **color literal** can be represented in multiple ways, like HEXA rgba (e.g.
 '`#0A0B0CFF`', where '`FF`' is the transparency value) or HEX rgb without the
