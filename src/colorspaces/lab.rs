@@ -10,7 +10,7 @@ use super::*;
 pub struct Lab;
 
 /// Shadow the colorspace type (Spectrum)
-type Spec = palette::Lab;
+pub type Spec = palette::Lab;
 
 /// Miminum Luminance (from L ab) required for a color to be accepted
 pub const DARKEST: f32 = 4.5;

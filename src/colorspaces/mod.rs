@@ -150,13 +150,32 @@ impl ColorSpace {
     {
         // TODO reorganize this
         // * maybe assign variables inside the module to put it here, like `lchansi::LchAnsi::Mixed` and so on
-        match self {
-            Cs::Lab => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, false, ord, true),
-            Cs::LabMixed => main::<lab::Lab, palette::Lab>(bytes_rgb8, threshold, gen, true, ord, true),
+        let mix = self.mixed();
+        let dedup = self.to_dedup();
 
-            Cs::Lch => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, false, ord, true),
-            Cs::LchMixed => main::<lch::Lch, palette::Lch>(bytes_rgb8, threshold, gen, true, ord, true),
-            Cs::LchAnsi => main::<lchansi::LchAnsi, palette::Lch>(bytes_rgb8, threshold, gen, true, ord, false),
+        match self {
+            Cs::Lab => main::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+            Cs::LabMixed => main::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+
+            Cs::Lch => main::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+            Cs::LchMixed => main::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+            Cs::LchAnsi => main::<lchansi::LchAnsi, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+        }
+    }
+
+    /// XXX just use matches!
+    pub fn mixed(&self) -> bool {
+        match self {
+            Cs::LabMixed | Cs::LchMixed  => true,
+            Cs::Lch | Cs::Lab | Cs::LchAnsi => false,
+        }
+    }
+
+    /// Only LCHANSI requires to preserve it's order, no deduping!
+    pub fn to_dedup(&self) -> bool {
+        match self {
+            Cs::LabMixed | Cs::LchMixed | Cs::Lch | Cs::Lab => true,
+            Cs::LchAnsi => false,
         }
     }
 
