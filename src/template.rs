@@ -158,11 +158,11 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
         let pywal = fields.pywal.unwrap_or(false);
 
         if !path.is_dir() { // normal file
-            if ! quiet { println!("  * Templated {name} to '{target}'"); }
             if let Err(err) = file_render(&mut jinjaenv, &path, target_path, pywal, values) {
                 eprintln!("[{warn}] {name}: {err}");
                 continue;
             }
+            if ! quiet { println!("  * Templated {name} to '{target}'"); }
         } else {
             if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
             // read directory, encapsulating this into a function and then calling this recursively handle the `recursive` field?
@@ -173,12 +173,11 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
                 let target_path = target_path.join(f);
 
-                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display(), target = target_path.display().italic()); }
-
                 if let Err(err) = file_render(&mut jinjaenv, &path.join(f), &target_path, pywal, values) {
                     eprintln!("[{warn}] {name}: {err}");
                     continue;
                 }
+                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display(), target = target_path.display().italic()); }
             }
         }
     }
