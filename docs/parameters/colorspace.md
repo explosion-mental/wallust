@@ -3,10 +3,12 @@ What colorspace to use to gather the most prominent colors.
 
 | Name | Description |
 |------|-------------|
-**lab** | Uses Cie L a b color space. *(mixed)*
+**lab** | Uses Cie L a b color space. *(mixed and ansi)*
 **lch** | CIE Lch, you can understand this color space like LAB but with chrome and hue added, which Could help when sorting. *(mixed)*
 
-There is one variant: **mixed**, which mixes colors when collecting them into a histogram.
+There are two variants:
+- **mixed**, which mixes colors when collecting them into a histogram.
+- **ansi**, Tries to get a full color pallete similar to the one of a tty, this works best with `ansidark` [palette](./palette.md).
 
 <hr>
 

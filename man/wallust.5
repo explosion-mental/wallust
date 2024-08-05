@@ -55,14 +55,20 @@ Uses Cie L a b color space.
 .TP
 .B lch
 CIE Lch, you can understand this color space like LAB but with chrome and hue added, which Could help when sorting.
-.I (mixed)
+.I (mixed, ansi)
 
 .RE
 
 .RS
-There is one variant:
+There are two variant:
+
+.TP
 .BR mixed ,
 which mixes colors when collecting them into a histogram.
+.TP
+.BR ansi
+Tries to get a full color pallete similar to a tty. This works best with
+.I ansidark.
 .RE
 
 .TP

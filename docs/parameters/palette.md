@@ -4,6 +4,7 @@ resulting in a scheme palette.
 
 | Name | Description |
 |------|-------------|
+**ansidark**  | Dark ansi colors, works best with lchansi and orders it's colors to preserve a constant tty like order: `color0` -> black, `color1` -> redish, `color2` -> greenish, and so on.
 **dark**      | Dark colors dark background and light contrast. *(16, comp, comp16)*
 **harddark**  | Same as dark with hard hue colors. *(16, comp, comp16)*
 **light**     | Light bg dark fg. *(16, comp, comp16)*
