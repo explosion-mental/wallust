@@ -36,13 +36,17 @@ pub struct Globals {
     #[arg(global = true, short, long, conflicts_with = "skip_sequences")]
     pub update_current: bool,
 
-    /// Use FILE as the config file
+    /// Use CONFIG_FILE as the config file
     #[arg(global = true, short = 'C', long, conflicts_with = "config_dir")]
     pub config_file: Option<PathBuf>,
 
-    /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
-    #[arg(global = true, short = 'd', long, conflicts_with = "config_file")]
+    /// Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+    #[arg(global = true, short = 'd', long, conflicts_with = "config_file", conflicts_with = "templates_dir")]
     pub config_dir: Option<PathBuf>,
+
+    /// Uses TEMPLATE_DIR as the template directory.
+    #[arg(global = true, long, conflicts_with = "config_dir")]
+    pub templates_dir: Option<PathBuf>,
 
     /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
     #[arg(global = true, short = 'N', long, conflicts_with = "config_file", conflicts_with = "config_dir")]

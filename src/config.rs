@@ -66,6 +66,10 @@ pub struct Config {
     #[serde(skip)]
     pub file: PathBuf,
 
+    /// template directory (wallust/template/) path
+    #[serde(skip)]
+    pub templates_dir: PathBuf,
+
     /* TRUE VALUES , used internally */
 
     /// True threshold gathered from threshold.
@@ -151,6 +155,16 @@ impl Config {
             None => &dir.join("wallust.toml"),
         };
 
+        let templates_dir = match &g.templates_dir {
+            Some(s) => {
+                // check if exist first
+                if !s.exists() { anyhow::bail!("Templates dir provided doesn't exist: {}", s.display()); }
+                s
+            },
+            // TODO BREAKING CHANGE, default location of templates.
+            // None => &dir.join("templates"),
+            None => dir,
+        };
 
         let mut ret = if !config.exists() { // don't care if it doesn't exist.
             println!("[{info}] {t}: No configuration file found, using default values.", info = "I".blue().bold(), t = "config".magenta().bold());
@@ -162,6 +176,7 @@ impl Config {
             ).with_context(s)?
         };
 
+        ret.templates_dir = templates_dir.into();
         ret.dir = dir.into();
         ret.file = config.into();
         ret.true_th = 0; //dummy placeholder
@@ -247,7 +262,7 @@ impl Config {
             colors,
         };
 
-        template::write_template(&self.dir, templates_header, &values, quiet)
+        template::write_template(&self.templates_dir, templates_header, &values, quiet)
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration
