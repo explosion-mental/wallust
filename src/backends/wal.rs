@@ -63,6 +63,7 @@ fn imagemagick(color_count: u8, img: &Path, magick_command: &str) -> Result<Stri
             "-resize", "25%",
             "-colors", &color_count.to_string(),
             "-unique-colors",
+            "-depth", "8", // always use rgb
             "txt:-",
         ])
         .output()
