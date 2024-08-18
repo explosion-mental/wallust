@@ -24,6 +24,16 @@ struct ColSettings {
     chroma_def: f32,
 }
 
+impl BuildHisto<Spec> for LchAnsi {
+    fn filter_cols(a: Spec) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
+
+    ///NO SORTING, since we set up everything in `gather_cols`
+    fn sort_col(histo: Vec<Histo<Spec>>, _cs: &ColorOrder) -> Vec<Histo<Spec>> { histo }
+
+    /// no sorting here as well.
+    fn sort_by_key_fn(_a: Histo<Spec>) -> impl Ord { }
+}
+
 fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
 
 impl BuildColors for ColorHisto<Spec, LchAnsi> {

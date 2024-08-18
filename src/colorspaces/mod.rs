@@ -276,6 +276,114 @@ pub trait ColorTrait:
         + palette::convert::FromColorUnclamped<palette::rgb::Rgb<palette::encoding::Linear<palette::encoding::Srgb>>>
 {}
 
+
+pub trait BuildHisto<C: ColorTrait> {
+    /// If this fails, then there are less than 2 colors.
+    fn init(bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
+        let b = Self::read(bytes);
+        let ret = Self::gather_cols(b, threshold, mix);
+        if ret.len() < 2 { None } else { Some(ret) }
+    }
+
+    /// If this fails, just quit. Here we try to artificially generate colors.
+    fn fallback(histo: Vec<Histo<C>>, threshold: u8, gen: &G) -> Vec<Histo<C>> {
+        let mut histo = histo;
+        // Artificially generate colors with linear interpolation in between the colors that we already
+        // have. However even this can even fail and not generate enough different colors, so there is
+        // another check below
+
+        // fallback_generator
+        // XXX Is this really necesary with the new "automatic handling of the threshold?"
+        let mut new = Self::color_generator(&histo, threshold, gen);
+
+        histo.append(&mut new);
+
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+        // take the *necessary* most used colors
+        histo.truncate(MAX_COLS.into());
+        histo
+    }
+
+    /// No need for a threshold, since here we only got 2 colors.
+    fn fallback_monochromatic(histo: Vec<Histo<C>>, gen: &G) -> Vec<Histo<C>> {
+        let mut histo = histo;
+        let mut new = gen.gen()(histo[0].color.into_color(), histo[1].color.into_color(), MIN_COLS)
+            .iter()
+            .map(|&x| {
+                let c: C = x.into_color();
+                Histo { color: c, count: 1 }
+            })
+            .collect::<Vec<Histo<C>>>();
+
+        histo.append(&mut new);
+
+        // sort vec by count, most used colors first (if they are more than the MAX)
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+        // take the *necessary* most used colors
+        histo.truncate(MAX_COLS.into());
+        histo
+    }
+
+    /// XXX I've tested a lot and: (requires more in depth findings)
+    /// 1. using `dedup_by` without `sort_by_key` seems to not get much colors.
+    /// 2. obviously sorting without `dedup`ing won't do much.
+    /// 3. to get more colors `.truncate()` should accept `MAX_COLS`, however this used to get many
+    ///    similar colors, not resulting in an stable palette. By using these two methods below, we
+    ///    'asure' (lazyly) to have no duplicates, and thus, the benefit of 'more colors' won't
+    ///    imply 'bad scheme'.
+    fn dedup_cols(histo: Vec<Histo<C>>, threshold: u8) -> Vec<Histo<C>> {
+        let mut histo = histo;
+        // histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
+        // histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
+        // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
+        // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
+        // labs.dedup();
+        histo.sort_by_key(|&a| Self::sort_by_key_fn(a));
+        histo.dedup_by(|a, b| a.color.col_diff(&b.color, threshold));
+
+        // sort vec by count, most used colors first
+        histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+        // remove excess elements
+        histo.truncate(MAX_COLS.into());
+        histo
+    }
+
+    /// Function that read the image rgb8 bytes and converts them into it's colorspace
+    fn read(bytes: &[u8]) -> Vec<C> { read(bytes) }
+
+    /// What colors to avoid before adding. e.g. too dark/light
+    fn filter_cols(a: C) -> bool;
+
+    /// Simple Sort algo that determines how to order colors
+    /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
+    fn sort_col(histo: Vec<Histo<C>>, cs: &ColorOrder) -> Vec<Histo<C>>;
+
+    /// how to .sort_by_key, this is colorspace specific
+    fn sort_by_key_fn(a: Histo<C>) -> impl Ord;
+
+    // No need, we work directly with vecs
+    // Consumes self into a vec
+    //fn to_vec(self) -> Vec<Histo<C>> { self.into() }
+
+    /// This function is used when the colors gathered by new_colors are not enough.
+    /// See .gen()
+    /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
+    /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
+    /// This was called 'new_colors()' (generates a new Vec of Histograms)
+    fn color_generator(histo: &[Histo<C>], threshold: u8, gen: &G) -> Vec<Histo<C>> {
+        color_generator2::<C, Self>(histo, threshold, gen)
+    }
+
+    /// This is a generic way of creating a histogram.
+    fn gather_cols(colors: Vec<C>, threshold: u8, mix: bool) -> Vec<Histo<C>> {
+        gather_cols2::<C, Self>(colors, threshold, mix)
+    }
+}
+
 /// Simple wrapper for a vector of histograms.
 /// Abstracts away vector/slices operations by using Deref and DerefMut traits.
 #[derive(Debug, Clone, PartialEq)]
@@ -518,6 +626,54 @@ fn color_generator<T: ColorTrait, U: BuildColors<Color = T>> (histo: &[Histo<T>]
     }
 
     new_cols
+}
+
+fn color_generator2<T: ColorTrait, U: BuildHisto<T> + ?Sized> (histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
+{
+    let mut new_cols = vec![];
+    // try to generate new colors with interpolation in between the already gathered colors
+    for comb in histo.iter().combinations(2) {
+        let color_a: Srgb = comb[0].color.into_color();
+        let color_b: Srgb = comb[1].color.into_color();
+
+        let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
+            .iter().map(|&x| x.into_color()).collect();
+
+        //similar to how it's done at the start of `lab()`
+        // save the new colors, or discard them if similar enough
+        // no more color mixing, we don't have much colors left.
+        new_cols.append(&mut gather_cols2::<T, U>(rgbs, threshold, false));
+
+        let len = histo.len() + new_cols.len();
+
+        if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
+    }
+
+    new_cols
+}
+
+
+fn gather_cols2<T: ColorTrait, U: BuildHisto<T> + ?Sized>(colors: Vec<T>, threshold: u8, mix: bool) -> Vec<Histo<T>> {
+    let mut histogram: Vec<Histo<T>> = vec![];
+
+    'outter: for c in colors {
+        if U::filter_cols(c) {
+            // Check if whether the color is new or is already in the vec
+            for hist in &mut histogram {
+                // if any color is between a threshold, count it up
+                if c.col_diff(&hist.color, threshold) {
+                    if mix { hist.color = hist.color.mix(c, 0.5); }
+                    hist.count += 1;
+                    continue 'outter;
+                }
+            }
+            // if we reach here, the color hasn't been found in the histrogram,
+            // so we found a new color.
+            histogram.push(Histo { color: c, count: 1 });
+        }
+    }
+
+    histogram.into()
 }
 
 /// This is a generic way of creating a histogram.

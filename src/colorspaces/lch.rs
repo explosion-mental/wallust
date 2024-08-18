@@ -32,6 +32,38 @@ impl Difference for Spec {
     }
 }
 
+impl BuildHisto<Spec> for Lch {
+    fn filter_cols(a: Spec) -> bool { (a.l >= DARKEST || a.l <= LIGHTEST) && a.chroma > MIN_CHROMA }
+
+    fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
+
+        let mut histo = histo;
+        use std::cmp::Ordering;
+        // TODO use light or chrome/hue
+        histo.sort_by(|a, b| match cs {
+            // ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
+            // ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
+
+            // ColorOrder::LightFirst => a.color.chroma.partial_cmp(&b.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+            // ColorOrder::DarkFirst  => b.color.chroma.partial_cmp(&a.color.chroma).unwrap_or(std::cmp::Ordering::Equal),
+
+            // ColorOrder::LightFirst => b.color.hue.into_inner().partial_cmp(&a.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
+            // ColorOrder::DarkFirst  => a.color.hue.into_inner().partial_cmp(&b.color.hue.into_inner()).unwrap_or(std::cmp::Ordering::Equal),
+
+            ColorOrder::LightFirst => (b.color.l, a.color.chroma).partial_cmp(&(a.color.l, b.color.chroma)).unwrap_or(Ordering::Equal),
+            ColorOrder::DarkFirst  => (a.color.l, b.color.chroma).partial_cmp(&(b.color.l, a.color.chroma)).unwrap_or(Ordering::Equal),
+        });
+        histo
+    }
+
+    fn sort_by_key_fn(a: Histo<Spec>) -> impl Ord {
+        // a.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal)
+        // (a.color.l as i32, a.color.hue.into_inner() as i32)
+        a.color.chroma as i32
+        // (a.color.l as u32, a.color.chroma as i32, a.color.hue.into_inner() as i32)
+    }
+}
+
 impl BuildColors for ColorHisto<Spec, Lch> {
     type Color = Spec;
     fn filter_cols(a: Self::Color) -> bool { (a.l >= DARKEST || a.l <= LIGHTEST) && a.chroma > MIN_CHROMA }
