@@ -20,9 +20,9 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
     };
     //use palette::{white_point::D65, FromColor, IntoColor, Lab, LinSrgba, Srgb, Srgba};
 
-    //let img = image::io::Reader::open(f)?.with_guessed_format()?.decode()?.into_rgba8();
+    let img = image::ImageReader::open(f)?.with_guessed_format()?.decode()?.into_rgb8();
 
-    let img = thumb::thumb(f)?;
+    // let img = thumb::thumb(f)?;
 
     //let img_vec: &[Srgba<u8>] = img.components_as();
     let img_vec: &[Srgb<u8>] = img.components_as();
