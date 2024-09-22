@@ -24,6 +24,8 @@ struct ColSettings {
     chroma_def: f32,
 }
 
+fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
+
 impl BuildHisto<Spec> for LchAnsi {
     fn filter_cols(a: Spec) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 
@@ -32,13 +34,6 @@ impl BuildHisto<Spec> for LchAnsi {
 
     /// no sorting here as well.
     fn sort_by_key_fn(_a: Histo<Spec>) -> impl Ord { }
-}
-
-fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
-
-impl BuildColors for ColorHisto<Spec, LchAnsi> {
-    type Color = Spec;
-    fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 
     /// We change this in order to:
     ///  1. Follow ascii 8 bit colors
@@ -52,7 +47,7 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
     /// Magenta falls between 301 and 360 degrees.
     /// Ref: https://docs.rs/palette/latest/palette/lch/struct.Lch.html
     // comments below are from the palette docs
-    fn gather_cols(colors: Vec<Self::Color>, _threshold: u8, _mix: bool) -> Self {
+    fn gather_cols(colors: Vec<Spec>, _threshold: u8, _mix: bool) -> Vec<Histo<Spec>> {
 
         let red     = ColSettings { hue_start:   0.0, hue_end:  60.0, light_def: 50.0, chroma_def: 181.0 };
         let yellow  = ColSettings { hue_start:  61.0, hue_end: 120.0, light_def: 80.0, chroma_def: 128.0 };
@@ -164,19 +159,13 @@ impl BuildColors for ColorHisto<Spec, LchAnsi> {
         assert!(histogram.len() >= MIN_COLS.into(), "Histogram has less colors than required.");
 
         //println!("{histogram:#?}");
-        histogram.into()
+        histogram
     }
 
-    fn color_generator(_histo: &[Histo<Self::Color>], _threshold: u8, _gen: &FallbackGenerator) -> Vec<Histo<Self::Color>> {
+    fn color_generator(_histo: &[Histo<Spec>], _threshold: u8, _gen: &FallbackGenerator) -> Vec<Histo<Spec>> {
         // gather_colors SHOULD ALWAYS fill at least MIN_COLORS.
         unreachable!()
     }
-
-    ///NO SORTING, since we set up everything in `gather_cols`
-    fn sort_col(self, _cs: &ColorOrder) -> Self { self }
-
-    /// no sorting here as well.
-    fn sort_by_key_fn(_a: Histo<Self::Color>) -> impl Ord { }
 }
 
 

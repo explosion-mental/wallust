@@ -22,51 +22,39 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     // Different color spaces can be used here.
     // let ((mut top, mut orig), mut warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
 
-    let mut top = vec![];
-    let mut orig = vec![];
-
     // Here we start with true so it runs at least once.
-    let mut warn = true;
+    let warn;
 
-    if c.threshold.is_none() || dynamic_th { // automatically handled by wallust.
+    // let mix = c.color_space.mixed();
+    // let dedup = c.color_space.to_dedup();
+    let gen = &c.fallback_generator.unwrap_or_default();
+    let ord = &c.palette.sort_ord();
+    //let mytype = c.color_space.testy();
 
-        //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
 
 
-        // if warn is true it means there is a problem and it requires to call 'fallback_generator'
-        // when false, there was nothing wrong.
-
-        // counter
-        let mut i = 1;
-
-        // Default error
-        let mut err = colorspaces::ColorSpaceError::NotEnough;
-
-        //TODO if no warn (meaning the first `c.color_space.main` call ran without issues)
-        //do the opposite of what's below: increase the threshold until warn is true
-
-        while warn {
-            let newth = c.true_th - i;
-            // println!("HEEEY {warn} and th is {newth}");
-
-            // TODO maybe split ColorSpace::main into more steps so this call has less usage
-            match c.color_space.main(&rgb8s, newth, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord()) {
-                Ok(o) => ((top, orig), warn) = o,
-                // overwrite error
-                Err(e) => err = e,
-            }
-
-            i += 1;
-
-            // While this case MAY.. be possible, who knows really, we add a simple "non loop forever" exit.
-            // This should be 'impossible' since `colorspaces` module checks if at least two colors are there.
-            if newth == 1 { anyhow::bail!("{err}") }
+    let (top, orig) = if c.threshold.is_some() && !dynamic_th {
+        let threshold = c.threshold.expect("checked above");
+        match c.color_space.run_one(&rgb8s, threshold, gen, ord) {
+            Some(s) => {
+                let (t, o, w) = s;
+                warn = w;
+                (t, o)
+            },
+            None => anyhow::bail!("Not enough colors!."),
         }
-
-        if top.is_empty() { anyhow::bail!("{err}") }
     } else {
-        ((top, orig), warn) = c.color_space.main(&rgb8s, c.true_th, &c.fallback_generator.unwrap_or_default(), &c.palette.sort_ord())?;
-    }
+        let dummy_threshold = 0;
+        match c.color_space.run_dynamic(&rgb8s, dummy_threshold, gen, ord) {
+            Some(s) => {
+                let (t, o, w) = s;
+                warn = w;
+                (t, o)
+            },
+            None => anyhow::bail!("Not enough colors!."),
+        }
+    };
+
 
     // Apply a [`Palette`] that returns the [`Colors`] struct
     let mut colors = c.palette.run(top, orig);

@@ -30,22 +30,21 @@ impl Difference for Spec {
     }
 }
 
-impl BuildColors for ColorHisto<Spec, Lab> {
-    type Color = Spec;
-    fn filter_cols(a: Self::Color) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
+impl BuildHisto<Spec> for Lab {
+    fn filter_cols(a: Spec) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
 
-    fn sort_col(self, cs: &ColorOrder) -> Self {
-        let mut new = self;
+    fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
+        let mut histo = histo;
 
-        new.sort_by(|a, b| match cs {
+        histo.sort_by(|a, b| match cs {
             ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
         });
 
-        new
+        histo
     }
 
-    fn sort_by_key_fn(a: Histo<Self::Color>) -> impl Ord {
+    fn sort_by_key_fn(a: Histo<Spec>) -> impl Ord {
         (a.color.l as u32, a.color.a as i32, a.color.b as i32)
     }
 }
