@@ -307,37 +307,29 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
 }
 
 impl ColorSpace {
-    /// Main function that matches agains the respective colorspace builder with BuildColors trait
-    // pub fn main(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder)
-    //     -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
-    // {
-    //     // TODO reorganize this
-    //     // * maybe assign variables inside the module to put it here, like `lchansi::LchAnsi::Mixed` and so on
-    //     let mix = self.mixed();
-    //     let dedup = self.to_dedup();
-    //
-    //     match self {
-    //         Cs::Lab => main::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-    //         Cs::LabMixed => main::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-    //
-    //         Cs::Lch => main::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-    //         Cs::LchMixed => main::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-    //         Cs::LchAnsi => main::<lchansi::LchAnsi, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-    //     }
-    // }
+    /// main function from ColorSpace, uses a respective dynamic or manual function
+    pub fn run(&self, dynamic: bool, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
+        match dynamic {
+            true => self.run_dynamic(bytes_rgb8, threshold, gen, ord),
+            false => self.run_once(bytes_rgb8, threshold, gen, ord),
+        }
+    }
 
-    pub fn run_one(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
+    pub fn run_once(&self, bytes_rgb8: &[u8], threshold: u8 /* dummy */, gen: &G, ord: &ColorOrder) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
         let mix = self.mixed();
         let dedup = self.to_dedup();
 
-        match self {
-            Cs::Lab => run_once::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-            Cs::LabMixed => run_once::<lab::Lab, lab::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+        let f = match self {
+            Cs::Lab => run_once::<lab::Lab, lab::Spec>,
+            Cs::LabMixed => run_once::<lab::Lab, lab::Spec>,
 
-            Cs::Lch => run_once::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-            Cs::LchMixed => run_once::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-            Cs::LchAnsi => run_once::<lchansi::LchAnsi, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
-        }
+            Cs::Lch => run_once::<lch::Lch, lch::Spec>,
+            Cs::LchMixed => run_once::<lch::Lch, lch::Spec>,
+            Cs::LchAnsi => run_once::<lchansi::LchAnsi, lch::Spec>,
+        };
+
+        f(bytes_rgb8, threshold, gen, mix, ord, dedup)
+
     }
 
     pub fn run_dynamic(&self, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
@@ -382,6 +374,7 @@ impl ColorSpace {
     }
     /// automatic threshold
     /// TODO needs more testing
+    /// XXX not used anymore... since we search every value to get a good result.
     pub fn def_threshold(&self) -> u8 {
         match self {
             Cs::Lab | Cs::LabMixed => 17,
