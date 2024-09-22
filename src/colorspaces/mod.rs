@@ -148,20 +148,22 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
     ord: &ColorOrder,
     _dedup: bool, //TODO
 ) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
+
     //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
 
-    let mut threshold = 2;
     let mut fallback = false;
     let mut warn = false;
     let mut histo = vec![];
 
     // This is the max value a threshold can have.
     // => This has to be a hardcoded tested allround value to avoid going to inifinity.
-    let max_threshold = 30;
+    //let max_threshold = 30;
+    let min_threshold = 2;
+    let mut threshold = 20; //initial threshold
 
     use std::collections::HashMap;
 
-    // the first element is going to be 0, this is to avoid `expect()` panicing
+    // The first element is going to be 0, this is to avoid `expect()` panicing
     // since, this hasmap will never be empty.
     // There can be more than one VALUE for the same KEY, given that different threshold could
     // generate the same lenght of colors:
@@ -170,25 +172,16 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
     let mut hash: HashMap<usize, Vec<u8>> = HashMap::from([(0, vec![0])]);
 
     'running: loop {
-        // Above this level most images shouldn't even generate colors.
-        // // So, technically, 50 it's a hardcoded limit.
-        // if threshold == 50 {
-        //     let max = ths.iter().max_by(|a, b| a.0.cmp(b.0)).expect("not empty");
-        //     //let max_len = max.0;
-        //     let max_th  = max.1.iter().max().expect("not empty");
-        //     // Since it's a threshold already STORED, means it already run without issues.
-        //     histo = C::init(bytes, *max_th, mix)?;
-        //     //println!("MAX: {max:?}");
-        //     break 'running;
-        // }
-        // println!("{ths:#?}");
-
         // read image
         let init = C::init(bytes, threshold, mix);
+
         // println!("INIT \n hash {hash:#?}\nth {threshold}");
 
         //TODO
         // run until max_threshold or break until [min_cols; x] U [x; max_cols] ?
+        // meaning, threhols += 1 (start from 2) or threhols -= 1 (start from 30)
+        // => Yes, run from 20 to 2, if that somehow fails.. run from 20 to 30.
+        //    The passage from 20 to 30 is very unlikely to give good enough results tho... so maybe just fallback inmediatly?
 
         match init {
             // There are colors! This threshold works.
@@ -200,6 +193,8 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 // enough colors, end
                 if len >= MIN_COLS as usize
                 && len <= MAX_COLS as usize //we can't use 200 colors...
+                // if len >= MAX_COLS.into()
+                // && len < (MAX_COLS * 2).into()
                 {
                     histo = s;
                     break 'running
@@ -215,8 +210,8 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 // max KEY
                 let max = *hash.iter().max_by(|a, b| a.0.cmp(b.0)).expect("not empty").0;
 
-                if max == 0
-                && (max + 3) < threshold.into() // at least 4 runs apart, without any len change before quitting
+                if (max - 3) < threshold.into() // at least 4 runs apart, without any len change before quitting
+                && max < MIN_COLS.into()
                 {
                     //not enough colors in the image, or the backend, etc..
                     return None;
@@ -226,23 +221,17 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                     fallback = true;
                     // println!("FALLBACK! {possible_ths:?} | max {max} | threshold {threshold}")
                 }
-
-                // let max = hash.iter().max_by(|a, b| a.1.cmp(b.1)).expect("not empty").1;
-                // let max = max.iter().max().unwrap();
-                // println!("NONE 2 max: {max:?}");
-
-                // at least 4 runs apart, without any len change => quit.
-                // if (max + 3) < threshold.into() { break 'running }
             },
         }
 
-        if histo.len() == MIN_COLS as usize // enough colors, we are done looping
-            || threshold == max_threshold // set a limit, don't go forever..
+        if
+            // histo.len() == MIN_COLS as usize // enough colors, we are done looping
+            threshold == min_threshold // set a limit, don't go forever..
             // || fallback // we are done looping, bc scarse colors
         { break 'running }
 
         // inc threshold every loop [1; 50]
-        threshold += 1;
+        threshold -= 1;
     }
 
     //if init.is_empty() { return None }
