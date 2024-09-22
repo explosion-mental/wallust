@@ -132,7 +132,7 @@ pub struct WallustArgs {
     pub no_cache: bool,
 
     /// Choose which palette to use (overwrites config)
-    #[arg(short, long, value_enum, value_name = "PALETTE")]
+    #[arg(short, long, value_enum)]
     pub palette: Option<Palette>,
 
     /// Add saturation from 1% to 100% (overwrites config)
@@ -144,7 +144,7 @@ pub struct WallustArgs {
     pub threshold: Option<i64>,
 
     /// Dynamically changes the threshold to be best fit
-    #[arg(long)]
+    #[arg(long, conflicts_with = "threshold")]
     pub dynamic_threshold: bool,
 
     /// Generates colors even if there is a cache version of it
