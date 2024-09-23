@@ -177,12 +177,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
 
         // println!("INIT \n hash {hash:#?}\nth {threshold}");
 
-        //TODO
-        // run until max_threshold or break until [min_cols; x] U [x; max_cols] ?
-        // meaning, threhols += 1 (start from 2) or threhols -= 1 (start from 30)
-        // => Yes, run from 20 to 2, if that somehow fails.. run from 20 to 30.
-        //    The passage from 20 to 30 is very unlikely to give good enough results tho... so maybe just fallback inmediatly?
-
         match init {
             // There are colors! This threshold works.
             Some(s) => {
@@ -203,21 +197,29 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 // store threshold with the LEN being the KEY
                 hash.entry(len).or_default().push(threshold);
 
-                if fallback { break 'running } // fallback activated below
+                // if fallback { break 'running } // fallback activated below
             },
             // No colors.. Change threshold or end it here (fallback generator).
-            None => {
-                // max KEY
+            None => 'nocolor: {
+                // What to do here?
+                // Some images like lower thresholds...
+                // Given that the mayority of images work well with highet and 15+ thresholds, and plateu at ~20,
+
+                // max KEY, meaning the most length
                 let max = *hash.iter().max_by(|a, b| a.0.cmp(b.0)).expect("not empty").0;
 
-                if (max - 3) < threshold.into() // at least 4 runs apart, without any len change before quitting
+                // continue trying if max doesn't comply with at least two colors
+                if max < 2 { break 'nocolor }
+
+                // We are done, fallback methods require at least 2 colors.
+                if threshold == 2 && max < 2 { return None }
+
+                if threshold < 10  // one digit threshold
                 && max < MIN_COLS.into()
                 {
-                    //not enough colors in the image, or the backend, etc..
-                    return None;
-                } else {
                     let possible_ths = hash.get(&max).expect("not empty");
-                    threshold = possible_ths[possible_ths.len() / 2]; //median of thresholds
+                    let median = possible_ths[possible_ths.len() / 2]; //median of thresholds
+                    threshold = median;
                     fallback = true;
                     // println!("FALLBACK! {possible_ths:?} | max {max} | threshold {threshold}")
                 }
@@ -236,6 +238,7 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
 
     //if init.is_empty() { return None }
     //let mut init = init.expect("checked above");
+    if histo.len() < 2 { return None }
 
     if histo.len() == 2 {
         warn = true;
