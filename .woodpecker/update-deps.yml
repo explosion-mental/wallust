@@ -33,7 +33,7 @@ steps:
       owner: ${CI_REPO_OWNER}
       repo: ${CI_REPO_NAME}
       branch: update-deps
-      base_branch: dev
+      base_branch: master
       pr_title: "Cargo.lock: update"
       pr_body: PR automatically created by Woodpecker CI
       skip_on_missing_branch: false

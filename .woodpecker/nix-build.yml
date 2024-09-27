@@ -1,5 +1,5 @@
 when:
-  branch: [ dev, master ]
+  branch: master
   event: [ push, pull_request ]
   path: 'src/*'
 

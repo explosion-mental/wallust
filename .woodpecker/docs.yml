@@ -3,7 +3,7 @@
 #     path: 'docs/*'
 
 when:
-  branch: dev
+  branch: master
   event: push
   path:
     include: [ 'docs/*', 'book.toml', 'README.md' ]
