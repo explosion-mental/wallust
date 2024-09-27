@@ -180,25 +180,27 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
         match init {
             // There are colors! This threshold works.
             Some(s) => {
-                //histo = s;
                 // println!("INITTT : {init:?}");
-
-                let ret = if dedup {
-                    C::dedup_cols(s, threshold)
-                } else {
-                    s
-                };
-
-                let len = ret.len();
+                let len = s.len();
 
                 // enough colors, end
+                // we handle here before deduping in case is not needed
                 if len >= MIN_COLS as usize
                 && len <= MAX_COLS as usize //we can't use 200 colors...
                 // if len >= MAX_COLS.into()
                 // && len < (MAX_COLS * 2).into()
                 {
-                    histo = ret;
+                    histo = s;
                     break 'running
+                }
+
+
+                let ret = if dedup { C::dedup_cols(s, threshold) } else { s };
+                let len = ret.len();
+
+                if len >= MIN_COLS as usize && len <= MAX_COLS as usize {
+                    histo = ret;
+                    break 'running;
                 }
 
                 // store threshold with the LEN being the KEY
@@ -490,6 +492,7 @@ pub trait BuildHisto<C: ColorTrait> {
     ///    imply 'bad scheme'.
     fn dedup_cols(histo: Vec<Histo<C>>, threshold: u8) -> Vec<Histo<C>> {
         let mut histo = histo;
+
         // histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
         // histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
         // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
