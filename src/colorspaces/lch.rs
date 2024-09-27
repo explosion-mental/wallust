@@ -33,7 +33,7 @@ impl Difference for Spec {
 }
 
 impl BuildHisto<Spec> for Lch {
-    fn filter_cols(a: Spec) -> bool { (a.l >= DARKEST || a.l <= LIGHTEST) && a.chroma > MIN_CHROMA }
+    fn filter_cols(a: Spec) -> bool { (a.l >= DARKEST && a.l <= LIGHTEST) &&  a.chroma > MIN_CHROMA }
 
     fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
 

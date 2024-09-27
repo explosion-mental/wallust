@@ -31,7 +31,7 @@ impl Difference for Spec {
 }
 
 impl BuildHisto<Spec> for Lab {
-    fn filter_cols(a: Spec) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
+    fn filter_cols(a: Spec) -> bool { a.l >= DARKEST && a.l <= LIGHTEST }
 
     fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
         let mut histo = histo;
