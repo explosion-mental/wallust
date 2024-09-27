@@ -146,7 +146,7 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
     gen: &G,
     mix: bool,
     ord: &ColorOrder,
-    _dedup: bool, //TODO
+    dedup: bool, //TODO
 ) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
 
     //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
@@ -182,7 +182,14 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
             Some(s) => {
                 //histo = s;
                 // println!("INITTT : {init:?}");
-                let len = s.len();
+
+                let ret = if dedup {
+                    C::dedup_cols(s, threshold)
+                } else {
+                    s
+                };
+
+                let len = ret.len();
 
                 // enough colors, end
                 if len >= MIN_COLS as usize
@@ -190,7 +197,7 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 // if len >= MAX_COLS.into()
                 // && len < (MAX_COLS * 2).into()
                 {
-                    histo = s;
+                    histo = ret;
                     break 'running
                 }
 
@@ -226,25 +233,22 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
             },
         }
 
-        if
-            // histo.len() == MIN_COLS as usize // enough colors, we are done looping
-            threshold == min_threshold // set a limit, don't go forever..
-            // || fallback // we are done looping, bc scarse colors
+        if threshold == min_threshold // set a limit, don't go forever..
         { break 'running }
 
         // inc threshold every loop [1; 50]
         threshold -= 1;
     }
 
-    //if init.is_empty() { return None }
-    //let mut init = init.expect("checked above");
-    if histo.len() < 2 { return None }
+    let len = histo.len();
 
-    if histo.len() == 2 {
+    if len < 2 { return None }
+
+    if len == 2 {
         warn = true;
         // println!("TWO COOOLORSS");
         histo = C::fallback_monochromatic(histo, gen);
-    } else if fallback || histo.len() < MIN_COLS.into() {
+    } else if fallback || len < MIN_COLS.into() {
         warn = true;
         histo = C::fallback(histo, threshold, gen);
     }
@@ -262,7 +266,7 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
     gen: &G,
     mix: bool,
     ord: &ColorOrder,
-    _dedup: bool, //TODO
+    dedup: bool,
 ) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
 
     let mut warn = false;
@@ -287,7 +291,13 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
 
     let ret = match ret {
         None => return None,
-        Some(s) => s,
+        Some(s) => {
+            if dedup {
+                C::dedup_cols(s, threshold)
+            } else {
+                s
+            }
+        },
     };
 
     //TODO clone necesarry??
