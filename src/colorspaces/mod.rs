@@ -275,15 +275,24 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
 
     let ret = match C::init(bytes, threshold, mix) {
         Some(s) => {
-            if s.len() == 2 {
+            let s = if dedup {
+                C::dedup_cols(s, threshold)
+            } else {
+                s
+            };
+
+            let len = s.len();
+
+            if len == 2 { //exactly two colors
                 warn = true;
                 Some(C::fallback_monochromatic(s, gen))
-            } else if s.len() < MIN_COLS.into() {
+            } else if len < MIN_COLS.into() { // less than MIN_COLs, requires fallback
                 warn = true;
                 Some(C::fallback(s, threshold, gen))
-            } else {
-                // JUST WRITE HEREEEEEEEEEEEEEEEEEEEEEEE
-                //eprilntln!("Something went Wrong!");
+            } else if len < 2 { // one color?
+                warn = true;
+                None
+            } else { //edge case is more or eq than MIN_COLS
                 warn = false;
                 Some(s)
             }
@@ -293,13 +302,7 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
 
     let ret = match ret {
         None => return None,
-        Some(s) => {
-            if dedup {
-                C::dedup_cols(s, threshold)
-            } else {
-                s
-            }
-        },
+        Some(s) => s,
     };
 
     //TODO clone necesarry??
