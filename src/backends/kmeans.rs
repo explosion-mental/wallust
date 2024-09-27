@@ -29,11 +29,10 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
 
     let k = 8;
     let max_iter = 20;
-    let runs = 3;
+    let runs = 5;
     let verbose = false;
     let converge = 0.0025;
-    //let seed: u64 = rand::thread_rng().gen();
-    let seed = 12345;
+    let seed = 0;
 
     // Read image buffer into Srgb format
      let rgb_pixels = img_vec
@@ -58,7 +57,7 @@ pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
             seed + i,
         );
 
-        if run_result.score < result.score {
+        if result.score > run_result.score {
             result = run_result;
         }
     }
