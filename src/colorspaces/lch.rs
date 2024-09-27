@@ -17,7 +17,9 @@ pub const LIGHTEST: f32 = 95.5;
 
 /// This is so there are more vivid colors!
 /// even another filter to avoid blank `black/white`.
-const MIN_CHROMA: f32 = 15.0;
+const MIN_CHROMA: f32 = 4.5;
+//TODO intelligent min chroma
+// get the minimum value and discard every minimun value until MIN_COLS (or max_cols?)
 
 impl ColorTrait for Spec {}
 
