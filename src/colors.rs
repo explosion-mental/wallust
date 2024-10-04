@@ -8,9 +8,11 @@ use std::path::Path;
 use anyhow::Result;
 use owo_colors::{OwoColorize, Rgb};
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
-use palette::color_theory::Complementary;
-use palette::convert::FromColorUnclamped;
-use palette::{Hsv, Srgb, IntoColor, ShiftHue};
+use palette::{
+    color_theory::Complementary,
+    convert::FromColorUnclamped,
+    Hsv, Srgb, IntoColor,
+};
 
 use crate::args::Sequences;
 use crate::sequences;
@@ -275,10 +277,9 @@ impl Myrgb {
     /// Ref:
     /// https://docs.rs/palette/latest/palette/color_theory/trait.Complementary.html
     pub fn complementary(&self) -> Self {
-        let hsv: Hsv = self.0.into_color();
-        let hsv = hsv.complementary();
-        let rgb: Srgb = hsv.into_color();
-        Self(rgb)
+        Self(
+            self.0.complementary()
+        )
     }
 }
 

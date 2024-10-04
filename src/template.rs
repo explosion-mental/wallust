@@ -4,17 +4,23 @@ use std::path::Path;
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use crate::colors::Colors;
-use crate::colors::Myrgb;
-use crate::config::Fields;
-use crate::palettes::Palette;
-use crate::backends::Backend;
-use crate::colorspaces::ColorSpace;
+use crate::{
+    colors::{ Colors, Myrgb },
+    config::Fields,
+    palettes::Palette,
+    backends::Backend,
+    colorspaces::ColorSpace,
+};
 
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use minijinja::{Environment, context};
 use minijinja::value::ViaDeserialize;
+
+use palette::{
+    Darken, Lighten, IntoColor, Saturate,
+    Srgb, Srgba, Hsv,
+};
 
 pub struct TemplateFields<'a> {
     pub alpha: u8,
@@ -184,9 +190,6 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
     Ok(())
 }
-
-use palette::{Srgb, Srgba, Hsv};
-use palette::{Darken, Lighten, IntoColor, Saturate};
 
 fn parse_srgb(s: &str) -> Result<Srgb<u8>, minijinja::Error> {
     Srgb::<u8>::from_str(s)
