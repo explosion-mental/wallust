@@ -20,7 +20,7 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
 
     let magick_command = has_im()?;
 
-    let mut raw_colors = imagemagick(16 /*+ 0*/, f, &magick_command)?;
+    let mut raw_colors = imagemagick(16 /* + 0*/, f, &magick_command)?;
 
     // we start with 1, since we already 'did' an iteration by initializing the variable.
     for i in 1..20 {
@@ -37,6 +37,10 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
             // eprintln!("Trying a larger palette size {}", 16 + i);
         // }
     }
+
+    // TODO pywal uses the first, last and from 6-8 colors from the pallete, We need a way to tell
+    // `colorspaces` module to not chop off these colors (maybe in another backend that ensures pywal parity?)
+    // https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L60
 
     for line in raw_colors.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(1);
