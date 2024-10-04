@@ -100,8 +100,9 @@ where
 {
     fn complementary(self) -> Self {
         let hsv: Hsv = self.into_color();
-        let hsv = hsv.complementary();
-        hsv.shift_hue(180.0).into_color()
+        hsv
+            .complementary()
+            .into_color()
     }
 }
 
