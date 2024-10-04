@@ -20,7 +20,7 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
 
     let magick_command = has_im()?;
 
-    let mut raw_colors = imagemagick(16 + 1, f, &magick_command)?;
+    let mut raw_colors = imagemagick(16 /*+ 0*/, f, &magick_command)?;
 
     // we start with 1, since we already 'did' an iteration by initializing the variable.
     for i in 1..20 {
@@ -30,11 +30,12 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
 
         if i == 19 {
             anyhow::bail!("Imagemagick couldn't generate a suitable palette.");
-        } else {
+        }
+        // else {
             // No need to print, just keep trying.
             // eprintln!("Imagemagick couldn't generate a palette.");
             // eprintln!("Trying a larger palette size {}", 16 + i);
-        }
+        // }
     }
 
     for line in raw_colors.lines().skip(1) {
@@ -54,16 +55,14 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
 }
 
 fn imagemagick(color_count: u8, img: &Path, magick_command: &str) -> Result<String> {
-    // in case the file is a gif.
-    let img = format!("{}[0]", img.display());
-
     let im = Command::new(magick_command)
         .args([
-            &img,
+            &format!("{}[0]", img.display()), // gif edge case, use the first frame
             "-resize", "25%",
             "-colors", &color_count.to_string(),
             "-unique-colors",
-            "-depth", "8", // always use rgb
+            "-colorspace", "srgb", //srgb
+            "-depth", "8", // 8 bit
             "txt:-",
         ])
         .output()
