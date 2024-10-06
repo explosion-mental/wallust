@@ -15,6 +15,7 @@ fn version() -> String {
         .commit_date(true)
         .sha(true)
         .build().unwrap();
+
     vergen::Emitter::default()
         .add_instructions(&git2).unwrap()
         .emit_and_set().unwrap();
@@ -22,18 +23,10 @@ fn version() -> String {
     let sha = std::env::var_os("VERGEN_GIT_SHA").unwrap();
     let sha = sha.to_string_lossy();
 
-    let describe = std::env::var_os("VERGEN_GIT_DESCRIBE").unwrap();
-    let describe = describe.to_string_lossy();
-
     let date = std::env::var_os("VERGEN_GIT_COMMIT_DATE").unwrap();
     let date = date.to_string_lossy();
 
-    //XXX while we could just check for the branch, it could be that `dev` is the same as `master`
-    if sha == describe { //we are on a released version
-        String::new()
-    } else { // development version
-        format!("({sha} {date})")
-    }
+    format!("({sha} {date})")
 }
 
 #[cfg(all(feature = "themes", feature = "buildgen"))]
