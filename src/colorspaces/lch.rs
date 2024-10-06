@@ -9,6 +9,9 @@ pub struct Lch;
 /// Shadow the colorspace type (Spectrum)
 pub type Spec = palette::Lch;
 
+/// histo<spec>
+pub type Hist = Histo<Spec>;
+
 /// Miminum Luminance (from L ab) required for a color to be accepted
 pub const DARKEST: f32 = 4.5;
 
@@ -30,14 +33,14 @@ impl Difference for Spec {
         // use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE, Ciede2000};
         // self.difference(*a) <= threshold.into()
         // self.improved_difference(*a) <= threshold.into()
-        // delta_1994(self, a) <= threshold.into()
+        // delta_1994(self, ) <= threshold.into()
     }
+
+    fn filter_cols(&self) -> bool { (self.l >= DARKEST && self.l <= LIGHTEST) &&  self.chroma > MIN_CHROMA }
 }
 
 impl BuildHisto<Spec> for Lch {
-    fn filter_cols(a: Spec) -> bool { (a.l >= DARKEST && a.l <= LIGHTEST) &&  a.chroma > MIN_CHROMA }
-
-    fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
+    fn sort_col(histo: Vec<Hist>, cs: &ColorOrder) -> Vec<Hist> {
 
         let mut histo = histo;
         use std::cmp::Ordering;
@@ -58,7 +61,7 @@ impl BuildHisto<Spec> for Lch {
         histo
     }
 
-    fn sort_by_key_fn(a: Histo<Spec>) -> impl Ord {
+    fn sort_by_key_fn(a: Hist) -> impl Ord {
         // a.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal)
         // (a.color.l as i32, a.color.hue.into_inner() as i32)
         a.color.chroma as i32

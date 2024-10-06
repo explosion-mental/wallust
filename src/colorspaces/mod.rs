@@ -411,6 +411,7 @@ impl From<Myrgb> for Srgb<u8> {
 /// Method to use for color difference (deltaE)
 pub trait Difference {
     fn col_diff(&self, a: &Self, threshold: u8) -> bool;
+    fn filter_cols(&self) -> bool;
 }
 
 impl<T: ColorTrait> From<T> for Myrgb {
@@ -515,8 +516,8 @@ pub trait BuildHisto<C: ColorTrait> {
     /// Function that read the image rgb8 bytes and converts them into it's colorspace
     fn read(bytes: &[u8]) -> Vec<C> { read(bytes) }
 
-    /// What colors to avoid before adding. e.g. too dark/light
-    fn filter_cols(a: C) -> bool;
+    // What colors to avoid before adding. e.g. too dark/light
+    //fn filter_cols(a: C) -> bool;
 
     /// Simple Sort algo that determines how to order colors
     /// usecase: `histo.sort_by(|a, b| color_ord.sort_algo(a, b))`
@@ -535,12 +536,12 @@ pub trait BuildHisto<C: ColorTrait> {
     /// `pred` is for gather_cols() and `method` indicates how the colors are gonna be filled.
     /// This was called 'new_colors()' (generates a new Vec of Histograms)
     fn color_generator(histo: &[Histo<C>], threshold: u8, gen: &G) -> Vec<Histo<C>> {
-        color_generator2::<C, Self>(histo, threshold, gen)
+        color_generator2::<C>(histo, threshold, gen)
     }
 
     /// This is a generic way of creating a histogram.
     fn gather_cols(colors: Vec<C>, threshold: u8, mix: bool) -> Vec<Histo<C>> {
-        gather_cols2::<C, Self>(colors, threshold, mix)
+        gather_cols2::<C>(colors, threshold, mix)
     }
 
     fn to_rgb(histo: Vec<Histo<C>>) -> Vec<Srgb> { histo.iter().map(|x| x.color.into_color()).collect() }
@@ -715,7 +716,7 @@ fn read<T: ColorTrait>(bytes: &[u8]) -> Vec<T> {
         .collect::<Vec<T>>()
 }
 
-fn color_generator2<T: ColorTrait, U: BuildHisto<T> + ?Sized> (histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
+fn color_generator2<T: ColorTrait> (histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
 {
     let mut new_cols = vec![];
     // try to generate new colors with interpolation in between the already gathered colors
@@ -729,7 +730,7 @@ fn color_generator2<T: ColorTrait, U: BuildHisto<T> + ?Sized> (histo: &[Histo<T>
         //similar to how it's done at the start of `lab()`
         // save the new colors, or discard them if similar enough
         // no more color mixing, we don't have much colors left.
-        new_cols.append(&mut gather_cols2::<T, U>(rgbs, threshold, false));
+        new_cols.append(&mut gather_cols2::<T>(rgbs, threshold, false));
 
         let len = histo.len() + new_cols.len();
 
@@ -740,11 +741,11 @@ fn color_generator2<T: ColorTrait, U: BuildHisto<T> + ?Sized> (histo: &[Histo<T>
 }
 
 
-fn gather_cols2<T: ColorTrait, U: BuildHisto<T> + ?Sized>(colors: Vec<T>, threshold: u8, mix: bool) -> Vec<Histo<T>> {
+fn gather_cols2<T: ColorTrait>(colors: Vec<T>, threshold: u8, mix: bool) -> Vec<Histo<T>> {
     let mut histogram: Vec<Histo<T>> = vec![];
 
     'outter: for c in colors {
-        if U::filter_cols(c) {
+        if c.filter_cols() {
             // Check if whether the color is new or is already in the vec
             for hist in &mut histogram {
                 // if any color is between a threshold, count it up

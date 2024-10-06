@@ -10,12 +10,6 @@ pub struct LchAnsi;
 /// Shadow the colorspace type (Spectrum)
 pub type Spec = palette::Lch;
 
-/// Miminum Luminance (from L ab) required for a color to be accepted
-pub const DARKEST: f32 = 4.5;
-
-/// Maximuum Luminance (from L ab) required for a color to be accepted
-pub const LIGHTEST: f32 = 95.5;
-
 /// Used for a better handle of colors and it's (perception) 'limits'
 struct ColSettings {
     hue_start: f32,
@@ -27,8 +21,6 @@ struct ColSettings {
 fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
 
 impl BuildHisto<Spec> for LchAnsi {
-    fn filter_cols(a: Spec) -> bool { a.l >= DARKEST || a.l <= LIGHTEST }
-
     ///NO SORTING, since we set up everything in `gather_cols`
     fn sort_col(histo: Vec<Histo<Spec>>, _cs: &ColorOrder) -> Vec<Histo<Spec>> { histo }
 
