@@ -146,7 +146,7 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
     gen: &G,
     mix: bool,
     ord: &ColorOrder,
-    dedup: bool, //TODO
+    dedup: bool,
 ) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
 
     //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
@@ -317,8 +317,8 @@ impl ColorSpace {
     /// main function from ColorSpace, uses a respective dynamic or manual function
     pub fn run(&self, dynamic: bool, bytes_rgb8: &[u8], threshold: u8, gen: &G, ord: &ColorOrder) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
         match dynamic {
-            true => self.run_dynamic(bytes_rgb8, threshold, gen, ord),
-            false => self.run_once(bytes_rgb8, threshold, gen, ord),
+            true  => self.run_dynamic(bytes_rgb8, threshold, gen, ord),
+            false => self.run_once   (bytes_rgb8, threshold, gen, ord),
         }
     }
 
@@ -377,15 +377,6 @@ impl ColorSpace {
             Cs::Lch => AnsiColors::Magenta,
             Cs::LchMixed => AnsiColors::Magenta,
             Cs::LchAnsi => AnsiColors::Cyan,
-        }
-    }
-    /// automatic threshold
-    /// TODO needs more testing
-    /// XXX not used anymore... since we search every value to get a good result.
-    pub fn def_threshold(&self) -> u8 {
-        match self {
-            Cs::Lab | Cs::LabMixed => 17,
-            Cs::Lch | Cs::LchMixed | Cs::LchAnsi => 20,
         }
     }
 }
@@ -546,115 +537,6 @@ pub trait BuildHisto<C: ColorTrait> {
 
     fn to_rgb(histo: Vec<Histo<C>>) -> Vec<Srgb> { histo.iter().map(|x| x.color.into_color()).collect() }
 }
-
-// /// Basically returns a tuple with `((histogram, histogram_not_sorted), warn)`
-// /// `warn` is important for printing warnings, but it's only that, a warning.
-// /// Since we use [`FallbackGenerator`]s, maybe this should be split up in the future..
-// pub fn main<U, T: ColorTrait>(bytes_rgb8: &[u8], threshold: u8, gen: &G, mix: bool, ord: &ColorOrder, dedup: bool)
-//     -> Result<((Vec<Srgb>, Vec<Srgb>), bool), ColorSpaceError>
-// where
-//     ColorHisto<T, U>: BuildColors<Color = T> + Into<Vec<Myrgb>>,
-// {
-//     // This is to indicate if there were any warnings, since we can't print them directly
-//     let mut warn = false;
-//
-//     let color = ColorHisto::read(bytes_rgb8);
-//
-// //     let mut labs = rgb_bytes_to_labs(cols);
-// //     labs.dedup();
-// //     // XXX using `delta_e` with `.dedup()` here, reduces the vector that littlel
-// //     // that the colors aren't the most prominent ones (for the most part).
-// //     // However, avoiding `.dedup()` and not calling it, also changes the result.
-// //     // After some testing I decided that the most 'plausible' colors would be
-// //     // the one that requires `.dedup()`.
-// //     //labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
-// //
-// //     gather_cols(labs, threshold, mix, &pred)
-//
-//     let mut histo = ColorHisto::gather_cols(color, threshold, mix);
-//
-//     // `interpolate()` requires two colors, else we can't attempt to generate colors at our own
-//     if histo.len() < 2 { return Err(ColorSpaceError::TwoColors) }
-//
-//     if dedup {
-//     // XXX I've tested a lot and: (requires more in depth findings)
-//     // 1. using `dedup_by` without `sort_by_key` seems to not get much colors.
-//     // 2. obviously sorting without `dedup`ing won't do much.
-//     // 3. to get more colors `.truncate()` should accept `MAX_COLS`, however this used to get many
-//     //    similar colors, not resulting in an stable palette. By using these two methods below, we
-//     //    'asure' (lazyly) to have no duplicates, and thus, the benefit of 'more colors' won't
-//     //    imply 'bad scheme'.
-//     // histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
-//     // histo.dedup_by(|a, b| lab::delta_e(a.color, b.color) <= threshold.into());
-//     // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
-//     // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
-//     // labs.dedup();
-//     histo.sort_by_key(|&a| ColorHisto::sort_by_key_fn(a));
-//     histo.dedup_by(|a, b| a.color.col_diff(&b.color, threshold));
-//
-//     // sort vec by count, most used colors first
-//     histo.sort_by(|a, b| b.count.cmp(&a.count));
-//
-//     // remove excess elements
-//     histo.truncate(MAX_COLS.into());
-//     }
-//
-//     if histo.len() == 2 {
-//     // If the colors are exactly two, create a long interpolation from it.
-//         warn = true;
-//         let mut new = gen.gen()(histo[0].color.into_color(), histo[1].color.into_color(), MIN_COLS)
-//             .iter()
-//             .map(|&x| {
-//                 let c: T = x.into_color();
-//                 Histo { color: c, count: 1 }
-//             })
-//             .collect::<Vec<Histo<T>>>();
-//
-//         histo.append(&mut new);
-//
-//         // sort vec by count, most used colors first (if they are more than the MAX)
-//         histo.sort_by(|a, b| b.count.cmp(&a.count));
-//
-//         // take the *necessary* most used colors
-//         histo.truncate(MAX_COLS.into());
-//
-//     } else if histo.len() < MIN_COLS.into() {
-//         // Artificially generate colors with linear interpolation in between the colors that we already
-//         // have. However even this can even fail and not generate enough different colors, so there is
-//         // another check below
-//
-//         warn = true;
-//
-//         // fallback_generator
-//         // XXX Is this really necesary with the new "automatic handling of the threshold?"
-//         let mut new = ColorHisto::color_generator(&histo, threshold, gen);
-//
-//         histo.append(&mut new);
-//
-//         // sort vec by count, most used colors first (if they are more than the MAX)
-//         histo.sort_by(|a, b| b.count.cmp(&a.count));
-//
-//         // take the *necessary* most used colors
-//         histo.truncate(MAX_COLS.into());
-//     }
-//
-//     // not enough colors, even after making new colors (if any)
-//     if histo.len() < MIN_COLS.into() { return Err(ColorSpaceError::NotEnough) }
-//
-//     // TODO don't clone and sort here, since this is function runs multiple times (most of the time)
-//     // orig_histo will not be changed by `sort_colors`,
-//     // thus keeping the `top used colors` order in place
-//     let orig_histo = histo.clone();
-//
-//     // custom sorting, checkout [`ColorOrder`] and [`sort_ord`]
-//     //histo = T::sort_algo(&Cs);
-//     //histo.sort_by(|a, b| ColorHisto::sort_algo(ord, a, b));
-//     let histo = histo.sort_col(ord);
-//
-//     Ok(
-//         ((histo.into(), ColorHisto(orig_histo, PhantomData::<lab::Lab>).into()), warn)
-//     )
-// }
 
 impl fmt::Display for G {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
