@@ -24,7 +24,6 @@ pub struct Cache {
     pub normal: PathBuf,
     /// naming with when artificially generating colors
     pub gen: PathBuf,
-
     /// Path of the cache, this is the path read.
     pub path: PathBuf,
 }
@@ -67,7 +66,7 @@ impl Cache {
     ///   3. check-contrast -> "C_" if true, "" if false (OPTIONAL)
     ///   4. fallback generator (if reached)
     ///   4. [`CACHE_VER`]
-    pub fn new(filename: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
+    pub fn new(file: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
         // A possible solution to caching a checked/unchecked contrast without cache duplication and
         // possible efficiency loss
         // enum Contrast {
@@ -82,35 +81,33 @@ impl Cache {
             "".to_string()
         };
 
+        // threshold
+        let th = if c.true_th == 0 { "auto" } else { &c.true_th.to_string() };
 
-        //format!("{root}/wallust/{back}/{th}/{cs}/{palette}",
+        // Cache directory structure
         let cachepath = Path::new(cache_path)
             .join("wallust")
             .join(c.backend.to_string())
             .join(c.color_space.to_string())
             .join(c.palette.to_string())
-            .join(c.true_th.to_string())
+            .join(th)
             .join(sat)
         ;
 
         // Create cache dir (with all of it's parents)
         fs::create_dir_all(&cachepath)?;
 
-        // get medatada
-        let md = fs::metadata(filename)?;
+        #[cfg(unix)] // use the ino number on *nix systems
+        let num = fs::metadata(file)?.ino();
 
-        // use the ino number on *nix systems, and the "magick file number" on windows
-        #[cfg(unix)]
-        let num = md.ino();
-        #[cfg(windows)]
-        let num = md.file_attributes() ;
+        #[cfg(windows)] // and the "magick file number" on windows
+        let num = fs::metadata(file)?.file_attributes();
 
-        let hash = fnv1a(&std::fs::read(filename)?);
-
-        // The following generates a hash name from a filename and it's `stat` attrs
+        // Filename structure
         let basename = format!("{hash}_{magic}_{con}{version}",
+            hash  = fnv1a(&std::fs::read(file)?),
             magic = num,
-            con = if c.check_contrast.unwrap_or(false) { "C_" } else { "" },
+            con   = if c.check_contrast.unwrap_or(false) { "C_" } else { "" },
             version = CACHE_VER,
         );
 

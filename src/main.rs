@@ -204,10 +204,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     conf.customs_cli(cli);
 
     // auto threshold
-    conf.true_th = match conf.threshold {
-        Some(s) => s,
-        None => conf.color_space.def_threshold(),
-    };
+    conf.true_th = conf.threshold.unwrap_or_default();
 
     // generate hash cache file name and cache dir to either read or write to it
     let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
