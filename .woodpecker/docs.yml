@@ -16,8 +16,16 @@ steps:
   build:
     image: peaceiris/mdbook:latest
     commands:
-      - make update-docs
       - mdbook build
+    when:
+      - event: [pull_request, push]
+        path:
+          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+
+  generate-tables:
+    image: rust:latest
+    commands:
+    - cargo test --quiet --features=doc,iter --test=docs
     when:
       - event: [pull_request, push]
         path:
