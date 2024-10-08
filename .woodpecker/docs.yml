@@ -6,7 +6,7 @@ when:
   branch: master
   event: push
   path:
-    include: [ 'docs/*', 'book.toml', 'README.md' ]
+    include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
 
 clone:
   git:
@@ -16,11 +16,12 @@ steps:
   build:
     image: peaceiris/mdbook:latest
     commands:
+      - make update-docs
       - mdbook build
     when:
       - event: [pull_request, push]
         path:
-          include: [ 'docs/*', 'book.toml', 'README.md' ]
+          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
 
   publish:
     image: bitnami/git
@@ -40,4 +41,4 @@ steps:
     when:
       - event: push
         path:
-          include: [ 'docs/*', 'book.toml', 'README.md' ]
+          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
