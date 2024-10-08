@@ -12,20 +12,20 @@ clone:
   git:
     image: woodpeckerci/plugin-git
 
+# Generate tables -> build -> publish
 steps:
-  build:
-    image: peaceiris/mdbook:latest
-    commands:
-      - mdbook build
-    when:
-      - event: [pull_request, push]
-        path:
-          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
-
   generate-tables:
     image: rust:latest
     commands:
     - cargo test --quiet --features=doc,iter --test=docs
+    when:
+      - event: [pull_request, push]
+        path:
+          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+  build:
+    image: peaceiris/mdbook:latest
+    commands:
+      - mdbook build
     when:
       - event: [pull_request, push]
         path:
