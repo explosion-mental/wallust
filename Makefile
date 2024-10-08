@@ -45,6 +45,9 @@ completions:
 man:
 	@${CARGO} test --quiet --features=buildgen --test=man
 
+update-docs:
+	@${CARGO} test --quiet --features=doc,iter --test=docs
+
 dist: clean
 	mkdir -p wallust-${VERSION}
 	cp -R LICENSE Makefile README.md wallust.toml Cargo.toml Cargo.lock src/* man/* completions/* wallust-${VERSION}
