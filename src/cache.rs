@@ -38,8 +38,22 @@ impl fmt::Display for Cache {
 
 pub const CACHE_VER: &str = "1.4";
 
+/// Pretty fcking fast hashing
+/// the 32 bit version, should be enough for this use case
+/// Ref: https://en.m.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+pub fn fnv1a(bytes: &[u8]) -> usize {
+    let mut hash = 2166136261;
+
+    for byte in bytes {
+        hash ^= *byte as usize;
+        hash = hash.wrapping_mul(16777619);
+    }
+
+    hash
+}
+
 impl Cache {
-    /// # Cache directory structure
+    /// # Cache directory structure (using fs as a "database")
     ///   1. Root, determined by OS
     ///   2. "wallust"
     ///   3. backend
@@ -47,15 +61,13 @@ impl Cache {
     ///   5. palette
     ///   6. threshold
     ///   7. saturation percentage (OPTIONAL)
-    /// # File structure:
-    ///   1. filename (no extentions)
-    ///   2. size
-    ///   3. inode number on Linux, file attributes on Windows
-    ///   4. check-contrast -> "C_" if true, "" if false
-    ///   5. [`CACHE_VER`]
+    /// # Filename structure:
+    ///   1. hash
+    ///   2. inode number on Linux, file attributes on Windows
+    ///   3. check-contrast -> "C_" if true, "" if false (OPTIONAL)
+    ///   4. fallback generator (if reached)
+    ///   4. [`CACHE_VER`]
     pub fn new(filename: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
-
-
         // A possible solution to caching a checked/unchecked contrast without cache duplication and
         // possible efficiency loss
         // enum Contrast {
@@ -63,10 +75,6 @@ impl Cache {
         //     Unchecked,
         //     UncheckedAndGood,
         // }
-
-        let Some(name) = filename.file_name() else {
-            anyhow::bail!("Using '..' as a parameter is not supported");
-        };
 
         let sat = if let Some(s) = c.saturation {
             format!("saturation-{s}")
@@ -97,10 +105,10 @@ impl Cache {
         #[cfg(windows)]
         let num = md.file_attributes() ;
 
+        let hash = fnv1a(&std::fs::read(filename)?);
+
         // The following generates a hash name from a filename and it's `stat` attrs
-        let basename = format!("{base}_{size}_{magic}_{con}{version}",
-            base = name.to_string_lossy(),
-            size = md.len(),
+        let basename = format!("{hash}_{magic}_{con}{version}",
             magic = num,
             con = if c.check_contrast.unwrap_or(false) { "C_" } else { "" },
             version = CACHE_VER,
