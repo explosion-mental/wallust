@@ -26,3 +26,5 @@ For more, grep the src for TODO `rg TODO`
 
 - Learn more from "Material You" implementations, what I've seen is that it
   looses some colors and hues to mantain contrast.
+
+- Pulish code on colorspaces
