@@ -6,4 +6,4 @@ redacting documentation. So if you see placeholders/macros inside `{{}}`
 The assets from this repo are at the [`pages`](https://codeberg.org/explosion-mental/wallust/src/branch/pages) branch.
 
 You can check the page at <https://explosion-mental.codeberg.page/wallust>,
-which serves as a friendly guide to those who don't like man pages ;p
+which serves as a friendly guide to those who don't like man pages :)
