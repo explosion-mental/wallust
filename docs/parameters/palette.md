@@ -24,6 +24,11 @@ avaliable.
 **comp**   | Stands for **Comp**lementary and completly changes the palette to it's complementary counterpart.
 **comp16** | Complementary palette with 16 shades, basically a combination of the above.
 
+## Overview
+Below, is a complete overview of all palette schemes:
+
+{{#include ./palette-table.md}}
+
 <hr>
 
 To edit this value:

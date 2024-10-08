@@ -37,18 +37,19 @@ dunce = "1.0"
 
 clap  = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
+minijinja  = { version = "2.3", features = ["loader"] }
 
 # optionals
-documented = { version = "0.5.0", optional = true }
-minijinja  = { version = "2.3", features = ["loader"] }
 fastrand  = { version = "2.1", optional = true }
-strum = { version = "0.26", features = ["derive"], optional = true }
 wallust_themes = { version = "1.0", optional = true }
+
+# for making the doc tables from comments in source code
+documented = { version = "0.6.0", optional = true }
+strum = { version = "0.26", features = ["derive"], optional = true }
 
 [dev-dependencies]
 tempfile = "3.12"
 criterion = { version = "0.5", features = ["html_reports"] }
-word_iter = "0.2.1"
 clap_complete = "4.5"
 clap_mangen = "0.2"
 dirs = "5.0"
