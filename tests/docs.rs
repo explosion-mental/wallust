@@ -12,16 +12,7 @@ fn main() {
     use wallust::palettes::Palette as Filters;
     use strum::IntoEnumIterator;
 
-    // default values
-    // let def_backend    = Backend::default().to_string().to_ascii_lowercase();
-    // let def_colorspace = ColorSpaces::default().to_string().to_ascii_lowercase();
-    // let def_filter     = Filters::default().to_string().to_ascii_lowercase();
-    // let def_threshold  = "20";
-    // let def_gen        = Generate::default().to_string().to_ascii_lowercase();
-
-    fn ul_comment<T>() -> String
-        where T: documented::DocumentedFields + std::fmt::Display + IntoEnumIterator
-    {
+    fn ul_comment<T: documented::DocumentedFields + std::fmt::Display + IntoEnumIterator>() -> String {
         let mut ret = String::new();
 
         for i in T::iter() {
@@ -32,11 +23,9 @@ fn main() {
             let desc = desc.split('\n').collect::<Vec<&str>>();
             let desc = desc.join(" ");
 
-
             ret.push_str(&format!("**{name}** | {desc}"));
             ret.push('\n');
         }
-
         ret
     }
 
