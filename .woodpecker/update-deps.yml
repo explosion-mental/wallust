@@ -8,7 +8,7 @@ when:
     cron: update-deps
 steps:
   update:
-    image: rust:1.79
+    image: rust:latest
     commands: |
       cargo update
   push-changes:

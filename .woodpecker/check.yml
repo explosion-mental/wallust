@@ -5,7 +5,7 @@ when:
 
 steps:
   cargo_check:
-    image: rust:1.79
+    image: rust:latest
     # A simple check ensures a compilation
     # XXX While there could have been a clippy here,
     #     my main concern is whether it builds or not.
