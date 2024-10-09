@@ -16,6 +16,9 @@ use crate::config::Config;
 use anyhow::{Result, Context};
 
 /// Cache versioning, to avoid breaks and missreadings.
+/// For example, when there is an internal change in how the
+/// scheme is generated, the cache format won't change, however,
+/// there is a need for a regeneration, so we bump up the version.
 pub const CACHE_VER: &str = "1.5";
 
 /// Used to manage cache, rather than passing arguments in main() a lot
