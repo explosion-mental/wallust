@@ -16,7 +16,7 @@ use crate::config::Config;
 use anyhow::{Result, Context};
 
 /// Cache versioning, to avoid breaks and missreadings.
-pub const CACHE_VER: &str = "1.4";
+pub const CACHE_VER: &str = "1.5";
 
 /// Used to manage cache, rather than passing arguments in main() a lot
 #[derive(Debug, Default)]
