@@ -42,7 +42,7 @@ steps:
       - git config --global user.name "Woodpecker CI"
       # only get the .git dir
       - git clone -b pages https://$berg_pat@codeberg.org/$CI_REPO.git $TMP_DIR --no-checkout
-      - mv $TMPDIR/.git $MDBOOK_OUTPUT
+      - mv $TMP_DIR/.git $MDBOOK_OUTPUT
       - cd $MDBOOK_OUTPUT
       - git add .
       - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
