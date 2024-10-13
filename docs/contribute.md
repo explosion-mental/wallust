@@ -11,15 +11,11 @@ Having design ideas or suggestios is also very welcome.
 ## TODOs
 Some food for thought.
 
-For more, grep the src for TODO `rg TODO`
-
 - `wallust init`, which will scan your system for common aplication in which
  there is an avaliable theme template at
  [wallust-templates](https://codeberg.org/explosion-mental/wallust-templates).
  If so, it will automatically fetch those templates, add it in your toml
- config and configure accorndingly.
-
-- Investigate more about woodpecker stuff.
+ config and configure accorndingly. Make it interactive.
 
 - Allow to have more than 6 (MIN_COLS) passed to `palettes`. This requires some
  comunication to be exchanged between `ColorSpace <-> Palette` modules.
@@ -28,3 +24,8 @@ For more, grep the src for TODO `rg TODO`
   looses some colors and hues to mantain contrast.
 
 - Pulish code on colorspaces
+
+- Implement a 1 to 1 replica template engine for pywal (It seems that the pywal
+  syntax for templating will remain standard)
+
+For more, grep the src for TODO `rg TODO`
