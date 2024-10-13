@@ -36,13 +36,14 @@ steps:
     secrets: [ berg_pat ]
     environment:
       - MDBOOK_OUTPUT=book
+      - TMP_DIR=tmp
     commands:
       - git config --global user.email "woodpecker@codeberg.org"
       - git config --global user.name "Woodpecker CI"
-      - git clone -b pages https://$berg_pat@codeberg.org/$CI_REPO.git $CI_REPO_NAME
-      - cp -ar $MDBOOK_OUTPUT $CI_REPO_NAME/
-      - cp .domains $CI_REPO_NAME || true
-      - cd $CI_REPO_NAME
+      # only get the .git dir
+      - git clone -b pages https://$berg_pat@codeberg.org/$CI_REPO.git $TMP_DIR --no-checkout
+      - mv $TMPDIR/.git $MDBOOK_OUTPUT
+      - cd $MDBOOK_OUTPUT
       - git add .
       - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
       - git push
