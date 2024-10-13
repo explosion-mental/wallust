@@ -3,8 +3,8 @@
 ## Arch User Repository (AUR)
 Using an Arch based distro, you can use the [wallust](https://aur.archlinux.org/packages/wallust) or [wallust-git](https://aur.archlinux.org/packages/wallust-git) packages.
 
-- `wallust` fetches the latest **stable version** from `static.crates.io`, which mirrors the `master` branch. **Prefer this package.**
-- `wallust-git` fetches the latest **unstable version** from the `dev` branch.
+- `wallust` fetches the latest **stable version** from `static.crates.io`. **Prefer this package.**
+- `wallust-git` fetches the latest **unstable version** from the `master`.
 
 Either can be installed on an Arch based distro with the following commands:
 ```bash
@@ -59,6 +59,6 @@ Then in your `configuration.nix`
   ];
 ```
 
-You can change ref to `dev` branch to get the latest nightly.
+You can change ref to a [**tag version**](https://codeberg.org/explosion-mental/wallust/tags) to get a stable release.
 
 [nix-search]: <https://search.nixos.org/packages?channel=unstable&from=0&size=1&sort=relevance&type=packages&query=wallust>
