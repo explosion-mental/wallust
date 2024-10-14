@@ -131,7 +131,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--check-contrast[Ensure a readable contrast by checking colors in reference to the background (overwrites config)]' \
 '-n[Don'\''t cache the results]' \
 '--no-cache[Don'\''t cache the results]' \
-'--dynamic-threshold[Dynamically changes the threshold to be best fit]' \
+'(-t --threshold)--dynamic-threshold[Dynamically changes the threshold to be best fit]' \
 '-w[Generates colors even if there is a cache version of it]' \
 '--overwrite-cache[Generates colors even if there is a cache version of it]' \
 '-q[Don'\''t print anything]' \
