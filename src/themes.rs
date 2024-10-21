@@ -130,6 +130,34 @@ pub fn try_all_schemes(file: &Path, quiet: bool) -> Result<Colors> {
 /// theme itself, but a selected random one.
 pub const RAND: &str = "random";
 
+#[cfg(feature = "themes")]
+/// string that is inside the "theme" collection but acts as a keyword. The "random" theme is not a
+/// theme itself, but a selected random one.
+pub const LIST: &str = "list";
+
+#[cfg(feature = "themes")]
+/// Lists all the themes
+// TODO maybe use columns to display it more efficiently..
+pub fn list_themes() {
+    let cols = wallust_themes::COLS_KEY
+        .iter()
+        .map(|x| format!("- {x}"))
+        .collect::<Vec<_>>()
+        .join("\n")
+        ;
+
+    println!("\
+{themes}:
+{cols}
+{extra}:
+- {RAND} (select a random theme)
+- {LIST} (lists avaliable themes) \
+",
+    extra = "Extra".bold().green(),
+    themes = "Avaliable themes".bold().green(),
+    )
+}
+
 /// Use the built in themes. STATIC Data from [`COLS_VALUE`] should be correct, which are in json [`WalTheme`] format
 /// If None, the theme was not found.
 #[cfg(feature = "themes")]

@@ -39,6 +39,7 @@ fn themes() {
 
     let mut val = COLS_KEY.to_vec();
     val.push("random");
+    val.push("list");
     let mut val: Vec<_> = val.iter().map(|i| format!(r#""{i}","#)).collect(); //"string",
     val.insert(0, "[".to_string()); //start of array
     val.push("]".to_string());

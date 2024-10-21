@@ -38,6 +38,11 @@ fn main() -> Result<()> {
         },
         #[cfg(feature = "themes")]
         args::Subcmds::Theme { theme, preview } => {
+            if theme == themes::LIST { // wallust theme list
+                if !quiet { themes::list_themes(); }
+                return Ok(())
+            }
+
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
             let colors = themes::built_in_theme(&theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
             if ! quiet {

@@ -180,7 +180,7 @@ pub enum Sequences {
 #[cfg(all(feature = "themes", not(feature = "buildgen")))]
 /// little hack to add the "random" keyword in clap
 fn col_values(input: &str) -> Result<String, &'static str> {
-    if input == crate::themes::RAND || wallust_themes::COLS_KEY.contains(&input) {
+    if input == crate::themes::RAND || input == crate::themes::LIST || wallust_themes::COLS_KEY.contains(&input) {
         Ok(input.into())
     } else {
         Err("input was not found.")
