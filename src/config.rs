@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::fs::read_to_string;
+use std::io::Write;
 
 use crate::args::WallustArgs;
 use crate::args::Globals;
@@ -130,7 +131,6 @@ pub const V3: &str = "<https://explosion-mental.codeberg.page/wallust/v3.html>";
 impl Config {
     /// Constructs [`Config`] by reading the config file
     pub fn new(g: &Globals) -> Result<Config> {
-
         // first check if user give out a custom config-dir
         let dir = match &g.config_dir {
             Some(s) => s,
@@ -164,10 +164,27 @@ impl Config {
             None => &dir.join("templates"),
         };
 
-        let mut ret = if !config.exists() { // don't care if it doesn't exist.
-            println!("[{info}] {t}: No configuration file found, using default values.", info = "I".blue().bold(), t = "config".magenta().bold());
+        let mut ret = if g.no_config { // don't create the path, use default values
+            println!("[{info}] {t}: Not using a configuration file, using default values.", info = "I".blue().bold(), t = "config".magenta().bold());
             Config::default()
         } else {
+
+            // if it doesn't exist, create one.
+            if !config.exists() { // read config file, if one not found, create a default config.
+                std::fs::create_dir_all(dir).with_context(|| format!("Failed to create {}", config.display()))?;
+
+                std::fs::File::create(config)?
+                    .write_all(include_bytes!("../wallust.toml"))?;
+
+                println!("[{info}] {t}: Configuration file {nf}, creating one at {c}",
+                    info = "I".blue().bold(), t = "config".magenta().bold(), nf = "not found".bold().blue(), c = config.display().italic());
+            }
+
+            // Currently, just be silent while reading the config file.
+            // else { // finally, just read the config file, since it exist.
+            //     println!("[{info}] {t}: Configuration file {nf}, using default values.", info = "I".blue().bold(), t = "config".magenta().bold(), nf = "not found".bold().blue());
+            // }
+
             let s = || format!("Failed to read file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.\nMake sure to read {V3} as well.", config.display());
             toml::from_str(
                 &read_to_string(config).with_context(s)?

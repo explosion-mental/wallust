@@ -48,7 +48,7 @@ pub struct Globals {
     #[arg(global = true, long, conflicts_with = "config_dir")]
     pub templates_dir: Option<PathBuf>,
 
-    /// Uses DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
+    /// Won't read the config and avoids creating it's config path.
     #[arg(global = true, short = 'N', long, conflicts_with = "config_file", conflicts_with = "config_dir")]
     pub no_config: bool,
 }
