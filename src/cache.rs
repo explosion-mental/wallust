@@ -189,6 +189,7 @@ impl ColorSpace {
 
 impl Palette {
     /// double digits, just to keep a uniform look
+    /// since now, all newly added palettes shall be appended.
     pub fn cachefmt(&self) -> &str {
         match self {
             Palette::Dark            => "00" ,
@@ -212,6 +213,7 @@ impl Palette {
             Palette::SoftLight16     => "18",
             Palette::SoftLightComp   => "19",
             Palette::SoftLightComp16 => "20",
+            Palette::AnsiDark16      => "21" ,
         }
     }
 }

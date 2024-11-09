@@ -80,6 +80,11 @@ pub enum Palette {
     #[serde(alias = "dark-ansi")]
     AnsiDark,
 
+    /// The ansidark palette with 16 color variation.
+    #[clap(alias  = "dark-ansi16", name = "darkansi16")]
+    #[serde(alias = "dark-ansi16")]
+    AnsiDark16,
+
     /// Same as `dark` with hard hue colors
     #[clap(alias  = "hard-dark", name = "harddark")] //clap prefers this-name
     #[serde(alias = "hard-dark")]
@@ -155,6 +160,7 @@ impl F {
             F::DarkComp16 => dark(c, orig).to_comp().to_16col(),
 
             F::AnsiDark => ansidark(c, orig),
+            F::AnsiDark16 => ansidark(c, orig).to_16col(),
 
             F::Light => light(c, orig),
             F::Light16 => light(c, orig).to_16col(),
@@ -187,7 +193,7 @@ impl F {
 
               F::Light | F::Light16 | F::LightComp | F::LightComp16
             | F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
-            | F::AnsiDark
+            | F::AnsiDark | F::AnsiDark16
                 => ColorOrder::DarkFirst,
         }
     }
@@ -200,6 +206,7 @@ impl F {
             F::DarkComp16 => AnsiColors::BrightBlue,
 
             F::AnsiDark => AnsiColors::Red,
+            F::AnsiDark16 => AnsiColors::Red,
 
             F::HardDark => AnsiColors::Green,
             F::HardDark16 => AnsiColors::BrightGreen,
@@ -234,6 +241,7 @@ impl fmt::Display for F {
             F::DarkComp16 => write!(f, "DarkComp16"),
 
             F::AnsiDark => write!(f, "AnsiDark"),
+            F::AnsiDark16 => write!(f, "AnsiDark16"),
 
             F::HardDark       => write!(f, "HardDark"),
             F::HardDark16     => write!(f, "HardDark16"),
