@@ -16,7 +16,7 @@ CARGO ?= /usr/bin/cargo
 # Hardcoded completions paths
 ZSHPREFIX  = ${PREFIX}/share/zsh/site-functions
 BASHPREFIX = ${PREFIX}/share/bash-completion/completions
-FISHPREFIX = ${PREFIX}/fish/vendor_completions.d
+FISHPREFIX = ${PREFIX}/share/fish/vendor_completions.d
 
 # Some common (and "universal") targets for pkg-nix and pkg-win
 # used by `pkg-nix`
