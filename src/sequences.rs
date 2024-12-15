@@ -76,23 +76,31 @@ pub fn unix_term(c: &Colors, cache_path: &Path, remove: Option<&[Sequences]>) ->
     #[cfg(not(target_os = "openbsd"))]
     let devices = glob::glob(tty_pattern).expect("glob pattern is ok");
 
+    if let Err(e) = File::create(&seq_file).and_then(|mut o| o.write_all(sequences.as_bytes())) {
+        eprintln!(
+            "[{w}] Couldn't create sequence file: {e}",
+            w = "W".red().bold()
+        );
+    }
+
     for entry in devices {
         match entry {
             Ok(path) => {
-                match File::create(&path) {
-                    Ok(o) => o,
-                    Err(e) => { //ignore errors, but report them
-                        eprintln!("[{w}] Couldn't write to {p}: {e}", p = path.display(), w = "W".red().bold());
-                        continue;
-                    },
-                }.write_all(sequences.as_bytes())?
-            },
+                if let Err(e) =
+                    File::create(&path).and_then(|mut o| o.write_all(sequences.as_bytes()))
+                {
+                    //ignore errors, but report them
+                    eprintln!(
+                        "[{w}] Couldn't write to {p}: {e}",
+                        p = path.display(),
+                        w = "W".red().bold()
+                    );
+                    continue;
+                }
+            }
             Err(e) => anyhow::bail!("Error while sending sequences to terminals:\n{e}"),
         };
     }
-
-    File::create(seq_file)?
-        .write_all(sequences.as_bytes())?;
 
     Ok(())
 }
