@@ -529,7 +529,7 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     map.insert("colorspace", self.colorspace.to_string());
     map.insert("palette", self.palette.to_string());
 
-    let mut count = 1;
+    let mut count = 0;
 
     // 16 colors + 3 (bg, fg and cursor) - 1 (bc is 0 index)
     let len = (16 + 3 - 1) * count;
