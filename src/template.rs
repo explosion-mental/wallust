@@ -531,11 +531,10 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
 
     let mut count = 1;
 
+    // 16 colors + 3 (bg, fg and cursor) - 1 (bc is 0 index)
+    let len = (16 + 3 - 1) * count;
     // normal output `#EEEEEE`
-    for (i, v) in col.into_iter().enumerate() {
-        let len = (1 + 15 + 3) * count;
-        map.insert(vals[len + i], v.to_string());
-    }
+    for (i, v) in col.into_iter().enumerate() { map.insert(vals[len + i], v.to_string()); }
     map.insert("cursor", col.foreground.to_string());
     count += 1;
 
@@ -545,28 +544,22 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     //.green output `235`
     //.blue output `235`
     for j in funcs {
-        for (i, v) in col.into_iter().enumerate() {
-            let len = (1 + 15 + 3) * count;
-            map.insert(vals[len + i], j(&v));
-        }
+        let len = (16 + 3 - 1) * count;
+        for (i, v) in col.into_iter().enumerate() { map.insert(vals[len + i], j(&v)); }
         map.insert("cursor", j(&col.foreground));
         count += 1;
     }
 
     //.rgba output `235,235,235,1.0`
-    for (i, v) in col.into_iter().enumerate() {
-        let len = (1 + 15 + 3) * count;
-        map.insert(vals[len + i], v.rgba(alpha_dec));
-    }
+    let len = (16 + 3 - 1) * count;
+    for (i, v) in col.into_iter().enumerate() { map.insert(vals[len + i], v.rgba(alpha_dec)); }
     map.insert("cursor", col.foreground.rgba(alpha_dec));
     count += 1;
 
 
     //.xrgba output `ee/ee/ee/ff`
-    for (i, v) in col.into_iter().enumerate() {
-        let len = (1 + 15 + 3) * count;
-        map.insert(vals[len + i], v.xrgba(&alpha_hex));
-    }
+    let len = (16 + 3 - 1) * count;
+    for (i, v) in col.into_iter().enumerate() { map.insert(vals[len + i], v.xrgba(&alpha_hex)); }
     map.insert("cursor", col.foreground.xrgba(&alpha_hex));
     //count += 1;
 
