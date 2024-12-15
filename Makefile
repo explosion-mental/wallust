@@ -36,16 +36,21 @@ all: ${RELEASE}/wallust
 ${RELEASE}/wallust:
 	@${CARGO} build ${CARGOFLAGS}
 
+assets: man completions update-docs
+
 # The generated completion could differ if `themes` compiletime feature is disabled.
 completions:
+	@echo "GENERATING SHELL COMPLETIONS"
 	@${CARGO} test --quiet --features=buildgen --test=completions
 
 # Here, however, if `themes is disabled, you only need to omit `wallust-themes.1` man page.
 # also no need to rebuilt it on install, since by default, the repo includes them.
 man:
+	@echo "GENERATING MAN PAGES"
 	@${CARGO} test --quiet --features=buildgen --test=man
 
 update-docs:
+	@echo "UPDATING MDBOOK DOCUMENTATION"
 	@${CARGO} test --quiet --features=doc,iter --test=docs
 
 dist: clean
