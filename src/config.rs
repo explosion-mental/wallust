@@ -207,20 +207,19 @@ impl Config {
     }
 
     pub fn print(&self) {
-        let empty = String::new();
         let k = if self.check_contrast.unwrap_or(false) {
             format!("\n[{}] {}: Doing extra calculations to ensure a good contrast",
                 "I".blue().bold(),
                 "contrast".magenta().bold()
                 )
-        } else { empty.clone() };
+        } else { String::new() };
 
         let sat = if let Some(s) = self.saturation {
             format!("\n[{}] {}: Adding saturation to existing palette by {s}%",
                 "I".blue().bold(),
                 "saturation".magenta().bold()
                 )
-        } else { empty };
+        } else { String::new() };
 
         let th = match self.threshold {
             Some(s) => format!("Using a threshold of {s} in between colors."),

@@ -111,18 +111,18 @@ impl Cache {
 
         let (new_path, ret) = match (normal, gen) {
             //some exist, so `is_cached()` true
-            (true, false) => (self.normal.clone(), true),
-            (false, true) => (self.gen.clone(), true),
+            (true, false) => (&self.normal, true),
+            (false, true) => (&self.gen, true),
 
             // none cached, default to normal and `is_cached()` false
-            (false, false) => (self.normal.clone(), false),
+            (false, false) => (&self.normal, false),
 
             // unusual (imposible?) case. Just default to normal path.
             // if the code reaches the generation part, `reached_gen()` should be called anyway.
-            (true,  true)   => (self.normal.clone(), true),
+            (true,  true)   => (&self.normal, true),
         };
 
-        self.path = new_path;
+        self.path.clone_from(new_path);
         ret
     }
 }

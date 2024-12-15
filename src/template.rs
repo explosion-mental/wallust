@@ -516,7 +516,7 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     map.insert("wallpaper", self.image_path.into());
     map.insert("alpha", alpha.to_string());
     map.insert("alpha_dec", format!("{alpha_dec:.2}"));
-    map.insert("alpha_hex", alpha_hex.clone());
+    // alpha_hex it's after xrgba
 
     // Include backend, colorspace and filter (palette)
     map.insert("backend", self.backend.to_string());
@@ -606,6 +606,8 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     map.insert("cursor.xrgba", col.foreground.xrgba(&alpha_hex));
     map.insert("foreground.xrgba", col.foreground.xrgba(&alpha_hex));
     map.insert("background.xrgba", col.background.xrgba(&alpha_hex));
+
+    map.insert("alpha_hex", alpha_hex);
 
     //.strip output `EEEEEE`
     map.insert("color0.strip" , col.color0 .strip());
