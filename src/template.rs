@@ -512,6 +512,12 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
 
     //XXX instead of multiple `.method()` maybe using enums and match with a single method
 
+    let vals = include!(concat!(env!("OUT_DIR"), "/template_vals.rs"));
+
+    // has to follow the build.rs order (leaving alpha stuff at last)
+    //let funcs = [ "", ".rgb", ".rgba", ".xrgba", ".strip", ".red", ".green", ".blue", ];
+    let funcs = [ Myrgb::rgb, Myrgb::strip, Myrgb::red, Myrgb::green, Myrgb::blue, ];
+
     //full path to the image
     map.insert("wallpaper", self.image_path.into());
     map.insert("alpha", alpha.to_string());
@@ -523,173 +529,46 @@ pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
     map.insert("colorspace", self.colorspace.to_string());
     map.insert("palette", self.palette.to_string());
 
+    let mut count = 1;
+
     // normal output `#EEEEEE`
-    map.insert("color0" , col.color0 .to_string());
-    map.insert("color1" , col.color1 .to_string());
-    map.insert("color2" , col.color2 .to_string());
-    map.insert("color3" , col.color3 .to_string());
-    map.insert("color4" , col.color4 .to_string());
-    map.insert("color5" , col.color5 .to_string());
-    map.insert("color6" , col.color6 .to_string());
-    map.insert("color7" , col.color7 .to_string());
-    map.insert("color8" , col.color8 .to_string());
-    map.insert("color9" , col.color9 .to_string());
-    map.insert("color10", col.color10.to_string());
-    map.insert("color11", col.color11.to_string());
-    map.insert("color12", col.color12.to_string());
-    map.insert("color13", col.color13.to_string());
-    map.insert("color14", col.color14.to_string());
-    map.insert("color15", col.color15.to_string());
+    for (i, v) in col.into_iter().enumerate() {
+        let len = (1 + 15 + 3) * count;
+        map.insert(vals[len + i], v.to_string());
+    }
     map.insert("cursor", col.foreground.to_string());
-    map.insert("foreground", col.foreground.to_string());
-    map.insert("background", col.background.to_string());
+    count += 1;
 
     //.rgb output `235,235,235`
-    map.insert("color0.rgb" , col.color0 .rgb());
-    map.insert("color1.rgb" , col.color1 .rgb());
-    map.insert("color2.rgb" , col.color2 .rgb());
-    map.insert("color3.rgb" , col.color3 .rgb());
-    map.insert("color4.rgb" , col.color4 .rgb());
-    map.insert("color5.rgb" , col.color5 .rgb());
-    map.insert("color6.rgb" , col.color6 .rgb());
-    map.insert("color7.rgb" , col.color7 .rgb());
-    map.insert("color8.rgb" , col.color8 .rgb());
-    map.insert("color9.rgb" , col.color9 .rgb());
-    map.insert("color10.rgb", col.color10.rgb());
-    map.insert("color11.rgb", col.color11.rgb());
-    map.insert("color12.rgb", col.color12.rgb());
-    map.insert("color13.rgb", col.color13.rgb());
-    map.insert("color14.rgb", col.color14.rgb());
-    map.insert("color15.rgb", col.color15.rgb());
-    map.insert("cursor.rgb", col.foreground.rgb());
-    map.insert("foreground.rgb", col.foreground.rgb());
-    map.insert("background.rgb", col.background.rgb());
+    //.strip output `EEEEEE`
+    //.red output `235`
+    //.green output `235`
+    //.blue output `235`
+    for j in funcs {
+        for (i, v) in col.into_iter().enumerate() {
+            let len = (1 + 15 + 3) * count;
+            map.insert(vals[len + i], j(&v));
+        }
+        map.insert("cursor", j(&col.foreground));
+        count += 1;
+    }
 
     //.rgba output `235,235,235,1.0`
-    map.insert("color0.rgba" , col.color0 .rgba(alpha_dec));
-    map.insert("color1.rgba" , col.color1 .rgba(alpha_dec));
-    map.insert("color2.rgba" , col.color2 .rgba(alpha_dec));
-    map.insert("color3.rgba" , col.color3 .rgba(alpha_dec));
-    map.insert("color4.rgba" , col.color4 .rgba(alpha_dec));
-    map.insert("color5.rgba" , col.color5 .rgba(alpha_dec));
-    map.insert("color6.rgba" , col.color6 .rgba(alpha_dec));
-    map.insert("color7.rgba" , col.color7 .rgba(alpha_dec));
-    map.insert("color8.rgba" , col.color8 .rgba(alpha_dec));
-    map.insert("color9.rgba" , col.color9 .rgba(alpha_dec));
-    map.insert("color10.rgba", col.color10.rgba(alpha_dec));
-    map.insert("color11.rgba", col.color11.rgba(alpha_dec));
-    map.insert("color12.rgba", col.color12.rgba(alpha_dec));
-    map.insert("color13.rgba", col.color13.rgba(alpha_dec));
-    map.insert("color14.rgba", col.color14.rgba(alpha_dec));
-    map.insert("color15.rgba", col.color15.rgba(alpha_dec));
-    map.insert("cursor.rgba", col.foreground.rgba(alpha_dec));
-    map.insert("foreground.rgba", col.foreground.rgba(alpha_dec));
-    map.insert("background.rgba", col.background.rgba(alpha_dec));
+    for (i, v) in col.into_iter().enumerate() {
+        let len = (1 + 15 + 3) * count;
+        map.insert(vals[len + i], v.rgba(alpha_dec));
+    }
+    map.insert("cursor", col.foreground.rgba(alpha_dec));
+    count += 1;
+
 
     //.xrgba output `ee/ee/ee/ff`
-    map.insert("color0.xrgba" , col.color0 .xrgba(&alpha_hex));
-    map.insert("color1.xrgba" , col.color1 .xrgba(&alpha_hex));
-    map.insert("color2.xrgba" , col.color2 .xrgba(&alpha_hex));
-    map.insert("color3.xrgba" , col.color3 .xrgba(&alpha_hex));
-    map.insert("color4.xrgba" , col.color4 .xrgba(&alpha_hex));
-    map.insert("color5.xrgba" , col.color5 .xrgba(&alpha_hex));
-    map.insert("color6.xrgba" , col.color6 .xrgba(&alpha_hex));
-    map.insert("color7.xrgba" , col.color7 .xrgba(&alpha_hex));
-    map.insert("color8.xrgba" , col.color8 .xrgba(&alpha_hex));
-    map.insert("color9.xrgba" , col.color9 .xrgba(&alpha_hex));
-    map.insert("color10.xrgba", col.color10.xrgba(&alpha_hex));
-    map.insert("color11.xrgba", col.color11.xrgba(&alpha_hex));
-    map.insert("color12.xrgba", col.color12.xrgba(&alpha_hex));
-    map.insert("color13.xrgba", col.color13.xrgba(&alpha_hex));
-    map.insert("color14.xrgba", col.color14.xrgba(&alpha_hex));
-    map.insert("color15.xrgba", col.color15.xrgba(&alpha_hex));
-    map.insert("cursor.xrgba", col.foreground.xrgba(&alpha_hex));
-    map.insert("foreground.xrgba", col.foreground.xrgba(&alpha_hex));
-    map.insert("background.xrgba", col.background.xrgba(&alpha_hex));
-
-    //.strip output `EEEEEE`
-    map.insert("color0.strip" , col.color0 .strip());
-    map.insert("color1.strip" , col.color1 .strip());
-    map.insert("color2.strip" , col.color2 .strip());
-    map.insert("color3.strip" , col.color3 .strip());
-    map.insert("color4.strip" , col.color4 .strip());
-    map.insert("color5.strip" , col.color5 .strip());
-    map.insert("color6.strip" , col.color6 .strip());
-    map.insert("color7.strip" , col.color7 .strip());
-    map.insert("color8.strip" , col.color8 .strip());
-    map.insert("color9.strip" , col.color9 .strip());
-    map.insert("color10.strip", col.color10.strip());
-    map.insert("color11.strip", col.color11.strip());
-    map.insert("color12.strip", col.color12.strip());
-    map.insert("color13.strip", col.color13.strip());
-    map.insert("color14.strip", col.color14.strip());
-    map.insert("color15.strip", col.color15.strip());
-    map.insert("cursor.strip", col.foreground.strip());
-    map.insert("foreground.strip", col.foreground.strip());
-    map.insert("background.strip", col.background.strip());
-
-    //.red output `235`
-    map.insert("color0.red" , col.color0 .red());
-    map.insert("color1.red" , col.color1 .red());
-    map.insert("color2.red" , col.color2 .red());
-    map.insert("color3.red" , col.color3 .red());
-    map.insert("color4.red" , col.color4 .red());
-    map.insert("color5.red" , col.color5 .red());
-    map.insert("color6.red" , col.color6 .red());
-    map.insert("color7.red" , col.color7 .red());
-    map.insert("color8.red" , col.color8 .red());
-    map.insert("color9.red" , col.color9 .red());
-    map.insert("color10.red", col.color10.red());
-    map.insert("color11.red", col.color11.red());
-    map.insert("color12.red", col.color12.red());
-    map.insert("color13.red", col.color13.red());
-    map.insert("color14.red", col.color14.red());
-    map.insert("color15.red", col.color15.red());
-    map.insert("cursor.red", col.foreground.red());
-    map.insert("foreground.red", col.foreground.red());
-    map.insert("background.red", col.background.red());
-
-    //.green output `235`
-    map.insert("color0.green" , col.color0 .green());
-    map.insert("color1.green" , col.color1 .green());
-    map.insert("color2.green" , col.color2 .green());
-    map.insert("color3.green" , col.color3 .green());
-    map.insert("color4.green" , col.color4 .green());
-    map.insert("color5.green" , col.color5 .green());
-    map.insert("color6.green" , col.color6 .green());
-    map.insert("color7.green" , col.color7 .green());
-    map.insert("color8.green" , col.color8 .green());
-    map.insert("color9.green" , col.color9 .green());
-    map.insert("color10.green", col.color10.green());
-    map.insert("color11.green", col.color11.green());
-    map.insert("color12.green", col.color12.green());
-    map.insert("color13.green", col.color13.green());
-    map.insert("color14.green", col.color14.green());
-    map.insert("color15.green", col.color15.green());
-    map.insert("cursor.green", col.foreground.green());
-    map.insert("foreground.green", col.foreground.green());
-    map.insert("background.green", col.background.green());
-
-    //.blue output `235`
-    map.insert("color0.blue" , col.color0 .blue());
-    map.insert("color1.blue" , col.color1 .blue());
-    map.insert("color2.blue" , col.color2 .blue());
-    map.insert("color3.blue" , col.color3 .blue());
-    map.insert("color4.blue" , col.color4 .blue());
-    map.insert("color5.blue" , col.color5 .blue());
-    map.insert("color6.blue" , col.color6 .blue());
-    map.insert("color7.blue" , col.color7 .blue());
-    map.insert("color8.blue" , col.color8 .blue());
-    map.insert("color9.blue" , col.color9 .blue());
-    map.insert("color10.blue", col.color10.blue());
-    map.insert("color11.blue", col.color11.blue());
-    map.insert("color12.blue", col.color12.blue());
-    map.insert("color13.blue", col.color13.blue());
-    map.insert("color14.blue", col.color14.blue());
-    map.insert("color15.blue", col.color15.blue());
-    map.insert("cursor.blue", col.foreground.blue());
-    map.insert("foreground.blue", col.foreground.blue());
-    map.insert("background.blue", col.background.blue());
+    for (i, v) in col.into_iter().enumerate() {
+        let len = (1 + 15 + 3) * count;
+        map.insert(vals[len + i], v.xrgba(&alpha_hex));
+    }
+    map.insert("cursor", col.foreground.xrgba(&alpha_hex));
+    //count += 1;
 
     map
 }
