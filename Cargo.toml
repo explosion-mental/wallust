@@ -13,7 +13,7 @@ homepage = "https://explosion-mental.codeberg.page/wallust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 image = "0.25"
 owo-colors = "4.1"
@@ -26,21 +26,21 @@ new_string_template = "1.4" # hold
 spinners = "4.1"
 dirs = "5.0"
 itertools = "0.13"
-fast_image_resize = "5.0"
+fast_image_resize = "5.1"
 num-traits = "0.2"
 kmeans_colors = { version = "0.6.0", default-features = false, features = ["palette_color"] }
 palette = { version = "0.7", default-features = false }
-regex = "1.10"
+regex = "1.11"
 
 # replacement for fs::canonalize but handles way better windows paths
 dunce = "1.0"
 
 clap  = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
-minijinja  = { version = "2.3", features = ["loader"] }
+minijinja  = { version = "2.5", features = ["loader"] }
 
 # optionals
-fastrand  = { version = "2.1", optional = true }
+fastrand  = { version = "2.3", optional = true }
 wallust_themes = { version = "1.0", optional = true }
 
 # for making the doc tables from comments in source code
@@ -48,7 +48,7 @@ documented = { version = "0.6.0", optional = true }
 strum = { version = "0.26", features = ["derive"], optional = true }
 
 [dev-dependencies]
-tempfile = "3.12"
+tempfile = "3.14"
 criterion = { version = "0.5", features = ["html_reports"] }
 clap_complete = "4.5"
 clap_mangen = "0.2"
