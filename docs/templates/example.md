@@ -6,7 +6,9 @@
 
 # colors
 set default-bg     "{{background}}"
-set default-fg     "{{foreground}}"
+
+# complementary foreground, but keep it light
+set default-fg     "{{foreground | complementary | lighten(0.5)}}"
 
 # make it a bit lighter than background
 set statusbar-bg   "{{background | lighten(0.3)}}"

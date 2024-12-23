@@ -34,6 +34,13 @@ For **both**, being applied to or as an argument of a filter:
 {{ color2 | blend("4ff4ff")}}
 ```
 
+You can **chain multiple filters**, this is why the _return_ type of the filter is important.
+```
+{# This will get a color without the initial '#',
+   0.5 lighter than before and it's complementary variant. }
+{{ color2 | strip | lighten(0.5) | complementary}}
+```
+
 If you need to write a literal `{{`, that doesn't references any variable, you
 can write literals inside the delimiters:
 
