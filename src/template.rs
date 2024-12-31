@@ -136,7 +136,7 @@ pub fn file_render(env: &mut Environment, file: &Path, target_path: &Path, pywal
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
-pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fields>, values: &TemplateFields, quiet: bool) -> Result<()> {
+pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fields>, values: &TemplateFields, quiet: bool, env_vars: bool) -> Result<()> {
 
     let mut jinjaenv = jinja_env();
     //XXX loader makes avaliable the (easy) use of `import` and such
@@ -149,7 +149,6 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
     for (name, fields) in templates_header {
         // facilitates strings printing
         let name = name.bold();
-        let target = &fields.target.italic();
         let warn = "W".red();
         let warn = warn.bold();
 
@@ -158,8 +157,19 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
         //root path for the target file (requires interpret `~` for home)
         //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let env = shellexpand::tilde(&fields.target);
+        let env = match env_vars {
+            true => shellexpand::full(&fields.target)?,
+            false => shellexpand::tilde(&fields.target),
+        };
+
+        // pretty printing of the path
+        let target = env.italic();
+
+        println!("\n{env}\n");
+
         let target_path = Path::new(env.as_ref());
+
+        println!("\n{target_path:?}\n");
 
         let pywal = fields.pywal.unwrap_or(false);
 

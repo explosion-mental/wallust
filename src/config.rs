@@ -50,9 +50,11 @@ pub struct Config {
     // dunst.dst = '~/.config/dunst'
     // zathura = { src = 'zathura.rc', dst = '~/.config/zathura' }
     pub templates: Option<HashMap<String, Fields>>,
-    /// Allows to change the path of the templates
-    ///  default: "~/.config/wallust/templates/"
+    // Allows to change the path of the templates
+    //  default: "~/.config/wallust/templates/"
     //pub templates_dir: PathBuf,
+    /// Enables the use of enviromental variables in the targets template paths
+    pub env_vars: Option<bool>,
 
     #[deprecated]
     /// TOML: array of tables for "template" and "target"
@@ -279,7 +281,7 @@ impl Config {
             colors,
         };
 
-        template::write_template(&self.templates_dir, templates_header, &values, quiet)
+        template::write_template(&self.templates_dir, templates_header, &values, quiet, self.env_vars.unwrap_or_default())
     }
 
     /// if the user provides this values in the cli, overwrite the [`Config`] configuration
