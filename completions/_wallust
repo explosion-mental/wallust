@@ -47,8 +47,8 @@ _wallust() {
         case $line[1] in
             (run)
 _arguments "${_arguments_options[@]}" : \
-'-a+[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA: ' \
-'--alpha=[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA: ' \
+'-a+[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA:_default' \
+'--alpha=[Alpha *template variable* value, used only for templating (default is 100)]:ALPHA:_default' \
 '-b+[Choose which backend to use (overwrites config)]:BACKEND:((full\:"Read and return the whole image pixels (more precision, slower)"
 resized\:"Resizes the image before parsing, mantaining it'\''s aspect ratio"
 wal\:"Uses image magick \`convert\` to generate the colors, like pywal"
@@ -119,9 +119,9 @@ softlight\:"Light with soft pastel colors, counterpart of \`harddark\`"
 softlight16\:"softlight with 16 color variation"
 softlightcomp\:"softlight with complementary colors"
 softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
-'--saturation=[Add saturation from 1% to 100% (overwrites config)]:SATURATION: ' \
-'-t+[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
-'--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD: ' \
+'--saturation=[Add saturation from 1% to 100% (overwrites config)]:SATURATION:_default' \
+'-t+[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD:_default' \
+'--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD:_default' \
 '(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \

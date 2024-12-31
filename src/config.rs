@@ -77,12 +77,15 @@ pub struct Config {
     #[serde(skip)]
     pub true_th: u8,
 
+    ///
     #[serde(skip)]
     pub backend: crate::backends::Backend,
 
+    ///
     #[serde(skip)]
     pub color_space: crate::colorspaces::ColorSpace,
 
+    ///
     #[serde(skip)]
     pub palette: crate::palettes::Palette,
 }
