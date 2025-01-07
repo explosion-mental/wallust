@@ -142,7 +142,7 @@ fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
 
     //add every line
     for line in str::from_utf8(&output.stdout)?.lines().unique() {
-        let p = PathBuf::try_from(line).map_err(anyhow::Error::from);
+        let p = PathBuf::try_from(line.trim_end()).map_err(anyhow::Error::from);
         paths.push(p);
     }
 
