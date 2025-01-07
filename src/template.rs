@@ -165,11 +165,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
         // pretty printing of the path
         let target = env.italic();
 
-        println!("\n{env}\n");
-
         let target_path = Path::new(env.as_ref());
-
-        println!("\n{target_path:?}\n");
 
         let pywal = fields.pywal.unwrap_or(false);
 
