@@ -16,7 +16,7 @@ use serde::Deserialize;
 #[derive(Debug, Parser, Default)]
 pub struct Globals {
     /// Won't send these colors sequences
-    #[arg(global = true, short, long, value_delimiter = ',', conflicts_with = "skip_sequences")]
+    #[arg(global = true, short = 'I', long, value_delimiter = ',', conflicts_with = "skip_sequences")]
     pub ignore_sequence: Option<Vec<Sequences>>,
 
     /// Don't print anything
@@ -99,12 +99,16 @@ pub enum Subcmds {
     Migrate,
     /// Print information about the program and the enviroment it uses
     Debug,
+
+    /// A drop-in cli replacement for pywal
+    Pywal(PywalArgs),
+
 }
 
 /// No subcommands, global arguments
 #[derive(Parser, Debug, Clone, Default)]
 pub struct WallustArgs {
-    /// Path to an image or json theme to use
+    /// Path to the image to use
     pub file: PathBuf,
 
     /// Alpha *template variable* value, used only for templating (default is 100)
@@ -151,6 +155,116 @@ pub struct WallustArgs {
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
+}
+
+/// Pywal cli flags arguments. This is to create a drop in replacement, since many apps rely on the
+/// `pywal` command. However, cli flags are ignored, as of now.
+#[derive(Parser, Debug, Clone, Default)]
+#[command(about, long_about)]
+pub struct PywalArgs {
+    /// Set terminal background transparency. *Only works in URxvt*
+    #[arg(short, value_name = "alpha")]
+    pub alpha: Option<String>,
+
+    /// Custom background color to use.
+    #[arg(short, value_name = "background")]
+    pub background: Option<String>,
+
+    /// Which color backend to use
+    #[arg(long, value_name = "[backend]")]
+    pub backend: Option<String>,
+
+    //  --theme [/path/to/file or theme_name], -f [/path/to/file or theme_name]
+    /// Which colorscheme file to use. Use 'wal --theme' to list builtin themes.
+    #[cfg_attr(not(feature = "buildgen"), arg(value_parser = clap::builder::ValueParser::new(col_values)))]
+    #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
+    #[arg(short = 'f', long, value_name = "theme")]
+    pub theme: Option<String>,
+
+    /// When pywal is given a directory as input and this flag is used: Go through the images in order instead of shuffled.
+    #[arg(long)]
+    pub iterative: bool,
+
+    /// Set the color saturation.
+    #[arg(long, value_name = "0.0 - 1.0")]
+    pub saturate: Option<f32>,
+
+    /// Print the current color palette.
+    #[arg(long)]
+    pub preview: bool,
+
+    /// Fix text-artifacts printed in VTE terminals.
+    #[arg(long)]
+    vte: bool,
+
+    /// Delete all cached colorschemes.
+    #[arg(short = 'c')]
+    pub clean_cache: bool,
+
+    /// Which image or directory to use.
+    #[arg(required_unless_present = "theme")]
+    #[arg(short = 'i', value_name = "/path/to/img.jpg")]
+    pub file: Option<PathBuf>,
+
+    /// Generate a light colorscheme.
+    #[arg(short = 'l')]
+    pub light: bool,
+
+    /// Skip setting the wallpaper.
+    #[arg(short = 'n')]
+    pub no_wallpaper: bool,
+
+    /// External script to run after "wal".
+    #[arg(short = 'o', value_name = "script_name")]
+    pub othercmd: Option<String>,
+
+    /// Quiet mode, don't print anything.
+    #[arg(short = 'q')]
+    pub quiet: bool,
+
+    /// 'wal -r' is deprecated: Use (cat ~/.cache/wal/sequences &) instead.
+    #[arg(short = 'r')]
+    pub r: bool,
+
+    /// Restore previous colorscheme.
+    #[arg(short = 'R')]
+    pub restore: bool,
+
+    /// Skip changing colors in terminals.
+    #[arg(short = 's')]
+    pub skip_sequences: bool,
+
+    /// Skip changing colors in tty.
+    #[arg(short = 't')]
+    pub tty: bool,
+
+    /// Print "wal" version.
+    #[arg(short = 'v')]
+    pub version: bool,
+
+    /// Skip reloading gtk/xrdb/i3/sway/polybar
+    #[arg(short = 'e')]
+    pub e: bool,
+}
+
+/// Convert PywalArgs to WallustArgs
+impl From<PywalArgs> for WallustArgs {
+    fn from(p: PywalArgs) -> Self {
+        Self {
+            alpha: None,
+            backend: Some(Backend::Wal),
+            colorspace: None,
+            check_contrast: false,
+            dynamic_threshold: true,
+            fallback_generator: None,
+            no_cache: false,
+            overwrite_cache: false,
+            palette: None,
+            saturation: None,
+            threshold: None,
+            file: p.file.expect("ALWAYS SOME, CHECKED ON MAIN"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, clap::ValueEnum)]

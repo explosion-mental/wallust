@@ -36,6 +36,30 @@ fn main() -> Result<()> {
             // use serde to read wallust.toml, this is mut only because the user could provide a `-C custom_config.toml`
             run(&mut conf, &cache_path, &s, &cli.globals)?
         },
+        args::Subcmds::Pywal(s) => {
+            match s.file {
+                Some(_) => run(&mut conf, &cache_path, &s.into(), &cli.globals)?, // -i "...png"
+                None => { //must be using a file or a theme name `-f file.jpg`
+                    let theme = &s.theme.expect("SHOULD BE NON EMPTY, from clap");
+                    if !quiet { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
+                    let colors = themes::built_in_theme(theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
+                    colors.print();
+                    if ! skip_sequences && ! update_current {
+                        if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+                        colors.sequences(&cache_path, ignore_sequence.as_deref())?;
+                    }
+
+                    if update_current {
+                        if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+                        print!("{}", colors.to_seq(ignore_sequence.as_deref()));
+                    }
+
+                    if ! skip_templates {
+                        conf.write_entry(&WalStr::Theme(theme), &colors, quiet)?;
+                    }
+                }
+            }
+        },
         #[cfg(feature = "themes")]
         args::Subcmds::Theme { theme, preview } => {
             if theme == themes::LIST { // wallust theme list
@@ -193,7 +217,7 @@ Cache path: {}
             // renaeme the original config
             std::fs::rename(&file, &old)?;
             std::fs::write(&file, new)?;
-        }
+        },
     }
     Ok(())
 
