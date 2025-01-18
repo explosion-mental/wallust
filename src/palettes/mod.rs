@@ -76,13 +76,13 @@ pub enum Palette {
     /// colorspace, which will maintain 'tty' like color order and only adjusting the colors
     /// acording to the theme. A possible solution for LS_COLORS and the like. Should workout with
     /// other colorspace, but the result may not be optimal.
-    #[clap(alias  = "dark-ansi", name = "darkansi")]
-    #[serde(alias = "dark-ansi")]
+    #[clap(alias  = "ansi-dark", name = "ansidark")]
+    #[serde(alias = "ansi-dark")]
     AnsiDark,
 
     /// The ansidark palette with 16 color variation.
-    #[clap(alias  = "dark-ansi16", name = "darkansi16")]
-    #[serde(alias = "dark-ansi16")]
+    #[clap(alias  = "ansi-dark16", name = "ansidark16")]
+    #[serde(alias = "ansi-dark16")]
     AnsiDark16,
 
     /// Same as `dark` with hard hue colors
