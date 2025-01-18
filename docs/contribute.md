@@ -6,7 +6,7 @@ and/or a [custom theme](https://codeberg.org/explosion-mental/wallust-themes).
 Having design ideas or suggestios is also very welcome.
 
 
-## TODOs
+## Ideas
 Some food for thought.
 
 - `wallust init`, which will scan your system for common aplication in which

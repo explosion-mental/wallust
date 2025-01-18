@@ -118,20 +118,28 @@ cp -f ./target/release/wallust /usr/local/bin
 I've started this tool mainly for _speed_ reasons given that I use a
 [keybinding](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/config.h#L346)
 that [runs pywal](https://codeberg.org/explosion-mental/demwm/src/commit/cd43bd6c16a90e32dc1c22ec499d9aaff497f04a/demwm_random_wall#L19)
-with a random wallpaper image, this resulted in a noticeable delay in between.
+with a random wallpaper image, this resulted in a noticeable delay in between,
+which was really annoying as I changed my wallpaper.
 
-Of course, now I know that pywal uses image magick `convert` to gather the
-colors, which wallust can also use with the `wal` backend. Integrated native
-methods, and even much more sofisticated algorithms like `kmeans` or the SIMD
-backend `fast_resize`, made the need to let the user decide what fit best.
+Now I know that pywal uses image magick `convert` to gather the colors, which
+caused the _slowness_ in pywal, since `convert` takes some time by itself to
+gather the colors.
+
+Wallust can also use `convert` with the `wal` backend, but it's even more
+powerful since it brings up integrated native methods (no need for external
+commands, like `convert`, but are nice if you have it), and even much more
+sofisticated algorithms like `kmeans` or the SIMD backend `fast_resize`. This
+made the need to let the user decide what fit best, and not hardcode one way of
+reading the image.
 
 While the goal was focused on speed, the use case move on to upgrade
-functionality that both wallust and _archived_ python tool shared.
+functionality that both wallust and the _archived_ python tool shared.
 
-I use rust given the great wide library (crates) that it offered and it's native capabilities.
-I also tried [rewriting pywal in C](https://github.com/explosion-mental/wast)
+I use rust given the great wide library (crates) that it offered and it's
+native capabilities. I also tried [rewriting pywal in C](https://github.com/explosion-mental/wast)
 after watching a tsoding video where he implmements a histogram in C for
-manipulating an image. That was the little push I needed start this journey.
+manipulating an image. That was the push I needed to start this journey on this
+rusty color theoryish codebase.
 
 
 # Related
