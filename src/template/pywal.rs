@@ -45,14 +45,24 @@ pub fn render(content: &str, t: &TemplateFields) -> Result<String, PywalTemplate
         if content.chars().nth(i) == Some('{')
         && content.chars().nth(i+1) == Some('{')
         {
-            output.push('{');
-            i += 2;
+            let mut counts = 2; //starts from 2
+            //current char [nth(i)] is "{" and next one [nth(i+1)] as well
+            while content.chars().nth(i+counts) == Some('{') {
+                counts += 1;
+            }
+            output.push_str(&"{".repeat(counts-1));
+            i += counts;
         } else
         if content.chars().nth(i) == Some('}')
         && content.chars().nth(i+1) == Some('}')
         {
-            output.push('}');
-            i += 2;
+            let mut counts = 2; //starts from 2
+            //current char [nth(i)] is "{" and next one [nth(i+1)] as well
+            while content.chars().nth(i+counts) == Some('}') {
+                counts += 1;
+            }
+            output.push_str(&"}".repeat(counts-1));
+            i += counts;
         } else
         if content.chars().nth(i) == Some('{')
         && content.chars().nth(i+1) != Some('{')
