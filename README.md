@@ -35,6 +35,9 @@ There is also a [**web page**](https://explosion-mental.codeberg.page/wallust) f
 [//]: # (ANCHOR: feats)
 ## Features
 - Includes [man pages](man/) and [completions](completions/)!
+- Feature rich templating:
+    * You can use a [subset of _Jinja2_](https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md) (default).
+    * Alternatively, simply use the [_pywal_](https://github.com/dylanaraps/pywal/wiki/User-Template-Files#available-variables-and-syntax) syntax (requires selecting it on the config file).
 - Sets terminal colors on all (or the current, `-u`) active terminals:
     * Windows: Adds a
       [color scheme for the windows terminal](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/color-schemes#creating-your-own-color-scheme)
@@ -49,10 +52,9 @@ There is also a [**web page**](https://explosion-mental.codeberg.page/wallust) f
     * Windows: `{FOLDERID_LocalAppData}`
 - Read pywal/terminal-sexy colorschemes with `wallust cs`.
 - Built-in [themes](https://codeberg.org/explosion-mental/wallust-themes) with ` wallust theme` (compile time feature).
-- Optional Configuration file, [`wallust.toml`](./wallust.toml):
+- Configuration file at [`wallust.toml`](./wallust.toml) (but wallust can work without one!):
     * wallust checks for `~/.config/wallust/wallust.toml` for the config file, if not found it will use default implementations.
     * Configuration variables are avaliable as cli flags.
-	* **Optional** templating with a [subset of _Jinja2_](https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md) or [_pywal_](https://github.com/dylanaraps/pywal/wiki/User-Template-Files#available-variables-and-syntax) syntax if selected.
 	* Configurable methods for backends, colorspaces, palettes and threshold.
     * OS dependant path:
         - Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`

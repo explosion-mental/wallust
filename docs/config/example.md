@@ -28,7 +28,7 @@ glava = { src = 'glava.glsl', dst = '~/.config/glava/rc.glsl' }
 res.src = "xres"
 res.dst = "~/.config/Xresources"
 
-# old times, good times, here I put old pywal templates. Seems unstable tho.
+# old times, good times. Here I put old pywal templates.
 # NOTE THAT BOTH scr AND dst ARE DIRECTORIES!
 pywal = { src = "templates/", dst = '~/.cache/wal/', pywal = true }
 ```

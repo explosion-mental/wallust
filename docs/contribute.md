@@ -23,7 +23,4 @@ Some food for thought.
 
 - Pulish code on colorspaces
 
-- Implement a 1 to 1 replica template engine for pywal (It seems that the pywal
-  syntax for templating will remain standard)
-
 For more, grep the src for TODO `rg TODO`

@@ -1,6 +1,5 @@
-# Pywal Template Compatibility
-You can enable pywal like syntax in the config file with `pywal = true`.
- wallust (5)
+# Pywal Template Engine
+You can enable pywal like syntax in the config file with `pywal = true`, check out [defining a template in the config file](https://explosion-mental.codeberg.page/wallust/config/template.html#pywal-optional).
 
 The syntax is simple, but more variables are added given that it's engine and
 spec doesn't support runtime evaluation functions.
@@ -14,11 +13,22 @@ The syntax logic is simply "Find and Replace" like:
 somevariable = {color2}
 anothervariable = {color8.rgb}
 ```
-
-Don't forget to visit the
-[**full pywal spec**](https://github.com/dylanaraps/pywal/wiki/User-Template-Files)
+and to escape braquest simply add one more than desired:
+```css
+// Example snippet.
+* {{
+    active-background: {color2};
+    active-foreground: {foreground};
+    normal-background: {background};
+    normal-foreground: {foreground};
+    urgent-background: {color1};
+    urgent-foreground: {foreground};
+    // ...
+}}
+```
 
 ## Variables
+Below is a simple list with possible variables:
 - color0
 - color1
 - color2
@@ -47,6 +57,7 @@ and it's variants, just append it to the variable name (e.g. `color0.rgb`, `back
 - .red
 - .green
 - .blue
+- .alpha
 
 
 
@@ -54,3 +65,9 @@ Miscellaneous variables below are also avaliable, these don't support the varian
 - wallpaper
 - alpha
 - alpha_dec
+
+
+Don't forget to visit the
+[**full pywal spec**](https://github.com/dylanaraps/pywal/wiki/User-Template-Files) for more
+details, as this engine will try to keep it without changes.
+
