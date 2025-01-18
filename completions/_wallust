@@ -15,7 +15,7 @@ _wallust() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -24,8 +24,8 @@ _wallust() {
 '(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -79,8 +79,8 @@ complementary\:"uses \[\`complementary\`\]"))' \
 dark16\:"Same as \`dark\` but uses the 16 colors trick"
 darkcomp\:"This is a \`dark\` variant that changes all colors to it'\''s complementary counterpart, giving the feeling of a '\''new palette'\'' but that still makes sense with the image provided"
 darkcomp16\:"16 variation of the dark complementary variant"
-darkansi\:"This is not a '\''dark'\'' variant, is a new palette that is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
-darkansi16\:"The ansidark palette with 16 color variation"
+ansidark\:"This is not a '\''dark'\'' variant, is a new palette that is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
+ansidark16\:"The ansidark palette with 16 color variation"
 harddark\:"Same as \`dark\` with hard hue colors"
 harddark16\:"Harddark with 16 color variation"
 harddarkcomp\:"complementary colors variation of harddark scheme"
@@ -101,8 +101,8 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 dark16\:"Same as \`dark\` but uses the 16 colors trick"
 darkcomp\:"This is a \`dark\` variant that changes all colors to it'\''s complementary counterpart, giving the feeling of a '\''new palette'\'' but that still makes sense with the image provided"
 darkcomp16\:"16 variation of the dark complementary variant"
-darkansi\:"This is not a '\''dark'\'' variant, is a new palette that is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
-darkansi16\:"The ansidark palette with 16 color variation"
+ansidark\:"This is not a '\''dark'\'' variant, is a new palette that is meant to work with \`lchansi\` colorspace, which will maintain '\''tty'\'' like color order and only adjusting the colors acording to the theme. A possible solution for LS_COLORS and the like. Should workout with other colorspace, but the result may not be optimal"
+ansidark16\:"The ansidark palette with 16 color variation"
 harddark\:"Same as \`dark\` with hard hue colors"
 harddark16\:"Harddark with 16 color variation"
 harddarkcomp\:"complementary colors variation of harddark scheme"
@@ -122,7 +122,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--saturation=[Add saturation from 1% to 100% (overwrites config)]:SATURATION:_default' \
 '-t+[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD:_default' \
 '--threshold=[Choose a custom threshold, between 1 and 100 (overwrites config)]:THRESHOLD:_default' \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -138,8 +138,8 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '--overwrite-cache[Generates colors even if there is a cache version of it]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -148,7 +148,7 @@ softlightcomp16\:"softlight with complementary colors with 16 colors"))' \
 '(-C --config-file -d --config-dir)--no-config[Won'\''t read the config and avoids creating it'\''s config path]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
-':file -- Path to an image or json theme to use:_files' \
+':file -- Path to the image to use:_files' \
 && ret=0
 ;;
 (cs)
@@ -159,7 +159,7 @@ wallust\:"cached wallust files"))' \
 '--format=[Specify a custom format. Without this option, wallust will sequentially try to decode it by trying one by one]:FORMAT:((pywal\:"uses the wal colorscheme format, see <https\://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>"
 terminal-sexy\:"uses <https\://terminal.sexy> JSON export"
 wallust\:"cached wallust files"))' \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -168,8 +168,8 @@ wallust\:"cached wallust files"))' \
 '(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -183,7 +183,7 @@ wallust\:"cached wallust files"))' \
 ;;
 (theme)
 _arguments "${_arguments_options[@]}" : \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -194,8 +194,8 @@ _arguments "${_arguments_options[@]}" : \
 '--preview[Only preview the selected theme]' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -209,7 +209,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (migrate)
 _arguments "${_arguments_options[@]}" : \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -218,8 +218,8 @@ _arguments "${_arguments_options[@]}" : \
 '(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -232,7 +232,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (debug)
 _arguments "${_arguments_options[@]}" : \
-'(-s --skip-sequences)*-i+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
 '(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
 '(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
@@ -241,8 +241,48 @@ _arguments "${_arguments_options[@]}" : \
 '(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
 '-q[Don'\''t print anything]' \
 '--quiet[Don'\''t print anything]' \
-'(-u --update-current -i --ignore-sequence)-s[Skip setting terminal sequences]' \
-'(-u --update-current -i --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)-s[Skip setting terminal sequences]' \
+'(-u --update-current -I --ignore-sequence)--skip-sequences[Skip setting terminal sequences]' \
+'-T[Skip templating process]' \
+'--skip-templates[Skip templating process]' \
+'(-s --skip-sequences)-u[Only update the current terminal]' \
+'(-s --skip-sequences)--update-current[Only update the current terminal]' \
+'(-C --config-file -d --config-dir)-N[Won'\''t read the config and avoids creating it'\''s config path]' \
+'(-C --config-file -d --config-dir)--no-config[Won'\''t read the config and avoids creating it'\''s config path]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(pywal)
+_arguments "${_arguments_options[@]}" : \
+'-a+[Set terminal background transparency. *Only works in URxvt*]:alpha:_default' \
+'-b+[Custom background color to use]:background:_default' \
+'--backend=[Which color backend to use]:[backend]:_default' \
+'-f+[Which colorscheme file to use. Use '\''wal --theme'\'' to list builtin themes]:theme:(dkeg-petal base16-paraiso sexy-s3r0-modified sexy-rasi solarized-dark sexy-muse base16-rebecca base16-classic-dark dkeg-leaf dkeg-harbing base16-atelier-forest-light sexy-simple_rainbow base16-bright base16-embers base16-chalk dkeg-flapr sexy-tangoesque base16-twilight sexy-visibone base16-brewer sexy-x-dotshare sexy-astromouse dkeg-bulb base16-summerfruit-light dkeg-chaires base16-black-metal-funeral base16-black-metal-burzum base16-codeschool base16-cupcake tempus_autumn dkeg-link sexy-gslob-nature-suede sexy-hybrid base16-materialer-dark dkeg-view dkeg-blumune base16-zenburn base16-gruvbox-pale dkeg-sprout sexy-mikado dkeg-scag base16-macintosh base16-black-metal-khold base16-atelier-plateau-dark base16-unikitty-light base16-google-light base16-materialer-light base16-pop base16-flat base16tooth base16-black-metal-venom base16-atelier-sulphurpool-dark base16-atelier-estuary-light sexy-zenburn base16-eighties sexy-eqie6 base16-3024 sexy-dwmrob base16-black-metal-marduk dkeg-brownstone dkeg-escen sexy-user-77-mashup-colors base16-mocha base16-mexico tempus_dusk base16-grayscale-light dkeg-novmbr dkeg-urban tempus_rift sexy-thwump dkeg-transposet tempus_future dkeg-stv base16-railscasts sexy-mikazuki base16-tomorrow base16-unikitty-dark sexy-jasonwryan dkeg-tealights base16-solarflare dkeg-raild sexy-invisibone base16-material-palenight dkeg-scape base16-black-metal-gorgoroth base16-solarized-light base16-black-metal-bathory base16-outrun dkeg-bark dkeg-spire sexy-sexcolors base16-woodland dkeg-simplicity base16-monokai base16-mellow-purple base16-xcode-dusk base16-porple base16-isotope dkeg-fendr dkeg-sundr sexy-nancy base16-classic-light dkeg-5725 base16-atelier-lakeside-dark sexy-navy-and-ivory 3024-light monokai base16-oceanicnext sexy-euphrasia sexy-visibone-alt-2 dkeg-mattd base16-atelier-seaside-light base16-atelier-savanna-light base16-atelier-heath-light dkeg-vans dkeg-coco sexy-gjm sexy-kasugano base16-atelier-sulphurpool-light base16-nord base16-black-metal-nile base16-tomorrow-night sexy-material base16-cupertino sexy-tlh srcery base16-phd base16-github tempus_summer base16-gruvbox-soft-dark base16-bespin sexy-rydgel dkeg-forst dkeg-slate sexy-theme2 base16-marrakesh sexy-colorfulcolors sexy-neon dkeg-diner base16-apathy sexy-gnometerm sexy-parker_brothers sexy-mostly-bright sexy-doomicideocean base16-atelier-dune-light zenburn sexy-rezza dkeg-relax ashes-light dkeg-provrb dkeg-skigh base16-tube dkeg-amiox sexy-numixdarkest base16-atelier-forest-dark sexy-pretty-and-pastel sexy-splurge base16-irblack base16-materia base16-gruvbox-hard-light dkeg-owl base16-atelier-heath-dark sexy-insignificato gruvbox darktooth sexy-trim-yer-beard sexy-dotshare dkeg-designr dkeg-poly base16-brushtrees base16-dracula base16-atelier-lakeside-light tempus_totus base16-atelier-cave-dark sexy-hund tempus_fugit base16-black-metal-mayhem base16-default-light dkeg-shade base16-default-dark vscode base16-atelier-plateau-light base16-hopscotch base16-grayscale-dark base16-atelier-estuary-dark base16-icy 3024-dark sexy-cloud rose-pine sexy-phrak1 base16-snazzy rose-pine-moon sexy-deafened dkeg-fury dkeg-blok base16-summerfruit-dark base16-pico sexy-sweetlove sexy-belge dkeg-victory sexy-bitmute base16-spacemacs sexy-orangish tempus_dawn dkeg-blend dkeg-book github base16-circus base16-gruvbox-medium-dark dkeg-prevail dkeg-depth base16-black-metal-immortal dkeg-soundwave sexy-gotham base16-atelier-seaside-dark tempus_warp base16-onedark dkeg-pastely base16-harmonic-light sexy-vacuous2 tempus_winter base16-atelier-savanna-dark base16-ashes rose-pine-dawn sexy-swayr sexy-digerati base16-google-dark sexy-monokai dkeg-branch dkeg-squares sexy-tartan tempus_spring base16-one base16-black-metal tempus_past base16-gruvbox-medium-light dkeg-bluetype base16-atelier-cave-light dkeg-subtle solarized-light base16-gruvbox-hard-dark base16-atelier-dune-dark sexy-tango dkeg-wintry base16-greenscreen base16-harmonic-dark base16-ocean dkeg-parkd sexy-derp dkeg-paints ashes-dark dkeg-kit base16-solarized-dark base16-seti sexy-dawn base16-gruvbox-soft-light hybrid-material dkeg-corduroy dkeg-traffic base16-shapeshifter base16-material random list)' \
+'--theme=[Which colorscheme file to use. Use '\''wal --theme'\'' to list builtin themes]:theme:(dkeg-petal base16-paraiso sexy-s3r0-modified sexy-rasi solarized-dark sexy-muse base16-rebecca base16-classic-dark dkeg-leaf dkeg-harbing base16-atelier-forest-light sexy-simple_rainbow base16-bright base16-embers base16-chalk dkeg-flapr sexy-tangoesque base16-twilight sexy-visibone base16-brewer sexy-x-dotshare sexy-astromouse dkeg-bulb base16-summerfruit-light dkeg-chaires base16-black-metal-funeral base16-black-metal-burzum base16-codeschool base16-cupcake tempus_autumn dkeg-link sexy-gslob-nature-suede sexy-hybrid base16-materialer-dark dkeg-view dkeg-blumune base16-zenburn base16-gruvbox-pale dkeg-sprout sexy-mikado dkeg-scag base16-macintosh base16-black-metal-khold base16-atelier-plateau-dark base16-unikitty-light base16-google-light base16-materialer-light base16-pop base16-flat base16tooth base16-black-metal-venom base16-atelier-sulphurpool-dark base16-atelier-estuary-light sexy-zenburn base16-eighties sexy-eqie6 base16-3024 sexy-dwmrob base16-black-metal-marduk dkeg-brownstone dkeg-escen sexy-user-77-mashup-colors base16-mocha base16-mexico tempus_dusk base16-grayscale-light dkeg-novmbr dkeg-urban tempus_rift sexy-thwump dkeg-transposet tempus_future dkeg-stv base16-railscasts sexy-mikazuki base16-tomorrow base16-unikitty-dark sexy-jasonwryan dkeg-tealights base16-solarflare dkeg-raild sexy-invisibone base16-material-palenight dkeg-scape base16-black-metal-gorgoroth base16-solarized-light base16-black-metal-bathory base16-outrun dkeg-bark dkeg-spire sexy-sexcolors base16-woodland dkeg-simplicity base16-monokai base16-mellow-purple base16-xcode-dusk base16-porple base16-isotope dkeg-fendr dkeg-sundr sexy-nancy base16-classic-light dkeg-5725 base16-atelier-lakeside-dark sexy-navy-and-ivory 3024-light monokai base16-oceanicnext sexy-euphrasia sexy-visibone-alt-2 dkeg-mattd base16-atelier-seaside-light base16-atelier-savanna-light base16-atelier-heath-light dkeg-vans dkeg-coco sexy-gjm sexy-kasugano base16-atelier-sulphurpool-light base16-nord base16-black-metal-nile base16-tomorrow-night sexy-material base16-cupertino sexy-tlh srcery base16-phd base16-github tempus_summer base16-gruvbox-soft-dark base16-bespin sexy-rydgel dkeg-forst dkeg-slate sexy-theme2 base16-marrakesh sexy-colorfulcolors sexy-neon dkeg-diner base16-apathy sexy-gnometerm sexy-parker_brothers sexy-mostly-bright sexy-doomicideocean base16-atelier-dune-light zenburn sexy-rezza dkeg-relax ashes-light dkeg-provrb dkeg-skigh base16-tube dkeg-amiox sexy-numixdarkest base16-atelier-forest-dark sexy-pretty-and-pastel sexy-splurge base16-irblack base16-materia base16-gruvbox-hard-light dkeg-owl base16-atelier-heath-dark sexy-insignificato gruvbox darktooth sexy-trim-yer-beard sexy-dotshare dkeg-designr dkeg-poly base16-brushtrees base16-dracula base16-atelier-lakeside-light tempus_totus base16-atelier-cave-dark sexy-hund tempus_fugit base16-black-metal-mayhem base16-default-light dkeg-shade base16-default-dark vscode base16-atelier-plateau-light base16-hopscotch base16-grayscale-dark base16-atelier-estuary-dark base16-icy 3024-dark sexy-cloud rose-pine sexy-phrak1 base16-snazzy rose-pine-moon sexy-deafened dkeg-fury dkeg-blok base16-summerfruit-dark base16-pico sexy-sweetlove sexy-belge dkeg-victory sexy-bitmute base16-spacemacs sexy-orangish tempus_dawn dkeg-blend dkeg-book github base16-circus base16-gruvbox-medium-dark dkeg-prevail dkeg-depth base16-black-metal-immortal dkeg-soundwave sexy-gotham base16-atelier-seaside-dark tempus_warp base16-onedark dkeg-pastely base16-harmonic-light sexy-vacuous2 tempus_winter base16-atelier-savanna-dark base16-ashes rose-pine-dawn sexy-swayr sexy-digerati base16-google-dark sexy-monokai dkeg-branch dkeg-squares sexy-tartan tempus_spring base16-one base16-black-metal tempus_past base16-gruvbox-medium-light dkeg-bluetype base16-atelier-cave-light dkeg-subtle solarized-light base16-gruvbox-hard-dark base16-atelier-dune-dark sexy-tango dkeg-wintry base16-greenscreen base16-harmonic-dark base16-ocean dkeg-parkd sexy-derp dkeg-paints ashes-dark dkeg-kit base16-solarized-dark base16-seti sexy-dawn base16-gruvbox-soft-light hybrid-material dkeg-corduroy dkeg-traffic base16-shapeshifter base16-material random list)' \
+'--saturate=[Set the color saturation]:0.0 - 1.0:_default' \
+'-i+[Which image or directory to use]:/path/to/img.jpg:_files' \
+'-o+[External script to run after "wal"]:script_name:_default' \
+'(-s --skip-sequences)*-I+[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-s --skip-sequences)*--ignore-sequence=[Won'\''t send these colors sequences]:IGNORE_SEQUENCE:(background foreground cursor color0 color1 color2 color3 color4 color5 color6 color7 color8 color9 color10 color11 color12 color13 color14 color15)' \
+'(-d --config-dir)-C+[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-d --config-dir)--config-file=[Use CONFIG_FILE as the config file]:CONFIG_FILE:_files' \
+'(-C --config-file --templates-dir)-d+[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-C --config-file --templates-dir)--config-dir=[Uses CONFIG_DIR as the config directory, which holds both \`wallust.toml\` and the templates files (if existent)]:CONFIG_DIR:_files' \
+'(-d --config-dir)--templates-dir=[Uses TEMPLATE_DIR as the template directory]:TEMPLATES_DIR:_files' \
+'--iterative[When pywal is given a directory as input and this flag is used\: Go through the images in order instead of shuffled]' \
+'--preview[Print the current color palette]' \
+'--vte[Fix text-artifacts printed in VTE terminals]' \
+'-c[Delete all cached colorschemes]' \
+'-l[Generate a light colorscheme]' \
+'-n[Skip setting the wallpaper]' \
+'-q[Quiet mode, don'\''t print anything]' \
+'-r['\''wal -r'\'' is deprecated\: Use (cat ~/.cache/wal/sequences &) instead]' \
+'-R[Restore previous colorscheme]' \
+'-s[Skip changing colors in terminals]' \
+'-t[Skip changing colors in tty]' \
+'-v[Print "wal" version]' \
+'-e[Skip reloading gtk/xrdb/i3/sway/polybar]' \
 '-T[Skip templating process]' \
 '--skip-templates[Skip templating process]' \
 '(-s --skip-sequences)-u[Only update the current terminal]' \
@@ -285,6 +325,10 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
+(pywal)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
 (help)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
@@ -306,6 +350,7 @@ _wallust_commands() {
 'theme:Apply a custom built in theme' \
 'migrate:Migrate v2 config to v3 (might lose comments,)' \
 'debug:Print information about the program and the enviroment it uses' \
+'pywal:A drop-in cli replacement for pywal' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'wallust commands' commands "$@"
@@ -328,6 +373,7 @@ _wallust__help_commands() {
 'theme:Apply a custom built in theme' \
 'migrate:Migrate v2 config to v3 (might lose comments,)' \
 'debug:Print information about the program and the enviroment it uses' \
+'pywal:A drop-in cli replacement for pywal' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'wallust help commands' commands "$@"
@@ -352,6 +398,11 @@ _wallust__help__migrate_commands() {
     local commands; commands=()
     _describe -t commands 'wallust help migrate commands' commands "$@"
 }
+(( $+functions[_wallust__help__pywal_commands] )) ||
+_wallust__help__pywal_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust help pywal commands' commands "$@"
+}
 (( $+functions[_wallust__help__run_commands] )) ||
 _wallust__help__run_commands() {
     local commands; commands=()
@@ -366,6 +417,11 @@ _wallust__help__theme_commands() {
 _wallust__migrate_commands() {
     local commands; commands=()
     _describe -t commands 'wallust migrate commands' commands "$@"
+}
+(( $+functions[_wallust__pywal_commands] )) ||
+_wallust__pywal_commands() {
+    local commands; commands=()
+    _describe -t commands 'wallust pywal commands' commands "$@"
 }
 (( $+functions[_wallust__run_commands] )) ||
 _wallust__run_commands() {
