@@ -1,11 +1,19 @@
-use thiserror::Error;
+//! Pywal Template Engine
+//! This module goal is to create a 1to1, or realistically a "just works", replica of the pywal
+//! templating system. The pywal system is described in the pywal wiki [1] and it should be able to
+//! at least parse all the pywal templates [2].
+//! The code bellow is an engine made by hand.
+//!
+//! Refs:
+//! 1: https://github.com/dylanaraps/pywal/wiki/User-Template-Files
+//! 2: https://github.com/dylanaraps/pywal/tree/master/pywal/templates
 
-//use crate::colors::Colors;
 use crate::colors::Myrgb;
-use palette::Srgb;
-
-use super::TemplateFields;
 use super::alpha_hexa;
+use super::TemplateFields;
+
+use thiserror::Error;
+use palette::Srgb;
 
 #[derive(Error, Debug)]
 pub enum PywalTemplateError {
@@ -15,22 +23,22 @@ pub enum PywalTemplateError {
     InvalidModifier(String),
 }
 
-fn get_func(fname: &str, value: &str) -> Result<String, PywalTemplateError> {
-
+fn get_func(fname: &str, value: &str, alpha: u8) -> Result<String, PywalTemplateError> {
     let c: Srgb<u8> = value.parse().expect("SHOULD BE A VALID COLOR");
     let c: Myrgb = c.into();
-    let alpha = 100.0;
+    let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
+    let alpha_dec = f32::from(alpha) / 100.0;
 
     let ret = match fname {
-        "rgb" => c.rgb(),
-        "rgba" => c.rgba(alpha),
-        "xrgba" => c.xrgba(&alpha_hexa(alpha as usize).unwrap()),
-        "strip" => c.strip(),
+        "rgb" => c.rgb(), //.rgb output `235,235,235`
+        "rgba" => c.rgba(alpha_dec), //.rgba output `235,235,235,1.0`
+        "xrgba" => c.xrgba(&alpha_hex), //.xrgba output `ee/ee/ee/ff`
+        "strip" => c.strip(), //.strip output `EEEEEE`
         "red" => c.red(),
         "green" => c.green(),
         "blue" => c.blue(),
-        "alpha" => format!("[{}]{c}", alpha as usize),
-        "alpha_dec" => format!("{:.2}", alpha / 100.0),
+        "alpha" => format!("[{}]{c}", alpha),
+        "alpha_dec" => format!("{:.2}", alpha_dec),
         _ => return Err(PywalTemplateError::InvalidModifier(fname.to_string())),
     };
 
@@ -91,7 +99,7 @@ pub fn render(content: &str, t: &TemplateFields) -> Result<String, PywalTemplate
                 //XXX this allows to stack funcs
                 for part in parts {
                     // println!("{}", output_value);
-                    output_value = get_func(part, value)?;
+                    output_value = get_func(part, value, t.alpha)?;
                 }
 
                 output.push_str(&output_value);
