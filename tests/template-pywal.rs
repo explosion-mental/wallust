@@ -75,7 +75,7 @@ color13='#0D0000'
 color14='#0E0000'
 color15='#0F0000'
 "#;
-    let result = pywal::render(sample, &Tfields).unwrap();
+    let result = pywal::render(sample, Tfields).unwrap();
 
     assert_eq!(expected_output, result);
 }
