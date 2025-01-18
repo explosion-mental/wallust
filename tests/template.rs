@@ -6,8 +6,9 @@ use wallust::colors::Colors;
 //use wallust::colors::HexConversion;
 use wallust::colors::Myrgb;
 use wallust::palettes::Palette;
-use wallust::template::jinja_env;
+use wallust::template::jinja2::jinja_env;
 use wallust::template::TemplateFields;
+use wallust::template::pywal;
 //use wallust::colors;
 use palette::Srgb;
 
@@ -186,13 +187,7 @@ color13='#0D0000'
 color14='#0E0000'
 color15='#0F0000'
 "#;
-    let result = new_string_template::template::Template::new(sample)
-        // this regex is even better than pywal, doesn't match new lines :3
-        // <https://regex101.com/r/AgVXKJ/1>
-        .with_regex(&regex::Regex::new(r"\{(\S+?)\}").expect("correct tested regex"))
-        .render(&Tfields.to_hash())
-        .unwrap()
-        ;
+    let result = pywal::render(sample, &Tfields).unwrap();
 
     assert_eq!(expected_output, result);
 }
