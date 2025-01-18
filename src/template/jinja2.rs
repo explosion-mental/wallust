@@ -1,11 +1,15 @@
-//! Template stuff, definitions and how it's parsed
+//! mini Jinja2 Template Engine
+//! This is integrating a subset of jinja2 string formatting engine to wallust templates. I've
+//! chosen minijinja because it's simplicity and the powerful parser it could end up (enough for
+//! either a "noobie" or an experience ricer).
+//! Refs:
+//! - https://github.com/mitsuhiko/minijinja/blob/main/COMPATIBILITY.md
 use std::str::FromStr;
 
 use crate::colors::Myrgb;
 use super::alpha_hexa;
 
 use anyhow::Result;
-//use owo_colors::OwoColorize;
 use minijinja::Environment;
 use minijinja::value::ViaDeserialize;
 
@@ -14,6 +18,7 @@ use palette::{
     Srgb, Srgba, Hsv,
 };
 
+/// Simple macro to simplify converting methods to jinja filters
 macro_rules! jinjafn {
     ($var:expr, $func_name:ident) => {
         fn $func_name(value: ViaDeserialize<Myrgb>) -> String { Myrgb::$func_name(&value) }
@@ -46,31 +51,30 @@ macro_rules! jinjafn {
 /// ref: <https://docs.rs/minijinja/latest/minijinja/struct.Error.html>
 pub fn minijinja_err_chain(err: minijinja::Error) -> String {
     let mut err = &err as &dyn std::error::Error;
-    let mut s = String::from(&format!("Could not render template: {err:#}"));
+    let mut s = format!("Could not render template: {err:#}");
 
     // get to the source, if there are more.
     while let Some(next_err) = err.source() {
-        s.push('\n');
-        s.push_str(&format!("Caused by: {next_err:#}"));
+        s.push_str(&format!("\nCaused by: {next_err:#}"));
         err = next_err;
     }
     s
 }
 
-
-
-pub fn parse_srgb(s: &str) -> Result<Srgb<u8>, minijinja::Error> {
-    Srgb::<u8>::from_str(s)
-        .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{e}")))
+/// Simple fn for `map_err` to convert a simple error to a minijinja error
+fn jinjerr<T: std::error::Error>(err: T) -> minijinja::Error {
+    minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{err}"))
 }
 
-pub fn parse_srgba(s: &str) -> Result<Srgba<u8>, minijinja::Error> {
-    Srgba::<u8>::from_str(s)
-        .map_err(|e| minijinja::Error::new(minijinja::ErrorKind::InvalidOperation, format!("{e}")))
+fn parse_srgb(s: &str) -> Result<Srgb<u8>, minijinja::Error> {
+    Srgb::<u8>::from_str(s).map_err(jinjerr)
+}
+
+fn parse_srgba(s: &str) -> Result<Srgba<u8>, minijinja::Error> {
+    Srgba::<u8>::from_str(s).map_err(jinjerr)
 }
 
 pub fn jinja_env<'a>() -> Environment<'a> {
-        use minijinja::Error;
         let mut env = Environment::new();
         env.set_keep_trailing_newline(true); // keep the template file intact
 
@@ -86,7 +90,7 @@ pub fn jinja_env<'a>() -> Environment<'a> {
 
         /// Blending for usual RRGGBB and RRGGBBAA
         //TODO make this less ugly "but, it werks"
-        fn blend(a: String, b: String) -> Result<String, Error> {
+        fn blend(a: String, b: String) -> Result<String, minijinja::Error> {
             let rgb = parse_srgb(&a);
             let rgba = parse_srgba(&a);
 
@@ -163,7 +167,7 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         env.add_filter("blend", blend);
 
         /// Complementary for usual RRGGBB and RRGGBBAA
-        fn complementary(s: String) -> Result<String, Error> {
+        fn complementary(s: String) -> Result<String, minijinja::Error> {
             use crate::colors::Compl;
             let rgb = parse_srgb(&s);
             let rgba = parse_srgba(&s);
@@ -196,7 +200,7 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         env.add_filter("complementary", complementary);
 
         /// Saturate function that accepts a RRGGBB or RRGGBBAA
-        fn saturate(s: String, arg: f32) -> Result<String, Error> {
+        fn saturate(s: String, arg: f32) -> Result<String, minijinja::Error> {
             let rgb = parse_srgb(&s);
             let rgba = parse_srgba(&s);
 
@@ -230,7 +234,7 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         env.add_filter("saturate", saturate);
 
         /// Darken for usual RRGGBB and RRGGBBAA
-        fn darken(s: String, arg: f32) -> Result<String, Error> {
+        fn darken(s: String, arg: f32) -> Result<String, minijinja::Error> {
             let rgb = parse_srgb(&s);
             let rgba = parse_srgba(&s);
 
@@ -262,7 +266,7 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         env.add_filter("darken", darken);
 
         /// Lighten with support for RRGGBBAA aka 'hexa' like values.
-        fn lighten(s: String, arg: f32) -> Result<String, Error> {
+        fn lighten(s: String, arg: f32) -> Result<String, minijinja::Error> {
             let rgb = parse_srgb(&s);
             let rgba = parse_srgba(&s);
 
