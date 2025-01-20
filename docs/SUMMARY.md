@@ -30,6 +30,7 @@
     - [Filters](./templates/filters.md)
     - [Example](./templates/example.md)
     - [Pywal compatibility](./templates/pywal.md)
+- [Replacement for `pywal`](./pywal_replacement.md)
 
 # Dev
 - [Contribute!](./contribute.md)

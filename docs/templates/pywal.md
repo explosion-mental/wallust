@@ -4,7 +4,9 @@ You can enable pywal like syntax in the config file with `pywal = true`, check o
 The syntax is simple, but more variables are added given that it's engine and
 spec doesn't support runtime evaluation functions.
 
-While the implementation is simple enough to be added in wallust, it's use is discoraged.
+Don't forget to visit the
+[**full pywal spec**](https://github.com/dylanaraps/pywal/wiki/User-Template-Files) for more
+details, as this engine will try to keep it without changes, but here is a quick tutorial.
 
 ## Syntax
 The syntax logic is simply "Find and Replace" like:
@@ -14,7 +16,7 @@ somevariable = {color2}
 anothervariable = {color8.rgb}
 ```
 and to escape braquest simply add one more than desired:
-```css
+```
 // Example snippet.
 * {{
     active-background: {color2};
@@ -65,9 +67,4 @@ Miscellaneous variables below are also avaliable, these don't support the varian
 - wallpaper
 - alpha
 - alpha_dec
-
-
-Don't forget to visit the
-[**full pywal spec**](https://github.com/dylanaraps/pywal/wiki/User-Template-Files) for more
-details, as this engine will try to keep it without changes.
 
