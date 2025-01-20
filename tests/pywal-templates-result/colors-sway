@@ -1,0 +1,21 @@
+set $wallpaper /home
+
+set $background #EEEEEE
+set $foreground #DDDDDD
+
+set $color0 #000000
+set $color1 #010000
+set $color2 #020000
+set $color3 #030000
+set $color4 #040000
+set $color5 #050000
+set $color6 #060000
+set $color7 #070000
+set $color8 #080000
+set $color9 #090000
+set $color10 #0A0000
+set $color11 #0B0000
+set $color12 #0C0000
+set $color13 #0D0000
+set $color14 #0E0000
+set $color15 #0F0000

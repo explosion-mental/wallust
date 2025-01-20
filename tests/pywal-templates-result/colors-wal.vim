@@ -1,0 +1,23 @@
+" Special
+let wallpaper  = "/home"
+let background = "#EEEEEE"
+let foreground = "#DDDDDD"
+let cursor     = "#DDDDDD"
+
+" Colors
+let color0  = "#000000"
+let color1  = "#010000"
+let color2  = "#020000"
+let color3  = "#030000"
+let color4  = "#040000"
+let color5  = "#050000"
+let color6  = "#060000"
+let color7  = "#070000"
+let color8  = "#080000"
+let color9  = "#090000"
+let color10 = "#0A0000"
+let color11 = "#0B0000"
+let color12 = "#0C0000"
+let color13 = "#0D0000"
+let color14 = "#0E0000"
+let color15 = "#0F0000"

@@ -32,10 +32,11 @@ impl TemplateFields<'_> {
         let col = self.colors;
         let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
         let alpha_dec = f32::from(alpha) / 100.0;
+        let alpha_dec = if alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
 
         map.insert("wallpaper", self.image_path.into()); //full path to the image
         map.insert("alpha", alpha.to_string());
-        map.insert("alpha_dec", format!("{alpha_dec:.2}"));
+        map.insert("alpha_dec", format!("{alpha_dec}"));
         map.insert("alpha_hex", alpha_hex);
 
         // Include backend, colorspace and filter (palette)
@@ -73,6 +74,7 @@ fn get_func(fname: &str, value: &str, alpha: u8) -> Result<String, PywalTemplate
     let c: Myrgb = c.into();
     let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
     let alpha_dec = f32::from(alpha) / 100.0;
+    let alpha_dec_display = if alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
 
     let ret = match fname {
         "rgb" => c.rgb(), //.rgb output `235,235,235`
@@ -83,7 +85,7 @@ fn get_func(fname: &str, value: &str, alpha: u8) -> Result<String, PywalTemplate
         "green" => c.green(),
         "blue" => c.blue(),
         "alpha" => format!("[{}]{c}", alpha),
-        "alpha_dec" => format!("{:.2}", alpha_dec),
+        "alpha_dec" => alpha_dec_display,
         _ => return Err(PywalTemplateError::InvalidModifier(fname.to_string())),
     };
 

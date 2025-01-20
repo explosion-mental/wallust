@@ -216,7 +216,7 @@ impl Myrgb {
     /// Alpha needs to be in hex format alrd
     pub fn xrgba(&self, alpha: &str) -> String {
         let (r, g, b) = self.to_rgb8();
-        format!("{r:02x}/{g:02x}/{b:02x}/{alpha}")
+        format!("{r:02x}/{g:02x}/{b:02x}/{}", alpha.to_ascii_lowercase())
     }
 
     /// - xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
