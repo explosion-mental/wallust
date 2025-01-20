@@ -251,8 +251,9 @@ pub struct PywalArgs {
 impl From<PywalArgs> for WallustArgs {
     fn from(p: PywalArgs) -> Self {
         Self {
+            // All empty so wallust prioritizes the config file
             alpha: None,
-            backend: Some(Backend::Wal),
+            backend: None,
             colorspace: None,
             check_contrast: false,
             dynamic_threshold: true,
