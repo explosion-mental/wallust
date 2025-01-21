@@ -61,7 +61,7 @@ Takes another **color** as input, to blend it for the filtered color.
 
 Example:
 ```
-{{ color2 | blend(color0) }}
+{{ color2 | blend(color0) | blend("#EEDDFF") }}
 ```
 
 ### lighten
