@@ -15,6 +15,7 @@
     - [Backend](./parameters/backend.md)
     - [Check Contrast](./parameters/check_contrast.md)
     - [Color Space](./parameters/colorspace.md)
+    - [Using enviromental variables](./parameters/env_vars.md)
     - [Fallback Generator](./parameters/fallback_generator.md)
     - [Palette](./parameters/palette.md)
     - [Saturation](./parameters/saturation.md)
