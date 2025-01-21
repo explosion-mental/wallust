@@ -67,8 +67,8 @@ fn main() -> Result<()> {
                 return Ok(())
             }
 
+            let colors = themes::search_theme_or_cs(&theme, quiet, &conf.dir)?;//.or_else(|_|anyhow::anyhow!("Theme not found. Quitting..."))?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
-            let colors = themes::built_in_theme(&theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
             if ! quiet {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview

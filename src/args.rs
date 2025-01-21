@@ -87,7 +87,7 @@ pub enum Subcmds {
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        #[cfg_attr(not(feature = "buildgen"), arg(value_parser = clap::builder::ValueParser::new(col_values)))]
+        //#[cfg_attr(not(feature = "buildgen"), arg(value_parser = clap::builder::ValueParser::new(col_values)))]
         #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
         theme: String,
 
