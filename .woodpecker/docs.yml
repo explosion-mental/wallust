@@ -34,10 +34,9 @@ steps:
   publish:
     image: bitnami/git
     secrets: [ berg_pat ]
-    environment:
-      - MDBOOK_OUTPUT=book
-      - TMP_DIR=tmp
     commands:
+      - export MDBOOK_OUTPUT=book
+      - export TMP_DIR=tmp
       - git config --global user.email "woodpecker@codeberg.org"
       - git config --global user.name "Woodpecker CI"
       # only get the .git dir
