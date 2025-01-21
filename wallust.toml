@@ -1,21 +1,21 @@
 # wallust v3.1
 #
-# If comming from v2: https://explosion-mental.codeberg.page/wallust/v3.html#wallusttoml
-#
-# THIS IS A SAMPLE AND EASY TO COMPREHEND CONFIG, for more info:
-#    `man wallust.5` or check the wiki in the repo
-#
-# You can copy this file to ~/.config/wallust/wallust.toml
+# You can copy this file to ~/.config/wallust/wallust.toml (keep in mind is a sample config)
 
-# -- global space -- # values below can be overwritten by command line flags
+# SIMPLE TUTORIAL, or `man wallust.5`:
+# https://explosion-mental.codeberg.page/wallust/
+#
+# If comming from v2: https://explosion-mental.codeberg.page/wallust/v3.html#wallusttoml
+
+# Global section - values below can be overwritten by command line flags
 
 # How the image is parse, in order to get the colors:
 # full - resized - wal - thumb -  fastresize - kmeans
-backend = "resized"
+backend = "fastresize"
 
 # What color space to use to produce and select the most prominent colors:
 # lab - labmixed - lch - lchmixed
-color_space = "lab"
+color_space = "lch"
 
 # Use the most prominent colors in a way that makes sense, a scheme color palette:
 # dark - dark16 - darkcomp - darkcomp16
@@ -40,7 +40,7 @@ palette = "dark"
 
 [templates]
 # NOTE: prefer '' over "" for paths, avoids escaping.
-# template: A relative path that points to a file where wallust.toml is located, usually at `~/.config/wallust/`.
-# target: Absolute path in which to place a file with generated templated values.
-# If one is a directory, the other one NEEDS to also be one, one line example below
+# template: A RELATIVE path that points to `~/.config/wallust/template` (depends on platform)
+# target: ABSOLUTE path in which to place a file with generated templated values.
+# ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
