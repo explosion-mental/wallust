@@ -79,7 +79,6 @@ pub enum Palette {
     #[clap(alias  = "ansi-dark", name = "ansidark")]
     #[serde(alias = "ansi-dark")]
     AnsiDark,
-
     /// The ansidark palette with 16 color variation.
     #[clap(alias  = "ansi-dark16", name = "ansidark16")]
     #[serde(alias = "ansi-dark16")]

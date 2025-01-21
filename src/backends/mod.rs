@@ -29,7 +29,6 @@ pub enum Backend {
     /// Read and return the whole image pixels (more precision, slower)
     Full,
     /// Resizes the image before parsing, mantaining it's aspect ratio
-    #[default]
     Resized,
     /// Uses image magick `convert` to generate the colors, like pywal
     Wal,
@@ -39,6 +38,7 @@ pub enum Backend {
     #[serde(alias = "fast-resize")]
     /// A much faster resize algo that uses SIMD. For some reason it fails on some images where
     /// `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
+    #[default]
     FastResize,
     /// Kmeans is an algo that divides and picks pixels all around the image, Requires more
     /// tweaking and more in depth testing but, for the most part, "it just werks".

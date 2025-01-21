@@ -66,7 +66,6 @@ use self::ColorSpace as Cs;
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpace {
     /// Uses Cie L*a*b color space
-    #[default]
     Lab,
     #[clap(alias = "lab-mixed", name = "labmixed")] //claps prefers this-name
     #[serde(alias = "lab-mixed")]
@@ -75,6 +74,7 @@ pub enum ColorSpace {
     LabMixed,
     /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
     /// Could help when sorting.
+    #[default]
     Lch,
     /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
     /// Could help when sorting.
