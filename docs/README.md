@@ -1,3 +1,5 @@
+THERE IS A WEBSITE FOR THIS!
+
 This is an [`mdbook`](https://rust-lang.github.io/mdBook) _book_. Some info may
 be fetch from the `readme` directly, to avoid contraditory statments while
 redacting documentation. So if you see placeholders/macros inside `{{}}`
