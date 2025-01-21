@@ -1,12 +1,11 @@
-# when:
-#   - event: [ push, pull_request ]
-#     path: 'docs/*'
+variables:
+  - &doc_files [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
 
 when:
   branch: master
-  event: push
+  event: [ push, pull_request ]
   path:
-    include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+    include: *doc_files
 
 clone:
   git:
@@ -19,17 +18,18 @@ steps:
     commands:
     - cargo test --quiet --features=doc,iter --test=docs
     when:
-      - event: [pull_request, push]
-        path:
-          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+      event: [pull_request, push]
+      path:
+        include: *doc_files
+
   build:
     image: peaceiris/mdbook:latest
     commands:
       - mdbook build
     when:
-      - event: [pull_request, push]
-        path:
-          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+      event: [pull_request, push]
+      path:
+        include: *doc_files
 
   publish:
     image: bitnami/git
@@ -48,6 +48,6 @@ steps:
       - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
       - git push
     when:
-      - event: push
-        path:
-          include: [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+      event: push
+      path:
+        include: *doc_files
