@@ -33,7 +33,6 @@ steps:
 
   publish:
     image: bitnami/git
-    secrets: [ berg_pat ]
     commands:
       - export MDBOOK_OUTPUT=book
       - export TMP_DIR=tmp
@@ -46,6 +45,9 @@ steps:
       - git add .
       - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
       - git push
+    environment:
+      berg_pat:
+        from_secret: berg_pat
     when:
       event: push
       path:
