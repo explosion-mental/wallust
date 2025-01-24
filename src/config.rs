@@ -1,6 +1,5 @@
 //! Config related stuff, like parsing the config file and writing templates defined on it
 use std::collections::HashMap;
-use std::path::Path;
 use std::path::PathBuf;
 use std::fs::read_to_string;
 use std::io::Write;
@@ -125,9 +124,9 @@ pub struct Entries {
 /// 1. With `wallust theme rose-pine`, it will use the name of the theme in use. (e.g. `rose-pine`)
 /// 2. With `wallust cs scheme.json`, it will use the absolute path of the file used. (e.g. `/home/user/scheme.json`)
 /// 3. Normal behaviour with `wallust run image.png`, it will use the wallpaper absolute path. (e.g. `/home/user/image.png`)
-pub enum WalStr<'a> {
-    Path(&'a Path),
-    Theme(&'a str),
+pub enum WalStr {
+    Path(PathBuf),
+    Theme(String),
 }
 
 /// v3.md link

@@ -55,7 +55,7 @@ fn main() -> Result<()> {
                     }
 
                     if ! skip_templates {
-                        conf.write_entry(&WalStr::Theme(theme), &colors, quiet)?;
+                        conf.write_entry(&WalStr::Theme(theme.to_owned()), &colors, quiet)?;
                     }
                 }
             }
@@ -67,8 +67,8 @@ fn main() -> Result<()> {
                 return Ok(())
             }
 
-            let colors = themes::search_theme_or_cs(&theme, quiet, &conf.dir)?;//.or_else(|_|anyhow::anyhow!("Theme not found. Quitting..."))?;
             if !quiet && !preview { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
+            let colors = themes::built_in_theme(&theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
             if ! quiet {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview
@@ -85,17 +85,20 @@ fn main() -> Result<()> {
 
             //empty image_path cuz it's not used
             if ! skip_templates {
-                conf.write_entry(&WalStr::Theme(&theme), &colors, quiet)?;
+                conf.write_entry(&WalStr::Theme(theme), &colors, quiet)?;
             }
             if ! quiet { colors.done() }
         },
-        args::Subcmds::Cs { file, format } => {
-            if ! quiet { println!("[{info}] {cs}: from file {}", file.display(), cs = "colorscheme".magenta().bold()); }
-            // read_scheme or try_all_schemes
-            let colors = match format {
-                Some(s) => themes::read_scheme(&file, &s)?,
-                None => themes::try_all_schemes(&file, quiet)?,
+        args::Subcmds::Cs { colorscheme, format } => {
+            let (walstr, colors) = themes::search_theme_or_cs(&colorscheme, quiet, &conf.dir, format)?;
+
+            let msg = match walstr {
+                WalStr::Path(ref p) => format!("Using a colorscheme from file {}", p.display()),
+                WalStr::Theme(ref p) => format!("Using the theme {p}"),
             };
+
+
+            if ! quiet { println!("[{info}] {cs}: {msg}", cs = "colorscheme".magenta().bold()); }
 
             if ! quiet { colors.print(); }
             if ! skip_sequences && ! update_current {
@@ -110,7 +113,7 @@ fn main() -> Result<()> {
 
             //empty image_path cuz it's not used
             if ! skip_templates {
-                conf.write_entry(&WalStr::Path(&file), &colors, quiet)?;
+                conf.write_entry(&walstr, &colors, quiet)?;
             }
             if ! quiet { colors.done() }
         },
@@ -299,7 +302,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     }
 
     if !g.skip_templates {
-        conf.write_entry(&WalStr::Path(&cli.file), &colors, g.quiet)?;
+        conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, g.quiet)?;
     }
 
     // Cache colors

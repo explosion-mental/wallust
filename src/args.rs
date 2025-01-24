@@ -74,8 +74,8 @@ pub enum Subcmds {
     Run(WallustArgs),
     /// Apply a certain colorscheme
     Cs {
-        /// Path to the file that has a colorscheme
-        file: PathBuf,
+        /// Name of the scheme inside `wallust/colorschemes` directory or the name of a theme.
+        colorscheme: String,
 
         /// Specify a custom format. Without this option, wallust will sequentially try to decode
         /// it by trying one by one.

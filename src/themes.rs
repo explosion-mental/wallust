@@ -70,6 +70,7 @@ pub enum Schemes {
 }
 
 use glob::glob;
+use crate::config::WalStr;
 /// First, it reads files, so the user could "overwrite" built in themes with theirs.
 /// The order in which this works is the following.
 /// 1. Looks up a file on `wallust/colorschemes`:
@@ -77,14 +78,13 @@ use glob::glob;
 /// 3. If one isn't found, it will admit file extensions, if there is one match.
 /// 4. If there are multiple files with the same name, but different file extensions, error out and exit.
 /// 5. If none, or more than one, file matches, searches if a theme name matches.
-pub fn search_theme_or_cs(name: &str, quiet: bool, confpath: &Path) -> Result<Colors> {
+pub fn search_theme_or_cs(name: &str, quiet: bool, confpath: &Path, schemes: Option<Schemes>) -> Result<(WalStr, Colors)> {
     //#1 wallust/colorschemes/
     let p = confpath.join("colorschemes").join(name);
     //println!("{p:?} and | NAME {name}");
 
     // #2 exact match
-    if p.exists() { return try_all_schemes(&p, quiet); }
-
+    if p.exists() { return Ok((WalStr::Path(p.clone()), try_all_schemes(&p, quiet)?)); }
     // #3 accept file extensions with wildcard '*'
     let myglob = glob(&format!("{}*", p.display())).expect("glob pattern is ok");
 
@@ -93,14 +93,20 @@ pub fn search_theme_or_cs(name: &str, quiet: bool, confpath: &Path) -> Result<Co
     if count == 1 { //#3
         for i in glob(&format!("{}*", p.display())).expect("glob pattern is ok") {
             match i {
-                Ok(o) => return try_all_schemes(&o, quiet),
+                Ok(o) => {
+                    let cs = match schemes {
+                        Some(s) => read_scheme(&o, &s),
+                        None => try_all_schemes(&o, quiet),
+                    };
+                    return Ok((WalStr::Path(o), cs?))
+                },
                 Err(e) => anyhow::bail!("Found match for '{name}', but could not opened: {e}"),
             }
         }
         anyhow::bail!("Should be unreacheable");
     } else if count == 0 { // #5
         match built_in_theme(name, quiet) {
-            Some(s) => Ok(s),
+            Some(s) => return Ok((WalStr::Theme(name.to_owned()), s)),
             None => anyhow::bail!("No matches for '{name}'.") //it's not a built in theme
         }
     } else { // #4
