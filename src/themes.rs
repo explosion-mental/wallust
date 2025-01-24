@@ -185,7 +185,9 @@ pub const LIST: &str = "list";
 /// Lists all the themes
 // TODO maybe use columns to display it more efficiently..
 pub fn list_themes() {
-    let cols = wallust_themes::COLS_KEY
+    let mut cols = wallust_themes::COLS_KEY;
+    cols.sort();
+    let cols = cols
         .iter()
         .map(|x| format!("- {x}"))
         .collect::<Vec<_>>()
@@ -200,7 +202,7 @@ pub fn list_themes() {
 - {LIST} (lists avaliable themes) \
 ",
     extra = "Extra".bold().green(),
-    themes = "Avaliable themes".bold().green(),
+    themes = "Available themes".bold().green(),
     )
 }
 
