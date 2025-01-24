@@ -1,5 +1,5 @@
 fn main() {
-    #[cfg(all(feature = "themes", feature = "buildgen"))]
+    #[cfg(feature = "themes")]
     themes();
 
     //version (sha date)
@@ -29,7 +29,7 @@ fn version() -> String {
     format!("({sha} {date})")
 }
 
-#[cfg(all(feature = "themes", feature = "buildgen"))]
+#[cfg(feature = "themes")]
 /// This adds "random" to the COLS_KEY array such that it can be used as a clap constraint.
 /// This is a "workaround" only while making assets. Shell completions benefit from this since clap
 /// completions can put all the strings in the array into the completions itself.

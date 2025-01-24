@@ -87,8 +87,9 @@ pub enum Subcmds {
     #[cfg(feature = "themes")]
     Theme {
         /// A custom built in theme to choose from
-        //#[cfg_attr(not(feature = "buildgen"), arg(value_parser = clap::builder::ValueParser::new(col_values)))]
-        #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
+        // #[cfg_attr(feature = "buildgen", arg(value_parser = clap::builder::ValueParser::new(col_values)))]
+        // #[cfg_attr(not(feature = "buildgen"), arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
+        #[arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs")))]
         theme: String,
 
         /// Only preview the selected theme.
@@ -176,8 +177,6 @@ pub struct PywalArgs {
 
     //  --theme [/path/to/file or theme_name], -f [/path/to/file or theme_name]
     /// Which colorscheme file to use. Use 'wal --theme' to list builtin themes.
-    #[cfg_attr(not(feature = "buildgen"), arg(value_parser = clap::builder::ValueParser::new(col_values)))]
-    #[cfg_attr(feature = "buildgen", arg(value_parser = include!(concat!(env!("OUT_DIR"), "/args.rs"))))]
     #[arg(short = 'f', long, value_name = "theme")]
     pub theme: Option<String>,
 
@@ -290,14 +289,4 @@ pub enum Sequences {
     Color13,
     Color14,
     Color15,
-}
-
-#[cfg(all(feature = "themes", not(feature = "buildgen")))]
-/// little hack to add the "random" keyword in clap
-fn col_values(input: &str) -> Result<String, &'static str> {
-    if input == crate::themes::RAND || input == crate::themes::LIST || wallust_themes::COLS_KEY.contains(&input) {
-        Ok(input.into())
-    } else {
-        Err("input was not found.")
-    }
 }
