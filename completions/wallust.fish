@@ -66,7 +66,7 @@ resized\t'Resizes the image before parsing, mantaining it\'s aspect ratio'
 wal\t'Uses image magick `convert` to generate the colors, like pywal'
 thumb\t'Faster algo hardcoded to 512x512 (no ratio respected)'
 fastresize\t'A much faster resize algo that uses SIMD. For some reason it fails on some images where `resized` doesn\'t, for this reason it doesn\'t *replace* but rather it\'s a new option'
-kmeans\t'Kmeans is an algo that divides and picks pixels all around the image, Requires more tweaking and more in depth testing but, for the most part, "it just werks"'"
+kmeans\t'Kmeans is an algo that divides and picks pixels all around the image, giving a more diverse look'"
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s c -l colorspace -d 'Choose which colorspace to use (overwrites config)' -r -f -a "lab\t'Uses Cie L*a*b color space'
 labmixed\t'Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)'
 lch\t'CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting'

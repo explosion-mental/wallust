@@ -40,8 +40,8 @@ pub enum Backend {
     /// `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.
     #[default]
     FastResize,
-    /// Kmeans is an algo that divides and picks pixels all around the image, Requires more
-    /// tweaking and more in depth testing but, for the most part, "it just werks".
+    /// Kmeans is an algo that divides and picks pixels all around the image, giving a more
+    /// diverse look.
     Kmeans,
 }
 

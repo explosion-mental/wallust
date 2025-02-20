@@ -54,13 +54,13 @@ resized\:"Resizes the image before parsing, mantaining it'\''s aspect ratio"
 wal\:"Uses image magick \`convert\` to generate the colors, like pywal"
 thumb\:"Faster algo hardcoded to 512x512 (no ratio respected)"
 fastresize\:"A much faster resize algo that uses SIMD. For some reason it fails on some images where \`resized\` doesn'\''t, for this reason it doesn'\''t *replace* but rather it'\''s a new option"
-kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, Requires more tweaking and more in depth testing but, for the most part, "it just werks""))' \
+kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, giving a more diverse look"))' \
 '--backend=[Choose which backend to use (overwrites config)]:BACKEND:((full\:"Read and return the whole image pixels (more precision, slower)"
 resized\:"Resizes the image before parsing, mantaining it'\''s aspect ratio"
 wal\:"Uses image magick \`convert\` to generate the colors, like pywal"
 thumb\:"Faster algo hardcoded to 512x512 (no ratio respected)"
 fastresize\:"A much faster resize algo that uses SIMD. For some reason it fails on some images where \`resized\` doesn'\''t, for this reason it doesn'\''t *replace* but rather it'\''s a new option"
-kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, Requires more tweaking and more in depth testing but, for the most part, "it just werks""))' \
+kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, giving a more diverse look"))' \
 '-c+[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
