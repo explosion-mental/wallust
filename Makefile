@@ -1,5 +1,5 @@
 # wallust See LICENSE file for copyright and license details.
-VERSION = 3.1.0
+VERSION = 3.2.0
 
 # Customize below to fit your system
 
@@ -51,7 +51,7 @@ man:
 
 update-docs:
 	@echo "UPDATING MDBOOK DOCUMENTATION"
-	@${CARGO} test --quiet --features=doc,iter --test=docs
+	@${CARGO} test --quiet --features=doc --test=docs
 
 dist: clean
 	mkdir -p wallust-${VERSION}
