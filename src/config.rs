@@ -91,9 +91,52 @@ pub struct Config {
     pub palette: crate::palettes::Palette,
 }
 
+
+#[derive(Debug, Deserialize, Default)]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
+/// This is mainly to generate a pretty and accurate config JSON SCHEMA
+pub struct PrettyConfig {
+    /// What threshold to use to differentiate colors, if not defined, wallust automatically looks
+    /// for the best fit
+    #[serde(default)]
+    #[serde(deserialize_with = "validate_threshold")]
+    pub threshold: Option<u8>,
+
+    /// Which backend to use, see backends.rs
+    pub backend: Option<crate::backends::Backend>,
+
+    /// Which palette to use, see palettes.rs
+    pub palette: Option<crate::palettes::Palette>,
+
+    /// Which colorspace to use, see colorspaces.rs
+    pub color_space: Option<crate::colorspaces::ColorSpace>,
+
+    /// Optional alpha value
+    pub alpha: Option<u8>,
+
+    /// This flags ensures good contrast between images, by doing some w3m calculations.
+    /// However it isn't required and should only be turn on when you notice bad contrast between many images.
+    pub check_contrast: Option<bool>,
+
+    /// Maybe the user requires more vivid colors
+    pub saturation: Option<u8>,
+
+    /// How to 'generate' colors when there aren't enough colors to create the `palette`.
+    /// This appears as "Artificially generating colors.." in cli
+    pub fallback_generator: Option<crate::colorspaces::FallbackGenerator>,
+
+    /// The [templates] header, here you can define multiple templates
+    pub templates: Option<HashMap<String, Fields>>,
+
+    /// Enables the use of enviromental variables in the targets template paths
+    pub env_vars: Option<bool>,
+}
+
+
 /// An entry within the config file, toml table
 /// ref: <https://toml.io/en/v1.0.0#array-of-tables>
 #[derive(Debug, Deserialize, Clone)]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
 pub struct Fields {
     /// A file inside `~/.config/wallust/`, which is used for templating
     #[serde(alias = "src")]
@@ -190,9 +233,12 @@ impl Config {
             // }
 
             let s = || format!("Failed to read file {}:\nIf you are switching from v2 to v3, use `wallust migrate`.\nMake sure to read {V3} as well.", config.display());
-            toml::from_str(
-                &read_to_string(config).with_context(s)?
-            ).with_context(s)?
+            let toml: PrettyConfig = toml::from_str(
+                &read_to_string(config)
+                .with_context(s)?
+            ).with_context(s)?;
+
+            toml.into()
         };
 
         ret.templates_dir = templates_dir.into();
@@ -403,4 +449,23 @@ fn validate_threshold<'de, D>(d: D) -> Result<Option<u8>, D::Error>
     if value <= 100 { return Ok(Some(value)); }
 
     Err(de::Error::invalid_value(de::Unexpected::Unsigned(value as u64), &"a value between 0 and 100."))
+}
+
+
+impl From<PrettyConfig> for Config {
+    fn from(value: PrettyConfig) -> Self {
+        Self {
+            alpha: value.alpha,
+            threshold: value.threshold,
+            backend_user: value.backend,
+            color_space_user: value.color_space,
+            palette_user: value.palette,
+            fallback_generator: value.fallback_generator,
+            check_contrast: value.check_contrast,
+            saturation: value.saturation,
+            templates: value.templates,
+            env_vars: value.env_vars,
+            ..Self::default()
+        }
+    }
 }

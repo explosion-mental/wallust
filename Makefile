@@ -36,7 +36,7 @@ all: ${RELEASE}/wallust
 ${RELEASE}/wallust:
 	@${CARGO} build ${CARGOFLAGS}
 
-assets: man completions update-docs
+assets: man completions schema update-docs
 
 # The generated completion could differ if `themes` compiletime feature is disabled.
 completions:
@@ -48,6 +48,11 @@ completions:
 man:
 	@echo "GENERATING MAN PAGES"
 	@${CARGO} test --quiet --features=buildgen --test=man
+
+schema:
+	@echo "GENERATING JSON SCHEMA"
+	@${CARGO} test --quiet --features=schema --test=jsonschema
+
 
 update-docs:
 	@echo "UPDATING MDBOOK DOCUMENTATION"

@@ -63,6 +63,7 @@ use self::ColorSpace as Cs;
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 #[cfg_attr(feature = "iter", derive(strum::EnumIter))]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum ColorSpace {
     /// Uses Cie L*a*b color space
@@ -93,6 +94,7 @@ pub enum ColorSpace {
 use self::FallbackGenerator as G;
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum FallbackGenerator {
     /// uses [`interpolate`]

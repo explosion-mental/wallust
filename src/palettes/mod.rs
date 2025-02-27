@@ -55,6 +55,7 @@ use softlight::softlight;
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
 #[cfg_attr(feature = "iter", derive(strum::EnumIter))]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Palette {
     /// 8 dark colors, dark background and light contrast

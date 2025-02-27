@@ -44,6 +44,7 @@ wallust_themes = { version = "1.0", optional = true }
 # for making the doc tables from comments in source code
 documented = { version = "0.9.1", optional = true }
 strum = { version = "0.27", features = ["derive"], optional = true }
+schemars = { version = "0.8", optional = true }
 
 [dev-dependencies]
 tempfile = "3.17"
@@ -61,9 +62,10 @@ vergen-git2 = { version = "1.0", default-features = false, features = ["cargo", 
 default = [ "themes" ]
 # include built-in themes (~130K) <https://codeberg.org/explosion-mental/wallust-themes>
 themes = [ "dep:fastrand", "dep:wallust_themes" ]
+schema = [ "dep:schemars" ]
 
 # build generated stuff, used for building man pages and completions
-buildgen = [ "doc", "iter", "clap/cargo" ]
+buildgen = [ "doc", "iter", "schema", "clap/cargo" ]
 doc  = [ "dep:documented" ]
 iter = [ "dep:strum" ]
 
