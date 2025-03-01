@@ -11,6 +11,6 @@ fn jsonschema() {
     let schema = schema_for!(PrettyConfig);
     let content = serde_json::to_string_pretty(&schema).unwrap();
 
-    std::fs::File::create("wallust_schema.json").unwrap()
+    std::fs::File::create("schema.json").unwrap()
         .write_all(content.as_bytes()).unwrap();
 }
