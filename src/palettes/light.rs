@@ -21,6 +21,7 @@ pub fn light(c: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
     Colors {
         background : bg.into(), // background
         foreground : fg.into(),
+        cursor : fg.into(),
 
         /* First row */
         color0 : color0.into(),

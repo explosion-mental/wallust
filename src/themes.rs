@@ -254,6 +254,7 @@ pub fn built_in_theme(theme_key: &str, quiet: bool) -> Option<Colors> {
                     color15: c[15],
                     background: c[16],
                     foreground: c[17],
+                    cursor: c[18],
                 }
             )
         },
@@ -290,6 +291,7 @@ impl WalTheme {
         let s = &self.special;
         Ok(
             Colors {
+                cursor: s.cursor.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 background: s.background.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 foreground: s.foreground.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 color0 : c.color0 .parse::<Srgb<u8>>()?.into_format::<u8>().into(),
@@ -321,6 +323,7 @@ impl TerminalSexy {
 
         Ok(
             Colors {
+                cursor: fg.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 background: bg.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 foreground: fg.parse::<Srgb<u8>>()?.into_format::<u8>().into(),
                 color0 : c[0 ].parse::<Srgb<u8>>()?.into_format::<u8>().into(),

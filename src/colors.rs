@@ -20,6 +20,7 @@ use crate::sequences;
 /// put to be compatible with pywal)
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct Colors {
+    pub cursor: Myrgb,
     pub background: Myrgb,
     pub foreground: Myrgb,
     pub color0 : Myrgb,
@@ -520,8 +521,8 @@ impl Colors {
 
         let cursor = [
             //cursor is between 24..=len()
-            c.foreground.set_special(12), //cursor
-            c.foreground.set_special(13), //mouse
+            c.cursor.set_special(12), //cursor
+            c.cursor.set_special(13), //mouse
         ];
 
         let arr;

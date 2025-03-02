@@ -32,6 +32,8 @@ pub fn ansidark(c: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
     Colors {
         background : c[0].darken(0.2).into(), // background
         foreground : col7,
+        cursor : col7,
+
 
         /* First row */
         color0 : c[0].lighten(0.1).into(),
