@@ -160,7 +160,7 @@ impl From<&TemplateFields<'_>> for minijinja::Value {
             ..v,
             ..context! {
                 alpha      => values.alpha,
-                cursor     => c.foreground,
+                cursor     => c.cursor,
                 palette    => values.palette,
                 wallpaper  => values.image_path,
                 backend    => values.backend,

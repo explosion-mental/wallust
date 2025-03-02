@@ -7,6 +7,7 @@ use palette::Srgb;
 /// Sample colors in use
 pub fn mycols() -> Colors {
     Colors {
+        cursor: Myrgb(Srgb::new(221_u8, 221, 221).into_format()), //#DDDDDD
         background: Myrgb(Srgb::new(238_u8, 238, 238).into_format()), //#EEEEEE
         foreground: Myrgb(Srgb::new(221_u8, 221, 221).into_format()), //#DDDDDD
         color0 : Myrgb(Srgb::new(0 , 0_u8, 0).into_format()), //# 00 00 00

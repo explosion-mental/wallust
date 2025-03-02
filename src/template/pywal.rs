@@ -61,7 +61,7 @@ impl TemplateFields<'_> {
         map.insert("color13", col.color13.to_string());
         map.insert("color14", col.color14.to_string());
         map.insert("color15", col.color15.to_string());
-        map.insert("cursor", col.foreground.to_string());
+        map.insert("cursor", col.cursor.to_string());
         map.insert("foreground", col.foreground.to_string());
         map.insert("background", col.background.to_string());
 
