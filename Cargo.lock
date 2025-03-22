@@ -2349,9 +2349,9 @@ dependencies = [
 
 [[package]]
 name = "wallust_themes"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a186f8f8a63fb7505ac79fa78b0afab0af7ef186f48da803fa5da3b3da7bf3cd"
+checksum = "8e997c4b9815caad2bf32234f03c3b001d788fe65e38f48a53c53ed2bac847b8"
 dependencies = [
  "serde",
  "serde_json",
