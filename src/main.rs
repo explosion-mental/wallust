@@ -266,17 +266,23 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
             match gen_colors(&cli.file, conf, cli.dynamic_threshold) {
                 Ok((o, warn)) => {
                     let gen = conf.fallback_generator.unwrap_or_default();
-                    let not_enough = format!(
-                    "[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
-                        g = gen.to_string().color(gen.col()),
-                        method = "fallback generation method".magenta().bold()
-                        );
-                    sp.stop_with_message(format!("{m}[{info}] Color scheme palette generated!", m = if warn { not_enough } else { "".into() }));
+                    let msg = if warn {
+                        format!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
+                            g = gen.to_string().color(gen.col()),
+                            method = "fallback generation method".magenta().bold()
+                        )
+                    } else {
+                        format!("[{info}] Color scheme palette generated!")
+                    };
+
+                    //sp.stop_with_message(msg);
+                    sp.stop_with_symbol("[    🗸    ]");
+                    print!("{msg}");
                     cached_data.reached_gen();
                     o
                 }
                 Err(e) => {
-                    sp.stop_with_message("".into());
+                    sp.stop_with_newline();
                     return Err(e);
                 },
             }
