@@ -19,7 +19,7 @@ use anyhow::{Result, Context};
 /// For example, when there is an internal change in how the
 /// scheme is generated, the cache format won't change, however,
 /// there is a need for a regeneration, so we bump up the version.
-pub const CACHE_VER: &str = "1.5";
+pub const CACHE_VER: &str = "1.6";
 
 /// Used to manage cache, rather than passing arguments in main() a lot
 #[derive(Debug, Default)]
