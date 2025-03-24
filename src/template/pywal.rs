@@ -36,7 +36,7 @@ impl TemplateFields<'_> {
 
         map.insert("wallpaper", self.image_path.into()); //full path to the image
         map.insert("alpha", alpha.to_string());
-        map.insert("alpha_dec", format!("{alpha_dec}"));
+        map.insert("alpha_dec", alpha_dec.to_string() );
         map.insert("alpha_hex", alpha_hex);
 
         // Include backend, colorspace and filter (palette)

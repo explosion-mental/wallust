@@ -5,7 +5,10 @@ use super::*;
 
 #[derive(Debug)]
 pub struct Lch;
-
+// {
+//     min_chroma: u32,
+// }
+//
 /// Shadow the colorspace type (Spectrum)
 pub type Spec = palette::Lch;
 
@@ -60,6 +63,12 @@ impl BuildHisto<Spec> for Lch {
         });
         histo
     }
+
+    // fn additional(&mut self, histo: Vec<Histo<Spec>>) -> Vec<Histo<Spec>> {
+    //     let chromas = histo.iter().map(|x| x.color.chroma).collect::<Vec<_>>();
+    //     self.min_chroma = 0;
+    //     histo
+    // }
 
     fn sort_by_key_fn(a: Hist) -> impl Ord {
         // a.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal)

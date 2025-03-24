@@ -223,7 +223,7 @@ impl Myrgb {
     /// - xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
     /// - xrgba but without alpha
     /// - alpha is a variable itself, not contained in Colors. so it could be formatted standalone.
-    /// (e.g. `{{color0 | xrgb}}{{"/"}}{{alpha_hex}}` )
+    /// > Sample: `{{color0 | xrgb}}{{"/"}}{{alpha_hex}}`
     pub fn xrgb(&self) -> String {
         let (r, g, b) = self.to_rgb8();
         format!("{r:02x}/{g:02x}/{b:02x}")

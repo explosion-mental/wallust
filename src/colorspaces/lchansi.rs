@@ -31,13 +31,13 @@ impl BuildHisto<Spec> for LchAnsi {
     ///  1. Follow ascii 8 bit colors
     ///  2. make sure we have MIN_COLS to not trigger a FallbackGenerator, hence assure that, for
     ///     example, color1 will always be greenish.
-    /// Red     falls between 0   and 60  degrees.
-    /// Yellow  falls between 61  and 120 degrees.
-    /// Green   falls between 121 and 180 degrees.
-    /// Cyan    falls between 181 and 240 degrees.
-    /// Blue    falls between 241 and 300 degrees.
-    /// Magenta falls between 301 and 360 degrees.
-    /// Ref: https://docs.rs/palette/latest/palette/lch/struct.Lch.html
+    ///     Red     falls between 0   and 60  degrees.
+    ///     Yellow  falls between 61  and 120 degrees.
+    ///     Green   falls between 121 and 180 degrees.
+    ///     Cyan    falls between 181 and 240 degrees.
+    ///     Blue    falls between 241 and 300 degrees.
+    ///     Magenta falls between 301 and 360 degrees.
+    /// - Ref: <https://docs.rs/palette/latest/palette/lch/struct.Lch.html>
     // comments below are from the palette docs
     fn gather_cols(colors: Vec<Spec>, _threshold: u8, _mix: bool) -> Vec<Histo<Spec>> {
 
