@@ -1,5 +1,5 @@
 # wallust See LICENSE file for copyright and license details.
-VERSION = 3.2.0
+VERSION = 3.3.0
 
 # Customize below to fit your system
 
