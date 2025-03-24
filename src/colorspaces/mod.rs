@@ -298,9 +298,9 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
         histo = C::fallback(histo, threshold, gen);
     }
 
-    let top  = C::sort_col(histo.clone(), ord);
-    let top  = C::to_rgb(top);
-    let orig = C::to_rgb(histo);
+    let orig = C::to_rgb(&histo);
+    let top  = C::sort_col(histo, ord);
+    let top  = C::to_rgb(&top);
 
     Some( (top, orig, warn) )
 }
@@ -349,10 +349,9 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
         Some(s) => s,
     };
 
-    //TODO clone necesarry??
-    let top  = C::sort_col(ret.clone(), ord);
-    let top  = C::to_rgb(top);
-    let orig = C::to_rgb(ret);
+    let orig = C::to_rgb(&ret);
+    let top  = C::sort_col(ret, ord);
+    let top  = C::to_rgb(&top);
 
     Some( (top, orig, warn) )
 }
@@ -583,7 +582,7 @@ pub trait BuildHisto<C: ColorTrait> {
         gather_cols2::<C>(colors, threshold, mix)
     }
 
-    fn to_rgb(histo: Vec<Histo<C>>) -> Vec<Srgb> { histo.iter().map(|x| x.color.into_color()).collect() }
+    fn to_rgb(histo: &[Histo<C>]) -> Vec<Srgb> { histo.iter().map(|x| x.color.into_color()).collect() }
 }
 
 impl fmt::Display for G {
