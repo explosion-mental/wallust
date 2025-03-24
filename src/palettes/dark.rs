@@ -37,7 +37,7 @@ pub fn dark(cols: Vec<Srgb>, _orig: Vec<Srgb>) -> Colors {
     Colors {
         background : bg.into(), // background
         foreground : fg.into(),
-        cursor : fg.into(),
+        cursor : Myrgb(fg).blend(c[4].into()),
 
         /* First row */
         color0 : col0.into(), // background
