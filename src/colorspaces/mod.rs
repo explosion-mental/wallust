@@ -142,7 +142,8 @@ impl FallbackGenerator {
     }
 }
 
-pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
+/// TODO make this multithreaded
+pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send>(
     bytes: &[u8],
     _threshold: u8,
     gen: &G,
@@ -151,40 +152,78 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
     dedup: bool,
 ) -> Option<(Vec<Srgb>, Vec<Srgb>, bool)> {
 
-    //TODO one could use a binary tree split (and even maybe async) to find out the "best threshold"
+    use std::thread;
+    use std::collections::HashMap;
+    use std::sync::mpsc;
 
-    let mut fallback = false;
+    // primitives, can be used around threads
     let mut warn = false;
-    let mut histo = vec![];
-
-    // This is the max value a threshold can have.
-    // => This has to be a hardcoded tested allround value to avoid going to inifinity.
-    //let max_threshold = 30;
-    let min_threshold = 2;
+    let mut fallback = false;
     let mut threshold = 20; //initial threshold
 
-    use std::collections::HashMap;
+    let (txfinal, rxfinal) = mpsc::channel();
 
-    // The first element is going to be 0, this is to avoid `expect()` panicing
-    // since, this hasmap will never be empty.
-    // There can be more than one VALUE for the same KEY, given that different threshold could
-    // generate the same lenght of colors:
-    // - Key is the LEN of each threshold result
-    // - Value is the threshold being used
-    let mut hash: HashMap<usize, Vec<u8>> = HashMap::from([(0, vec![0])]);
+    thread::scope(|s| {
 
-    'running: loop {
-        // read image
-        let init = C::init(bytes, threshold, mix);
+        // sample histo
+        let mut histo = vec![];
 
-        // println!("INIT \n hash {hash:#?}\nth {threshold}");
+        // => This has to be a hardcoded tested allround value to avoid going to inifinity.
+        let max_threshold = 30;
+        let min_threshold = 2;
 
-        match init {
+        // The first element is going to be 0, this is to avoid `expect()` panicing
+        // since, this hasmap will never be empty.
+        // There can be more than one VALUE for the same KEY, given that different threshold could
+        // generate the same lenght of colors:
+        // - Key is the LEN of each threshold result
+        // - Value is the threshold being used
+        let mut hash: HashMap<usize, Vec<u8>> = HashMap::from([(0, vec![0])]);
+
+        // let mut results = vec![];
+
+        // start from the middle, and then search either upper or lower values, as a simple bin tree
+        let mid = max_threshold / 2; //15
+
+    'running: for i in (1..mid).step_by(2) {
+
+        // mini binary tree
+        let middle_right = mid + i;
+        let middle_left = mid - i;
+
+        /* spawn threads */
+        // we go with a step of 2 because we are spawing 2 threads per loop
+        // we go from 30 (threshold) to 2 (the minimun
+        let myread1 = s.spawn(move || {
+            // println!("\nHIIIII from thread1\n");
+            C::init(bytes, middle_left, mix)
+        });
+        let myread2 = s.spawn(move || {
+            // println!("\nhello from thread 2\n");
+            C::init(bytes, middle_right, mix)
+        } );
+
+        // let myread3 = s.spawn(move || {
+        //     println!("\nok from thread number 3\n");
+        //     C::init(bytes, threshold - (i + 2), mix)
+        // } );
+
+        // results.push(myread1);
+        // results.push(myread2);
+
+        //if results.iter().any(|x| x.is_finished()).
+
+        // since we go by a step of 2, check the threads that already have runed
+        for (storage, th) in [(myread1, middle_left), (myread2, middle_right)] {
+
+            threshold = th;
+            // wait for the threads
+        match storage.join().unwrap() {
             // There are colors! This threshold works.
             Some(s) => {
-                // println!("INITTT : {init:?}");
-                let len = s.len();
 
+                let s = if dedup { C::dedup_cols(s, threshold) } else { s };
+                let len = s.len();
                 // enough colors, end
                 // we handle here before deduping in case is not needed
                 if len >= MIN_COLS as usize
@@ -197,11 +236,10 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 }
 
 
-                let ret = if dedup { C::dedup_cols(s, threshold) } else { s };
-                let len = ret.len();
+                let len = s.len();
 
                 if len >= MIN_COLS as usize && len <= MAX_COLS as usize {
-                    histo = ret;
+                    histo = s;
                     break 'running;
                 }
 
@@ -223,7 +261,7 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
                 if max < 2 { break 'nocolor }
 
                 // We are done, fallback methods require at least 2 colors.
-                if threshold == 2 && max < 2 { return None }
+                if threshold == 2 && max < 2 { return }
 
                 if threshold < 10  // one digit threshold
                 && max < MIN_COLS.into()
@@ -241,8 +279,17 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait>(
         { break 'running }
 
         // inc threshold every loop [1; 50]
-        threshold -= 1;
+        //threshold -= 1;
     }
+    }
+
+    // println!("\nFINAL TH: {threshold}");
+
+    txfinal.send(histo).unwrap();
+
+    });
+
+    let mut histo = rxfinal.recv().unwrap();
 
     let len = histo.len();
 
@@ -282,6 +329,7 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
             } else {
                 s
             };
+
 
             let len = s.len();
 
@@ -432,11 +480,15 @@ pub trait ColorTrait:
 
 pub trait BuildHisto<C: ColorTrait> {
     /// If this fails, then there are less than 2 colors.
-    fn init(bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
+    fn init(/*&mut self, */bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
         let b = Self::read(bytes);
+        //let b = Self::additional(self, b);
         let ret = Self::gather_cols(b, threshold, mix);
         if ret.len() < 2 { None } else { Some(ret) }
     }
+
+    /// In case the color space requires to do some additional operation
+    //fn additional(&mut self, histo: Vec<C>) -> Vec<C> { histo }
 
     /// If this fails, just quit. Here we try to artificially generate colors.
     fn fallback(histo: Vec<Histo<C>>, threshold: u8, gen: &G) -> Vec<Histo<C>> {
