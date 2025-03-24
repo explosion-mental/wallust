@@ -142,8 +142,8 @@ impl FallbackGenerator {
     }
 }
 
-/// TODO make this multithreaded
-pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send>(
+/// This a multithreaded function to look up for the best threshold that has the best palette color generation.
+pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
     bytes: &[u8],
     _threshold: u8,
     gen: &G,
@@ -164,12 +164,11 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send>(
     let (txfinal, rxfinal) = mpsc::channel();
 
     thread::scope(|s| {
-
         // sample histo
         let mut histo = vec![];
 
         // => This has to be a hardcoded tested allround value to avoid going to inifinity.
-        let max_threshold = 30;
+        // let max_threshold = 30;
         let min_threshold = 2;
 
         // The first element is going to be 0, this is to avoid `expect()` panicing
@@ -180,45 +179,41 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send>(
         // - Value is the threshold being used
         let mut hash: HashMap<usize, Vec<u8>> = HashMap::from([(0, vec![0])]);
 
-        // let mut results = vec![];
 
         // start from the middle, and then search either upper or lower values, as a simple bin tree
-        let mid = max_threshold / 2; //15
+        // let mid = max_threshold / 2; //15
+        // let mut idx = vec![];
+        // for i in 1..max_threshold {
+        //     if i < mid && mid - i >= 2 { idx.push(mid - i); }
+        //     idx.push(mid + i);
+        // }
+        // const values from the formulate above | 42 elements
+        let idx = [14, 16, 13, 17, 12, 18, 11, 19, 10, 20, 9, 21, 8, 22, 7, 23, 6, 24, 5, 25, 4,
+        26, 3, 27, 2, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
 
-    'running: for i in (1..mid).step_by(2) {
+        // println!("\n\n{idx:?}\n\n");
 
-        // mini binary tree
-        let middle_right = mid + i;
-        let middle_left = mid - i;
+    'running: for i in 0..idx.len() {
 
         /* spawn threads */
         // we go with a step of 2 because we are spawing 2 threads per loop
         // we go from 30 (threshold) to 2 (the minimun
-        let myread1 = s.spawn(move || {
-            // println!("\nHIIIII from thread1\n");
-            C::init(bytes, middle_left, mix)
-        });
-        let myread2 = s.spawn(move || {
-            // println!("\nhello from thread 2\n");
-            C::init(bytes, middle_right, mix)
-        } );
+        let th1 = idx[i];
+        let myread1 = s.spawn(move || C::init(bytes, th1, mix));
 
-        // let myread3 = s.spawn(move || {
-        //     println!("\nok from thread number 3\n");
-        //     C::init(bytes, threshold - (i + 2), mix)
-        // } );
+        let th2 = idx[i+1];
+        let myread2 = s.spawn(move || C::init(bytes, th2, mix));
 
-        // results.push(myread1);
-        // results.push(myread2);
+        let th3 = idx[i+2];
+        let myread3 = s.spawn(move || C::init(bytes, th3, mix));
 
-        //if results.iter().any(|x| x.is_finished()).
 
         // since we go by a step of 2, check the threads that already have runed
-        for (storage, th) in [(myread1, middle_left), (myread2, middle_right)] {
+        for (storage, th) in [(myread1, th1), (myread2, th2), (myread3, th3)] {
 
             threshold = th;
             // wait for the threads
-        match storage.join().unwrap() {
+        match storage.join().expect("Waiting for the thread.") {
             // There are colors! This threshold works.
             Some(s) => {
 
@@ -278,18 +273,17 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send>(
         if threshold == min_threshold // set a limit, don't go forever..
         { break 'running }
 
+        // no need to inc, since we already have idx of threshold
         // inc threshold every loop [1; 50]
         //threshold -= 1;
     }
     }
 
     // println!("\nFINAL TH: {threshold}");
-
-    txfinal.send(histo).unwrap();
-
+    txfinal.send(histo).expect("Sending message MPSC");
     });
 
-    let mut histo = rxfinal.recv().unwrap();
+    let mut histo = rxfinal.recv().expect("Receiving message MPSC");
 
     let len = histo.len();
 
