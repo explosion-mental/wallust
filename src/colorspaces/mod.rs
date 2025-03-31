@@ -678,21 +678,24 @@ fn color_generator2<T: ColorTrait> (histo: &[Histo<T>], threshold: u8, gen: &G) 
 fn gather_cols2<T: ColorTrait>(colors: Vec<T>, threshold: u8, mix: bool) -> Vec<Histo<T>> {
     let mut histogram: Vec<Histo<T>> = vec![];
 
-    'outter: for c in colors {
-        if c.filter_cols() {
-            // Check if whether the color is new or is already in the vec
-            for hist in &mut histogram {
-                // if any color is between a threshold, count it up
-                if c.col_diff(&hist.color, threshold) {
-                    if mix { hist.color = hist.color.mix(c, 0.5); }
-                    hist.count += 1;
-                    continue 'outter;
-                }
-            }
-            // if we reach here, the color hasn't been found in the histrogram,
-            // so we found a new color.
-            histogram.push(Histo { color: c, count: 1 });
-        }
+
+    for c in colors.iter().filter(|x| x.filter_cols()) {
+        // Check if the color already exists in the histogram (linear search)
+        let mut found = false;
+
+        // Check if whether the color is new or is already in the vec
+        histogram
+            .iter_mut()
+            .filter(|hist| c.col_diff(&hist.color, threshold))
+            .for_each(|hist| {
+                if mix { hist.color = hist.color.mix(*c, 0.5); }
+                hist.count += 1;
+                found = true;
+            });
+
+        // if we reach here, the color hasn't been found in the histrogram,
+        // so we found a new color.
+        if found { histogram.push(Histo { color: *c, count: 1 }); }
     }
 
     histogram.into()
