@@ -540,8 +540,13 @@ pub trait BuildHisto<C: ColorTrait> {
         // labs.sort_by_key(|e| (e.l.trunc() as u32, e.a.trunc() as i32, e.b.trunc() as i32));
         // labs.dedup_by(|a, b| lab::delta_e(*a, *b) <= threshold.into());
         // labs.dedup();
+        // dedup_by_with_count() allows us to store how many times the colors are dup
         histo.sort_by_key(|&a| Self::sort_by_key_fn(a));
-        histo.dedup_by(|a, b| a.color.col_diff(&b.color, threshold));
+        //histo.dedup_by(|a, b| a.color.col_diff(&b.color, threshold));
+        histo
+            .iter_mut()
+            .dedup_by_with_count(|a, b| a.color.col_diff(&b.color, threshold))
+            .for_each(|x| x.1.count += x.0);
 
         // sort vec by count, most used colors first
         histo.sort_by(|a, b| b.count.cmp(&a.count));
