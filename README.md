@@ -15,7 +15,7 @@
 ![gif](https://explosion-mental.codeberg.page/img/other/wallust-2.6.gif "wallust gif")
 > sources: [adwaita](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/adwaita-d.jpg) - [scenic view of mountains](https://www.pexels.com/photo/scenic-view-of-mountains-during-dawn-1261728) - [rms by marco novo](https://stallman.org/photos/rms/pages/2.html) - [pixels](https://gitlab.gnome.org/GNOME/gnome-backgrounds/-/blob/main/backgrounds/pixels-l.webp) - [linus talking](https://en.wikipedia.org/wiki/File:Linus_Torvalds_talking.jpeg)
 
-**If comming from v2, please check [v3 breaking changes](./docs/v3.md).**
+**If coming from v2, please check [v3 breaking changes](./docs/v3.md).**
 
 ## Usage
 ```
