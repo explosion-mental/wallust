@@ -16,7 +16,7 @@ homepage = "https://explosion-mental.codeberg.page/wallust"
 thiserror = "2.0"
 anyhow = "1.0"
 image = "0.25"
-owo-colors = "4.1"
+owo-colors = "4.2"
 toml = "0.8"
 toml_edit = "0.22"
 serde_json = "1.0"
@@ -27,7 +27,7 @@ dirs = "6.0"
 itertools = "0.14"
 fast_image_resize = "5.1"
 num-traits = "0.2"
-kmeans_colors = { version = "0.6.0", default-features = false, features = ["palette_color"] }
+kmeans_colors = { version = "0.7.0", default-features = false, features = ["palette_color"] }
 palette = { version = "0.7", default-features = false }
 
 # replacement for fs::canonalize but handles way better windows paths
@@ -35,7 +35,7 @@ dunce = "1.0"
 
 clap  = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
-minijinja = { version = "2.7", features = ["loader"] }
+minijinja = { version = "2.10", features = ["loader"] }
 
 # optionals
 fastrand = { version = "2.3", optional = true }
@@ -47,8 +47,8 @@ strum = { version = "0.27", features = ["derive"], optional = true }
 schemars = { version = "0.8", optional = true }
 
 [dev-dependencies]
-tempfile = "3.17"
-criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.20"
+criterion = { version = "0.6", features = ["html_reports"] }
 clap_complete = "4.5"
 clap_mangen = "0.2"
 dirs = "6.0"
