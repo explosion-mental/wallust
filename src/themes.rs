@@ -199,7 +199,7 @@ pub fn list_themes() {
 {cols}
 {extra}:
 - {RAND} (select a random theme)
-- {LIST} (lists avaliable themes) \
+- {LIST} (lists available themes) \
 ",
     extra = "Extra".bold().green(),
     themes = "Available themes".bold().green(),
