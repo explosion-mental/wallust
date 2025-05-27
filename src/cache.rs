@@ -29,6 +29,9 @@ pub struct Cache {
     pub cs: PathBuf,
     /// palette file + threshold
     pub palette: PathBuf,
+
+    /// Path name
+    pub name: PathBuf,
 }
 
 /// Simply print the path when trying to display the [`Cache`] struct
@@ -64,8 +67,9 @@ impl Cache {
         // hash value for the file, since you can duplicate it, but the contents are the same.
         let hash  = base36(fnv1a(&std::fs::read(file)?));
 
+        let name = cachepath.join(format!("{hash}_{CACHE_VER}"));
         // Create cache dir (with all of it's parents)
-        fs::create_dir_all(&cachepath.join(format!("{hash}_{CACHE_VER}"))).with_context(|| "Failed to create {cachepath}")?;
+        fs::create_dir_all(&name).with_context(|| "Failed to create {cachepath}")?;
 
         let th    = if c.true_th == 0 { "auto" } else { &c.true_th.to_string() };
         // wallust/image_1.0/
@@ -77,6 +81,7 @@ impl Cache {
 
         Ok(Self {
             path: cachepath,
+            name: name,
             back: base.join(format!("{back}")),
             cs: base.join(format!("{cs}_{th}")),
             palette: base.join(format!("{cs}_{th}_{palet}")),

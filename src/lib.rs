@@ -99,6 +99,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 let mut colors = cache.read_palette()?;
                 postcolor(c, &mut colors);
                 spi.stop();
+                if !quiet { print!("[{info}] Using cache at {}", cache.name.display(), info = "I".blue().bold()); }
                 Ok(colors)
             },
             C::BackendnCS => { // (cached)CS -> Palette -> Done
