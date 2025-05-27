@@ -72,7 +72,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     use cache::IsCached as C;
 
     // Having to only read the schemepalette is TOO FAST to have the spinner.
-    let quiet = quiet || if matches!(cache.is_cached_all(), C::BackendnCSnPalette) { true } else { false };
+    let quiet = quiet || if matches!(cache.is_cached_all(), C::BackendnCSnPalette) && !overwrite_cache { true } else { false };
     let mut spi = SpiWrap::new(quiet);
     // println!("{:?}", cache.is_cached_all());
 
