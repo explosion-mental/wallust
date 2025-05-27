@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
+use palette::Srgb;
 
 use crate::colors::Colors;
 use crate::backends::Backend;
@@ -30,13 +31,33 @@ pub struct Cache {
     pub gen: PathBuf,
     /// Path of the cache, this is the path read.
     pub path: PathBuf,
+
+    pub back: PathBuf,
+    pub cs: PathBuf,
+    pub palette: PathBuf,
 }
+
+/// New structure
+/// hash_VERSION -> everything
+/// everything: every method has it's own file.
+
 
 /// Simply print the path when trying to display the [`Cache`] struct
 impl fmt::Display for Cache {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.path.display())
     }
+}
+
+type CSret = (Vec<Srgb>, Vec<Srgb>, bool);
+
+/// Cache order
+#[derive(Debug)]
+pub enum IsCached {
+    None,
+    Backend,
+    BackendnCS,
+    BackendnCSnPalette,
 }
 
 impl Cache {
@@ -55,15 +76,17 @@ impl Cache {
         let cachepath = cache_path.join("wallust");
 
         // Create cache dir (with all of it's parents)
-        fs::create_dir_all(&cachepath).with_context(|| "Failed to create {cachepath}")?;
 
         //XXX maybe later just use an [String; 8].join("_")
 
         let hash  = base36(fnv1a(&std::fs::read(file)?));
+
+        fs::create_dir_all(&cachepath.join(format!("{hash}_{CACHE_VER}"))).with_context(|| "Failed to create {cachepath}")?;
+
         let back  = c.backend.cachefmt();
         let cs    = c.color_space.cachefmt();
         let palet = c.palette.cachefmt();
-        let th    = if c.true_th == 0 { "0" } else { &c.true_th.to_string() };
+        let th    = if c.true_th == 0 { "auto" } else { &c.true_th.to_string() };
         let sat   = if let Some(s) = c.saturation { s.to_string() } else { "0".to_owned() };
         let con   = if c.check_contrast.unwrap_or(false) { "1" } else { "0" };
 
@@ -73,10 +96,22 @@ impl Cache {
         let gen = c.fallback_generator.unwrap_or_default().cachefmt().to_string(); // real fallback generator
         let generation = format!("{CACHE_VER}_{hash}_{cs}_{palet}_{th}_{sat}_{con}_{gen}_{hash}");
 
+        let start = cachepath.join(format!("{hash}_{CACHE_VER}"));
+
+
+        let bk = c.backend.to_string();
+        let col = c.color_space.to_string();
+        let pal = c.palette.to_string();
+
+        // std::fs::create_dir(&start)?;
+
         Ok(Self {
             normal: cachepath.join(basename + ".json"),
             gen:  cachepath.join(generation + ".json"),
             path: PathBuf::new(),
+            back: start.join(format!("{bk}")),
+            cs: start.join(format!("{col}_{th}")),
+            palette: start.join(format!("{pal}_{th}")),
         })
     }
 
@@ -100,6 +135,87 @@ impl Cache {
                 .as_bytes()
             )?
         )
+    }
+
+    pub fn read_backend(&self) -> Result<Vec<u8>> {
+        // if self.back.exists() {
+            let contents = std::fs::read_to_string(&self.back)?;
+            let v: Vec<u8> = serde_json::from_str(&contents)?;
+            Ok(v)
+        // } else {
+        //     Ok(None)
+        // }
+    }
+
+    pub fn read_cs(&self) -> Result<CSret> {
+        // if self.cs.exists() {
+            let contents = std::fs::read_to_string(&self.cs)?;
+            let v: CSret = serde_json::from_str(&contents)?;
+            Ok(v)
+        // } else {
+        //     Ok(None)
+        // }
+    }
+
+    pub fn read_palette(&self) -> Result<Colors> {
+        // println!("helloone!");
+        // if self.palette.exists() {
+            // println!("Exist!");
+            let contents = std::fs::read_to_string(&self.palette)?;
+            // println!("readd!");
+            let v: Colors = serde_json::from_str(&contents)?;
+            // println!("ond!");
+            Ok(v)
+        // } else {
+        //     Ok(None)
+        // }
+    }
+
+    pub fn write_backend(&self, bytes: &[u8]) -> Result<()> {
+        // println!("{:?}", self.back);
+        Ok(File::create(&self.back)?
+            .write_all(
+                serde_json::to_string(bytes)
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
+                .as_bytes()
+            )?
+        )
+    }
+
+    pub fn write_cs(&self, colorspaces: &CSret) -> Result<()> {
+        Ok(File::create(&self.cs)?
+            .write_all(
+                serde_json::to_string(colorspaces)
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
+                .as_bytes()
+            )?
+        )
+    }
+
+    pub fn write_palette(&self, scheme: &Colors) -> Result<()> {
+        Ok(File::create(&self.palette)?
+            .write_all(
+                serde_json::to_string_pretty(scheme)
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
+                .as_bytes()
+            )?
+        )
+    }
+
+    pub fn is_cached_all(&self) -> IsCached {
+        let b  = self.back.exists();
+        let cs = self.cs.exists();
+        let p  = self.palette.exists();
+
+        if b && cs && p {
+            IsCached::BackendnCSnPalette
+        } else if b && cs {
+            IsCached::BackendnCS
+        } else if b {
+            IsCached::Backend
+        } else {
+            IsCached::None
+        }
     }
 
     /// To determine whether to read from cache or to generate the colors from scratch

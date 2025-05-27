@@ -239,7 +239,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     conf.true_th = conf.threshold.unwrap_or_default();
 
     // generate hash cache file name and cache dir to either read or write to it
-    let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
+    // let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
     if !g.quiet {
@@ -254,42 +254,44 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     // Whether to load data from cache or to generate one from scratch
     if !g.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
-    let colors = if !cli.overwrite_cache && cached_data.is_cached() {
-        if !g.quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
-        cached_data.read()?
-    } else {
-        // generate colors
-        if !g.quiet {
-            let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
+    // let colors = if !cli.overwrite_cache && cached_data.is_cached() {
+    //     if !g.quiet { println!("[{info}] {c}: Using cache {}", cached_data.italic(), c = "cache".magenta().bold()); }
+    //     cached_data.read()?
+    // } else {
+    //     // generate colors
+    //     if !g.quiet {
+    //         let mut sp = Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into());
+    //
+    //         //ugly workaround for printing warning, gotta stop the spinner first
+    //         match gen_colors(&cli.file, conf, cli.dynamic_threshold, &cache, cli.no_cache) {
+    //             Ok((o, warn)) => {
+    //                 let gen = conf.fallback_generator.unwrap_or_default();
+    //                 let msg = if warn {
+    //                     format!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
+    //                         g = gen.to_string().color(gen.col()),
+    //                         method = "fallback generation method".magenta().bold()
+    //                     )
+    //                 } else {
+    //                     format!("[{info}] Color scheme palette generated!")
+    //                 };
+    //
+    //                 //sp.stop_with_message(msg);
+    //                 sp.stop_with_symbol("[    🗸    ]");
+    //                 print!("{msg}");
+    //                 cached_data.reached_gen();
+    //                 o
+    //             }
+    //             Err(e) => {
+    //                 sp.stop_with_newline();
+    //                 return Err(e);
+    //             },
+    //         }
+    //     } else {
+    //         gen_colors(&cli.file, conf, cli.dynamic_threshold)?.0
+    //     }
+    // };
 
-            //ugly workaround for printing warning, gotta stop the spinner first
-            match gen_colors(&cli.file, conf, cli.dynamic_threshold) {
-                Ok((o, warn)) => {
-                    let gen = conf.fallback_generator.unwrap_or_default();
-                    let msg = if warn {
-                        format!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
-                            g = gen.to_string().color(gen.col()),
-                            method = "fallback generation method".magenta().bold()
-                        )
-                    } else {
-                        format!("[{info}] Color scheme palette generated!")
-                    };
-
-                    //sp.stop_with_message(msg);
-                    sp.stop_with_symbol("[    🗸    ]");
-                    print!("{msg}");
-                    cached_data.reached_gen();
-                    o
-                }
-                Err(e) => {
-                    sp.stop_with_newline();
-                    return Err(e);
-                },
-            }
-        } else {
-            gen_colors(&cli.file, conf, cli.dynamic_threshold)?.0
-        }
-    };
+    let colors = gen_colors(&cli.file, conf, cli.dynamic_threshold, cache_path, cli.no_cache)?;
 
     if !g.quiet {
         //TODO add print_long to list `value: color` like
@@ -313,10 +315,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
 
     // Cache colors
     if !g.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
-    if !cli.no_cache && !cached_data.is_cached() {
-        if !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
-        cached_data.write(&colors)?;
-    }
+    if !cli.no_cache && !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
 
     if !g.quiet { colors.done(); }
 

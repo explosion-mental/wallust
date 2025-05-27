@@ -28,7 +28,7 @@ itertools = "0.14"
 fast_image_resize = "5.1"
 num-traits = "0.2"
 kmeans_colors = { version = "0.7.0", default-features = false, features = ["palette_color"] }
-palette = { version = "0.7", default-features = false }
+palette = { version = "0.7", default-features = false, features = ["serializing"] }
 
 # replacement for fs::canonalize but handles way better windows paths
 dunce = "1.0"
