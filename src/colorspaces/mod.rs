@@ -23,6 +23,7 @@ use thiserror::Error;
 mod lab;
 mod lch;
 mod lchansi;
+mod util;
 
 /// Currently this works in function with the palettes methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.

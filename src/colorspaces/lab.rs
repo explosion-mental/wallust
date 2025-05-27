@@ -33,9 +33,14 @@ impl Difference for Spec {
 
 impl BuildHisto<Spec> for Lab {
     fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
-        let filt = |x: Spec| x.l >= DARKEST && x.l <= LIGHTEST;
+        let lights = histo.iter().map(|c| c.l).collect::<Vec<_>>();
+        let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
+        let lightest = lights.iter().fold(f32::INFINITY, |a, &b| a.max(b)).min(LIGHTEST);
+
+        let filt = |x: Spec| x.l >= darkest && x.l <= lightest;
 
         histo.into_iter().filter(|&c| filt(c)).collect()
+
     }
 
 

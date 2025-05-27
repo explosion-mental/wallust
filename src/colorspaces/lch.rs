@@ -5,11 +5,7 @@ use super::*;
 
 #[derive(Debug)]
 pub struct Lch;
-// {
-//     min_chroma: u32,
-// }
-//
-/// Shadow the colorspace type (Spectrum)
+
 pub type Spec = palette::Lch;
 
 /// histo<spec>
@@ -22,10 +18,11 @@ pub const DARKEST: f32 = 4.5;
 pub const LIGHTEST: f32 = 95.5;
 
 /// This is so there are more vivid colors!
-/// even another filter to avoid blank `black/white`.
 pub const MIN_CHROMA: f32 = 4.5;
 //TODO intelligent min chroma
 // get the minimum value and discard every minimun value until MIN_COLS (or max_cols?)
+
+//TODO even another filter to avoid blank `black/white`.
 
 impl ColorTrait for Spec {}
 
@@ -45,10 +42,16 @@ impl Difference for Spec {
 impl BuildHisto<Spec> for Lch {
 
     fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
-        let filt = |x: Spec| (x.l >= DARKEST && x.l <= LIGHTEST) &&  x.chroma > MIN_CHROMA;
+        let lights = histo.iter().map(|c| c.l).collect::<Vec<_>>();
+        let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
+        let lightest = lights.iter().fold(f32::INFINITY, |a, &b| a.max(b)).min(LIGHTEST);
+
+        let chromas = histo.iter().map(|c| c.chroma).collect::<Vec<_>>();
+        let ch = util::avg(&chromas).max(MIN_CHROMA);
+
+        let filt = |x: Spec| (x.l >= darkest && x.l <= lightest) && x.chroma > ch;
 
         histo.into_iter().filter(|&c| filt(c)).collect()
-
     }
 
     fn sort_col(histo: Vec<Hist>, cs: &ColorOrder) -> Vec<Hist> {
