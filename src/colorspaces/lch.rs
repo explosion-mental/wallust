@@ -23,7 +23,7 @@ pub const LIGHTEST: f32 = 95.5;
 
 /// This is so there are more vivid colors!
 /// even another filter to avoid blank `black/white`.
-const MIN_CHROMA: f32 = 4.5;
+pub const MIN_CHROMA: f32 = 4.5;
 //TODO intelligent min chroma
 // get the minimum value and discard every minimun value until MIN_COLS (or max_cols?)
 
@@ -39,10 +39,18 @@ impl Difference for Spec {
         // delta_1994(self, ) <= threshold.into()
     }
 
-    fn filter_cols(&self) -> bool { (self.l >= DARKEST && self.l <= LIGHTEST) &&  self.chroma > MIN_CHROMA }
+    // fn filter_cols(&self) -> bool { (self.l >= DARKEST && self.l <= LIGHTEST) &&  self.chroma > MIN_CHROMA }
 }
 
 impl BuildHisto<Spec> for Lch {
+
+    fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
+        let filt = |x: Spec| (x.l >= DARKEST && x.l <= LIGHTEST) &&  x.chroma > MIN_CHROMA;
+
+        histo.into_iter().filter(|&c| filt(c)).collect()
+
+    }
+
     fn sort_col(histo: Vec<Hist>, cs: &ColorOrder) -> Vec<Hist> {
 
         let mut histo = histo;

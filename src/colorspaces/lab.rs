@@ -28,10 +28,17 @@ impl Difference for Spec {
         //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
         // delta_1994(self, a) <= threshold.into()
     }
-    fn filter_cols(&self) -> bool { self.l >= DARKEST && self.l <= LIGHTEST }
+    // fn filter_cols(&self) -> bool { self.l >= DARKEST && self.l <= LIGHTEST }
 }
 
 impl BuildHisto<Spec> for Lab {
+    fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
+        let filt = |x: Spec| x.l >= DARKEST && x.l <= LIGHTEST;
+
+        histo.into_iter().filter(|&c| filt(c)).collect()
+    }
+
+
     fn sort_col(histo: Vec<Histo<Spec>>, cs: &ColorOrder) -> Vec<Histo<Spec>> {
         let mut histo = histo;
 
