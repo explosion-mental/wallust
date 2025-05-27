@@ -7,7 +7,6 @@
 use std::fmt;
 
 use crate::colors::Myrgb;
-use crate::colors::Compl;
 
 use palette::convert::FromColorUnclamped;
 use palette::cast::ComponentsAs;
@@ -18,13 +17,15 @@ use palette::Mix;
 use serde::{Serialize, Deserialize};
 use owo_colors::AnsiColors;
 use itertools::Itertools;
-use thiserror::Error;
+pub use fallback_generator::FallbackGenerator;
 
 mod lab;
 mod lch;
 mod lchansi;
 mod util;
+mod fallback_generator;
 
+use fallback_generator::FallbackGenerator as G;
 /// Currently this works in function with the palettes methods, which currently only needs 6 colors.
 /// Let's make sure the colorspace backend send at least these number of colors.
 pub const MIN_COLS: u8 = 6;
@@ -32,19 +33,6 @@ pub const MIN_COLS: u8 = 6;
 /// The [`Colors`] struct only has capacity for 16 colors 0..=15. const is used in order to take
 /// the top MAX_COLS lab colors.
 pub const MAX_COLS: u8 = 16;
-
-#[derive(Error, Debug)]
-pub enum ColorSpaceError {
-    #[error("\
-Not enough colors to create a scheme, even after trying to artificially generate new ones.
-Try changing the threshold or the backend.
-It may very well be that the image doesn't have enough colors.
-Quitting...\
-    ")]
-    NotEnough,
-    #[error("Image should at least have two different pixel colors.")]
-    TwoColors,
-}
 
 /// Enum to indicate how to sort the colors. This can allow you to choose which colors you would
 /// like to use (e.g. light scheme or dark scheme), since you got them as the first colors.
@@ -90,20 +78,6 @@ pub enum ColorSpace {
     LchAnsi,
 }
 
-/// rename [`GenerateFallback`] so it's shorter to type
-use self::FallbackGenerator as G;
-
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
-#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
-#[serde(rename_all = "lowercase")]
-pub enum FallbackGenerator {
-    /// uses [`interpolate`]
-    #[default]
-    Interpolate,
-    /// uses [`complementary`]
-    Complementary,
-}
-
 /// Simple Histogram
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Histo<T: ColorTrait> {
@@ -115,31 +89,10 @@ pub struct Histo<T: ColorTrait> {
 
 impl<T: ColorTrait> Histo<T> {
     /// Creates a new histogram
-    pub fn new(color: T, count: usize) -> Self {
-        Self { color, count }
-    }
+    pub fn new(color: T, count: usize) -> Self { Self { color, count } }
 
     /// Creates a new histogram with a fixed count
-    pub fn new_no_count(color: T) -> Self {
-        Self { color, count: usize::MAX }
-        // Self { color, count: 0 }
-    }
-}
-
-impl FallbackGenerator {
-    pub fn gen(&self) -> impl Fn(Srgb, Srgb, u8) -> Vec<Srgb> {
-        match self {
-            G::Interpolate => interpolate,
-            G::Complementary => complementary,
-        }
-    }
-
-    pub fn col(&self) -> AnsiColors {
-        match self {
-            G::Interpolate => AnsiColors::Blue,
-            G::Complementary => AnsiColors::Green,
-        }
-    }
+    pub fn new_no_count(color: T) -> Self { Self { color, count: usize::MAX } }
 }
 
 /// This a multithreaded function to look up for the best threshold that has the best palette color generation.
@@ -164,7 +117,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
     let (txfinal, rxfinal) = mpsc::channel();
 
     thread::scope(|s| {
-        // sample histo
         let mut histo = vec![];
 
         // => This has to be a hardcoded tested allround value to avoid going to inifinity.
@@ -181,13 +133,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
 
 
         // start from the middle, and then search either upper or lower values, as a simple bin tree
-        // let mid = max_threshold / 2; //15
-        // let mut idx = vec![];
-        // for i in 1..max_threshold {
-        //     if i < mid && mid - i >= 2 { idx.push(mid - i); }
-        //     idx.push(mid + i);
-        // }
-        // const values from the formulate above | 42 elements
         let idx = [14, 16, 13, 17, 12, 18, 11, 19, 10, 20, 9, 21, 8, 22, 7, 23, 6, 24, 5, 25, 4,
         26, 3, 27, 2, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
 
@@ -240,8 +185,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
 
                 // store threshold with the LEN being the KEY
                 hash.entry(len).or_default().push(threshold);
-
-                // if fallback { break 'running } // fallback activated below
             },
             // No colors.. Change threshold or end it here (fallback generator).
             None => 'nocolor: {
@@ -265,7 +208,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
                     let median = possible_ths[possible_ths.len() / 2]; //median of thresholds
                     threshold = median;
                     fallback = true;
-                    // println!("FALLBACK! {possible_ths:?} | max {max} | threshold {threshold}")
                 }
             },
         }
@@ -273,13 +215,9 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
         if threshold == min_threshold // set a limit, don't go forever..
         { break 'running }
 
-        // no need to inc, since we already have idx of threshold
-        // inc threshold every loop [1; 50]
-        //threshold -= 1;
-    }
+        }
     }
 
-    // println!("\nFINAL TH: {threshold}");
     txfinal.send(histo).expect("Sending message MPSC");
     });
 
@@ -291,7 +229,6 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
 
     if len == 2 {
         warn = true;
-        // println!("TWO COOOLORSS");
         histo = C::fallback_monochromatic(histo, gen);
     } else if fallback || len < MIN_COLS.into() {
         warn = true;
@@ -445,7 +382,6 @@ impl From<Myrgb> for Srgb<u8> {
 /// Method to use for color difference (deltaE)
 pub trait Difference {
     fn col_diff(&self, a: &Self, threshold: u8) -> bool;
-    // fn filter_cols(&self) -> bool;
 }
 
 impl<T: ColorTrait> From<T> for Myrgb {
@@ -473,15 +409,12 @@ pub trait ColorTrait:
 
 pub trait BuildHisto<C: ColorTrait> {
     /// If this fails, then there are less than 2 colors.
-    fn init(/*&mut self, */bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
+    fn init(bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
         let b = Self::read(bytes);
         //let b = Self::additional(self, b);
         let ret = Self::gather_cols(b, threshold, mix);
         if ret.len() < 2 { None } else { Some(ret) }
     }
-
-    /// In case the color space requires to do some additional operation
-    //fn additional(&mut self, histo: Vec<C>) -> Vec<C> { histo }
 
     /// If this fails, just quit. Here we try to artificially generate colors.
     fn fallback(histo: Vec<Histo<C>>, threshold: u8, gen: &G) -> Vec<Histo<C>> {
@@ -569,10 +502,6 @@ pub trait BuildHisto<C: ColorTrait> {
     /// how to .sort_by_key, this is colorspace specific
     fn sort_by_key_fn(a: Histo<C>) -> impl Ord;
 
-    // No need, we work directly with vecs
-    // Consumes self into a vec
-    //fn to_vec(self) -> Vec<Histo<C>> { self.into() }
-
     /// This function is used when the colors gathered by new_colors are not enough.
     /// See .gen()
     /// This is how we try to artificially generate colors when there are not at least [`MIN_COLS`].
@@ -627,15 +556,6 @@ pub trait BuildHisto<C: ColorTrait> {
     fn to_rgb(histo: &[Histo<C>]) -> Vec<Srgb> { histo.iter().map(|x| x.color.into_color()).collect() }
 }
 
-impl fmt::Display for G {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            G::Interpolate => write!(f, "Interpolate"),
-            G::Complementary => write!(f, "Complementary"),
-        }
-    }
-}
-
 /// Display what [`Cs`] is in use. Used in cache and main.
 impl fmt::Display for Cs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -649,34 +569,7 @@ impl fmt::Display for Cs {
     }
 }
 
-/// Combines some colors to generate new ones
-/// ref: <https://docs.rs/palette/latest/palette/trait.Mix.html>
-/// This seems to be implemented in the palette crate for all colorspaces,
-/// In that case, `complementary()` would be a generator that will need convertion.
-fn interpolate(color_a: Srgb, color_b: Srgb, n: u8) -> Vec<Srgb> {
-    let steps = 1.0 / f32::from(n);
-
-    let mut v = vec![];
-    let a = color_a.into_format();
-    let b = color_b.into_format();
-
-    for i in 1..=n {
-        v.push(a.mix(b, steps * f32::from(i)))
-    }
-    v
-}
-
-//TODO implement triards, cuartets, quints
-fn complementary(color_a: Srgb, color_b: Srgb, _: u8) -> Vec<Srgb> {
-    vec![
-        color_a.complementary(),
-        color_b.complementary(),
-    ]
-}
-
-
 /* generic impl */
-
 
 /// Function that read the image rgb8 bytes and converts them into it's colorspace
 fn read<T: ColorTrait>(bytes: &[u8]) -> Vec<T> {
@@ -686,51 +579,3 @@ fn read<T: ColorTrait>(bytes: &[u8]) -> Vec<T> {
         .map(|x| x.into_linear().into_color())
         .collect::<Vec<T>>()
 }
-
-// fn color_generator2<T: ColorTrait> (histo: &[Histo<T>], threshold: u8, gen: &G) -> Vec<Histo<T>>
-// {
-//     let mut new_cols = vec![];
-//     // try to generate new colors with interpolation in between the already gathered colors
-//     for comb in histo.iter().combinations(2) {
-//         let color_a: Srgb = comb[0].color.into_color();
-//         let color_b: Srgb = comb[1].color.into_color();
-//
-//         let rgbs = gen.gen()(color_a, color_b, MAX_COLS)
-//             .iter().map(|&x| x.into_color()).collect();
-//
-//         //similar to how it's done at the start of `lab()`
-//         // save the new colors, or discard them if similar enough
-//         // no more color mixing, we don't have much colors left.
-//         new_cols.append(&mut gather_cols2::<T>(rgbs, threshold, false));
-//
-//         let len = histo.len() + new_cols.len();
-//
-//         if len >= MIN_COLS.into() { break; } //enough colors, stop interpolating
-//     }
-//
-//     new_cols
-// }
-//
-
-// fn gather_cols2<T: ColorTrait>(colors: Vec<T>, threshold: u8, mix: bool) -> Vec<Histo<T>> {
-//     let mut histogram: Vec<Histo<T>> =
-//
-//     'outter: for c in colors {
-//         if c.filter_cols() {
-//             // Check if whether the color is new or is already in the vec
-//             for hist in &mut histogram {
-//                 // if any color is between a threshold, count it up
-//                 if c.col_diff(&hist.color, threshold) {
-//                     if mix { hist.color = hist.color.mix(c, 0.5); }
-//                     hist.count += 1;
-//                     continue 'outter;
-//                 }
-//             }
-//             // if we reach here, the color hasn't been found in the histrogram,
-//             // so we found a new color.
-//             histogram.push(Histo { color: c, count: 1 });
-//         }
-//     }
-//
-//     histogram.into()
-// }

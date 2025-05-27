@@ -3,12 +3,13 @@
 //! ref: <https://docs.rs/palette/latest/palette/lch/struct.Lch.html>
 use super::*;
 
+/// The LCH struct
 #[derive(Debug)]
 pub struct Lch;
 
 pub type Spec = palette::Lch;
 
-/// histo<spec>
+/// Simple shadow to avoid repetition
 pub type Hist = Histo<Spec>;
 
 /// Miminum Luminance (from L ab) required for a color to be accepted
@@ -19,28 +20,21 @@ pub const LIGHTEST: f32 = 95.5;
 
 /// This is so there are more vivid colors!
 pub const MIN_CHROMA: f32 = 4.5;
-//TODO intelligent min chroma
-// get the minimum value and discard every minimun value until MIN_COLS (or max_cols?)
-
-//TODO even another filter to avoid blank `black/white`.
 
 impl ColorTrait for Spec {}
 
 impl Difference for Spec {
+    /// You could use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE, Ciede2000};
     fn col_diff(&self, a: &Self, threshold: u8) -> bool {
         use palette::color_difference::ImprovedCiede2000;
         self.improved_difference(*a) <= f32::from(threshold)
-        // use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE, Ciede2000};
-        // self.difference(*a) <= threshold.into()
-        // self.improved_difference(*a) <= threshold.into()
-        // delta_1994(self, ) <= threshold.into()
     }
-
-    // fn filter_cols(&self) -> bool { (self.l >= DARKEST && self.l <= LIGHTEST) &&  self.chroma > MIN_CHROMA }
 }
 
 impl BuildHisto<Spec> for Lch {
 
+    /// This filter gets the average to remove extreme colors.
+    /// TODO even another filter to avoid blank `black/white`.
     fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
         let lights = histo.iter().map(|c| c.l).collect::<Vec<_>>();
         let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
@@ -58,7 +52,7 @@ impl BuildHisto<Spec> for Lch {
 
         let mut histo = histo;
         use std::cmp::Ordering;
-        // TODO use light or chrome/hue
+
         histo.sort_by(|a, b| match cs {
             // ColorOrder::LightFirst => b.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal),
             // ColorOrder::DarkFirst  => a.color.l.partial_cmp(&b.color.l).unwrap_or(std::cmp::Ordering::Equal),
@@ -74,12 +68,6 @@ impl BuildHisto<Spec> for Lch {
         });
         histo
     }
-
-    // fn additional(&mut self, histo: Vec<Histo<Spec>>) -> Vec<Histo<Spec>> {
-    //     let chromas = histo.iter().map(|x| x.color.chroma).collect::<Vec<_>>();
-    //     self.min_chroma = 0;
-    //     histo
-    // }
 
     fn sort_by_key_fn(a: Hist) -> impl Ord {
         // a.color.l.partial_cmp(&a.color.l).unwrap_or(std::cmp::Ordering::Equal)

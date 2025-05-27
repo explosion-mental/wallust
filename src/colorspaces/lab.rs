@@ -24,11 +24,7 @@ impl Difference for Spec {
     fn col_diff(&self, a: &Self, threshold: u8) -> bool {
         use palette::color_difference::ImprovedCiede2000;
         self.improved_difference(*a) <= threshold.into()
-        // use palette::color_difference::{EuclideanDistance, ImprovedCiede2000, ImprovedDeltaE};
-        //self.improved_difference(*a) <= 1.26 * f32::from(threshold).powf(0.55)
-        // delta_1994(self, a) <= threshold.into()
     }
-    // fn filter_cols(&self) -> bool { self.l >= DARKEST && self.l <= LIGHTEST }
 }
 
 impl BuildHisto<Spec> for Lab {
