@@ -34,27 +34,29 @@ impl SpiWrap {
     }
 
     pub fn stop_warn(&mut self, gen: &FallbackGenerator) {
-        let symbol = "[    🗸    ]";
-        let msg = format!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
-            g = gen.to_string().color(gen.col()),
-            info = "I".blue().bold(),
-            method = "fallback generation method".magenta().bold()
-        );
         match &mut self.s {
-            Some(sp) => sp.stop_with_symbol(symbol),
+            Some(sp) => {
+                let symbol = "[  🗸   🗸    ]";
+                sp.stop_with_symbol(symbol);
+                print!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
+                    g = gen.to_string().color(gen.col()),
+                    info = "I".blue().bold(),
+                    method = "fallback generation method".magenta().bold()
+                );
+            },
             None => (),
         }
-        print!("{msg}");
     }
 
     pub fn stop(&mut self) {
-        let msg = format!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
-        let symbol = "[    🗸    ]";
         match &mut self.s {
-            Some(sp) => sp.stop_with_symbol(symbol),
+            Some(sp) => {
+                let symbol = "[    🗸    ]";
+                sp.stop_with_symbol(symbol);
+                print!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
+            },
             None => (),
         }
-        print!("{msg}");
     }
 }
 
@@ -69,6 +71,8 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     let cache = cache::Cache::new(file, c, cache_path)?;
     use cache::IsCached as C;
 
+    // Having to only read the schemepalette is TOO FAST to have the spinner.
+    let quiet = quiet || if matches!(cache.is_cached_all(), C::BackendnCSnPalette) { true } else { false };
     let mut spi = SpiWrap::new(quiet);
     // println!("{:?}", cache.is_cached_all());
 
@@ -81,13 +85,13 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 None => anyhow::bail!("Not enough colors!"),
             };
 
-            let (ref top, ref orig, _warn) = cs;
+            let (ref top, ref orig, warn) = cs;
             if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
 
             let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
             if !no_cache { cache.write_palette(&colors)? } //COLORS
             postcolor(c, &mut colors);
-            spi.stop();
+            if warn { spi.stop_warn(gen) } else { spi.stop() }
             Ok(colors)
     } else {
         match cache.is_cached_all() {
@@ -98,11 +102,11 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 Ok(colors)
             },
             C::BackendnCS => { // (cached)CS -> Palette -> Done
-                let (top, orig, _warn) = cache.read_cs()?;
+                let (top, orig, warn) = cache.read_cs()?;
                 let mut colors = c.palette.run(top, orig);
                 if !no_cache { cache.write_palette(&colors)? } // COLORS
                 postcolor(c, &mut colors);
-                spi.stop();
+                if warn { spi.stop_warn(gen) } else { spi.stop() }
                 Ok(colors)
             },
             C::Backend => { // (cached)Backend -> CS -> Palette -> Done
@@ -131,13 +135,13 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                     None => anyhow::bail!("Not enough colors!"),
                 };
 
-                let (ref top, ref orig, _warn) = cs;
+                let (ref top, ref orig, warn) = cs;
                 if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
 
                 let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
                 if !no_cache { cache.write_palette(&colors)? } //COLORS
                 postcolor(c, &mut colors);
-                spi.stop();
+                if warn { spi.stop_warn(gen) } else { spi.stop() }
                 Ok(colors)
             },
         }
