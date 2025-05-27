@@ -18,6 +18,7 @@ use owo_colors::OwoColorize;
 use self::colorspaces::FallbackGenerator;
 
 
+/// Simple wrapper around spinner, to avoid allocations and the like.
 //#[derive(Debug)]
 pub struct SpiWrap {
     s: Option<Spinner>,
@@ -29,36 +30,30 @@ impl SpiWrap {
             false => Some(Spinner::with_timer(Spinners::Pong, "Generating color scheme..".into())),
             true => None
         };
-
         Self { s }
     }
 
     pub fn stop_warn(&mut self, gen: &FallbackGenerator) {
-        let info = "I".blue();
-        let info = info.bold();
         let symbol = "[    🗸    ]";
         let msg = format!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
             g = gen.to_string().color(gen.col()),
+            info = "I".blue().bold(),
             method = "fallback generation method".magenta().bold()
         );
         match &mut self.s {
             Some(sp) => sp.stop_with_symbol(symbol),
             None => (),
         }
-
         print!("{msg}");
     }
 
     pub fn stop(&mut self) {
-        let info = "I".blue();
-        let info = info.bold();
-        let msg = format!("[{info}] Color scheme palette generated!");
+        let msg = format!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
         let symbol = "[    🗸    ]";
         match &mut self.s {
             Some(sp) => sp.stop_with_symbol(symbol),
             None => (),
         }
-
         print!("{msg}");
     }
 }
@@ -76,7 +71,6 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
 
     let mut spi = SpiWrap::new(quiet);
     // println!("{:?}", cache.is_cached_all());
-
 
     if overwrite_cache {
             let rgb8s = c.backend.main()(file)?;
@@ -106,14 +100,13 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
             C::BackendnCS => { // (cached)CS -> Palette -> Done
                 let (top, orig, _warn) = cache.read_cs()?;
                 let mut colors = c.palette.run(top, orig);
-                if !no_cache { cache.write_palette(&colors)? } //COLORS
+                if !no_cache { cache.write_palette(&colors)? } // COLORS
                 postcolor(c, &mut colors);
                 spi.stop();
                 Ok(colors)
             },
             C::Backend => { // (cached)Backend -> CS -> Palette -> Done
                 let rgb8s = cache.read_backend()?;
-                if !no_cache { cache.write_backend(&rgb8s)? } //BACKEND
 
                 let cs = match c.color_space.run(dynamic, &rgb8s, c.threshold.unwrap_or_default(), gen, ord) {
                     Some(s) => s,
@@ -152,6 +145,8 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     }
 }
 
+/// These steps are not cached, since they are variable and cheap operations. Keep the original
+/// scheme in which this is done and then apply these.
 pub fn postcolor(c: &crate::config::Config, colors: &mut crate::colors::Colors) {
     if c.check_contrast.unwrap_or(false) {
         colors.check_contrast_all();
