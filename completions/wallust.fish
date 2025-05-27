@@ -70,7 +70,7 @@ kmeans\t'Kmeans is an algo that divides and picks pixels all around the image, g
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s c -l colorspace -d 'Choose which colorspace to use (overwrites config)' -r -f -a "lab\t'Uses Cie L*a*b color space'
 labmixed\t'Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)'
 lch\t'CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting'
-lchmixed\t'CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting'
+lchmixed\t'CIE Lch variant that mixed on every similar color'
 lchansi\t'Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray. This works best with \'darkansi\' palette, allowing a constant color order'"
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s f -l fallback-generator -d 'Choose which fallback generation method to use (overwrites config)' -r -f -a "interpolate\t'uses [`interpolate`]'
 complementary\t'uses [`complementary`]'"

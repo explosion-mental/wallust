@@ -64,12 +64,12 @@ kmeans\:"Kmeans is an algo that divides and picks pixels all around the image, g
 '-c+[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchmixed\:"CIE Lch variant that mixed on every similar color"
 lchansi\:"Variant of Lch which preserves 8 colors\: black, red, green, yellow, blue, magenta, cyan and gray. This works best with '\''darkansi'\'' palette, allowing a constant color order"))' \
 '--colorspace=[Choose which colorspace to use (overwrites config)]:COLORSPACE:((lab\:"Uses Cie L*a*b color space"
 labmixed\:"Variant of \`lab\` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)"
 lch\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
-lchmixed\:"CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting"
+lchmixed\:"CIE Lch variant that mixed on every similar color"
 lchansi\:"Variant of Lch which preserves 8 colors\: black, red, green, yellow, blue, magenta, cyan and gray. This works best with '\''darkansi'\'' palette, allowing a constant color order"))' \
 '-f+[Choose which fallback generation method to use (overwrites config)]:FALLBACK_GENERATOR:((interpolate\:"uses \[\`interpolate\`\]"
 complementary\:"uses \[\`complementary\`\]"))' \
