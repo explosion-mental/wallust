@@ -78,8 +78,7 @@ pub enum ColorSpace {
     /// Could help when sorting.
     #[default]
     Lch,
-    /// CIE Lch, you can understand this color space like LAB but with chrome and hue added.
-    /// Could help when sorting.
+    /// CIE Lch variant that mixed on every similar color.
     #[clap(alias = "lch-mixed", name = "lchmixed")] //claps prefers this-name
     #[serde(alias = "lch-mixed")]
     LchMixed,
