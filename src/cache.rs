@@ -83,8 +83,8 @@ impl Cache {
             path: cachepath,
             name: name,
             back: base.join(format!("{back}")),
-            cs: base.join(format!("{cs}_{th}")),
-            palette: base.join(format!("{cs}_{th}_{palet}")),
+            cs: base.join(format!("{back}_{cs}_{th}")),
+            palette: base.join(format!("{back}_{cs}_{th}_{palet}")),
         })
     }
 
