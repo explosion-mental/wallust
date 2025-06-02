@@ -19,7 +19,7 @@ pub const DARKEST: f32 = 4.5;
 pub const LIGHTEST: f32 = 95.5;
 
 /// This is so there are more vivid colors!
-pub const MIN_CHROMA: f32 = 4.5;
+pub const MIN_CHROMA: f32 = 10.0;
 
 impl ColorTrait for Spec {}
 
@@ -38,14 +38,18 @@ impl BuildHisto<Spec> for Lch {
     fn filter_cols(histo: Vec<Spec>) -> Vec<Spec> {
         let lights = histo.iter().map(|c| c.l).collect::<Vec<_>>();
         let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
-        let lightest = lights.iter().fold(f32::INFINITY, |a, &b| a.max(b)).min(LIGHTEST);
+        let lightest = lights.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)).min(LIGHTEST);
 
+        // We don't care about mexchroma, but 0.0 to 1.0 chroma is grayscale like
+        // we use lesschroma on monochromatic or similar imgs, so it doesn't error out
         let chromas = histo.iter().map(|c| c.chroma).collect::<Vec<_>>();
-        let ch = util::avg(&chromas).max(MIN_CHROMA);
+        let origch = util::avg(&chromas);
+        let lessch  = chromas.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+        let ch = if origch <= MIN_CHROMA { lessch } else { origch / 2.5 };
 
-        let filt = |x: Spec| (x.l >= darkest && x.l <= lightest) && x.chroma > ch;
+        let filt = |x: &Spec| (x.l >= darkest && x.l <= lightest) && x.chroma >= ch;
 
-        histo.into_iter().filter(|&c| filt(c)).collect()
+        histo.into_iter().filter(filt).collect()
     }
 
     fn sort_col(histo: Vec<Hist>, cs: &ColorOrder) -> Vec<Hist> {
