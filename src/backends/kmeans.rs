@@ -1,80 +1,74 @@
 use crate::backends::*;
 
+//use std::cmp::Ordering;
+use std::path::Path;
+use palette::{Lab, Srgb, FromColor, IntoColor, cast::{AsComponents, ComponentsAs}};
+use kmeans_colors::{get_kmeans_hamerly, get_kmeans, MapColor};
+
+
+const K: u8 = crate::colorspaces::MIN_COLS;
 
 /// Requires more tweaking and more in depth testing, but seems to do the work.
 /// TODO Investigate what are the better default properties that get the most average and tasteful palette.
 /// `palette` `as_components()` and `components_as()` is very interesting, since it works on primitive types, need more reading.
 /// from: https://github.com/okaneco/kmeans-colors/blob/master/src/bin/kmeans_colors/app.rs
 pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
-    use kmeans_colors::{
-        get_kmeans,
-        get_kmeans_hamerly,
-        Kmeans,
-        MapColor,
-        // Calculate,
-        // Sort,
-    };
-    use palette::{
-        cast::{AsComponents, ComponentsAs},
-        Srgb,
-    };
-    //use palette::{white_point::D65, FromColor, IntoColor, Lab, LinSrgba, Srgb, Srgba};
-
     let img = image::ImageReader::open(f)?.with_guessed_format()?.decode()?.into_rgb8();
+    // let img = super::fast_resize::fast_resize(f)?;
 
-    // let img = thumb::thumb(f)?;
-
-    //let img_vec: &[Srgba<u8>] = img.components_as();
+    // Get RGB pixels
     let img_vec: &[Srgb<u8>] = img.components_as();
 
-    let k = 8;
-    let max_iter = 20;
-    let runs = 5;
+    // Convert RGB -> Lab for perceptual clustering
+    let pixels: Vec<Lab> = img_vec
+        .iter()
+        .map(|px| px.into_format::<f32>().into_color())
+        .collect();
+
+    //prefer max iter over runs.
+    let max_iter = 300;
+    let converge = 1e-5;
+    //let runs = 1;
     let verbose = false;
-    let converge = 0.0025;
-    let seed = 0;
 
-    // Read image buffer into Srgb format
-     let rgb_pixels = img_vec
-         .iter()
-    //     .filter(|x| x.alpha == 255) //only use non-transparent colors
-         .map(|x| x.into_format())
-         .collect::<Vec<Srgb<f32>>>();
+    fastrand::seed(0xBEEF);
 
-    //TODO what's the difference between these?
-    let method = if k > 1 { get_kmeans_hamerly } else { get_kmeans };
+    //let mut best_result = Kmeans::new();
 
-    // Iterate over amount of runs keeping best results
-    let mut result = Kmeans::new();
+    let method = if K > 1 { get_kmeans_hamerly } else { get_kmeans };
 
-    for i in 0..runs {
-        let run_result = method(
-            k,
+    //for _ in 0..runs {
+        let result = method(
+            K.into(),
             max_iter,
             converge,
             verbose,
-            &rgb_pixels,
-            seed + i,
+            &pixels,
+            fastrand::u64(..),
         );
 
-        if result.score > run_result.score {
-            result = run_result;
-        }
-    }
+    //     println!("score: {}", run_result.score);
+    //
+    //     if best_result.score > run_result.score {
+    //         best_result = run_result;
+    //     }
+    // }
 
-    // Pre-convert centroids into output format
-    let centroids = &result
+    // Convert Lab → Srgb<f32> → Srgb<u8> (using your preferred method)
+    let centroids: Vec<Srgb<u8>> = result
         .centroids
         .iter()
-        .map(|x| x.into_format())
-        .collect::<Vec<Srgb<u8>>>();
+        .map(|&lab| Srgb::from_color(lab).into_format::<u8>())
+        .collect();
 
-    let rgb: Vec<Srgb<u8>> = Srgb::map_indices_to_centroids(centroids, &result.indices);
+    // map pixels to their nearest centroid
+    let rgb: Vec<Srgb<u8>> = Srgb::map_indices_to_centroids(&centroids, &result.indices);
 
-    Ok(
-        rgb.as_components().to_vec()
-    )
+    Ok(rgb.as_components().to_vec())
 }
+
+
+
 
 // This implementation gets extremly good results. Requires +nightly tho.
 // pub fn kmeans(f: &Path) -> Result<Vec<u8>> {
