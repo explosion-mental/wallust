@@ -108,6 +108,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 if !no_cache { cache.write_palette(&colors)? } // COLORS
                 postcolor(c, &mut colors);
                 if warn { spi.stop_warn(gen) } else { spi.stop() }
+                if !quiet { print!("[{info}] Using cache at {}", cache.name.display(), info = "I".blue().bold()); }
                 Ok(colors)
             },
             C::Backend => { // (cached)Backend -> CS -> Palette -> Done
