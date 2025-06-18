@@ -7,5 +7,5 @@ _Possible values:_ 1 - 100 (default: **disabled**)
 <hr>
 
 To edit this value:
-- **Config file**: `saturate = 20`
+- **Config file**: `saturation = 20`
 - **Cli**: `wallust run image.png --saturation 20`
