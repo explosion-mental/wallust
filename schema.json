@@ -26,7 +26,7 @@
       ]
     },
     "check_contrast": {
-      "description": "This flags ensures good contrast between images, by doing some w3m calculations.\n However it isn't required and should only be turn on when you notice bad contrast between many images.",
+      "description": "This flags ensures good contrast between images, by doing some w3m calculations.\nHowever it isn't required and should only be turn on when you notice bad contrast between many images.",
       "type": [
         "boolean",
         "null"
@@ -51,7 +51,7 @@
       ]
     },
     "fallback_generator": {
-      "description": "How to 'generate' colors when there aren't enough colors to create the `palette`.\n This appears as \"Artificially generating colors..\" in cli",
+      "description": "How to 'generate' colors when there aren't enough colors to create the `palette`.\nThis appears as \"Artificially generating colors..\" in cli",
       "anyOf": [
         {
           "$ref": "#/$defs/FallbackGenerator"
@@ -93,7 +93,7 @@
       }
     },
     "threshold": {
-      "description": "What threshold to use to differentiate colors, if not defined, wallust automatically looks\n for the best fit",
+      "description": "What threshold to use to differentiate colors, if not defined, wallust automatically looks\nfor the best fit",
       "type": [
         "integer",
         "null"
@@ -106,7 +106,7 @@
   },
   "$defs": {
     "Backend": {
-      "description": "This indicates what 'parser' method to use, defined in the config file. Corresponds to the\n modules inside this module",
+      "description": "This indicates what 'parser' method to use, defined in the config file. Corresponds to the\nmodules inside this module",
       "oneOf": [
         {
           "description": "Read and return the whole image pixels (more precision, slower)",
@@ -129,12 +129,12 @@
           "const": "thumb"
         },
         {
-          "description": "A much faster resize algo that uses SIMD. For some reason it fails on some images where\n `resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.",
+          "description": "A much faster resize algo that uses SIMD. For some reason it fails on some images where\n`resized` doesn't, for this reason it doesn't *replace* but rather it's a new option.",
           "type": "string",
           "const": "fastresize"
         },
         {
-          "description": "Kmeans is an algo that divides and picks pixels all around the image, giving a more\n diverse look.",
+          "description": "Kmeans is an algo that divides and picks pixels all around the image, giving a more\ndiverse look.",
           "type": "string",
           "const": "kmeans"
         }
@@ -149,12 +149,12 @@
           "const": "lab"
         },
         {
-          "description": "Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual\n lab (not recommended in small images)",
+          "description": "Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual\nlab (not recommended in small images)",
           "type": "string",
           "const": "labmixed"
         },
         {
-          "description": "CIE Lch, you can understand this color space like LAB but with chrome and hue added.\n Could help when sorting.",
+          "description": "CIE Lch, you can understand this color space like LAB but with chrome and hue added.\nCould help when sorting.",
           "type": "string",
           "const": "lch"
         },
@@ -164,14 +164,14 @@
           "const": "lchmixed"
         },
         {
-          "description": "Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray.\n This works best with 'darkansi' palette, allowing a constant color order.",
+          "description": "Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray.\nThis works best with 'darkansi' palette, allowing a constant color order.",
           "type": "string",
           "const": "lchansi"
         }
       ]
     },
     "FallbackGenerator": {
-      "description": "The FallbackGenerator are methods only activated when the colors aren't sufficient for creating\n a scheme palette, so these methods make variants of the already gathered colros to create a\n scheme.",
+      "description": "The FallbackGenerator are methods only activated when the colors aren't sufficient for creating\na scheme palette, so these methods make variants of the already gathered colros to create a\nscheme.",
       "oneOf": [
         {
           "description": "uses [`interpolate`]",
@@ -186,7 +186,7 @@
       ]
     },
     "Fields": {
-      "description": "An entry within the config file, toml table\n ref: <https://toml.io/en/v1.0.0#array-of-tables>",
+      "description": "An entry within the config file, toml table\nref: <https://toml.io/en/v1.0.0#array-of-tables>",
       "type": "object",
       "properties": {
         "pywal": {
@@ -224,7 +224,7 @@
           "const": "dark16"
         },
         {
-          "description": "This is a `dark` variant that changes all colors to it's complementary counterpart, giving\n the feeling of a 'new palette' but that still makes sense with the image provided.",
+          "description": "This is a `dark` variant that changes all colors to it's complementary counterpart, giving\nthe feeling of a 'new palette' but that still makes sense with the image provided.",
           "type": "string",
           "const": "darkcomp"
         },
@@ -234,7 +234,7 @@
           "const": "darkcomp16"
         },
         {
-          "description": "This is not a 'dark' variant, is a new palette that is meant to work with `lchansi`\n colorspace, which will maintain 'tty' like color order and only adjusting the colors\n acording to the theme. A possible solution for LS_COLORS and the like. Should workout with\n other colorspace, but the result may not be optimal.",
+          "description": "This is not a 'dark' variant, is a new palette that is meant to work with `lchansi`\ncolorspace, which will maintain 'tty' like color order and only adjusting the colors\nacording to the theme. A possible solution for LS_COLORS and the like. Should workout with\nother colorspace, but the result may not be optimal.",
           "type": "string",
           "const": "ansidark"
         },
@@ -284,7 +284,7 @@
           "const": "lightcomp16"
         },
         {
-          "description": "Variant of softlight, uses the lightest colors and a dark background (could be\n interpreted as `dark` inversed)",
+          "description": "Variant of softlight, uses the lightest colors and a dark background (could be\ninterpreted as `dark` inversed)",
           "type": "string",
           "const": "softdark"
         },
