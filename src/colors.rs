@@ -165,8 +165,20 @@ impl Myrgb {
         Rgb(r, g, b)
     }
 
-    fn to_rgb8(self) -> (u8, u8, u8) {
+    pub fn to_rgb8(self) -> (u8, u8, u8) {
         self.0.into_format::<u8>().into_components()
+    }
+
+    /// private fn that returns sequences
+    /// "Convert a hex color to a text color sequence"
+    fn set_color(&self, index: u32) -> String {
+        sequences::set_color(&self.0, index)
+    }
+
+    /// Convert a hex color to a special sequence.
+    /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
+    fn set_special(&self, index: u32) -> String {
+        sequences::set_special(&self.0, index)
     }
 
     /// darkens rgb by amount (lossy)
@@ -191,75 +203,6 @@ impl Myrgb {
             0.5 * me.blue  + 0.5 * other.blue,
         );
         Self(new)
-    }
-
-    /// This outputs `235,235,235` as r,g,b
-    pub fn rgb(&self) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("{r},{g},{b}")
-    }
-
-    /// HEXA output (e.g. `#001122FF`, where FF is the alpha hex)
-    /// Alpha needs to be in hex format alrd
-    /// Ref: <https://net-informations.com/q/web/trans.html>
-    pub fn hexa(&self, alpha: &str) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("#{r}{g}{b}{alpha}")
-    }
-
-    /// .rgba output `235,235,235,1.0`
-    pub fn rgba(&self, alpha: f32) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("rgba({r},{g},{b},{alpha})")
-    }
-
-    /// xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
-    /// Alpha needs to be in hex format alrd
-    pub fn xrgba(&self, alpha: &str) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("{r:02x}/{g:02x}/{b:02x}/{}", alpha.to_ascii_lowercase())
-    }
-
-    /// - xrgba outputs `ee/ee/ee/ff` as r/g/b/alpha in hex but using `/` as a separator
-    /// - xrgba but without alpha
-    /// - alpha is a variable itself, not contained in Colors. so it could be formatted standalone.
-    /// > Sample: `{{color0 | xrgb}}{{"/"}}{{alpha_hex}}`
-    pub fn xrgb(&self) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("{r:02x}/{g:02x}/{b:02x}")
-    }
-
-    /// This only "strips" the `#` from the usual output, leaving the following: `EEEEEE`
-    pub fn strip(&self) -> String {
-        let (r, g, b) = self.to_rgb8();
-        format!("{r:02X}{g:02X}{b:02X}")
-    }
-
-    // Red green and blue values as u8s
-    // XXX maybe also make red green and blue for hex values?
-    pub fn red(&self) -> String {
-        let (r, _, _) = self.to_rgb8();
-        format!("{r}")
-    }
-    pub fn green(&self) -> String {
-        let (_, g, _) = self.to_rgb8();
-        format!("{g}")
-    }
-    pub fn blue(&self) -> String {
-        let (_, _, b) = self.to_rgb8();
-        format!("{b}")
-    }
-
-    /// private fn that returns sequences
-    /// "Convert a hex color to a text color sequence"
-    fn set_color(&self, index: u32) -> String {
-        sequences::set_color(&self.0, index)
-    }
-
-    /// Convert a hex color to a special sequence.
-    /// Currently no alpha is supported. The sequence below is only supported by urxvt, by pywal
-    fn set_special(&self, index: u32) -> String {
-        sequences::set_special(&self.0, index)
     }
 
     /// saturate the current color by `amount`, which should be between [0.0, 1.0] (inclusive)

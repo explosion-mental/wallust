@@ -17,6 +17,8 @@ use minijinja::{Environment, context};
 
 pub mod pywal;
 pub mod jinja2;
+pub mod colors;
+
 use jinja2::{
     jinja_env,
     jinja_update_alpha,
