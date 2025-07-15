@@ -87,6 +87,10 @@ pub fn jinja_env<'a>() -> Environment<'a> {
         jinjafn!(env, red);
         jinjafn!(env, green);
         jinjafn!(env, blue);
+        jinjafn!(env, rgbf);
+        jinjafn!(env, redf);
+        jinjafn!(env, greenf);
+        jinjafn!(env, bluef);
 
         /// Blending for usual RRGGBB and RRGGBBAA
         //TODO make this less ugly "but, it werks"

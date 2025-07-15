@@ -63,9 +63,13 @@ impl Myrgb {
         format!("{b}")
     }
 
-    pub fn rgbfloat(self) -> String {
-        format!("{self}")
+    pub fn rgbf(&self) -> String {
+        let (r, g, b) = self.0.into_components();
+        format!("{r:.4}, {g:.4}, {b:.4}")
     }
 
+    pub fn redf(&self) -> String { format!("{.4}", self.0.red) }
+    pub fn bluef(&self) -> String { format!("{:.4}", self.0.blue) }
+    pub fn greenf(&self) -> String { format!("{:.4}", self.0.green) }
 
 }

@@ -35,14 +35,15 @@ Example:
 {{ color5 | hexa }}
 ```
 
-### rgb
-Output the color in `rgb`, separated by comas. (e.g. "10,11,12")
 
 ### xrgb
 Output the color in `xrgb`, separated by slashes. (e.g "0A/0B/0C")
 
 ### strip
 Output the color in `hex`, just like by default, but removes the leading `#`. (e.g. "0A0B0C")
+
+### rgb
+Output the color in `rgb`, separated by comas. (e.g. "10,11,12")
 
 ### red
 Outputs only the red value. (e.g. "10")
@@ -52,6 +53,19 @@ Outputs only the green value. (e.g. "11")
 
 ### blue
 Outputs only the blue value. (e.g. "12")
+
+### rgbf
+Output the color in `rgb` **floating point** from 0.0 to 1.0 with 4 decimals at max.
+The values are separated by comas.
+
+### redf
+Outputs only the red value as a **float**.
+
+### greenf
+Outputs only the green value as a **float**.
+
+### bluef
+Outputs only the blue value as a **float**.
 
 ### complementary
 Returns the respective complementary color.
