@@ -13,7 +13,7 @@ use crate::{
 
 use anyhow::Result;
 use owo_colors::OwoColorize;
-use minijinja::{Environment, context};
+use minijinja::Environment;
 
 pub mod pywal;
 pub mod jinja2;
@@ -151,30 +151,6 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
     }
 
     Ok(())
-}
-
-impl From<&TemplateFields<'_>> for minijinja::Value {
-    fn from(values: &TemplateFields<'_>) -> Self {
-        let c = &values.colors;
-        let alpha_dec = f32::from(values.alpha) / 100.0;
-        let alpha_dec = if values.alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
-        let v = minijinja::Value::from_serialize(c);
-
-        context! {
-            ..v,
-            ..context! {
-                alpha      => values.alpha,
-                alpha_dec  => alpha_dec,
-                cursor     => c.cursor,
-                palette    => values.palette,
-                wallpaper  => values.image_path,
-                backend    => values.backend,
-                colorspace => values.colorspace,
-                colors     => c.into_iter().map(|x| x.to_string()).collect::<Vec<String>>(),
-            }
-        }
-
-    }
 }
 
 /// This is used to represent HEXA values, but only the alpha part.
