@@ -156,12 +156,15 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 impl From<&TemplateFields<'_>> for minijinja::Value {
     fn from(values: &TemplateFields<'_>) -> Self {
         let c = &values.colors;
+        let alpha_dec = f32::from(values.alpha) / 100.0;
+        let alpha_dec = if values.alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
         let v = minijinja::Value::from_serialize(c);
 
         context! {
             ..v,
             ..context! {
                 alpha      => values.alpha,
+                alpha_dec  => alpha_dec,
                 cursor     => c.cursor,
                 palette    => values.palette,
                 wallpaper  => values.image_path,
