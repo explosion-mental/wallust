@@ -8,7 +8,7 @@ allowing you to define Widows like paths, e.g. `'C:\Users\Desktop\'`.
 ## template
 A relative path that points to a file where wallust.toml is located, usually at
 `~/.config/wallust/templates`. This file can also be a directory, which will be
-templated **non-recursively** (only the first recursion, like `du ... --max-depth 1`)
+templated **recursively**. If you want to avoid recursion, see [max_depth](#max_depth) below.
 
 Check out [`templates`](../templates/README.md) section for more.
 
@@ -19,3 +19,11 @@ field CAN expand the `~` as the `$HOME` enviromental variable. If
 
 ## pywal _(optional)_
 Indicates to treat **template** as a [pywal template](../templates/pywal.md), using `{variable}` syntax. (default: **false**)
+
+## max_depth
+This is variable is optional, by default disabled and thus, doesn't limit recursion.
+When enabled, it accepts a number that indicates the quantity of recursion
+level to accept, similar to `du ... --max-depth 1` (and probably other utils).
+
+This variable only has effect when the **template and target are directories**.
+_Remember_ anyway that **if `template` is a directory, `target` SHOULD also be one.**

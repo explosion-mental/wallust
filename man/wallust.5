@@ -185,7 +185,7 @@ To learn more about the syntax see
 .TP
 .B template
 A relative path that points to a file where wallust.toml is located, usually at '~/.config/wallust/'. This file can also be a directory, which will be templated
-.BR "non-recursively" .
+.BR "recursively" .
 
 .TP
 .B target
@@ -203,6 +203,17 @@ Indicates to treat
 as a pywal template, using
 .I {variable}
 syntax. (default: false)
+
+
+.TP
+.BI "max_depth" " optional"
+This is variable is optional, by default disabled and thus, doesn't limit recursion.
+When enabled, it accepts a number that indicates the quantity of recursion
+level to accept, similar to
+.I du ... --max-depth 1
+(and probably other utils).
+
+
 
 .SH "EXAMPLES"
 Below is a simple example exahusting all possible cases. All the format is correct:

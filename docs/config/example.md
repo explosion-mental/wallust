@@ -21,8 +21,8 @@ dunst.target = "~/.config/dunst/dunstrc"
 # one liner for zathura
 zathura = { template = 'zath', target = '~/.config/zathura/zathurarc' }
 
-# even a shorter way
-glava = { src = 'glava.glsl', dst = '~/.config/glava/rc.glsl' }
+# even a shorter way, using directories, but only one level recursion
+glava = { src = 'glava', dst = '~/.config/glava/', max_depth = 1 }
 
 # or splited in the dotted syntax
 res.src = "xres"

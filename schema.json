@@ -189,6 +189,16 @@
       "description": "An entry within the config file, toml table\nref: <https://toml.io/en/v1.0.0#array-of-tables>",
       "type": "object",
       "properties": {
+        "max_depth": {
+          "description": "If 'src' is a directory, 'dst' SHOULD also be one.\nThis flag allows for 'src', when a dir, to be templated recursively\nIf 'src' is a file, this has no effect.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
         "pywal": {
           "description": "Allows pywal template spec compatibility (disabled by default)",
           "type": [

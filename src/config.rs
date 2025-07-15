@@ -146,11 +146,10 @@ pub struct Fields {
     pub target: String,
     /// Allows pywal template spec compatibility (disabled by default)
     pub pywal: Option<bool>,
-    // If 'src' is a directory, 'dst' SHOULD also be one.
-    // This flag allows for 'src', when a dir, to be templated recursively
-    // If 'src' is a file, this has no effect.
-    //TODO implement recursive behaviour
-    //pub recursive: Option<bool>,
+    /// If 'src' is a directory, 'dst' SHOULD also be one.
+    /// This flag allows for 'src', when a dir, to be templated recursively
+    /// If 'src' is a file, this has no effect.
+    pub max_depth: Option<u8>,
 }
 
 #[derive(Debug, Deserialize, Clone)]

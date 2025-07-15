@@ -1,5 +1,5 @@
 //! Template stuff, definitions and how it's parsed
-use std::fs::read_to_string;
+use std::fs::{create_dir_all, read_to_string, write};
 use std::path::Path;
 use std::collections::HashMap;
 
@@ -14,6 +14,7 @@ use crate::{
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use minijinja::Environment;
+use walkdir::WalkDir;
 
 pub mod pywal;
 pub mod jinja2;
@@ -34,91 +35,84 @@ pub struct TemplateFields<'a> {
     pub colors: &'a Colors,
 }
 
-/// Render the template `file` provided and write it to `target_path`.
-/// `.map_err` is used to append friendly "Reading 'file' failed" or the like,
-/// since we don't care about handling all possible io::Errors
-// TODO there's gonna be trouble harcoding:
-// //with jinja:
-// let mut env = Environment::new(); //preload jinja enviroment
-// ... // set jinja functions
-// file_render(&env, ..) //pass env as reference,
-// //with pywal(new_string):
-// let values = values.to_hash(..); //preload hashmap, so it doesn't create a new one for every iteration
-// file_render(&values, ..);
-//
-// Maybe a solution is something like:
-// let test = templates.iter().any(|x| x.pywal == Some(true));
-// Then create env or the hasmap as an option, and `.expect` to open it an pass it as file_render():
-// 1. If it's None, it will never reach expect.
-// 2. If it's Some, it will always be true an a valid value.
-pub fn file_render(env: &mut Environment, file: &Path, target_path: &Path, pywal: bool, values: &TemplateFields) -> Result<(), String> {
-    let filename = file.display();
-    let filename = filename.italic();
+impl TemplateFields<'_> {
+    pub fn render_jinja(&self, env: &mut Environment, file: &Path, target_path: &Path) -> Result<(), String> {
+        let filename = file.display();
+        let filename = filename.italic();
+        let targetname = target_path.display();
+        let targetname = targetname.italic();
 
-    let file_content = read_to_string(file)
-        .map_err(|err| format!("Reading {filename} failed: {err}"))?;
+        let file_content = read_to_string(file)
+            .map_err(|err| format!("Reading {filename} failed: {err}"))?;
 
-    // First find if the parent exists at all before rendering
-    match target_path.parent() {
-       Some(s) => std::fs::create_dir_all(s)
-           .map_err(|err| format!("Failed to create parent directories from {}: {err}", target_path.display().italic()))?,
-       None => return Err(format!("Failed to find file parent from {}", target_path.display().italic())),
-    };
+        // First find if the parent exists at all before rendering
+        match target_path.parent() {
+            Some(s) => create_dir_all(s)
+                .map_err(|err| format!("Failed to create parent directories from {targetname}: {err}"))?,
+            None => return Err(format!("Failed to find file parent from {targetname}")),
+        };
 
-    // Template/render the file_contents
-    let rendered = if ! pywal {
-        jinja_update_alpha(env, values.alpha);
+        // Template/render the file_contents
+        jinja_update_alpha(env, self.alpha);
         let name = file.display().to_string();
-        let v = minijinja::Value::from(values);
+        let v = minijinja::Value::from(self);
 
-        //env.add_template(&name, &file_content);
-        // env.add_template_owned(name, file_content).map_err(minijinja_err_chain)?;
-        //
-        // let t = env.get_template(&file.display().to_string()).map_err(minijinja_err_chain)?;
-        // t.render(v)
+        let rendered = env.render_named_str(&name, &file_content, v).map_err(minijinja_err_chain)?;
 
-        env.render_named_str(&name, &file_content, v)
-            .map_err(minijinja_err_chain)?
-    } else {
-        pywal::render(&file_content, values)
-            .map_err(|err| format!("Error while rendering '{filename}': {err}"))?
-    };
+        // map io::Errors into a writeable one (String) ((maybe this is how anyhow werks?))
+        write(target_path, rendered)
+            .map_err(|err| format!("Error while writting to {targetname}: {err}"))
 
-    // map io::Errors into a writeable one (String) ((maybe this is how anyhow werks?))
-    std::fs::write(target_path, rendered)
-        .map_err(|err| format!("Error while writting to {}: {err}", target_path.display()))
+    }
+
+    pub fn render_pywal(&self, file: &Path, target_path: &Path) -> Result<(), String> {
+        let filename = file.display();
+        let filename = filename.italic();
+        let targetname = target_path.display();
+        let targetname = targetname.italic();
+
+        let file_content = read_to_string(file)
+            .map_err(|err| format!("Reading {filename} failed: {err}"))?;
+
+        match target_path.parent() {
+            Some(s) => create_dir_all(s)
+                .map_err(|err| format!("Failed to create parent directories from {targetname}: {err}"))?,
+            None => return Err(format!("Failed to find file parent from {targetname}")),
+        };
+
+        let rendered = pywal::render(&file_content, self).map_err(|err| format!("Error while rendering '{filename}': {err}"))?;
+
+        write(target_path, rendered)
+            .map_err(|err| format!("Error while writting to {targetname}: {err}"))
+
+    }
 }
 
 /// Writes `template`s into `target`s. Given the many possibilities of I/O errors, template errors,
 /// user typos, etc. Most errors are reported to stderr, and ignored to `continue` with the other
 /// entries.
 pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fields>, values: &TemplateFields, quiet: bool, env_vars: bool) -> Result<()> {
-
+    // let has_pywal = templates_header.iter().any(|x| x.1.pywal == Some(true));
+    // let mut jinjaenv = if has_pywal { Some(jinja_env()) } else { None };
     let mut jinjaenv = jinja_env();
+
     //XXX loader makes avaliable the (easy) use of `import` and such
     jinjaenv.set_loader(minijinja::path_loader(config_dir));
 
+    let warn = "W".red();
+    let warn = warn.bold();
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
-    // template and write the templated(?) file to entry.path
-
+    // template and write the templated file to entry.path
     for (name, fields) in templates_header {
-        // facilitates strings printing
-        let name = name.bold();
-        let warn = "W".red();
-        let warn = warn.bold();
+        //root path for the target file (requires interpret `~` for home)
+        let env = if env_vars { shellexpand::full(&fields.target)? } else { shellexpand::tilde(&fields.target) };
 
         //root path for the template file
         let path = config_dir.join(&fields.template);
 
-        //root path for the target file (requires interpret `~` for home)
-        //XXX on `shellexpand`, think about using `::full()` to support env vars. Seems a bit sketchy/sus
-        let env = match env_vars {
-            true => shellexpand::full(&fields.target)?,
-            false => shellexpand::tilde(&fields.target),
-        };
-
-        // pretty printing of the path
+        // pretty printing
+        let name = name.bold();
         let target = env.italic();
 
         let target_path = Path::new(env.as_ref());
@@ -126,27 +120,37 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
         let pywal = fields.pywal.unwrap_or(false);
 
         if !path.is_dir() { // normal file
-            if let Err(err) = file_render(&mut jinjaenv, &path, target_path, pywal, values) {
+            let render = if pywal { values.render_pywal(&path, target_path) } else { values.render_jinja(&mut jinjaenv, &path, target_path) };
+            if let Err(err) = render {
                 eprintln!("[{warn}] {name}: {err}");
                 continue;
             }
+
             if ! quiet { println!("  * Templated {name} to '{target}'"); }
+
         } else {
             if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
-            // read directory, encapsulating this into a function and then calling this recursively handle the `recursive` field?
-            for i in path.read_dir()? {
-                let i = i?;
 
-                let f = &i.file_name();
-
-                let target_path = target_path.join(f);
-
-                if let Err(err) = file_render(&mut jinjaenv, &path.join(f), &target_path, pywal, values) {
-                    eprintln!("[{warn}] {name}: {err}");
-                    continue;
-                }
-                if ! quiet { println!("     + {name} {} to '{target}'", &i.path().display(), target = target_path.display().italic()); }
+            match fields.max_depth {
+                Some(d) => WalkDir::new(&path).max_depth(d.into()),
+                None => WalkDir::new(&path),
             }
+                .into_iter()
+                .filter_map(|f| f.ok())
+                .filter(|f| f.file_type().is_file())
+                .for_each(|f| {
+                    let f = f.path();
+                    // copy dir tree
+                    let relative = f.strip_prefix(&path).expect("strip_prefix() failed"); //XXX
+                    let target_path = target_path.join(relative);
+
+                    let render = if pywal { values.render_pywal(&f, &target_path) } else { values.render_jinja(&mut jinjaenv, &f, &target_path) };
+                    if let Err(err) = render {
+                        eprintln!("[{warn}] {name}: {err}");
+                        return;
+                    }
+                    if ! quiet { println!("     + {name} {} to '{}'", &f.display(), target_path.display().italic()); }
+                });
         }
     }
 
