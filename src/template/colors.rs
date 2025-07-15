@@ -68,7 +68,7 @@ impl Myrgb {
         format!("{r:.4}, {g:.4}, {b:.4}")
     }
 
-    pub fn redf(&self) -> String { format!("{.4}", self.0.red) }
+    pub fn redf(&self) -> String { format!("{:.4}", self.0.red) }
     pub fn bluef(&self) -> String { format!("{:.4}", self.0.blue) }
     pub fn greenf(&self) -> String { format!("{:.4}", self.0.green) }
 
