@@ -126,7 +126,7 @@ Cache path: {}
         cache_path.display(),
             );
         },
-        args::Subcmds::Migrate => wallust::migrate::migrate(&conf)?,
+        args::Subcmds::Migrate => wallust::args::migrate(&conf)?,
     }
 
     Ok(())

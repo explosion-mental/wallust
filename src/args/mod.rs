@@ -12,6 +12,10 @@ use crate::{
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
 
+pub mod migrate;
+
+pub use migrate::migrate;
+
 /// These flags can go before AND after the subcommand, like `wallust -q run image.png` or `wallust run image.png -q`
 #[derive(Debug, Parser, Default)]
 pub struct Globals {

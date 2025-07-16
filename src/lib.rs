@@ -11,7 +11,6 @@ pub mod palettes;
 pub mod template;
 pub mod themes;
 pub mod sequences;
-pub mod migrate;
 
 use spinners::{Spinner, Spinners};
 use owo_colors::OwoColorize;
