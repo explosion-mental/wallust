@@ -101,6 +101,8 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
 
     let warn = "W".red();
     let warn = warn.bold();
+    let ast = "*".blue();
+    let ast = ast.bold();
 
     // iterate over contents and pass it as an `&String` (which is casted to &str), apply the
     // template and write the templated file to entry.path
@@ -126,10 +128,10 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
                 continue;
             }
 
-            if ! quiet { println!("  * Templated {name} to '{target}'"); }
+            if ! quiet { println!(" {ast} Templated {name} to '{target}'"); }
 
         } else {
-            if ! quiet { println!("  * Templating {name}: directory at '{}'", path.display().italic()); }
+            if ! quiet { println!(" {ast} Templating {name}: directory at '{}'", path.display().italic()); }
 
             match fields.max_depth {
                 Some(d) => WalkDir::new(&path).max_depth(d.into()),
@@ -149,7 +151,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
                         eprintln!("[{warn}] {name}: {err}");
                         return;
                     }
-                    if ! quiet { println!("     + {name} {} to '{}'", &f.display(), target_path.display().italic()); }
+                    if ! quiet { println!("   + {name} {} to '{}'", &f.display(), target_path.display().italic()); }
                 });
         }
     }
