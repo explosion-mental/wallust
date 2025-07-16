@@ -7,8 +7,6 @@
 //! Refs:
 //! 1: https://github.com/dylanaraps/pywal/wiki/User-Template-Files
 //! 2: https://github.com/dylanaraps/pywal/tree/master/pywal/templates
-use std::collections::HashMap;
-
 use crate::colors::Myrgb;
 use super::alpha_hexa;
 use super::TemplateFields;
@@ -22,51 +20,6 @@ pub enum PywalTemplateError {
     MissingVariable(String),
     #[error("Invalid modifier: {0}")]
     InvalidModifier(String),
-}
-
-/// Convert to a hash that I can later `.get()`
-impl TemplateFields<'_> {
-    pub fn to_hash<'a>(&self) -> HashMap<&'a str, String> {
-        let mut map = HashMap::new();
-        let alpha = self.alpha;
-        let col = self.colors;
-        let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
-        let alpha_dec = f32::from(alpha) / 100.0;
-        let alpha_dec = if alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
-
-        map.insert("wallpaper", self.image_path.into()); //full path to the image
-        map.insert("alpha", alpha.to_string());
-        map.insert("alpha_dec", alpha_dec.to_string() );
-        map.insert("alpha_hex", alpha_hex);
-
-        // Include backend, colorspace and filter (palette)
-        map.insert("backend", self.backend.to_string());
-        map.insert("colorspace", self.colorspace.to_string());
-        map.insert("palette", self.palette.to_string());
-
-        // normal output `#EEEEEE`
-        map.insert("color0" , col.color0 .to_string());
-        map.insert("color1" , col.color1 .to_string());
-        map.insert("color2" , col.color2 .to_string());
-        map.insert("color3" , col.color3 .to_string());
-        map.insert("color4" , col.color4 .to_string());
-        map.insert("color5" , col.color5 .to_string());
-        map.insert("color6" , col.color6 .to_string());
-        map.insert("color7" , col.color7 .to_string());
-        map.insert("color8" , col.color8 .to_string());
-        map.insert("color9" , col.color9 .to_string());
-        map.insert("color10", col.color10.to_string());
-        map.insert("color11", col.color11.to_string());
-        map.insert("color12", col.color12.to_string());
-        map.insert("color13", col.color13.to_string());
-        map.insert("color14", col.color14.to_string());
-        map.insert("color15", col.color15.to_string());
-        map.insert("cursor", col.cursor.to_string());
-        map.insert("foreground", col.foreground.to_string());
-        map.insert("background", col.background.to_string());
-
-        map
-    }
 }
 
 fn get_func(fname: &str, value: &str, alpha: u8) -> Result<String, PywalTemplateError> {
