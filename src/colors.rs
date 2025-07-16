@@ -63,7 +63,7 @@ impl<'de> Deserialize<'de> for Myrgb {
     {
         struct RgbVisitor;
 
-        impl<'de> Visitor<'de> for RgbVisitor {
+        impl Visitor<'_> for RgbVisitor {
             type Value = Myrgb;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

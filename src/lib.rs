@@ -39,28 +39,22 @@ impl SpiWrap {
     }
 
     pub fn stop_warn(&mut self, gen: &FallbackGenerator) {
-        match &mut self.s {
-            Some(sp) => {
-                let symbol = "[  🗸   🗸    ]";
-                sp.stop_with_symbol(symbol);
-                print!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
-                    g = gen.to_string().color(gen.col()),
-                    info = "I".blue().bold(),
-                    method = "fallback generation method".magenta().bold()
-                );
-            },
-            None => (),
+        if let Some(sp) = &mut self.s {
+            let symbol = "[  🗸   🗸    ]";
+            sp.stop_with_symbol(symbol);
+            print!("[{info}] Not enough colors in the image, artificially generating new colors...\n[{info}] {method}: Using {g} to fill the palette\n",
+                g = gen.to_string().color(gen.col()),
+                info = "I".blue().bold(),
+                method = "fallback generation method".magenta().bold()
+            );
         }
     }
 
     pub fn stop(&mut self) {
-        match &mut self.s {
-            Some(sp) => {
-                let symbol = "[    🗸    ]";
-                sp.stop_with_symbol(symbol);
-                print!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
-            },
-            None => (),
+        if let Some(sp) = &mut self.s {
+            let symbol = "[    🗸    ]";
+            sp.stop_with_symbol(symbol);
+            print!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
         }
     }
 }
@@ -104,7 +98,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     use cache::IsCached as C;
 
     // Having to only read the schemepalette is TOO FAST to have the spinner.
-    let quiet = quiet || if matches!(cache.is_cached_all(), C::BackendnCSnPalette) && !overwrite_cache { true } else { false };
+    let quiet = quiet || (matches!(cache.is_cached_all(), C::BackendnCSnPalette) && !overwrite_cache);
     let mut spi = SpiWrap::new(quiet);
     // println!("{:?}", cache.is_cached_all());
 

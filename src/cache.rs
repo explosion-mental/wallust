@@ -59,7 +59,7 @@ impl Cache {
     /// 1. Backend file, with the full name, maybe reductant with the `full` backend.
     /// 2. ColorSpace + threshold, since it depends on the threshold
     /// 3. Scheme + ColorSpace + threshold, since the palette depends on the colorspace, and the colorspace on the threshold
-    /// This new structure allows you to reuse some parts, when configuring, avoding more time waiting.
+    ///    This new structure allows you to reuse some parts, when configuring, avoding more time waiting.
     pub fn new(file: &Path, c: &Config, cache_path: &Path) -> Result<Self> {
         // create cache (e.g. `~/.cache/wallust`)
         let cachepath = cache_path.join("wallust");
@@ -81,8 +81,8 @@ impl Cache {
 
         Ok(Self {
             path: cachepath,
-            name: name,
-            back: base.join(format!("{back}")),
+            name,
+            back: base.join(&back),
             cs: base.join(format!("{back}_{cs}_{th}")),
             palette: base.join(format!("{back}_{cs}_{th}_{palet}")),
         })

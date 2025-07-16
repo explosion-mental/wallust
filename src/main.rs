@@ -105,7 +105,6 @@ Cache path: {}
 }
 
 /// Usual `wallust image.png` call, without any subcommands.
-// This used to be old main()
 fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g: &args::Globals) -> Result<()> {
     let info = "I".blue();
     let info = info.bold();
