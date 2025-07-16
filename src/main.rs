@@ -23,9 +23,6 @@ fn main() -> Result<()> {
 
     // globals
     let quiet = cli.globals.quiet;
-    let update_current  = cli.globals.update_current;
-    let skip_sequences  = &cli.globals.skip_sequences;
-    let ignore_sequence = &cli.globals.ignore_sequence;
     let skip_templates  = &cli.globals.skip_templates;
 
     let mut conf = config::Config::new(&cli.globals)?;
@@ -43,19 +40,10 @@ fn main() -> Result<()> {
                     if !quiet { println!("[{info}] {}: Using {theme}", "theme".magenta().bold(), theme = theme.italic()); }
                     let colors = themes::built_in_theme(theme, quiet).ok_or_else(||anyhow::anyhow!("Theme not found. Quitting..."))?;
                     colors.print();
-                    if ! skip_sequences && ! update_current {
-                        if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-                        colors.sequences(&cache_path, ignore_sequence.as_deref())?;
-                    }
 
-                    if update_current {
-                        if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-                        print!("{}", colors.to_seq(ignore_sequence.as_deref()));
-                    }
-
-                    if ! skip_templates {
-                        conf.write_entry(&WalStr::Theme(theme.to_owned()), &colors, quiet)?;
-                    }
+                    cli.globals.set_seq(&colors, &cache_path)?;
+                    cli.globals.update_cur(&colors)?;
+                    if ! skip_templates { conf.write_entry(&WalStr::Theme(theme.to_owned()), &colors, quiet)?; }
                 }
             }
         },
@@ -72,20 +60,12 @@ fn main() -> Result<()> {
                     colors.print();
                     if preview { return Ok(()); } //exit if preview
             }
-            if ! skip_sequences && ! update_current {
-                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-                colors.sequences(&cache_path, ignore_sequence.as_deref())?;
-            }
 
-            if update_current {
-                if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-                print!("{}", colors.to_seq(ignore_sequence.as_deref()));
-            }
+            cli.globals.set_seq(&colors, &cache_path)?;
+            cli.globals.update_cur(&colors)?;
 
             //empty image_path cuz it's not used
-            if ! skip_templates {
-                conf.write_entry(&WalStr::Theme(theme), &colors, quiet)?;
-            }
+            if ! skip_templates { conf.write_entry(&WalStr::Theme(theme), &colors, quiet)?; }
             if ! quiet { colors.done() }
         },
         args::Subcmds::Cs { colorscheme, format } => {
@@ -98,21 +78,13 @@ fn main() -> Result<()> {
 
 
             if ! quiet { println!("[{info}] {cs}: {msg}", cs = "colorscheme".magenta().bold()); }
-
             if ! quiet { colors.print(); }
-            if ! skip_sequences && ! update_current {
-                if ! quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-                colors.sequences(&cache_path, ignore_sequence.as_deref())?;
-            }
 
-            if update_current {
-                if ! quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-                print!("{}", colors.to_seq(ignore_sequence.as_deref()));
-            }
+            cli.globals.set_seq(&colors, &cache_path)?;
+            cli.globals.update_cur(&colors)?;
 
             //empty image_path cuz it's not used
-            if ! skip_templates {
-                conf.write_entry(&walstr, &colors, quiet)?;
+            if ! skip_templates { conf.write_entry(&walstr, &colors, quiet)?;
             }
             if ! quiet { colors.done() }
         },
@@ -162,31 +134,15 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
 
     let colors = gen_colors(&cli.file, conf, cli.dynamic_threshold, cache_path, cli.no_cache, g.quiet, cli.overwrite_cache)?;
 
-    if !g.quiet {
-        //TODO add print_long to list `value: color` like
-        colors.print();
-    }
-
-    // Set sequences
-    if !g.skip_sequences && !g.update_current {
-        if !g.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
-        colors.sequences(cache_path, g.ignore_sequence.as_deref())?;
-    }
-
-    if g.update_current {
-        if !g.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
-        print!("{}", colors.to_seq(g.ignore_sequence.as_deref()));
-    }
-
-    if !g.skip_templates {
-        conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, g.quiet)?;
-    }
+    if !g.quiet { colors.print(); }
+    g.set_seq(&colors, cache_path)?;
+    g.update_cur(&colors)?;
+    if !g.skip_templates { conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, g.quiet)?; }
 
     // Cache colors
     if !g.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
     if !cli.no_cache && !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
 
     if !g.quiet { colors.done(); }
-
     Ok(())
 }

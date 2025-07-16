@@ -12,10 +12,15 @@ pub mod template;
 pub mod themes;
 pub mod sequences;
 
+use std::path::Path;
+
+use anyhow::Result;
 use spinners::{Spinner, Spinners};
 use owo_colors::OwoColorize;
 
+use self::colors::Colors;
 use self::colorspaces::FallbackGenerator;
+use self::args::Globals;
 
 
 /// Simple wrapper around spinner, to avoid allocations and the like.
@@ -59,6 +64,33 @@ impl SpiWrap {
         }
     }
 }
+
+/// These methods are to avoid code duplication, used in main
+impl Globals {
+    pub fn set_seq(&self, colors: &Colors, cache_path: &Path) -> Result<()> {
+        let info = "I".blue();
+        let info = info.bold();
+        let g = self;
+        if !g.skip_sequences && !g.update_current {
+            if !g.quiet { println!("[{info}] {}: Setting terminal colors.", "sequences".magenta().bold()); }
+            colors.sequences(cache_path, g.ignore_sequence.as_deref())?;
+        }
+        Ok(())
+    }
+
+    pub fn update_cur(&self, colors: &Colors) -> Result<()> {
+        let info = "I".blue();
+        let info = info.bold();
+        let g = self;
+        if g.update_current {
+            if !g.quiet { println!("[{info}] {seq}: Setting colors {b} in the current terminal.", seq = "sequences".magenta().bold(), b = "only".bold()); }
+            print!("{}", colors.to_seq(g.ignore_sequence.as_deref()));
+        }
+        Ok(())
+    }
+
+}
+
 
 /// How [`crate::colors::Colors`] is filled, returns the colors itself and a bool that indicates whether
 /// [`backends`] had some warnings or not (ugly workaround ik)
