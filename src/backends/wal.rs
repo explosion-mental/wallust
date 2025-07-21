@@ -13,17 +13,33 @@ use std::process::Command;
 use std::str;
 use palette::Srgb;
 use palette::cast::AsComponents;
+use std::fmt;
+
+enum IMcmd {
+    Magick,
+    Convert,
+}
+
+impl fmt::Display for IMcmd {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            IMcmd::Magick => write!(f, "magick"),
+            IMcmd::Convert => write!(f, "convert"),
+        }
+    }
+}
+
 
 /// Inspired by how pywal uses Image Magick :)
 pub fn wal(f: &Path) -> Result<Vec<u8>> {
     let mut cols: Vec<Srgb<u8>> = Vec::with_capacity(16); // there will be no more than 16 colors
 
-    let magick_command = has_im()?;
+    let magick_command = has_im()?.to_string();
 
-    let mut raw_colors = imagemagick(16 /* + 0*/, f, &magick_command)?;
+    let mut raw_colors = String::new();
 
     // we start with 1, since we already 'did' an iteration by initializing the variable.
-    for i in 1..20 {
+    for i in 0..20 {
         raw_colors = imagemagick(16 + i, f, &magick_command)?;
 
         if raw_colors.lines().count() > 16 { break }
@@ -37,10 +53,6 @@ pub fn wal(f: &Path) -> Result<Vec<u8>> {
             // eprintln!("Trying a larger palette size {}", 16 + i);
         // }
     }
-
-    // TODO pywal uses the first, last and from 6-8 colors from the pallete, We need a way to tell
-    // `colorspaces` module to not chop off these colors (maybe in another backend that ensures pywal parity?)
-    // https://github.com/dylanaraps/pywal/blob/236aa48e741ff8d65c4c3826db2813bf2ee6f352/pywal/backends/wal.py#L60
 
     for line in raw_colors.lines().skip(1) {
         let mut s = line.split_ascii_whitespace().skip(1);
@@ -76,16 +88,16 @@ fn imagemagick(color_count: u8, img: &Path, magick_command: &str) -> Result<Stri
 }
 
 ///whether to use `magick` or good old `convert`
-fn has_im() -> Result<String> {
-    let m = String::from("magick");
-    let c = String::from("convert");
+fn has_im() -> Result<IMcmd> {
+    let m = "magick";
+    let c = "convert";
 
     // .output() is used to 'eat' the output, instead of .spawn()
     match Command::new(&m).output() {
-        Ok(_) => Ok(m),
+        Ok(_) => Ok(IMcmd::Magick),
         Err(e) => {
             match Command::new(&c).output() {
-                Ok(_) => Ok(c),
+                Ok(_) => Ok(IMcmd::Convert),
                 Err(e2) => Err(anyhow::anyhow!("Neither `magick` nor `convert` is invokable:\n{e} {e2}")),
             }
             // if let std::io::ErrorKind::NotFound = e.kind() {
