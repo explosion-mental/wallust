@@ -63,12 +63,12 @@ vergen-git2 = { version = "1.0", default-features = false, features = ["cargo", 
 default = [ "themes" ]
 # include built-in themes (~130K) <https://codeberg.org/explosion-mental/wallust-themes>
 themes = [ "dep:fastrand", "dep:wallust_themes" ]
-schema = [ "dep:schemars" ]
 
 # build generated stuff, used for building man pages and completions
 buildgen = [ "doc", "iter", "schema", "clap/cargo" ]
 doc  = [ "dep:documented" ]
 iter = [ "dep:strum" ]
+schema = [ "dep:schemars" ]
 
 [[bench]]
 name = "backends"
