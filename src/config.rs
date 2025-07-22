@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::fs::read_to_string;
 use std::io::Write;
+use std::path::Path;
 
 use crate::args::WallustArgs;
 use crate::args::Globals;
 use crate::colors::Colors;
 use crate::template;
 use crate::template::TemplateFields;
+use crate::presets::Preset;
 
 use anyhow::{Result, Context};
 use owo_colors::{AnsiColors, OwoColorize};
@@ -54,6 +56,9 @@ pub struct Config {
     //pub templates_dir: PathBuf,
     /// Enables the use of enviromental variables in the targets template paths
     pub env_vars: Option<bool>,
+
+    /// Preset overwrites backend, colorspace and palette.
+    pub preset: Option<Preset>,
 
     #[deprecated]
     /// TOML: array of tables for "template" and "target"
@@ -107,6 +112,9 @@ pub struct PrettyConfig {
 
     /// Which palette to use, see palettes.rs
     pub palette: Option<crate::palettes::Palette>,
+
+    /// Which preset to use, see presets.rs
+    pub preset: Option<Preset>,
 
     /// Which colorspace to use, see colorspaces.rs
     pub color_space: Option<crate::colorspaces::ColorSpace>,
@@ -249,7 +257,6 @@ impl Config {
         ret.backend = ret.backend_user.unwrap_or_default();
         ret.color_space = ret.color_space_user.unwrap_or_default();
         ret.palette = ret.palette_user.unwrap_or_default();
-
         //println!("{:#?}", ret);
 
         Ok(ret)
@@ -275,7 +282,7 @@ impl Config {
             None => format!("Not defined, using {} default thresholds.", "best".bold()),
         };
 
-        println!(
+        let no_preset = format!(
 "[{i}] {back_f}: Using {back} backend parser
 [{i}] {th_f}: {th}
 [{i}] {cs_f}: Using {cs} colorspace variation
@@ -289,6 +296,11 @@ impl Config {
             palette_f = "scheme palette".magenta().bold(),
             cs_f     = "colorspace".magenta().bold(),
         );
+
+        match &self.preset {
+            Some(s) => println!("[{i}] Using {p} preset.", i = "I".blue().bold(), p = s.red().bold()),
+            None => println!("{no_preset}"),
+        }
     }
 
     /// Writes templates defined in the config file (if any)
@@ -360,6 +372,13 @@ impl Config {
 
         if let Some(g) = cli.fallback_generator {
             self.fallback_generator = Some(g);
+        }
+    }
+
+    pub fn backend_or_preset(&self, p: &Path) -> Result<Vec<u8>> {
+        match &self.preset {
+            Some(s) => s.backend(p),
+            None => self.backend.main()(p),
         }
     }
 
@@ -464,6 +483,7 @@ impl From<PrettyConfig> for Config {
             saturation: value.saturation,
             templates: value.templates,
             env_vars: value.env_vars,
+            preset: value.preset,
             ..Self::default()
         }
     }

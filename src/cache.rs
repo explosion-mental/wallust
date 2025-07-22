@@ -29,6 +29,8 @@ pub struct Cache {
     pub cs: PathBuf,
     /// palette file + threshold
     pub palette: PathBuf,
+    /// preset cache
+    pub preset: Option<PathBuf>,
 
     /// Path name
     pub name: PathBuf,
@@ -51,6 +53,7 @@ pub enum IsCached {
     Backend,
     BackendnCS,
     BackendnCSnPalette,
+    Preset,
 }
 
 impl Cache {
@@ -78,6 +81,10 @@ impl Cache {
         let back = c.backend.to_string();
         let cs  = c.color_space.to_string();
         let palet = c.palette.to_string();
+        let preset = match &c.preset {
+            Some(s) => Some(base.join(s.to_string())),
+            None => None,
+        };
 
         Ok(Self {
             path: cachepath,
@@ -85,6 +92,7 @@ impl Cache {
             back: base.join(&back),
             cs: base.join(format!("{back}_{cs}_{th}")),
             palette: base.join(format!("{back}_{cs}_{th}_{palet}")),
+            preset,
         })
     }
 
@@ -109,6 +117,25 @@ impl Cache {
         let contents = std::fs::read_to_string(&self.palette)?;
         let v: Colors = serde_json::from_str(&contents)?;
         Ok(v)
+    }
+
+    pub fn read_preset(&self) -> Result<Colors> {
+        let p = self.preset.as_ref().expect("Only called inside lib.rs");
+        let contents = std::fs::read_to_string(p)?;
+        let v: Colors = serde_json::from_str(&contents)?;
+        Ok(v)
+    }
+
+    /// XXX Given that presets edit out the ColorSpace part, just store the colors.
+    pub fn write_preset(&self, c: &Colors) -> Result<()> {
+        let p = self.preset.as_ref().expect("Only called inside lib.rs");
+        Ok(File::create(p)?
+            .write_all(
+                serde_json::to_string_pretty(c)
+                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
+                .as_bytes()
+            )?
+        )
     }
 
     pub fn write_backend(&self, bytes: &[u8]) -> Result<()> {
@@ -142,6 +169,11 @@ impl Cache {
     }
 
     pub fn is_cached_all(&self) -> IsCached {
+        match self.preset {
+            Some(_) => return IsCached::Preset,
+            None => (),
+        }
+
         let b  = self.back.exists();
         let cs = self.cs.exists();
         let p  = self.palette.exists();
