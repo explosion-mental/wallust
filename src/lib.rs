@@ -30,6 +30,7 @@ pub struct SpiWrap {
     s: Option<Spinner>,
 }
 
+// XXX make it chainable, `.warn().stop()` or `.cache().stop()` maybe, by editing a fmt.
 impl SpiWrap {
     pub fn new(quiet: bool) -> Self {
         let s = match quiet {
@@ -56,6 +57,15 @@ impl SpiWrap {
             let symbol = "[    🗸    ]";
             sp.stop_with_symbol(symbol);
             print!("[{info}] Color scheme palette generated!", info = "I".blue().bold());
+        }
+    }
+
+    pub fn stop_cache(&mut self, cname: &Path) {
+        if let Some(sp) = &mut self.s {
+            let symbol = "[    🗸    ]";
+            let cname = cname.display();
+            sp.stop_with_symbol(symbol);
+            print!("[{info}] Color scheme palette generated!\n[{info}] Using cache at {cname}", info = "I".blue().bold());
         }
     }
 }
@@ -127,8 +137,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
             C::BackendnCSnPalette => { // (cache)Palette -> Done
                 let mut colors = cache.read_palette()?;
                 postcolor(c, &mut colors);
-                spi.stop();
-                if !quiet { print!("[{info}] Using cache at {}", cache.name.display(), info = "I".blue().bold()); }
+                spi.stop_cache(&cache.name);
                 Ok(colors)
             },
             C::BackendnCS => { // (cached)CS -> Palette -> Done
@@ -136,8 +145,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 let mut colors = c.palette.run(top, orig);
                 if !no_cache { cache.write_palette(&colors)? } // COLORS
                 postcolor(c, &mut colors);
-                if warn { spi.stop_warn(gen) } else { spi.stop() }
-                if !quiet { print!("[{info}] Using cache at {}", cache.name.display(), info = "I".blue().bold()); }
+                if warn { spi.stop_warn(gen) } else { spi.stop_cache(&cache.name) }
                 Ok(colors)
             },
             C::Backend => { // (cached)Backend -> CS -> Palette -> Done
@@ -154,7 +162,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
                 if !no_cache { cache.write_palette(&colors)? } //COLORS
                 postcolor(c, &mut colors);
-                if warn { spi.stop_warn(gen); } else { spi.stop(); }
+                if warn { spi.stop_warn(gen); } else { spi.stop(); } // here simple stop, since it's very fast
                 Ok(colors)
             },
             C::Preset => {
