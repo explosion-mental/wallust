@@ -73,7 +73,7 @@ impl Cache {
 
         let name = cachepath.join(format!("{hash}_{CACHE_VER}"));
         // Create cache dir (with all of it's parents)
-        fs::create_dir_all(&name).with_context(|| "Failed to create {cachepath}")?;
+        fs::create_dir_all(&name).with_context(|| format!("Failed to create {cachepath}"))?;
 
         let th    = if c.true_th == 0 { "auto" } else { &c.true_th.to_string() };
         // wallust/image_1.0/
