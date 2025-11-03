@@ -2,6 +2,7 @@
 use std::fmt;
 use std::fs;
 use std::fs::File;
+use std::io::BufReader;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -96,77 +97,24 @@ impl Cache {
         })
     }
 
-    // Update path
-    // pub fn reached_gen(&mut self) {
-    //     self.path.clone_from(&self.gen);
-    // }
-
-    pub fn read_backend(&self) -> Result<Vec<u8>> {
-        let contents = std::fs::read_to_string(&self.back)?;
-        let v: Vec<u8> = serde_json::from_str(&contents)?;
-        Ok(v)
-    }
-
-    pub fn read_cs(&self) -> Result<CSret> {
-        let contents = std::fs::read_to_string(&self.cs)?;
-        let v: CSret = serde_json::from_str(&contents)?;
-        Ok(v)
-    }
-
-    pub fn read_palette(&self) -> Result<Colors> {
-        let contents = std::fs::read_to_string(&self.palette)?;
-        let v: Colors = serde_json::from_str(&contents)?;
-        Ok(v)
-    }
+    pub fn read_backend(&self) -> Result<Vec<u8>> { read_json(&self.back) }
+    pub fn read_cs(&self) -> Result<CSret> { read_json(&self.cs) }
+    pub fn read_palette(&self) -> Result<Colors> { read_json(&self.palette) }
 
     pub fn read_preset(&self) -> Result<Colors> {
-        let p = self.preset.as_ref().expect("Only called inside lib.rs");
-        let contents = std::fs::read_to_string(p)?;
-        let v: Colors = serde_json::from_str(&contents)?;
-        Ok(v)
+        let p = self.preset.as_ref().expect("Only called inside lib.rs"); // TODO
+        read_json(p)
     }
 
     /// XXX Given that presets edit out the ColorSpace part, just store the colors.
     pub fn write_preset(&self, c: &Colors) -> Result<()> {
-        let p = self.preset.as_ref().expect("Only called inside lib.rs");
-        Ok(File::create(p)?
-            .write_all(
-                serde_json::to_string_pretty(c)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
-                .as_bytes()
-            )?
-        )
+        let p = self.preset.as_ref().expect("Only called inside lib.rs"); //TODO avoid this
+        write_json(p, c, &self.to_string(), true)
     }
 
-    pub fn write_backend(&self, bytes: &[u8]) -> Result<()> {
-        Ok(File::create(&self.back)?
-            .write_all(
-                serde_json::to_string(bytes)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
-                .as_bytes()
-            )?
-        )
-    }
-
-    pub fn write_cs(&self, colorspaces: &CSret) -> Result<()> {
-        Ok(File::create(&self.cs)?
-            .write_all(
-                serde_json::to_string(colorspaces)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
-                .as_bytes()
-            )?
-        )
-    }
-
-    pub fn write_palette(&self, scheme: &Colors) -> Result<()> {
-        Ok(File::create(&self.palette)?
-            .write_all(
-                serde_json::to_string_pretty(scheme)
-                    .with_context(|| format!("Failed to deserilize from the json cached file: '{}':", &self))?
-                .as_bytes()
-            )?
-        )
-    }
+    pub fn write_backend(&self, bytes: &[u8]) -> Result<()> { write_json(&self.back, &bytes, &self.to_string(), false) }
+    pub fn write_cs(&self, colorspaces: &CSret) -> Result<()> { write_json(&self.cs, colorspaces, &self.to_string(), false) }
+    pub fn write_palette(&self, scheme: &Colors) -> Result<()> { write_json(&self.palette, scheme, &self.to_string(), true) }
 
     pub fn is_cached_all(&self) -> IsCached {
         match self.preset {
@@ -189,6 +137,28 @@ impl Cache {
         }
     }
 }
+
+/// path is the new location of the file to be written to
+/// value the contents of it, `cachepath` is only to print the cache absolute path,
+/// and pretty to use serde_to_string_pretty
+fn write_json<P: AsRef<std::path::Path>, T: serde::Serialize>(path: P, value: &T, cachepath: &str, pretty: bool) -> anyhow::Result<()> {
+    let serde_to_string = if pretty { serde_json::to_string_pretty } else { serde_json::to_string };
+    Ok(File::create(&path)?
+        .write_all(
+            serde_to_string(value)
+            .with_context(|| format!("Failed to deserilize from the json cached file: '{cachepath}':"))?
+            .as_bytes()
+        )?
+    )
+}
+
+fn read_json<P: AsRef<std::path::Path>, T: serde::de::DeserializeOwned>(path: P) -> anyhow::Result<T> {
+    let path = path.as_ref();
+    let f = File::open(path).with_context(|| format!("Failed to open cache file '{}'", path.display()))?;
+    serde_json::from_reader(BufReader::new(f))
+        .with_context(|| format!("Failed to parse JSON in cache file '{}'", path.display()))
+}
+
 
 /* helpers */
 
