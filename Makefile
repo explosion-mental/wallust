@@ -56,7 +56,7 @@ schema:
 
 update-docs:
 	@echo "UPDATING MDBOOK DOCUMENTATION"
-	@${CARGO} test --quiet --features=doc --test=docs
+	@${CARGO} test --quiet --features=buildgen --test=docs
 
 dist: clean
 	mkdir -p wallust-${VERSION}
