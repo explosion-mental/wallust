@@ -16,6 +16,7 @@ use std::path::Path;
 /// Presets overwrite, ignore, any backend, colorspace or palette defined. They take preference,
 /// that is why they are optional.
 #[derive(Debug, Deserialize, Default)]
+#[cfg_attr(feature = "schema" , derive(schemars::JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Preset {
     #[default]
