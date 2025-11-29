@@ -37,10 +37,12 @@ use self::Palette as F;
 // include!("light.rs");
 // include!("softdark.rs");
 // include!("softlight.rs");
+mod util;
 mod ansidark;
 mod dark;
 mod harddark;
 mod light;
+mod salience;
 mod softdark;
 mod softlight;
 
@@ -50,6 +52,25 @@ use harddark::harddark;
 use light::light;
 use softdark::softdark;
 use softlight::softlight;
+use salience::{
+    saliencedarkhigh,
+    saliencedarkbalanced,
+    saliencedarkdistributed,
+    saliencedarklow,
+    saliencelighthigh,
+    saliencelightbalanced,
+    saliencelightdistributed,
+    saliencelightlow,
+};
+
+// How the palettes will samples colors passed from the colorspace
+#[derive(PartialEq)]
+enum SamplingMode {
+    High,
+    Balanced,
+    Distributed,
+    Low
+}
 
 /// Corresponds to the modules inside this module and `palette` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
@@ -102,6 +123,42 @@ pub enum Palette {
     #[serde(alias = "hard-dark-comp16")]
     HardDarkComp16,
 
+    /// Dark with ascending salience, sampling the highest (default) gathered salient colors.
+    #[clap(alias  = "salience-dark", name = "saliencedark")]
+    #[serde(alias = "salience-dark")]
+    SalienceDark,
+    /// SalienceDark but uses the 16 colors trick.
+    #[clap(alias  = "salience-dark16", name = "saliencedark16")]
+    #[serde(alias = "salience-dark16")]
+    SalienceDark16,
+    /// SalienceDark, but sampling the median gathered salient colors. Use if you find all the
+    /// colors screaming your attention (all very salient) and you want to tone it down.
+    #[clap(alias  = "salience-dark-balanced", name = "saliencedarkbalanced")]
+    #[serde(alias = "salience-dark-balanced")]
+    SalienceDarkBalanced,
+    /// SalienceDarkBalanced but uses the 16 colors trick.
+    #[clap(alias  = "salience-dark-balanced16", name = "saliencedarkbalanced16")]
+    #[serde(alias = "salience-dark-balanced16")]
+    SalienceDarkBalanced16,
+    /// SalienceDark, but sampling distributed across gathered salient colors. Use if you find all
+    /// colors screaming your attention (all very salient) and you want to spread it out.
+    #[clap(alias  = "salience-dark-distributed", name = "saliencedarkdistributed")]
+    #[serde(alias = "salience-dark-distributed")]
+    SalienceDarkDistributed,
+    /// SalienceDarkDistributed but uses the 16 colors trick.
+    #[clap(alias  = "salience-dark-distributed16", name = "saliencedarkdistributed16")]
+    #[serde(alias = "salience-dark-distributed16")]
+    SalienceDarkDistributed16,
+    /// SalienceDark, but sampling the lowest gathered salient colors. Use if you find all colors
+    /// screaming your attention (all very salient) and you *really* want to tone it down.
+    #[clap(alias  = "salience-dark-low", name = "saliencedarklow")]
+    #[serde(alias = "salience-dark-low")]
+    SalienceDarkLow,
+    /// SalienceDarkLow but uses the 16 colors trick.
+    #[clap(alias  = "salience-dark-low16", name = "saliencedarklow16")]
+    #[serde(alias = "salience-dark-low16")]
+    SalienceDarkLow16,
+
     /// Light bg, dark fg
     Light,
     /// Same as `light` but uses the 16 color trick
@@ -149,6 +206,42 @@ pub enum Palette {
     #[clap(alias  = "soft-light-comp16", name = "softlightcomp16")]
     #[serde(alias = "soft-light-comp16")]
     SoftLightComp16,
+
+    /// Light with ascending salience, sampling the highest (default) gathered salient colors.
+    #[clap(alias  = "salience-light", name = "saliencelight")]
+    #[serde(alias = "salience-light")]
+    SalienceLight,
+    /// SalienceLight but uses the 16 colors trick.
+    #[clap(alias  = "salience-light16", name = "saliencelight16")]
+    #[serde(alias = "salience-light16")]
+    SalienceLight16,
+    /// SalienceLight, but sampling the median gathered salient colors. Use if you find all the
+    /// colors screaming your attention (all very salient) and you want to tone it down.
+    #[clap(alias  = "salience-light-balanced", name = "saliencelightbalanced")]
+    #[serde(alias = "salience-light-balanced")]
+    SalienceLightBalanced,
+    /// SalienceLightBalanced but uses the 16 colors trick.
+    #[clap(alias  = "salience-light-balanced16", name = "saliencelightbalanced16")]
+    #[serde(alias = "salience-light-balanced16")]
+    SalienceLightBalanced16,
+    /// SalienceLight, but sampling distributed across gathered salient colors. Use if you find all
+    /// colors screaming your attention (all very salient) and you want to spread it out.
+    #[clap(alias  = "salience-light-distributed", name = "saliencelightdistributed")]
+    #[serde(alias = "salience-light-distributed")]
+    SalienceLightDistributed,
+    /// SalienceLightDistributed but uses the 16 colors trick.
+    #[clap(alias  = "salience-light-distributed16", name = "saliencelightdistributed16")]
+    #[serde(alias = "salience-light-distributed16")]
+    SalienceLightDistributed16,
+    /// SalienceLight, but sampling the lowest gathered salient colors. Use if you find all colors
+    /// screaming your attention (all very salient) and you *really* want to tone it down.
+    #[clap(alias  = "salience-light-low", name = "saliencelightlow")]
+    #[serde(alias = "salience-light-low")]
+    SalienceLightLow,
+    /// SalienceLightLow but uses the 16 colors trick.
+    #[clap(alias  = "salience-light-low16", name = "saliencelightlow16")]
+    #[serde(alias = "salience-light-low16")]
+    SalienceLightLow16,
 }
 
 impl F {
@@ -161,6 +254,15 @@ impl F {
 
             F::AnsiDark => ansidark(c, orig),
             F::AnsiDark16 => ansidark(c, orig).to_16col(),
+
+            F::SalienceDark => saliencedarkhigh(c, orig),
+            F::SalienceDark16 => saliencedarkhigh(c, orig).to_16col(),
+            F::SalienceDarkBalanced => saliencedarkbalanced(c, orig),
+            F::SalienceDarkBalanced16 => saliencedarkbalanced(c, orig).to_16col(),
+            F::SalienceDarkDistributed => saliencedarkdistributed(c, orig),
+            F::SalienceDarkDistributed16 => saliencedarkdistributed(c, orig).to_16col(),
+            F::SalienceDarkLow => saliencedarklow(c, orig),
+            F::SalienceDarkLow16 => saliencedarklow(c, orig).to_16col(),
 
             F::Light => light(c, orig),
             F::Light16 => light(c, orig).to_16col(),
@@ -181,19 +283,30 @@ impl F {
             F::SoftLight16 => softlight(c, orig).to_16col(),
             F::SoftLightComp => softlight(c, orig).to_comp(),
             F::SoftLightComp16 => softlight(c, orig).to_comp().to_16col(),
+
+            F::SalienceLight => saliencelighthigh(c, orig),
+            F::SalienceLight16 => saliencelighthigh(c, orig).to_16col(),
+            F::SalienceLightBalanced => saliencelightbalanced(c, orig),
+            F::SalienceLightBalanced16 => saliencelightbalanced(c, orig).to_16col(),
+            F::SalienceLightDistributed => saliencelightdistributed(c, orig),
+            F::SalienceLightDistributed16 => saliencelightdistributed(c, orig).to_16col(),
+            F::SalienceLightLow => saliencelightlow(c, orig),
+            F::SalienceLightLow16 => saliencelightlow(c, orig).to_16col(),
         }
     }
     /// Use different sorting `sort_by` on different schemes palette, which creates even more schemes.
     pub fn sort_ord(&self) -> ColorOrder {
         match self {
-              F::Dark  | F::Dark16 | F::DarkComp | F::DarkComp16
+              F::Dark | F::Dark16 | F::DarkComp | F::DarkComp16
             | F::SoftDark | F::SoftDark16 | F::SoftDarkComp | F::SoftDarkComp16
             | F::SoftLight | F::SoftLight16 | F::SoftLightComp | F::SoftLightComp16
+            | F::SalienceDark | F::SalienceDark16 | F::SalienceDarkBalanced | F::SalienceDarkBalanced16 | F::SalienceDarkDistributed | F::SalienceDarkDistributed16 | F::SalienceDarkLow | F::SalienceDarkLow16
                 => ColorOrder::LightFirst,
 
               F::Light | F::Light16 | F::LightComp | F::LightComp16
             | F::HardDark | F::HardDark16 | F::HardDarkComp | F::HardDarkComp16
             | F::AnsiDark | F::AnsiDark16
+            | F::SalienceLight | F::SalienceLight16 | F::SalienceLightBalanced | F::SalienceLightBalanced16 | F::SalienceLightDistributed | F::SalienceLightDistributed16 | F::SalienceLightLow | F::SalienceLightLow16
                 => ColorOrder::DarkFirst,
         }
     }
@@ -213,6 +326,15 @@ impl F {
             F::HardDarkComp => AnsiColors::BrightGreen,
             F::HardDarkComp16 => AnsiColors::BrightGreen,
 
+            F::SalienceDark => AnsiColors::White,
+            F::SalienceDark16 => AnsiColors::BrightWhite,
+            F::SalienceDarkBalanced => AnsiColors::BrightWhite,
+            F::SalienceDarkBalanced16 => AnsiColors::BrightWhite,
+            F::SalienceDarkDistributed => AnsiColors::BrightWhite,
+            F::SalienceDarkDistributed16 => AnsiColors::BrightWhite,
+            F::SalienceDarkLow => AnsiColors::BrightWhite,
+            F::SalienceDarkLow16 => AnsiColors::BrightWhite,
+
             F::Light => AnsiColors::Cyan,
             F::Light16 => AnsiColors::BrightCyan,
             F::LightComp => AnsiColors::BrightCyan,
@@ -227,6 +349,15 @@ impl F {
             F::SoftLight16 => AnsiColors::BrightYellow,
             F::SoftLightComp => AnsiColors::BrightYellow,
             F::SoftLightComp16 => AnsiColors::BrightYellow,
+
+            F::SalienceLight => AnsiColors::White,
+            F::SalienceLight16 => AnsiColors::BrightWhite,
+            F::SalienceLightBalanced => AnsiColors::BrightWhite,
+            F::SalienceLightBalanced16 => AnsiColors::BrightWhite,
+            F::SalienceLightDistributed => AnsiColors::BrightWhite,
+            F::SalienceLightDistributed16 => AnsiColors::BrightWhite,
+            F::SalienceLightLow => AnsiColors::BrightWhite,
+            F::SalienceLightLow16 => AnsiColors::BrightWhite,
         }
     }
 }
@@ -248,6 +379,15 @@ impl fmt::Display for F {
             F::HardDarkComp   => write!(f, "HardDarkComp"),
             F::HardDarkComp16 => write!(f, "HardDarkComp16"),
 
+            F::SalienceDark  => write!(f, "SalienceDark"),
+            F::SalienceDark16  => write!(f, "SalienceDark16"),
+            F::SalienceDarkBalanced  => write!(f, "SalienceDarkBalanced"),
+            F::SalienceDarkBalanced16  => write!(f, "SalienceDarkBalanced16"),
+            F::SalienceDarkDistributed  => write!(f, "SalienceDarkDistributed"),
+            F::SalienceDarkDistributed16  => write!(f, "SalienceDarkDistributed16"),
+            F::SalienceDarkLow  => write!(f, "SalienceDarkLow"),
+            F::SalienceDarkLow16  => write!(f, "SalienceDarkLow16"),
+
             F::Light       => write!(f, "Light"),
             F::Light16     => write!(f, "Light16"),
             F::LightComp   => write!(f, "LightComp"),
@@ -262,6 +402,15 @@ impl fmt::Display for F {
             F::SoftLight16     => write!(f, "SoftLight16"),
             F::SoftLightComp   => write!(f, "SoftLightComp"),
             F::SoftLightComp16 => write!(f, "SoftLightComp16"),
+
+            F::SalienceLight  => write!(f, "SalienceLight"),
+            F::SalienceLight16  => write!(f, "SalienceLight16"),
+            F::SalienceLightBalanced  => write!(f, "SalienceLightBalanced"),
+            F::SalienceLightBalanced16  => write!(f, "SalienceLightBalanced16"),
+            F::SalienceLightDistributed  => write!(f, "SalienceLightDistributed"),
+            F::SalienceLightDistributed16  => write!(f, "SalienceLightDistributed16"),
+            F::SalienceLightLow  => write!(f, "SalienceLightLow"),
+            F::SalienceLightLow16  => write!(f, "SalienceLightLow16"),
         }
     }
 }

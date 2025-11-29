@@ -45,7 +45,7 @@ The options below can be used after the subcommand, for example:
 .el .ds Aq '
 .SH OPTIONS
 .TP
-\fB\-I\fR, \fB\-\-ignore\-sequence\fR=\fIIGNORE_SEQUENCE\fR
+\fB\-I\fR, \fB\-\-ignore\-sequence\fR \fI<IGNORE_SEQUENCE>\fR
 Won\*(Aqt send these colors sequences
 .br
 
@@ -64,13 +64,13 @@ Skip templating process
 \fB\-u\fR, \fB\-\-update\-current\fR
 Only update the current terminal
 .TP
-\fB\-C\fR, \fB\-\-config\-file\fR=\fICONFIG_FILE\fR
+\fB\-C\fR, \fB\-\-config\-file\fR \fI<CONFIG_FILE>\fR
 Use CONFIG_FILE as the config file
 .TP
-\fB\-d\fR, \fB\-\-config\-dir\fR=\fICONFIG_DIR\fR
+\fB\-d\fR, \fB\-\-config\-dir\fR \fI<CONFIG_DIR>\fR
 Uses CONFIG_DIR as the config directory, which holds both `wallust.toml` and the templates files (if existent)
 .TP
-\fB\-\-templates\-dir\fR=\fITEMPLATES_DIR\fR
+\fB\-\-templates\-dir\fR \fI<TEMPLATES_DIR>\fR
 Uses TEMPLATE_DIR as the template directory
 .TP
 \fB\-N\fR, \fB\-\-no\-config\fR

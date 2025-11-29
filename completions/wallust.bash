@@ -450,11 +450,11 @@ _wallust() {
                     return 0
                     ;;
                 --colorspace)
-                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed lchansi" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed salience lchansi" -- "${cur}"))
                     return 0
                     ;;
                 -c)
-                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed lchansi" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "lab labmixed lch lchmixed salience lchansi" -- "${cur}"))
                     return 0
                     ;;
                 --fallback-generator)
@@ -466,11 +466,11 @@ _wallust() {
                     return 0
                     ;;
                 --palette)
-                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 ansidark ansidark16 harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 ansidark ansidark16 harddark harddark16 harddarkcomp harddarkcomp16 saliencedark saliencedark16 saliencedarkbalanced saliencedarkbalanced16 saliencedarkdistributed saliencedarkdistributed16 saliencedarklow saliencedarklow16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16 saliencelight saliencelight16 saliencelightbalanced saliencelightbalanced16 saliencelightdistributed saliencelightdistributed16 saliencelightlow saliencelightlow16" -- "${cur}"))
                     return 0
                     ;;
                 -p)
-                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 ansidark ansidark16 harddark harddark16 harddarkcomp harddarkcomp16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "dark dark16 darkcomp darkcomp16 ansidark ansidark16 harddark harddark16 harddarkcomp harddarkcomp16 saliencedark saliencedark16 saliencedarkbalanced saliencedarkbalanced16 saliencedarkdistributed saliencedarkdistributed16 saliencedarklow saliencedarklow16 light light16 lightcomp lightcomp16 softdark softdark16 softdarkcomp softdarkcomp16 softlight softlight16 softlightcomp softlightcomp16 saliencelight saliencelight16 saliencelightbalanced saliencelightbalanced16 saliencelightdistributed saliencelightdistributed16 saliencelightlow saliencelightlow16" -- "${cur}"))
                     return 0
                     ;;
                 --saturation)

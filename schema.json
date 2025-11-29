@@ -72,6 +72,17 @@
         }
       ]
     },
+    "preset": {
+      "description": "Which preset to use, see presets.rs",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Preset"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "saturation": {
       "description": "Maybe the user requires more vivid colors",
       "type": [
@@ -162,6 +173,11 @@
           "description": "CIE Lch variant that mixed on every similar color.",
           "type": "string",
           "const": "lchmixed"
+        },
+        {
+          "description": "Differentiates colors by visual **salience**. Salience refers to how much something (a\ncolor) pops out from a context (the background). Currently based on CIE Lch.",
+          "type": "string",
+          "const": "salience"
         },
         {
           "description": "Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray.\nThis works best with 'darkansi' palette, allowing a constant color order.",
@@ -274,6 +290,46 @@
           "const": "harddarkcomp16"
         },
         {
+          "description": "Dark with ascending salience, sampling the highest (default) gathered salient colors.",
+          "type": "string",
+          "const": "saliencedark"
+        },
+        {
+          "description": "SalienceDark but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencedark16"
+        },
+        {
+          "description": "SalienceDark, but sampling the median gathered salient colors. Use if you find all the\ncolors screaming your attention (all very salient) and you want to tone it down.",
+          "type": "string",
+          "const": "saliencedarkbalanced"
+        },
+        {
+          "description": "SalienceDarkBalanced but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencedarkbalanced16"
+        },
+        {
+          "description": "SalienceDark, but sampling distributed across gathered salient colors. Use if you find all\ncolors screaming your attention (all very salient) and you want to spread it out.",
+          "type": "string",
+          "const": "saliencedarkdistributed"
+        },
+        {
+          "description": "SalienceDarkDistributed but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencedarkdistributed16"
+        },
+        {
+          "description": "SalienceDark, but sampling the lowest gathered salient colors. Use if you find all colors\nscreaming your attention (all very salient) and you *really* want to tone it down.",
+          "type": "string",
+          "const": "saliencedarklow"
+        },
+        {
+          "description": "SalienceDarkLow but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencedarklow16"
+        },
+        {
           "description": "Light bg, dark fg",
           "type": "string",
           "const": "light"
@@ -332,7 +388,54 @@
           "description": "softlight with complementary colors with 16 colors",
           "type": "string",
           "const": "softlightcomp16"
+        },
+        {
+          "description": "Light with ascending salience, sampling the highest (default) gathered salient colors.",
+          "type": "string",
+          "const": "saliencelight"
+        },
+        {
+          "description": "SalienceLight but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencelight16"
+        },
+        {
+          "description": "SalienceLight, but sampling the median gathered salient colors. Use if you find all the\ncolors screaming your attention (all very salient) and you want to tone it down.",
+          "type": "string",
+          "const": "saliencelightbalanced"
+        },
+        {
+          "description": "SalienceLightBalanced but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencelightbalanced16"
+        },
+        {
+          "description": "SalienceLight, but sampling distributed across gathered salient colors. Use if you find all\ncolors screaming your attention (all very salient) and you want to spread it out.",
+          "type": "string",
+          "const": "saliencelightdistributed"
+        },
+        {
+          "description": "SalienceLightDistributed but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencelightdistributed16"
+        },
+        {
+          "description": "SalienceLight, but sampling the lowest gathered salient colors. Use if you find all colors\nscreaming your attention (all very salient) and you *really* want to tone it down.",
+          "type": "string",
+          "const": "saliencelightlow"
+        },
+        {
+          "description": "SalienceLightLow but uses the 16 colors trick.",
+          "type": "string",
+          "const": "saliencelightlow16"
         }
+      ]
+    },
+    "Preset": {
+      "description": "Presets overwrite, ignore, any backend, colorspace or palette defined. They take preference,\nthat is why they are optional.",
+      "type": "string",
+      "enum": [
+        "pywal"
       ]
     }
   }

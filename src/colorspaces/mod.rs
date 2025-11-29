@@ -19,8 +19,11 @@ use owo_colors::AnsiColors;
 use itertools::Itertools;
 pub use fallback_generator::FallbackGenerator;
 
+use salience::Salient;
+
 mod lab;
 mod lch;
+pub mod salience;
 mod lchansi;
 mod util;
 mod fallback_generator;
@@ -48,6 +51,7 @@ pub enum ColorOrder {
 /// rename [`ColorSpace`] so it's shorter to type
 use self::ColorSpace as Cs;
 
+
 /// Corresponds to the modules inside this module and `color_space` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]
@@ -71,6 +75,12 @@ pub enum ColorSpace {
     #[serde(alias = "lch-mixed")]
     LchMixed,
 
+    /// Differentiates colors by visual **salience**. Salience refers to how much something (a
+    /// color) pops out from a context (the background). Currently based on CIE Lch.
+    #[clap(alias = "salience", name = "salience")] //claps prefers this-name
+    #[serde(alias = "salience")]
+    Salience,
+
     /// Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray.
     /// This works best with 'darkansi' palette, allowing a constant color order.
     #[clap(alias = "lch-ansi", name = "lchansi")] //claps prefers this-name
@@ -93,6 +103,57 @@ impl<T: ColorTrait> Histo<T> {
 
     /// Creates a new histogram with a fixed count
     pub fn new_no_count(color: T) -> Self { Self { color, count: usize::MAX } }
+}
+
+impl<T: ColorTrait> From<HistoScore<T>> for Histo<T> {
+    fn from(hs: HistoScore<T>) -> Self {
+        Self { color: hs.histo.color, count: hs.histo.count }
+    }
+}
+
+/// Histogram wrapper with Scoring
+/// Used on salience
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct HistoScore<T: ColorTrait> {
+    histo: Histo<T>,
+    score: f32,
+}
+
+impl<T: ColorTrait> HistoScore<T> {
+    /// Creates a new histoscore
+    pub fn new(histo:Histo<T>, score: f32) -> Self { Self { histo, score } }
+}
+
+impl<T: ColorTrait> From<Histo<T>> for HistoScore<T> {
+    fn from(h: Histo<T>) -> Self {
+        Self { histo: h, score: 0.0 }
+    }
+}
+
+/// Return a histogram sorted asc on score (count and salience) based on bg
+pub fn sort_histogram_by_score<T: ColorTrait + Salient>(histo: Vec<Histo<T>>, bg: T) -> Vec<Histo<T>> {
+    let mut histoscore: Vec<HistoScore<T>> = histo.into_iter().map(HistoScore::from).collect();
+
+    // Some kind of constant I pulled from thin air to be used in a formula.
+    //
+    // The formula is that given colors A and B, where B is half as
+    // salient as A, we need 2^cnt_sclr count for B to overpower A.
+    let cnt_sclr = 4.0;
+
+    // Factor to adjust salience to score
+    // Salience seems to generally scale from 0-100, with slightly preceptable
+    // at 5. In other words, with a black background, a pure white color would
+    // yield salience 100.
+    let sal_factor = 1.0 / 20.0 * 1.5;
+
+    histoscore.iter_mut().for_each(|hs| {
+        let score_log_scaled = (hs.histo.count as f32).powf(1.0/cnt_sclr);
+        let col = hs.histo.color;
+        hs.score = score_log_scaled * (1.0 + col.improved_salience(&bg)*sal_factor);
+    });
+    histoscore.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Greater));
+
+    histoscore.into_iter().map(Histo::from).collect()
 }
 
 /// This a multithreaded function to look up for the best threshold that has the best palette color generation.
@@ -144,13 +205,13 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
         // we go with a step of 2 because we are spawing 2 threads per loop
         // we go from 30 (threshold) to 2 (the minimun
         let th1 = idx[i];
-        let myread1 = s.spawn(move || C::init(bytes, th1, mix));
+        let myread1 = s.spawn(move || C::init(bytes, th1, mix, ord));
 
         let th2 = idx[i+1];
-        let myread2 = s.spawn(move || C::init(bytes, th2, mix));
+        let myread2 = s.spawn(move || C::init(bytes, th2, mix, ord));
 
         let th3 = idx[i+2];
-        let myread3 = s.spawn(move || C::init(bytes, th3, mix));
+        let myread3 = s.spawn(move || C::init(bytes, th3, mix, ord));
 
 
         // since we go by a step of 2, check the threads that already have runed
@@ -162,7 +223,11 @@ pub fn run_dynamic<C: BuildHisto<U>, U: ColorTrait + std::marker::Send> (
             // There are colors! This threshold works.
             Some(s) => {
 
-                let s = if dedup { C::dedup_cols(s, threshold) } else { s };
+                let s = if dedup {
+                    let s = C::dedup_cols(s, threshold, ord);
+                    let s = C::process_deduped(s, ord, bytes);
+                    C::clip_cols(s, ord)
+                } else { s };
                 let len = s.len();
                 // enough colors, end
                 // we handle here before deduping in case is not needed
@@ -253,10 +318,12 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
 
     let mut warn = false;
 
-    let ret = match C::init(bytes, threshold, mix) {
+    let ret = match C::init(bytes, threshold, mix, ord) {
         Some(s) => {
             let s = if dedup {
-                C::dedup_cols(s, threshold)
+                let s = C::dedup_cols(s, threshold, ord);
+                let s = C::process_deduped(s, ord, bytes);
+                C::clip_cols(s, ord)
             } else {
                 s
             };
@@ -313,6 +380,7 @@ impl ColorSpace {
             Cs::Lch => run_once::<lch::Lch, lch::Spec>,
             Cs::LchMixed => run_once::<lch::Lch, lch::Spec>,
             Cs::LchAnsi => run_once::<lchansi::LchAnsi, lch::Spec>,
+            Cs::Salience => run_once::<salience::Salience, salience::Spec>,
         };
 
         f(bytes_rgb8, threshold, gen, mix, ord, dedup)
@@ -330,6 +398,7 @@ impl ColorSpace {
             Cs::Lch => run_dynamic::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
             Cs::LchMixed => run_dynamic::<lch::Lch, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
             Cs::LchAnsi => run_dynamic::<lchansi::LchAnsi, lch::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
+            Cs::Salience => run_dynamic::<salience::Salience, salience::Spec>(bytes_rgb8, threshold, gen, mix, ord, dedup),
         }
     }
 
@@ -337,14 +406,14 @@ impl ColorSpace {
     pub fn mixed(&self) -> bool {
         match self {
             Cs::LabMixed | Cs::LchMixed  => true,
-            Cs::Lch | Cs::Lab | Cs::LchAnsi => false,
+            Cs::Lch | Cs::Lab | Cs::Salience | Cs::LchAnsi => false,
         }
     }
 
     /// Only LCHANSI requires to preserve it's order, no deduping!
     pub fn to_dedup(&self) -> bool {
         match self {
-            Cs::LabMixed | Cs::LchMixed | Cs::Lch | Cs::Lab => true,
+            Cs::LabMixed | Cs::LchMixed | Cs::Lch | Cs::Salience | Cs::Lab => true,
             Cs::LchAnsi => false,
         }
     }
@@ -356,6 +425,7 @@ impl ColorSpace {
             Cs::LabMixed => AnsiColors::Green,
             Cs::Lch => AnsiColors::Magenta,
             Cs::LchMixed => AnsiColors::Magenta,
+            Cs::Salience => AnsiColors::White,
             Cs::LchAnsi => AnsiColors::Cyan,
         }
     }
@@ -391,7 +461,6 @@ impl<T: ColorTrait> From<T> for Myrgb {
     }
 }
 
-
 /// Simple trait that groups all avaliable colorspaces
 // TODO meassure the required traits.
 pub trait ColorTrait:
@@ -409,7 +478,7 @@ pub trait ColorTrait:
 
 pub trait BuildHisto<C: ColorTrait> {
     /// If this fails, then there are less than 2 colors.
-    fn init(bytes: &[u8], threshold: u8, mix: bool) -> Option<Vec<Histo<C>>> {
+    fn init(bytes: &[u8], threshold: u8, mix: bool, _cs: &ColorOrder) -> Option<Vec<Histo<C>>> {
         let b = Self::read(bytes);
         //let b = Self::additional(self, b);
         let ret = Self::gather_cols(b, threshold, mix);
@@ -465,7 +534,7 @@ pub trait BuildHisto<C: ColorTrait> {
     ///    similar colors, not resulting in an stable palette. By using these two methods below, we
     ///    'asure' (lazyly) to have no duplicates, and thus, the benefit of 'more colors' won't
     ///    imply 'bad scheme'.
-    fn dedup_cols(histo: Vec<Histo<C>>, threshold: u8) -> Vec<Histo<C>> {
+    fn dedup_cols(histo: Vec<Histo<C>>, threshold: u8, _cs: &ColorOrder) -> Vec<Histo<C>> {
         let mut histo = histo;
 
         // histo.sort_by_key(|e| (e.color.l as u32, e.color.a as i32, e.color.b as i32));
@@ -481,8 +550,25 @@ pub trait BuildHisto<C: ColorTrait> {
             .dedup_by_with_count(|a, b| a.color.col_diff(&b.color, threshold))
             .for_each(|x| x.1.count += x.0);
 
+        histo
+    }
+
+    /// Intermediary between dedup and truncating colors, further process colors based on provided context.
+    /// Currently only has an effect on Salience colorspace.
+    fn process_deduped(histo: Vec<Histo<C>>, _ord: &ColorOrder, _bytes: &[u8])-> Vec<Histo<C>> {
+        let mut histo = histo;
+
         // sort vec by count, most used colors first
         histo.sort_by(|a, b| b.count.cmp(&a.count));
+
+        histo
+    }
+
+    /// Originally, truncating colors were couple with deduplicating, but
+    /// sometimes we want to further process colors before truncating. We
+    /// separate the two to allow for another step in the pipeline.
+    fn clip_cols(histo: Vec<Histo<C>>, _ord: &ColorOrder)-> Vec<Histo<C>> {
+        let mut histo = histo;
 
         // remove excess elements
         histo.truncate(MAX_COLS.into());
@@ -564,6 +650,7 @@ impl fmt::Display for Cs {
             Cs::LabMixed => write!(f, "LabMixed"),
             Cs::Lch => write!(f, "Lch"),
             Cs::LchMixed => write!(f, "LchMixed"),
+            Cs::Salience => write!(f, "Salience"),
             Cs::LchAnsi => write!(f, "LchAnsi"),
         }
     }

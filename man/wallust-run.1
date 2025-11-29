@@ -13,10 +13,10 @@ wallust\-run \- Generate a palette from an image
 .el .ds Aq '
 .SH OPTIONS
 .TP
-\fB\-a\fR, \fB\-\-alpha\fR=\fIALPHA\fR
+\fB\-a\fR, \fB\-\-alpha\fR \fI<ALPHA>\fR
 Alpha *template variable* value, used only for templating (default is 100)
 .TP
-\fB\-b\fR, \fB\-\-backend\fR=\fIBACKEND\fR
+\fB\-b\fR, \fB\-\-backend\fR \fI<BACKEND>\fR
 Choose which backend to use (overwrites config)
 .br
 
@@ -37,7 +37,7 @@ fastresize: A much faster resize algo that uses SIMD. For some reason it fails o
 kmeans: Kmeans is an algo that divides and picks pixels all around the image, giving a more diverse look
 .RE
 .TP
-\fB\-c\fR, \fB\-\-colorspace\fR=\fICOLORSPACE\fR
+\fB\-c\fR, \fB\-\-colorspace\fR \fI<COLORSPACE>\fR
 Choose which colorspace to use (overwrites config)
 .br
 
@@ -53,10 +53,12 @@ lch: CIE Lch, you can understand this color space like LAB but with chrome and h
 .IP \(bu 2
 lchmixed: CIE Lch variant that mixed on every similar color
 .IP \(bu 2
+salience: Differentiates colors by visual **salience**. Salience refers to how much something (a color) pops out from a context (the background). Currently based on CIE Lch
+.IP \(bu 2
 lchansi: Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray. This works best with \*(Aqdarkansi\*(Aq palette, allowing a constant color order
 .RE
 .TP
-\fB\-f\fR, \fB\-\-fallback\-generator\fR=\fIFALLBACK_GENERATOR\fR
+\fB\-f\fR, \fB\-\-fallback\-generator\fR \fI<FALLBACK_GENERATOR>\fR
 Choose which fallback generation method to use (overwrites config)
 .br
 
@@ -75,7 +77,7 @@ Ensure a readable contrast by checking colors in reference to the background (ov
 \fB\-n\fR, \fB\-\-no\-cache\fR
 Don\*(Aqt cache the results
 .TP
-\fB\-p\fR, \fB\-\-palette\fR=\fIPALETTE\fR
+\fB\-p\fR, \fB\-\-palette\fR \fI<PALETTE>\fR
 Choose which palette to use (overwrites config)
 .br
 
@@ -103,6 +105,22 @@ harddarkcomp: complementary colors variation of harddark scheme
 .IP \(bu 2
 harddarkcomp16: complementary colors variation of harddark scheme
 .IP \(bu 2
+saliencedark: Dark with ascending salience, sampling the highest (default) gathered salient colors
+.IP \(bu 2
+saliencedark16: SalienceDark but uses the 16 colors trick
+.IP \(bu 2
+saliencedarkbalanced: SalienceDark, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down
+.IP \(bu 2
+saliencedarkbalanced16: SalienceDarkBalanced but uses the 16 colors trick
+.IP \(bu 2
+saliencedarkdistributed: SalienceDark, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out
+.IP \(bu 2
+saliencedarkdistributed16: SalienceDarkDistributed but uses the 16 colors trick
+.IP \(bu 2
+saliencedarklow: SalienceDark, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down
+.IP \(bu 2
+saliencedarklow16: SalienceDarkLow but uses the 16 colors trick
+.IP \(bu 2
 light: Light bg, dark fg
 .IP \(bu 2
 light16: Same as `light` but uses the 16 color trick
@@ -126,12 +144,28 @@ softlight16: softlight with 16 color variation
 softlightcomp: softlight with complementary colors
 .IP \(bu 2
 softlightcomp16: softlight with complementary colors with 16 colors
+.IP \(bu 2
+saliencelight: Light with ascending salience, sampling the highest (default) gathered salient colors
+.IP \(bu 2
+saliencelight16: SalienceLight but uses the 16 colors trick
+.IP \(bu 2
+saliencelightbalanced: SalienceLight, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down
+.IP \(bu 2
+saliencelightbalanced16: SalienceLightBalanced but uses the 16 colors trick
+.IP \(bu 2
+saliencelightdistributed: SalienceLight, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out
+.IP \(bu 2
+saliencelightdistributed16: SalienceLightDistributed but uses the 16 colors trick
+.IP \(bu 2
+saliencelightlow: SalienceLight, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down
+.IP \(bu 2
+saliencelightlow16: SalienceLightLow but uses the 16 colors trick
 .RE
 .TP
-\fB\-\-saturation\fR=\fISATURATION\fR
+\fB\-\-saturation\fR \fI<SATURATION>\fR
 Add saturation from 1% to 100% (overwrites config)
 .TP
-\fB\-t\fR, \fB\-\-threshold\fR=\fITHRESHOLD\fR
+\fB\-t\fR, \fB\-\-threshold\fR \fI<THRESHOLD>\fR
 Choose a custom threshold, between 1 and 100 (overwrites config)
 .TP
 \fB\-\-dynamic\-threshold\fR

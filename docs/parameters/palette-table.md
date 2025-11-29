@@ -10,6 +10,14 @@
 **HardDark16** | Harddark with 16 color variation
 **HardDarkComp** | complementary colors variation of harddark scheme
 **HardDarkComp16** | complementary colors variation of harddark scheme
+**SalienceDark** | Dark with ascending salience, sampling the highest (default) gathered salient colors.
+**SalienceDark16** | SalienceDark but uses the 16 colors trick.
+**SalienceDarkBalanced** | SalienceDark, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down.
+**SalienceDarkBalanced16** | SalienceDarkBalanced but uses the 16 colors trick.
+**SalienceDarkDistributed** | SalienceDark, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out.
+**SalienceDarkDistributed16** | SalienceDarkDistributed but uses the 16 colors trick.
+**SalienceDarkLow** | SalienceDark, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down.
+**SalienceDarkLow16** | SalienceDarkLow but uses the 16 colors trick.
 **Light** | Light bg, dark fg
 **Light16** | Same as `light` but uses the 16 color trick
 **LightComp** | complementary colors variation of light
@@ -22,3 +30,11 @@
 **SoftLight16** | softlight with 16 color variation
 **SoftLightComp** | softlight with complementary colors
 **SoftLightComp16** | softlight with complementary colors with 16 colors
+**SalienceLight** | Light with ascending salience, sampling the highest (default) gathered salient colors.
+**SalienceLight16** | SalienceLight but uses the 16 colors trick.
+**SalienceLightBalanced** | SalienceLight, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down.
+**SalienceLightBalanced16** | SalienceLightBalanced but uses the 16 colors trick.
+**SalienceLightDistributed** | SalienceLight, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out.
+**SalienceLightDistributed16** | SalienceLightDistributed but uses the 16 colors trick.
+**SalienceLightLow** | SalienceLight, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down.
+**SalienceLightLow16** | SalienceLightLow but uses the 16 colors trick.

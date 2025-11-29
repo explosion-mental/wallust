@@ -71,6 +71,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand run" -s c -l colorspace 
 labmixed\t'Variant of `lab` that mixes the colors gathered, if not enough colors it fallbacks to usual lab (not recommended in small images)'
 lch\t'CIE Lch, you can understand this color space like LAB but with chrome and hue added. Could help when sorting'
 lchmixed\t'CIE Lch variant that mixed on every similar color'
+salience\t'Differentiates colors by visual **salience**. Salience refers to how much something (a color) pops out from a context (the background). Currently based on CIE Lch'
 lchansi\t'Variant of Lch which preserves 8 colors: black, red, green, yellow, blue, magenta, cyan and gray. This works best with \'darkansi\' palette, allowing a constant color order'"
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s f -l fallback-generator -d 'Choose which fallback generation method to use (overwrites config)' -r -f -a "interpolate\t'uses [`interpolate`]'
 complementary\t'uses [`complementary`]'"
@@ -84,6 +85,14 @@ harddark\t'Same as `dark` with hard hue colors'
 harddark16\t'Harddark with 16 color variation'
 harddarkcomp\t'complementary colors variation of harddark scheme'
 harddarkcomp16\t'complementary colors variation of harddark scheme'
+saliencedark\t'Dark with ascending salience, sampling the highest (default) gathered salient colors'
+saliencedark16\t'SalienceDark but uses the 16 colors trick'
+saliencedarkbalanced\t'SalienceDark, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down'
+saliencedarkbalanced16\t'SalienceDarkBalanced but uses the 16 colors trick'
+saliencedarkdistributed\t'SalienceDark, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out'
+saliencedarkdistributed16\t'SalienceDarkDistributed but uses the 16 colors trick'
+saliencedarklow\t'SalienceDark, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down'
+saliencedarklow16\t'SalienceDarkLow but uses the 16 colors trick'
 light\t'Light bg, dark fg'
 light16\t'Same as `light` but uses the 16 color trick'
 lightcomp\t'complementary colors variation of light'
@@ -95,7 +104,15 @@ softdarkcomp16\t'complementary variation for softdark with the 16 color variatio
 softlight\t'Light with soft pastel colors, counterpart of `harddark`'
 softlight16\t'softlight with 16 color variation'
 softlightcomp\t'softlight with complementary colors'
-softlightcomp16\t'softlight with complementary colors with 16 colors'"
+softlightcomp16\t'softlight with complementary colors with 16 colors'
+saliencelight\t'Light with ascending salience, sampling the highest (default) gathered salient colors'
+saliencelight16\t'SalienceLight but uses the 16 colors trick'
+saliencelightbalanced\t'SalienceLight, but sampling the median gathered salient colors. Use if you find all the colors screaming your attention (all very salient) and you want to tone it down'
+saliencelightbalanced16\t'SalienceLightBalanced but uses the 16 colors trick'
+saliencelightdistributed\t'SalienceLight, but sampling distributed across gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you want to spread it out'
+saliencelightdistributed16\t'SalienceLightDistributed but uses the 16 colors trick'
+saliencelightlow\t'SalienceLight, but sampling the lowest gathered salient colors. Use if you find all colors screaming your attention (all very salient) and you *really* want to tone it down'
+saliencelightlow16\t'SalienceLightLow but uses the 16 colors trick'"
 complete -c wallust -n "__fish_wallust_using_subcommand run" -l saturation -d 'Add saturation from 1% to 100% (overwrites config)' -r
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s t -l threshold -d 'Choose a custom threshold, between 1 and 100 (overwrites config)' -r
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s I -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "background\t''
