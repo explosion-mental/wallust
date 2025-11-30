@@ -348,10 +348,7 @@ pub fn run_once<C: BuildHisto<U>, U: ColorTrait>(
         None => None,
     };
 
-    let ret = match ret {
-        None => return None,
-        Some(s) => s,
-    };
+    let ret = ret?;
 
     let orig = C::to_rgb(&ret);
     let top  = C::sort_col(ret, ord);

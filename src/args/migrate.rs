@@ -16,7 +16,7 @@ pub fn migrate(conf: &Config) -> Result<()> {
         return Ok(());
     }
 
-    let contents = std::fs::read_to_string(&file)?;
+    let contents = std::fs::read_to_string(file)?;
     let mut doc = contents.parse::<DocumentMut>()?;
 
     // true means quit
@@ -95,7 +95,7 @@ pub fn migrate(conf: &Config) -> Result<()> {
     let new = if !filter_is_empty { new.replace("filter", "palette") } else { new };
 
     // renaeme the original config
-    std::fs::rename(&file, &old)?;
-    std::fs::write(&file, new)?;
+    std::fs::rename(file, &old)?;
+    std::fs::write(file, new)?;
     Ok(())
 }

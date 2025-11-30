@@ -93,10 +93,10 @@ fn has_im() -> Result<IMcmd> {
     let c = "convert";
 
     // .output() is used to 'eat' the output, instead of .spawn()
-    match Command::new(&m).output() {
+    match Command::new(m).output() {
         Ok(_) => Ok(IMcmd::Magick),
         Err(e) => {
-            match Command::new(&c).output() {
+            match Command::new(c).output() {
                 Ok(_) => Ok(IMcmd::Convert),
                 Err(e2) => Err(anyhow::anyhow!("Neither `magick` nor `convert` is invokable:\n{e} {e2}")),
             }

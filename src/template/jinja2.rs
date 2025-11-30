@@ -53,7 +53,7 @@ impl From<&TemplateFields<'_>> for minijinja::Value {
     fn from(values: &TemplateFields<'_>) -> Self {
         let c = &values.colors;
         let alpha_dec = f32::from(values.alpha) / 100.0;
-        let alpha_dec = if values.alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
+        let alpha_dec = if values.alpha.is_multiple_of(10) { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
         let v = minijinja::Value::from_serialize(c);
 
         context! {

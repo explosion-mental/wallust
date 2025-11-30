@@ -94,7 +94,7 @@ impl TemplateFields<'_> {
         let col = self.colors;
         let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
         let alpha_dec = f32::from(alpha) / 100.0;
-        let alpha_dec = if alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
+        let alpha_dec = if alpha.is_multiple_of(10) { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
 
         map.insert("wallpaper", self.image_path.into()); //full path to the image
         map.insert("alpha", alpha.to_string());
@@ -190,7 +190,7 @@ pub fn write_template(config_dir: &Path, templates_header: &HashMap<String, Fiel
                     let relative = f.strip_prefix(&path).expect("strip_prefix() failed"); //XXX
                     let target_path = target_path.join(relative);
 
-                    let render = if pywal { values.render_pywal(&f, &target_path) } else { values.render_jinja(&mut jinjaenv, &f, &target_path) };
+                    let render = if pywal { values.render_pywal(f, &target_path) } else { values.render_jinja(&mut jinjaenv, f, &target_path) };
                     if let Err(err) = render {
                         eprintln!("[{warn}] {name}: {err}");
                         return;

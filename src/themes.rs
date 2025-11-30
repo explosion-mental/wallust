@@ -106,7 +106,7 @@ pub fn search_theme_or_cs(name: &str, quiet: bool, confpath: &Path, schemes: Opt
         anyhow::bail!("Should be unreacheable");
     } else if count == 0 { // #5
         match built_in_theme(name, quiet) {
-            Some(s) => return Ok((WalStr::Theme(name.to_owned()), s)),
+            Some(s) => Ok((WalStr::Theme(name.to_owned()), s)),
             None => anyhow::bail!("No matches for '{name}'.") //it's not a built in theme
         }
     } else { // #4
@@ -168,7 +168,7 @@ pub fn try_all_schemes(file: &Path, quiet: bool) -> Result<Colors> {
     //no theme found
     let (themes, last) = a.split_at(a.len() - 1);
     let themes = themes.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ");
-    anyhow::bail!("{} was not in the {themes} or {} format.", file.display(), last[0].to_string())
+    anyhow::bail!("{} was not in the {themes} or {} format.", file.display(), last[0])
 }
 
 #[cfg(feature = "themes")]

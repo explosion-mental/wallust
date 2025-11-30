@@ -27,7 +27,7 @@ fn get_func(fname: &str, value: &str, alpha: u8) -> Result<String, PywalTemplate
     let c: Myrgb = c.into();
     let alpha_hex = alpha_hexa(alpha as usize).expect("CANNOT OVERFLOW, validation with clap 0..=100");
     let alpha_dec = f32::from(alpha) / 100.0;
-    let alpha_dec_display = if alpha % 10 == 0 { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
+    let alpha_dec_display = if alpha.is_multiple_of(10) { format!("{alpha_dec:.1}") } else { format!("{alpha_dec:.2}") };
 
     let ret = match fname {
         "rgb" => c.rgb(), //.rgb output `235,235,235`
