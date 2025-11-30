@@ -83,6 +83,7 @@ pub struct Salience {
     ord: ColorOrder,
     mode: DiffMode,
     skip: bool,
+    view: OnceLock<BakedParameters<StaticWp<D65>, f32>>,
 }
 
 /// Constraints for a color to be accepted and gathered
@@ -119,7 +120,7 @@ pub const DARKEST_COL: Spec = Spec::new_const(DARKEST, MIN_COLORFULNESS, Cam16Hu
 pub const LIGHTEST_COL: Spec = Spec::new_const(LIGHTEST, MIN_COLORFULNESS, Cam16Hue::new(30.0));
 
 
-pub static CAM16_VIEW: OnceLock<BakedParameters<StaticWp<D65>, f32>> = OnceLock::new();
+// pub static CAM16_VIEW: OnceLock<BakedParameters<StaticWp<D65>, f32>> = OnceLock::new();
 
 impl Difference for Spec {
     fn diff(&self, a: &Self, threshold: f32, mode: &DiffMode) -> bool {
@@ -158,17 +159,18 @@ impl Build for Salience {
     fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
         Self {
             histo: vec![],
+            view: OnceLock::new(),
             threshold, ord, mode, skip,
         }
     }
 
     fn read_bytes(&mut self, bytes: &[u8]) {
-        if CAM16_VIEW.set(init_view(&self.ord)).is_err() {}; // ignore if already set
+        if self.view.set(init_view(&self.ord)).is_err() {}; // ignore if already set
         let s: &[Srgb<u8>] = bytes.components_as();
         let colors = s
             .iter()
             .map(|x| {
-                let to = Cam16::from_xyz(x.into_linear().into_color(), *CAM16_VIEW.get().expect("SHOULD BE SET"));
+                let to = Cam16::from_xyz(x.into_linear().into_color(), *self.view.get().expect("SHOULD BE SET"));
                 Cam16UcsJmh::from_color(to)
             })
             .collect::<Specs>();
