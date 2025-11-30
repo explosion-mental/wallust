@@ -228,6 +228,16 @@ impl Myrgb {
 }
 
 impl Colors {
+    /// Output only the colors separated by new lines
+    pub fn output_nl(&self) {
+        let mut s = String::with_capacity((6+1+1)*16); //rrggbb + # + \n
+        for c in self.into_iter().take(16) {
+            s.push_str(&c.to_string());
+            s.push('\n');
+        }
+        print!("{s}");
+    }
+
     /// Print the scheme out
     pub fn print(&self) {
         print!(

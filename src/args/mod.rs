@@ -164,6 +164,11 @@ pub struct WallustArgs {
     /// Save the generated scheme inside the colorscheme dir
     #[arg(long)]
     pub save_scheme: bool,
+
+    /// Output the palette from color 0 to 15 separated by a new line.
+    /// (Useful for scripting)
+    #[arg(long)]
+    pub print_scheme: bool,
 }
 
 /// Pywal cli flags arguments. This is to create a drop in replacement, since many apps rely on the
@@ -272,6 +277,7 @@ impl From<PywalArgs> for WallustArgs {
             threshold: None,
             file: p.file.expect("ALWAYS SOME, CHECKED ON MAIN"),
             save_scheme: false,
+            print_scheme: false,
         }
     }
 }

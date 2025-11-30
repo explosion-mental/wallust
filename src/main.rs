@@ -109,6 +109,9 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     let info = "I".blue();
     let info = info.bold();
 
+    // When to be quiet. --print-scheme requires no other output.
+    let quiet = g.quiet || cli.print_scheme;
+
     // apply --backend or --filter or --colorspace
     conf.customs_cli(cli);
 
@@ -119,7 +122,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     // let mut cached_data = cache::Cache::new(&cli.file, conf, cache_path)?;
 
     // print some info that's gonna be used
-    if !g.quiet {
+    if !quiet {
         let f = match cli.file.file_name() {
             Some(s) => s.to_string_lossy(),
             None => cli.file.to_string_lossy(),
@@ -129,18 +132,18 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     }
 
     // Whether to load data from cache or to generate one from scratch
-    if !g.quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
+    if !quiet && cli.overwrite_cache { println!("[{info}] {c}: Overwriting cache, if present, `-w` flag provided.", c = "cache".magenta().bold()); }
 
-    let colors = gen_colors(&cli.file, conf, cli.dynamic_threshold, cache_path, cli.no_cache, g.quiet, cli.overwrite_cache)?;
+    let colors = gen_colors(&cli.file, conf, cli.dynamic_threshold, cache_path, cli.no_cache, quiet, cli.overwrite_cache)?;
 
-    if !g.quiet { colors.print(); }
+    if !quiet { colors.print(); }
     g.set_seq(&colors, cache_path)?;
     g.update_cur(&colors)?;
-    if !g.skip_templates { conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, g.quiet)?; }
+    if !g.skip_templates { conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, quiet)?; }
 
     // Cache colors
-    if !g.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
-    if !cli.no_cache && !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
+    if !quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
+    if !cli.no_cache && !quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
     if cli.save_scheme {
         let f = match cli.file.file_prefix() {
             Some(s) => s.to_string_lossy(),
@@ -148,9 +151,11 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
         };
         let p = conf.dir.join("colorschemes").join(format!("{f}.json"));
         cache::write_json(p, &colors, &conf.dir.display().to_string(), true)?;
-        if !g.quiet { println!("[{info}] {} into colorscheme directory.", "Saving Scheme".bold()); }
+        if !quiet { println!("[{info}] {} into colorscheme directory.", "Saving Scheme".bold()); }
     }
 
-    if !g.quiet { colors.done(); }
+    if cli.print_scheme { colors.output_nl(); }
+
+    if !quiet { colors.done(); }
     Ok(())
 }
