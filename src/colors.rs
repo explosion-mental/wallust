@@ -351,7 +351,8 @@ impl Colors {
     /// amount is between 0. and 1
     pub fn saturate_colors(&mut self, amount: f32) {
         if amount > 1.0 && amount.is_sign_negative() { return }
-        [
+
+        let _ = [
             //&mut self.color0,
             &mut self.color1,
             &mut self.color2,

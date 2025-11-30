@@ -6,7 +6,6 @@ use std::io::Write;
 use palette::Srgb;
 use anyhow::Result;
 use owo_colors::OwoColorize;
-use serde::{Serialize, Deserialize};
 
 use crate::colors::SrgbString;
 use crate::colors::Colors;
@@ -150,10 +149,13 @@ fn openbsd_ttys() -> Result<Vec<Result<PathBuf>>> {
 }
 
 
+/// Windows custom required propierties
+#[cfg(target_family = "windows")]
+mod win {
+use serde::{Serialize, Deserialize};
 const SCHEME_NAME: &str = "wallust";
 
 /// searches for `settings.json` file to change the scheme in windows cli
-#[cfg(target_family = "windows")]
 pub fn windows_term(cols: &Colors) -> Result<()> {
     let Some(dir) = dirs::data_local_dir() else {
         anyhow::bail!("Couldn't get %LOCALAPPDATA%, quitting..");
@@ -283,4 +285,6 @@ struct WinScheme {
     pub bright_red: String,
     pub bright_white: String,
     pub bright_yellow: String,
+}
+
 }
