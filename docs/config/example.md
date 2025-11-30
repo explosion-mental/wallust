@@ -29,6 +29,6 @@ res.src = "xres"
 res.dst = "~/.config/Xresources"
 
 # old times, good times. Here I put old pywal templates.
-# NOTE THAT BOTH scr AND dst ARE DIRECTORIES!
+# NOTE THAT BOTH src AND dst ARE DIRECTORIES!
 pywal = { src = "templates/", dst = '~/.cache/wal/', pywal = true }
 ```
