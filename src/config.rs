@@ -55,6 +55,10 @@ pub struct Config {
     /// Enables the use of enviromental variables in the targets template paths
     pub env_vars: Option<bool>,
 
+    /// Entry for 'hooks', which summon external commands that are used along side wallust
+    // TODO maybe add some paths or even filter variables to this?
+    pub hooks: Option<HashMap<String, String>>,
+
     #[deprecated]
     /// TOML: array of tables for "template" and "target"
     /// This is here only for `wallust migrate`
@@ -130,6 +134,9 @@ pub struct PrettyConfig {
 
     /// Enables the use of enviromental variables in the targets template paths
     pub env_vars: Option<bool>,
+
+    /// Entry for 'hooks', which summon external commands that are used along side wallust
+    pub hooks: Option<HashMap<String, String>>,
 }
 
 
@@ -363,6 +370,29 @@ impl Config {
         }
     }
 
+
+    /// Run every hook
+    pub fn run_hooks(&self, quiet: bool) {
+        let hooks = match &self.hooks {
+            None => return,
+            Some(s) => s,
+        };
+        let init = format!("[{info}] {t}: ", info = "I".blue().bold(), t = "hooks".blue().bold());
+        if !quiet { println!("{init}Running hooks.."); }
+
+
+        for (k, v) in hooks {
+            let c: Vec<_> = v.split_whitespace().collect();
+            // XXX if we are allowing code exec by the user, there shouldn't be a diff from using
+            // sh -c or directly the cmd..
+            // match Command::new("sh").arg("-c").arg(v).spawn() {
+            match Command::new(c[0]).args(&c[1..c.len()]).arg(v).spawn() {
+                Ok(_) => println!("{}: {}", k.italic(), "ok!".green().bold()),
+                Err(e) => eprintln!("{}: Couldn't run '{k}': {e}", k.italic().red()),
+            }
+        }
+    }
+
     /// thershold color for owo_colors
     pub fn threshold_col(&self) -> AnsiColors {
         match self.true_th {
@@ -375,6 +405,8 @@ impl Config {
         }
     }
 }
+
+use std::process::Command;
 
 impl std::fmt::Display for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -464,6 +496,7 @@ impl From<PrettyConfig> for Config {
             saturation: value.saturation,
             templates: value.templates,
             env_vars: value.env_vars,
+            hooks: value.hooks,
             ..Self::default()
         }
     }

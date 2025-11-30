@@ -55,6 +55,10 @@ pub struct Globals {
     /// Won't read the config and avoids creating it's config path.
     #[arg(global = true, short = 'N', long, conflicts_with = "config_file", conflicts_with = "config_dir")]
     pub no_config: bool,
+
+    /// Ignore all hooks
+    #[arg(global = true, long)]
+    pub no_hooks: bool,
 }
 
 #[derive(Debug, Parser)]

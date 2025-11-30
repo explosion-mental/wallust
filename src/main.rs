@@ -140,6 +140,7 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     g.set_seq(&colors, cache_path)?;
     g.update_cur(&colors)?;
     if !g.skip_templates { conf.write_entry(&WalStr::Path(cli.file.clone()), &colors, quiet)?; }
+    if !g.no_hooks { conf.run_hooks(quiet); }
 
     // Cache colors
     if !quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
