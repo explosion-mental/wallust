@@ -13,6 +13,8 @@ use self::luminance::Luminance;
 mod salience;
 mod luminance;
 
+/// TODO..
+pub const MAX_COLS: u8 = 16;
 
 // pub enum Histos {
 //     Salience(Vec<salience::Histo>),

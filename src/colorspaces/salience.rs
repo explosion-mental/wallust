@@ -132,7 +132,7 @@ impl BuildHisto<Spec> for Salience {
     /// the score.
     fn process_deduped(histo: Vec<Histo<Spec>>, ord: &ColorOrder, _bytes: &[u8])-> Vec<Histo<Spec>> {
         // Make the most prominent (most count) color as the background
-        // i.e. if blue themed wallpaper, then blue theme!
+        // i.e. if blue self.themed wallpaper, then blue theme!
         //
         // We do special handling later to ensure that even after truncating,
         // this color is registered as the lowest, which will then be picked
@@ -170,7 +170,7 @@ impl BuildHisto<Spec> for Salience {
         // colorfulness.
         //
         // Colorfulness at low lightness is a bit wonky, as it is only
-        // salient-accuracte for specific hues 
+        // salient-accuracte for specific hues
 
         let lights = histo.iter().map(|c| c.lightness).collect::<Vec<_>>();
         let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
@@ -463,12 +463,12 @@ pub fn init_view(ord: &ColorOrder) -> BakedParameters<StaticWp<D65>, f32> {
 /// out (salience).
 ///
 /// DeltaE scales salience linearly to reality.
-/// 
+///
 /// However, this does not take into account the psychological compression.
 /// Higher salience actually have diminishing effects. In other words, once
 /// something is different, there isn't much beyond being different.
 ///
-/// ImprovedDeltaE takes compression into account to shape the scaling so 
+/// ImprovedDeltaE takes compression into account to shape the scaling so
 /// salience maps linearly to human perception.
 ///
 /// salience and improve_salience use the appropriate DeltaE.
