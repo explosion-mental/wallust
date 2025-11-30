@@ -382,11 +382,7 @@ impl Config {
 
 
         for (k, v) in hooks {
-            let c: Vec<_> = v.split_whitespace().collect();
-            // XXX if we are allowing code exec by the user, there shouldn't be a diff from using
-            // sh -c or directly the cmd..
-            // match Command::new("sh").arg("-c").arg(v).spawn() {
-            match Command::new(c[0]).args(&c[1..c.len()]).arg(v).spawn() {
+            match Command::new("sh").arg("-c").arg(v).spawn() {
                 Ok(_) => println!("{}: {}", k.italic(), "ok!".green().bold()),
                 Err(e) => eprintln!("{}: Couldn't run '{k}': {e}", k.italic().red()),
             }
