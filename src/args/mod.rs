@@ -160,6 +160,10 @@ pub struct WallustArgs {
     //ref: <https://github.com/dylanaraps/pywal/issues/692>
     #[arg(short = 'w', long)]
     pub overwrite_cache: bool,
+
+    /// Save the generated scheme inside the colorscheme dir
+    #[arg(long)]
+    pub save_scheme: bool,
 }
 
 /// Pywal cli flags arguments. This is to create a drop in replacement, since many apps rely on the
@@ -267,6 +271,7 @@ impl From<PywalArgs> for WallustArgs {
             saturation: None,
             threshold: None,
             file: p.file.expect("ALWAYS SOME, CHECKED ON MAIN"),
+            save_scheme: false,
         }
     }
 }

@@ -116,7 +116,7 @@ impl Cache {
 /// path is the new location of the file to be written to
 /// value the contents of it, `cachepath` is only to print the cache absolute path,
 /// and pretty to use serde_to_string_pretty
-fn write_json<P: AsRef<std::path::Path>, T: serde::Serialize>(path: P, value: &T, cachepath: &str, pretty: bool) -> anyhow::Result<()> {
+pub fn write_json<P: AsRef<std::path::Path>, T: serde::Serialize>(path: P, value: &T, cachepath: &str, pretty: bool) -> anyhow::Result<()> {
     let serde_to_string = if pretty { serde_json::to_string_pretty } else { serde_json::to_string };
     Ok(File::create(&path)?
         .write_all(

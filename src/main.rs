@@ -141,6 +141,15 @@ fn run(conf: &mut config::Config, cache_path: &Path, cli: &args::WallustArgs, g:
     // Cache colors
     if !g.quiet && cli.no_cache { println!("[{info}] {}: Skipping caching the palette, `-n` flag provided.", "cache".magenta().bold()); }
     if !cli.no_cache && !g.quiet { println!("[{info}] {}: Saving scheme to cache.", "cache".magenta().bold()); }
+    if cli.save_scheme {
+        let f = match cli.file.file_prefix() {
+            Some(s) => s.to_string_lossy(),
+            None => cli.file.to_string_lossy(),
+        };
+        let p = conf.dir.join("colorschemes").join(format!("{f}.json"));
+        cache::write_json(p, &colors, &conf.dir.display().to_string(), true)?;
+        if !g.quiet { println!("[{info}] {} into colorscheme directory.", "Saving Scheme".bold()); }
+    }
 
     if !g.quiet { colors.done(); }
     Ok(())
