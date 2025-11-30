@@ -11,6 +11,7 @@ pub mod palettes;
 pub mod template;
 pub mod themes;
 pub mod sequences;
+pub mod histogram;
 
 use std::path::Path;
 
