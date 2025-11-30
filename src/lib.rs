@@ -11,7 +11,6 @@ pub mod palettes;
 pub mod template;
 pub mod themes;
 pub mod sequences;
-pub mod presets;
 
 use std::path::Path;
 
@@ -109,8 +108,7 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     use cache::IsCached as C;
 
     // Having to only read the schemepalette is TOO FAST to have the spinner.
-    let is_cached_all = cache.is_cached_all();
-    let quiet = quiet || (matches!(is_cached_all, C::BackendnCSnPalette) && !overwrite_cache);
+    let quiet = quiet || (matches!(cache.is_cached_all(), C::BackendnCSnPalette) && !overwrite_cache);
     let mut spi = SpiWrap::new(quiet);
     // println!("{:?}", cache.is_cached_all());
 
@@ -126,14 +124,13 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
             let (ref top, ref orig, warn) = cs;
             if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
 
-
             let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
             if !no_cache { cache.write_palette(&colors)? } //COLORS
             postcolor(c, &mut colors);
             if warn { spi.stop_warn(gen) } else { spi.stop() }
             Ok(colors)
     } else {
-        match is_cached_all {
+        match cache.is_cached_all() {
             C::BackendnCSnPalette => { // (cache)Palette -> Done
                 let mut colors = cache.read_palette()?;
                 postcolor(c, &mut colors);
@@ -163,22 +160,6 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
                 if !no_cache { cache.write_palette(&colors)? } //COLORS
                 postcolor(c, &mut colors);
                 if warn { spi.stop_warn(gen); } else { spi.stop(); } // here simple stop, since it's very fast
-                Ok(colors)
-            },
-            C::Preset => {
-                // TODO Cache PresetnBackend scenario
-                // TODO this isn't ideal, try putting these into is_cached_all() and avoid expecting()
-                let colors = if cache.preset.as_ref().expect("cache.preset: validated in is_cached_all()").exists() {
-                    cache.read_preset()?
-                } else {
-                    let p = c.preset.as_ref().expect("Already validated that this isn't None.");
-                    let rgb8s = p.backend(file)?;
-                    let cs = p.cs(rgb8s);
-                    p.palette(cs)
-                };
-
-                if !no_cache { cache.write_preset(&colors)? }
-                spi.stop();
                 Ok(colors)
             },
             C::None => { // Generate Backend from scratch => CS -> Palette -> Done.

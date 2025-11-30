@@ -14,7 +14,7 @@ use self::Backend as B;
 
 mod full;
 mod resized;
-pub mod wal;
+mod wal;
 mod thumb;
 mod fast_resize;
 mod kmeans;

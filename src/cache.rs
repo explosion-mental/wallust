@@ -30,8 +30,6 @@ pub struct Cache {
     pub cs: PathBuf,
     /// palette file + threshold
     pub palette: PathBuf,
-    /// preset cache
-    pub preset: Option<PathBuf>,
 
     /// Path name
     pub name: PathBuf,
@@ -54,7 +52,6 @@ pub enum IsCached {
     Backend,
     BackendnCS,
     BackendnCSnPalette,
-    Preset,
 }
 
 impl Cache {
@@ -82,10 +79,6 @@ impl Cache {
         let back = c.backend.to_string();
         let cs  = c.color_space.to_string();
         let palet = c.palette.to_string();
-        let preset = match &c.preset {
-            Some(s) => Some(base.join(s.to_string())),
-            None => None,
-        };
 
         Ok(Self {
             path: cachepath,
@@ -93,35 +86,17 @@ impl Cache {
             back: base.join(&back),
             cs: base.join(format!("{back}_{cs}_{th}")),
             palette: base.join(format!("{back}_{cs}_{th}_{palet}")),
-            preset,
         })
     }
 
     pub fn read_backend(&self) -> Result<Vec<u8>> { read_json(&self.back) }
     pub fn read_cs(&self) -> Result<CSret> { read_json(&self.cs) }
     pub fn read_palette(&self) -> Result<Colors> { read_json(&self.palette) }
-
-    pub fn read_preset(&self) -> Result<Colors> {
-        let p = self.preset.as_ref().expect("Only called inside lib.rs"); // TODO
-        read_json(p)
-    }
-
-    /// XXX Given that presets edit out the ColorSpace part, just store the colors.
-    pub fn write_preset(&self, c: &Colors) -> Result<()> {
-        let p = self.preset.as_ref().expect("Only called inside lib.rs"); //TODO avoid this
-        write_json(p, c, &self.to_string(), true)
-    }
-
     pub fn write_backend(&self, bytes: &[u8]) -> Result<()> { write_json(&self.back, &bytes, &self.to_string(), false) }
     pub fn write_cs(&self, colorspaces: &CSret) -> Result<()> { write_json(&self.cs, colorspaces, &self.to_string(), false) }
     pub fn write_palette(&self, scheme: &Colors) -> Result<()> { write_json(&self.palette, scheme, &self.to_string(), true) }
 
     pub fn is_cached_all(&self) -> IsCached {
-        match self.preset {
-            Some(_) => return IsCached::Preset,
-            None => (),
-        }
-
         let b  = self.back.exists();
         let cs = self.cs.exists();
         let p  = self.palette.exists();
