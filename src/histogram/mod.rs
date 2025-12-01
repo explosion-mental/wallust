@@ -6,6 +6,7 @@
 
 use palette::Srgb;
 
+use crate::colors::Colors;
 use crate::colorspaces::ColorOrder;
 
 use self::luminance::Luminance;
@@ -64,13 +65,51 @@ where
     fn post_trunc(&mut self);
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Scheme {
+    Dark,
+    Light,
+}
+
+pub struct Dark;
+pub struct Light;
+
+pub trait SchemeSort {
+    fn colors<B: Build>(&self, c: &B) -> Colors;
+}
+
 pub enum Mode {
     Luminance,
     Salience,
 }
 
+pub fn scheme_factory(scheme: Scheme) -> Box<dyn SchemeSort> {
+    match scheme {
+        Scheme::Dark => Box::new(Dark),
+        Scheme::Light => Box::new(Light),
+    }
+}
+
+impl SchemeSort for Dark {
+    fn colors(&self, c: &dyn Build) -> Colors {
+        todo!()
+    }
+}
+
+impl SchemeSort for Light {
+    fn colors(&self, c: &dyn Build) -> Colors {
+        todo!()
+    }
+}
+
 /// WE NEED A RETURN TYPE!! (js return Srgb for now)
-pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode: &Mode, diffmode: DiffMode) -> Vec<Srgb> {
+/// XXX rather than sampling in `palette` module, let them define their trait.
+///     This way, palette, the proper ordering of the colors, becomes an interface for a trait that
+///     is also activaded here. So, here we just straight up return a Color. Now, This would
+///     require to rethink the way multithreading is going. I woudln't like to use rayon and just
+///     make all the iters multithreaded, but could help with speed and maintain precistion
+///     (working with floats) For that, we are using the factory method.
+pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode: &Mode, diffmode: DiffMode, scheme: Scheme) -> Vec<Srgb> {
 
 
     // 1. choose type depending on mode. TODO another func to determine mode
@@ -98,16 +137,8 @@ pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode
     // 6. Truncate
     histo.post_trunc();
 
+    // histo.colors();
+
     todo!();
 }
-
-
-
-
-
-
-
-
-
-
 
