@@ -48,14 +48,20 @@ where
     /// later, in gather colors, we can analize if it sufice the palette.
     fn read_bytes(&mut self, bytes: &[u8]);
 
+    /// Before dedup, after read. Filter could be useful here.
+    fn post_read(&mut self);
+
     /// dedup
     fn dedup(&mut self);
 
     /// before truncating
-    fn post_processing(&mut self);
+    fn post_dedup(&mut self);
 
     /// less than 16 colors, depending on the configs.
     fn trunc(&mut self);
+
+    /// After truncation, sorting goes here, but not exclusively
+    fn post_trunc(&mut self);
 }
 
 pub enum Mode {
@@ -77,11 +83,20 @@ pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode
     // 2. transform to specs
     histo.read_bytes(bytes);
 
+    // extra, post reading
+    histo.post_read();
+
     // 3. dedup
     histo.dedup();
 
-    //4. post procesing
-    histo.post_processing();
+    // 4. post procesing
+    histo.post_dedup();
+
+    // 5. Truncate
+    histo.trunc();
+
+    // 6. Truncate
+    histo.post_trunc();
 
     todo!();
 }

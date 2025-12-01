@@ -32,6 +32,7 @@ use crate::colorspaces::ColorOrder;
 use super::DiffMode;
 
 
+use itertools::Itertools;
 use super::*;
 use std::sync::OnceLock;
 use std::cmp::Ordering;
@@ -73,7 +74,7 @@ type Specs = Vec<Spec>;
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Histo {
     color: Spec,
-    count: u32,
+    count: usize,
     score: f32,
 }
 
@@ -137,6 +138,27 @@ fn improved_salience(a: &Spec, b: &Spec) -> f32 {
     1.67 * salience(a, b).powf(0.64)
 }
 
+fn improved_salience_naive(a: &Spec, ord: &ColorOrder) -> f32 {
+    // 1.55 * self.salience_naive(ord).powf(0.64) // already sqrt
+    1.79 * salience_naive(a, ord).powf(0.64) // already sqrt
+}
+
+/// Naive does not take into account the hue of the color.
+fn salience_naive(a: &Spec, ord: &ColorOrder) -> f32 {
+    // Expect calculations to underrepresent, especially in cases where
+    // the only difference is hue.
+    let o = get_bg_naive(ord);
+
+    let mut dl = a.lightness - o.lightness;
+    let mut dc = a.colorfulness - o.colorfulness;
+
+    let (wl, wc) = get_sal_weights();
+    dl *= wl;
+    dc *= wc;
+
+    (dl.powi(2) + dc.powi(2)).sqrt()
+}
+
 
 /// Calculate the physiucal salience between self and another color.
 fn salience(a: &Spec, b: &Spec) -> f32 {
@@ -154,6 +176,8 @@ fn salience(a: &Spec, b: &Spec) -> f32 {
 
     (dl.powi(2) + da.powi(2) + db.powi(2)).sqrt()
 }
+
+pub fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
 
 impl Build for Salience {
     fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
@@ -193,17 +217,48 @@ impl Build for Salience {
         }
     }
 
+    fn post_read(&mut self) {
+        // We can't use only salience as a filter because there are scenarios
+        // where colors will be of equal brightness but of high differences in
+        // colorfulness.
+        //
+        // Colorfulness at low lightness is a bit wonky, as it is only
+        // salient-accuracte for specific hues
+
+        let lights = self.histo.iter().map(|c| c.color.lightness).collect::<Vec<_>>();
+        let darkest  = lights.iter().fold(f32::INFINITY, |a, &b| a.min(b)).max(DARKEST);
+        let lightest = lights.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)).min(LIGHTEST);
+        //
+        // We don't care about mexchroma, but 0.0 to 1.0 chroma is grayscale like
+        // we use lesschroma on monochromatic or similar imgs, so it doesn't error out
+        let colorfulnesses = self.histo.iter().map(|c| c.color.colorfulness).collect::<Vec<_>>();
+        let origcl = avg(&colorfulnesses);
+        let lesscl  = colorfulnesses.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+        let ch = if origcl <= MIN_COLORFULNESS { lesscl } else { origcl / 2.5 };
+        //
+        let filt = |x: &Spec| {
+               x.lightness >= darkest
+            && x.lightness <= lightest
+            && x.colorfulness >= ch
+            && improved_salience_naive(&x, &ColorOrder::LightFirst) > COL_DARK_MIN_SAL
+            && improved_salience_naive(&x, &ColorOrder::DarkFirst)  > COL_LIGHT_MIN_SAL
+        };
+
+        //TODO clone..
+        self.histo = self.histo.clone().into_iter().filter(|a| filt(&a.color)).collect()
+    }
+
     /// TODO how effective is this approach? I've tested this with lab previously, see
     /// colorspaces::dedup_cols
     fn dedup(&mut self) {
         // self.histo.sort_by_key(|a| a.color.chroma as i32);
-        // self.histo
-        //     .iter_mut()
-        //     .dedup_by_with_count(|a, b| a.color.diff(&b.color, self.threshold, &self.mode))
-        //     .for_each(|x| x.1.count += x.0);
+        self.histo
+            .iter_mut()
+            .dedup_by_with_count(|a, b| a.color.diff(&b.color, self.threshold, &self.mode))
+            .for_each(|x| x.1.count += x.0);
     }
 
-    fn post_processing(&mut self) {
+    fn post_dedup(&mut self) {
         // Make the most prominent (most count) color as the background
         // i.e. if blue themed wallpaper, then blue theme!
         //
@@ -235,10 +290,63 @@ impl Build for Salience {
     }
 
     fn trunc(&mut self) {
-        self.histo.truncate(16);
+        // remove anything just a bit brighter/darker than the finalized bg
+        let bg_histo = if self.histo.len() > MAX_COLS.into() { self.histo.remove(MAX_COLS as usize - 1) } else { self.histo.pop().expect("not empty") };
+        let bg = bg_histo.color;
+        let cams: Vec<Spec> = self.histo.iter().map(|h| h.color).collect();
+        let bg = constrain_col_as_bg(bg, &cams, &self.ord);
+
+        let lt_mod = match self.ord {
+            ColorOrder::LightFirst => BG_DARK_ENFORCE_L_DELTA,
+            ColorOrder::DarkFirst  => -BG_LIGHT_ENFORCE_L_DELTA,
+        };
+        let l_threshold = bg.lightness + lt_mod;
+
+        let filt = |h: &Histo| match self.ord {
+            ColorOrder::LightFirst => h.color.lightness > l_threshold,
+            ColorOrder::DarkFirst  => h.color.lightness < l_threshold
+        };
+
+        //TODO clone?
+        self.histo = self.histo.clone().into_iter().filter(|a| filt(a)).collect::<Vec<_>>();
+
+        // Re-insert the ORIGINAL background color as the least salient color
+        // before truncating in the next step (clip_cols)
+        //
+        // MAX_COLS-1 because we removed the color for sort calcs earlier
+        let max_cols = (MAX_COLS-1) as usize;
+        let len = self.histo.len();
+        let last = if len > max_cols {max_cols} else {len};
+        self.histo.insert(last, bg_histo);
+
+
+        // remove excess elements
+        self.histo.truncate(MAX_COLS.into());
+    }
+
+    fn post_trunc(&mut self) {
+        let histo = &mut self.histo;
+
+        // reserve original bg
+        let histo_bg = histo.pop().expect("not empty");
+        let histo_bg_og = histo_bg;
+        let bg = histo_bg.color;
+        let cols: Vec<Spec> = histo.iter().map(|h| h.color).collect();
+
+        // generate bg
+        let bg = constrain_col_as_bg(bg, &cols, &self.ord);
+        let res = constrain_col_against_cols(bg, &cols, &self.ord, &[get_bg_min_sal(&self.ord)]);
+        let bg = *res.first().expect("not empty");
+
+        // and sort
+        histo.sort_by(|a, b| improved_salience(&a.color, &bg).partial_cmp(&improved_salience(&b.color, &bg)).unwrap_or(Ordering::Equal));
+
+        // add back in original bg
+        self.histo.insert(0, histo_bg_og);
     }
 }
 
+//impl
 pub fn init_view(ord: &ColorOrder) -> BakedParameters<StaticWp<D65>, f32> {
     let view = match ord {
         ColorOrder::LightFirst => get_dark_view(),

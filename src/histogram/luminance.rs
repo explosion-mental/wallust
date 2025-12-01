@@ -77,6 +77,9 @@ impl Build for Luminance {
         }
     }
 
+    fn post_read(&mut self) {
+    }
+
     /// TODO how effective is this approach? I've tested this with lab previously, see
     /// colorspaces::dedup_cols
     fn dedup(&mut self) {
@@ -87,10 +90,14 @@ impl Build for Luminance {
             .for_each(|x| x.1.count += x.0);
     }
 
-    fn post_processing(&mut self) {
+    fn post_dedup(&mut self) {
+
     }
 
     fn trunc(&mut self) {
         self.histo.truncate(16);
+    }
+
+    fn post_trunc(&mut self) {
     }
 }
