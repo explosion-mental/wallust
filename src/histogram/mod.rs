@@ -8,41 +8,45 @@ use palette::Srgb;
 
 use crate::colors::Colors;
 use crate::colorspaces::ColorOrder;
+use crate::palettes::scheme_factory;
+use crate::palettes::Scheme;
 
-use self::luminance::Luminance;
+pub use self::luminance::Luminance;
+use self::salience::Salience;
 
-mod salience;
-mod luminance;
+pub mod salience;
+pub mod luminance;
 
-/// TODO..
+/// TODO TRUNCATE?..
 pub const MAX_COLS: u8 = 16;
-
-// pub enum Histos {
-//     Salience(Vec<salience::Histo>),
-//     Luminance(Vec<luminance::Histo>),
-// }
-//
-// /// element for different sortings?
-// pub struct Histogram {
-//     histo: Histos,
-//     threshold: u8,
-//     ord: ColorOrder,
-// }
 
 pub enum DiffMode {
     DeltaE,
     ImprovedDeltaE,
 }
 
+pub enum Mode {
+    Luminance,
+    Salience,
+}
+
+
 pub trait Difference {
     fn diff(&self, a: &Self, threshold: f32, mode: &DiffMode) -> bool;
 }
 
+
+pub fn histo_factory(mode: &Mode, threshold: f32, ord: ColorOrder, skip: bool) -> Box<dyn Build> {
+    match mode {
+        Mode::Luminance => Box::new(Luminance::new(threshold, ord, DiffMode::DeltaE, skip)),
+        Mode::Salience => Box::new(Salience::new(threshold, ord, DiffMode::DeltaE, skip)),
+    }
+}
+
 pub trait Build
 where
-    Self: Sized
 {
-    fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self;
+    // fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self;
 
     /// This just convert readed bytes into a pre process histo
     /// Always runs, before the backend it should be known if the file is empty (no pixels/colors),
@@ -63,61 +67,26 @@ where
 
     /// After truncation, sorting goes here, but not exclusively
     fn post_trunc(&mut self);
-}
 
-#[derive(Debug, Clone, Copy)]
-pub enum Scheme {
-    Dark,
-    Light,
-}
-
-pub struct Dark;
-pub struct Light;
-
-pub trait SchemeSort {
-    fn colors<B: Build>(&self, c: &B) -> Colors;
-}
-
-pub enum Mode {
-    Luminance,
-    Salience,
-}
-
-pub fn scheme_factory(scheme: Scheme) -> Box<dyn SchemeSort> {
-    match scheme {
-        Scheme::Dark => Box::new(Dark),
-        Scheme::Light => Box::new(Light),
+    fn gen_palette(&mut self, scheme: Scheme) -> Colors {
+        scheme_factory(scheme).colors()
     }
-}
 
-impl SchemeSort for Dark {
-    fn colors(&self, c: &dyn Build) -> Colors {
+    // Helpers..
+    fn to_luminance(self) -> Luminance;
+    fn to_salience(self) -> Salience;
+
+    // Alternative to the above
+    fn dark(&self) -> Colors {
         todo!()
     }
 }
 
-impl SchemeSort for Light {
-    fn colors(&self, c: &dyn Build) -> Colors {
-        todo!()
-    }
-}
-
-/// WE NEED A RETURN TYPE!! (js return Srgb for now)
-/// XXX rather than sampling in `palette` module, let them define their trait.
-///     This way, palette, the proper ordering of the colors, becomes an interface for a trait that
-///     is also activaded here. So, here we just straight up return a Color. Now, This would
-///     require to rethink the way multithreading is going. I woudln't like to use rayon and just
-///     make all the iters multithreaded, but could help with speed and maintain precistion
-///     (working with floats) For that, we are using the factory method.
-pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode: &Mode, diffmode: DiffMode, scheme: Scheme) -> Vec<Srgb> {
-
-
+/// Everything happens here.
+pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode: &Mode, diffmode: DiffMode, scheme: Scheme) -> Colors {
     // 1. choose type depending on mode. TODO another func to determine mode
     // should be inside colorspaces mod
-    let mut histo = match mode {
-        Mode::Luminance => Luminance::new(threshold, ord, diffmode, skip),
-        Mode::Salience => todo!(),
-    };
+    let mut histo = histo_factory(mode, threshold, ord, skip);
 
     // 2. transform to specs
     histo.read_bytes(bytes);
@@ -125,20 +94,18 @@ pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode
     // extra, post reading
     histo.post_read();
 
-    // 3. dedup
+    // 2. dedup
     histo.dedup();
 
-    // 4. post procesing
+    // extra, another post procesing
     histo.post_dedup();
 
-    // 5. Truncate
+    // 3. Truncate
     histo.trunc();
 
-    // 6. Truncate
+    // extra, another post processing
     histo.post_trunc();
 
-    // histo.colors();
-
-    todo!();
+    // Final Step, generate Colors
+    histo.gen_palette(scheme)
 }
-

@@ -72,6 +72,41 @@ enum SamplingMode {
     Low
 }
 
+
+// New impl -------------
+#[derive(Debug, Clone, Copy)]
+pub enum Scheme {
+    Dark,
+    Light,
+}
+
+pub struct Dark;
+pub struct Light;
+
+pub trait SchemeSort {
+    fn colors(&self) -> Colors;
+}
+
+pub enum Mode {
+    Luminance,
+    Salience,
+}
+
+pub fn scheme_factory(scheme: Scheme) -> Box<dyn SchemeSort> {
+    match scheme {
+        Scheme::Dark => Box::new(Dark),
+        Scheme::Light => Box::new(Light),
+    }
+}
+
+impl SchemeSort for Light {
+    fn colors(&self) -> Colors {
+        todo!()
+    }
+}
+
+//--------------------------
+
 /// Corresponds to the modules inside this module and `palette` parameter in the config file.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Copy, Default, clap::ValueEnum)]
 #[cfg_attr(feature = "doc" , derive(documented::Documented, documented::DocumentedFields))]

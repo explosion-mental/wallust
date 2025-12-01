@@ -5,6 +5,14 @@ use super::*;
 //const MIN_COLORS = 6;
 // TODO also, just create functions that sort the colors accordingly, no need to do it inside `colorspace` module.
 
+impl SchemeSort for Dark {
+    //TODO add the Build type here!
+    // TODO Is the histogram necesary here?
+    fn colors(&self) -> Colors {
+        todo!()
+    }
+}
+
 /// # dark
 /// Default method to generate colors.
 /// This parser only needs 6 _ [0..=5]. Sorted by [`LightFirst`]

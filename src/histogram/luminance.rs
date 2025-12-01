@@ -7,6 +7,7 @@ use palette::{IntoColor, Lch, Srgb};
 
 use crate::colorspaces::ColorOrder;
 
+use super::salience::Salience;
 use super::{Build, DiffMode, Difference};
 
 // pub struct Luminance;
@@ -42,16 +43,20 @@ impl Difference for Spec {
 
 use itertools::Itertools;
 
-/// another option: `fn ... (vec<>) -> vec<>` which removes the histogram from the type (Luminance)
-/// and passes around as a value, maintaining configs as the 'owner' type (avoids &mut self)
-impl Build for Luminance {
-    fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
+
+impl Luminance {
+    pub fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
         Self {
             histo: vec![],
             threshold, ord, mode, skip,
         }
     }
+}
 
+
+/// another option: `fn ... (vec<>) -> vec<>` which removes the histogram from the type (Luminance)
+/// and passes around as a value, maintaining configs as the 'owner' type (avoids &mut self)
+impl Build for Luminance {
     fn read_bytes(&mut self, bytes: &[u8]) {
         let s: &[Srgb<u8>] = bytes.components_as();
         let colors = s
@@ -100,4 +105,7 @@ impl Build for Luminance {
 
     fn post_trunc(&mut self) {
     }
+
+    fn to_luminance(self) -> Luminance { self }
+    fn to_salience(self) -> Salience { unreachable!("Don't call this from luminance") }
 }

@@ -179,16 +179,19 @@ fn salience(a: &Spec, b: &Spec) -> f32 {
 
 pub fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
 
-impl Build for Salience {
-    fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
+impl Salience {
+    pub fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
         Self {
             histo: vec![],
             view: OnceLock::new(),
             threshold, ord, mode, skip,
         }
     }
+}
 
+impl Build for Salience {
     fn read_bytes(&mut self, bytes: &[u8]) {
+        println!("REDAING BYTES FROM NEW HISTOGRAM MODS!");
         if self.view.set(init_view(&self.ord)).is_err() {}; // ignore if already set
         let s: &[Srgb<u8>] = bytes.components_as();
         let colors = s
@@ -344,6 +347,9 @@ impl Build for Salience {
         // add back in original bg
         self.histo.insert(0, histo_bg_og);
     }
+
+    fn to_luminance(self) -> Luminance { unreachable!("No convertion is needed.") }
+    fn to_salience(self) -> Salience { self }
 }
 
 //impl

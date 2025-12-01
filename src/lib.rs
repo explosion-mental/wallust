@@ -116,16 +116,17 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
     if overwrite_cache {
             let rgb8s = c.backend.main()(file)?;
             if !no_cache { cache.write_backend(&rgb8s)? } //BACKEND
+            let warn = false;
+            // let cs = match c.color_space.run(dynamic, &rgb8s, c.threshold.unwrap_or_default(), gen, ord) {
+            //     Some(s) => s,
+            //     None => anyhow::bail!("Not enough colors!"),
+            // };
 
-            let cs = match c.color_space.run(dynamic, &rgb8s, c.threshold.unwrap_or_default(), gen, ord) {
-                Some(s) => s,
-                None => anyhow::bail!("Not enough colors!"),
-            };
+            // let (ref top, ref orig, warn) = cs;
+            // if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
 
-            let (ref top, ref orig, warn) = cs;
-            if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
-
-            let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
+            // let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
+            let mut colors = histogram::gen_histo(&rgb8s, c.threshold.unwrap_or_default().into(), c.palette.sort_ord(), false, &histogram::Mode::Salience, histogram::DiffMode::DeltaE, palettes::Scheme::Dark);
             if !no_cache { cache.write_palette(&colors)? } //COLORS
             postcolor(c, &mut colors);
             if warn { spi.stop_warn(gen) } else { spi.stop() }
@@ -166,16 +167,18 @@ pub fn gen_colors(file: &std::path::Path, c: &crate::config::Config, dynamic_th:
             C::None => { // Generate Backend from scratch => CS -> Palette -> Done.
                 let rgb8s = c.backend.main()(file)?;
                 if !no_cache { cache.write_backend(&rgb8s)? } //BACKEND
+                let warn = false;
 
-                let cs = match c.color_space.run(dynamic, &rgb8s, c.threshold.unwrap_or_default(), gen, ord) {
-                    Some(s) => s,
-                    None => anyhow::bail!("Not enough colors!"),
-                };
+                // let cs = match c.color_space.run(dynamic, &rgb8s, c.threshold.unwrap_or_default(), gen, ord) {
+                //     Some(s) => s,
+                //     None => anyhow::bail!("Not enough colors!"),
+                // };
 
-                let (ref top, ref orig, warn) = cs;
-                if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
+                // let (ref top, ref orig, warn) = cs;
+                // if !no_cache { cache.write_cs(&cs)? } //COLORSPACE
 
-                let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
+                // let mut colors = c.palette.run(top.to_vec(), orig.to_vec());
+                let mut colors = histogram::gen_histo(&rgb8s, c.threshold.unwrap_or_default().into(), c.palette.sort_ord(), false, &histogram::Mode::Salience, histogram::DiffMode::DeltaE, palettes::Scheme::Dark);
                 if !no_cache { cache.write_palette(&colors)? } //COLORS
                 postcolor(c, &mut colors);
                 if warn { spi.stop_warn(gen) } else { spi.stop() }
