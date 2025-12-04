@@ -7,7 +7,6 @@ use palette::{IntoColor, Lch, Srgb};
 
 use crate::colorspaces::ColorOrder;
 
-use super::salience::Salience;
 use super::{Build, DiffMode, Difference};
 
 // pub struct Luminance;
@@ -105,7 +104,10 @@ impl Build for Luminance {
 
     fn post_trunc(&mut self) {
     }
-
-    fn to_luminance(self) -> Luminance { self }
-    fn to_salience(self) -> Salience { unreachable!("Don't call this from luminance") }
+    fn dark(&self) -> crate::colors::Colors {
+       todo!("DARK LUMINANCE")
+    }
+    fn light(&self) -> crate::colors::Colors {
+        todo!("LIGHT LUMINANCE")
+    }
 }

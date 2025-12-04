@@ -8,7 +8,6 @@ use palette::Srgb;
 
 use crate::colors::Colors;
 use crate::colorspaces::ColorOrder;
-use crate::palettes::scheme_factory;
 use crate::palettes::Scheme;
 
 pub use self::luminance::Luminance;
@@ -35,6 +34,7 @@ pub trait Difference {
     fn diff(&self, a: &Self, threshold: f32, mode: &DiffMode) -> bool;
 }
 
+// pub trait Histogram: Build + MyDark {}
 
 pub fn histo_factory(mode: &Mode, threshold: f32, ord: ColorOrder, skip: bool) -> Box<dyn Build> {
     match mode {
@@ -68,19 +68,24 @@ where
     /// After truncation, sorting goes here, but not exclusively
     fn post_trunc(&mut self);
 
-    fn gen_palette(&mut self, scheme: Scheme) -> Colors {
-        scheme_factory(scheme).colors()
-    }
-
-    // Helpers..
-    fn to_luminance(self) -> Luminance;
-    fn to_salience(self) -> Salience;
-
-    // Alternative to the above
-    fn dark(&self) -> Colors {
-        todo!()
-    }
+    fn dark(&self) -> Colors;
+    fn light(&self) -> Colors;
+    // fn gen_palette(self, scheme: Scheme) -> Colors {
+    //     match scheme {
+    //         Scheme::Dark => self.dark(),
+    //         Scheme::Light => todo!(),
+    //     }
+    // }
 }
+
+// XXX i've really tried making this work, having logic first rather than language specifics.
+// Rust object trait safety is complicated. js impl dark/light into Build (almost no changes..)
+// pub fn palette_factory(b: impl Histogram, scheme: Scheme) -> Colors {
+//     match scheme {
+//         Scheme::Dark => b.dark(),
+//         Scheme::Light => todo!("Light Palette"),
+//     }
+// }
 
 /// Everything happens here.
 pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode: &Mode, diffmode: DiffMode, scheme: Scheme) -> Colors {
@@ -107,5 +112,9 @@ pub fn gen_histo(bytes: &[u8], threshold: f32, ord: ColorOrder, skip: bool, mode
     histo.post_trunc();
 
     // Final Step, generate Colors
-    histo.gen_palette(scheme)
+    // palette_factory(histo, scheme)
+    match scheme {
+        Scheme::Dark => histo.dark(),
+        Scheme::Light => histo.light(),
+    }
 }

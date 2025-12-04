@@ -27,7 +27,9 @@ use palette::IntoColor;
 use palette::cast::ComponentsAs;
 use palette::convert::IntoColorUnclamped;
 
+use crate::colors::Myrgb;
 use crate::colorspaces::ColorOrder;
+use crate::palettes;
 
 use super::DiffMode;
 
@@ -68,23 +70,23 @@ use palette::{
 
 
 /// Our working types
-type Spec = Cam16UcsJmh<f32>;
+pub type Spec = Cam16UcsJmh<f32>;
 type Specs = Vec<Spec>;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Histo {
-    color: Spec,
-    count: usize,
-    score: f32,
+    pub color: Spec,
+    pub count: usize,
+    pub score: f32,
 }
 
 pub struct Salience {
-    histo: Vec<Histo>,
-    threshold: f32,
-    ord: ColorOrder,
-    mode: DiffMode,
-    skip: bool,
-    view: OnceLock<BakedParameters<StaticWp<D65>, f32>>,
+    pub histo: Vec<Histo>,
+    pub threshold: f32,
+    pub ord: ColorOrder,
+    pub mode: DiffMode,
+    pub skip: bool,
+    pub view: BakedParameters<StaticWp<D65>, f32>,
 }
 
 /// Constraints for a color to be accepted and gathered
@@ -181,9 +183,13 @@ pub fn avg(i: &[f32]) -> f32 { i.iter().sum::<f32>() / i.len() as f32 }
 
 impl Salience {
     pub fn new(threshold: f32, ord: ColorOrder, mode: DiffMode, skip: bool) -> Self {
+        let view = match ord {
+            ColorOrder::LightFirst => get_dark_view(),
+            ColorOrder::DarkFirst => get_light_view()
+        };
         Self {
             histo: vec![],
-            view: OnceLock::new(),
+            view: view.into(),
             threshold, ord, mode, skip,
         }
     }
@@ -192,12 +198,11 @@ impl Salience {
 impl Build for Salience {
     fn read_bytes(&mut self, bytes: &[u8]) {
         println!("REDAING BYTES FROM NEW HISTOGRAM MODS!");
-        if self.view.set(init_view(&self.ord)).is_err() {}; // ignore if already set
         let s: &[Srgb<u8>] = bytes.components_as();
         let colors = s
             .iter()
             .map(|x| {
-                let to = Cam16::from_xyz(x.into_linear().into_color(), *self.view.get().expect("SHOULD BE SET"));
+                let to = Cam16::from_xyz(x.into_linear().into_color(), self.view);
                 Cam16UcsJmh::from_color(to)
             })
             .collect::<Specs>();
@@ -277,7 +282,7 @@ impl Build for Salience {
         let bg = max_histo.color;
         let cams: Vec<Spec> = self.histo.iter().map(|h| h.color).collect();
         let bg = constrain_col_as_bg(bg, &cams, &self.ord);
-        let res = constrain_col_against_cols(bg, &cams, &self.ord, &[get_bg_min_sal(&self.ord)]);
+        let res = constrain_col_against_cols(bg, &cams, &self.ord, &[self.bg_min_sal()]);
         let bg = res[0];
 
         sort_histogram_by_score(self, bg); //in place change
@@ -347,21 +352,13 @@ impl Build for Salience {
         // add back in original bg
         self.histo.insert(0, histo_bg_og);
     }
-
-    fn to_luminance(self) -> Luminance { unreachable!("No convertion is needed.") }
-    fn to_salience(self) -> Salience { self }
+    fn dark(&self) -> Colors {
+        palettes::dark::generate(&self, &self.ord, &crate::palettes::SamplingMode::Balanced)
+    }
+    fn light(&self) -> Colors {
+        todo!()
+    }
 }
-
-//impl
-pub fn init_view(ord: &ColorOrder) -> BakedParameters<StaticWp<D65>, f32> {
-    let view = match ord {
-        ColorOrder::LightFirst => get_dark_view(),
-        ColorOrder::DarkFirst => get_light_view()
-    };
-    view.into()
-}
-
-
 
 /// Return a histogram sorted asc on score (count and salience) based on bg
 pub fn sort_histogram_by_score(histo: &mut Salience, bg: Spec) {
@@ -386,6 +383,148 @@ pub fn sort_histogram_by_score(histo: &mut Salience, bg: Spec) {
     histoscore.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Greater));
 }
 
+
+/// Get Parameters viewing environment for dark themes
+pub fn get_dark_view() -> Parameters<StaticWp<D65>, f32> {
+    // Assume dark theme user is in a dimly-lit room with a no-so-blinding monitor?
+    //
+    // Adapting Luminance: overall room brightness
+    //      Night Dark room                5 ====> 20
+    //      Dimly lit room/movie theater  20 ====> 50
+    //      Office/typical indoor         80 ===> 200
+    //      Bright office/sunny indoor   200 ===> 500
+    //      Outdoor shade/cloudy day     500 ==> 1000
+    //      Direct sunlight             2000 => 10000
+    // Background Luminance: background
+    //      % to full white, best guess per theme
+    // Surround: ambient lighting at edges of FOV
+
+    let mut view = Parameters::default_static_wp(140.0); // <- adapting luminance
+    view.background_luminance = 0.2;
+    view.surround = Surround::Average;
+    view
+}
+
+/// Get Parameters viewing environment for light themes
+pub fn get_light_view() -> Parameters<StaticWp<D65>, f32> {
+    let mut view = Parameters::default_static_wp(500.0); // <- adapting luminance
+    view.background_luminance = 0.8;
+    view.surround = Surround::Average;
+
+    view
+}
+
+
+pub fn get_bg_naive(ord: &ColorOrder) -> Spec {
+    match ord {
+        ColorOrder::LightFirst => DARKEST_COL,
+        ColorOrder::DarkFirst  => LIGHTEST_COL,
+    }
+}
+
+pub fn get_lightness_bound(ord: &ColorOrder) -> f32 {
+    match ord {
+        ColorOrder::LightFirst => DARKEST,
+        ColorOrder::DarkFirst  => LIGHTEST,
+    }
+}
+
+fn get_sal_weights() -> (f32, f32) {
+    // lightness:color ratio
+
+    // // 1:16
+    // let wl = 1.0;
+    // let wc = 8.0;
+
+    // // 1:8
+    // let wl = 1.0;
+    // let wc = 4.0;
+
+    // // 1:6
+    // let wl = 1.0;
+    // let wc = 3.0;
+
+    // // 1:5
+    // let wl = 1.0;
+    // let wc = 2.5;
+
+    // // 1:4
+    // let wl = 1.0;
+    // let wc = 2.0;
+
+    // 1:3
+    let wl: f32 = 1.0;   // weight on light
+    let wc: f32 = 1.50;  // weight on color (a and b)
+
+    // // 1:2
+    // let wl: f32 = 1.0;   // weight on light
+    // let wc: f32 = 1.00;  // weight on color (a and b)
+
+    // // 1:1
+    // let wl: f32 = 1.5;   // weight on light
+    // let wc: f32 = 0.75;  // weight on color (a and b)
+
+    // // 2:1
+    // let wl: f32 = 1.2;   // weight on light
+    // let wc: f32 = 0.50;  // weight on color (a and b)
+
+
+    let norm = normalize_to_sum(&[wl, wc, wc], 3.0);
+    (norm[0], norm[1])
+}
+
+
+fn normalize_to_sum(slice: &[f32], target_sum: f32) -> Vec<f32> {
+    let current_sum: f32 = slice.iter().sum();
+    if current_sum == 0.0 {
+        // Distribute target_sum evenly if original sum is 0
+        let n = slice.len() as f32;
+        return vec![target_sum / n; slice.len()];
+    }
+
+    slice.iter().map(|&x| x * target_sum / current_sum).collect()
+}
+
+impl Salience {
+    pub fn inc_sal_l(&self, a: Spec, amount: f32) -> Spec { get_inc_sal_l_fn(&self.ord)(a, amount) }
+    pub fn dec_sal_l(&self, a: Spec, amount: f32) -> Spec { get_dec_sal_l_fn(&self.ord)(a, amount) }
+    pub fn bg_min_sal(&self) -> f32 { get_bg_min_sal(&self.ord) }
+    pub fn constrain_col_as_bg(&self, c: Spec, cams: &[Spec]) -> Spec { constrain_col_as_bg(c, cams, &self.ord) }
+    pub fn constrain_col_against_cols(&self, context: Spec, cols: &[Spec], thresholds: &[f32]) -> Vec<Spec> {
+        constrain_col_against_cols(context, cols, &self.ord, thresholds)
+    }
+    pub fn to_rgb(&self, a: Spec) -> Srgb {
+        let cam16: Cam16Jmh<f32> = a.into_color();
+        let xyz = cam16.into_xyz(self.view);
+        Srgb::from_color(xyz)
+    }
+    pub fn from_rgb(&self, a: Srgb) -> Spec {
+        let cam16 = Cam16::from_xyz(a.into_color(), self.view);
+        let ucs_from_rgb = Cam16UcsJmh::from_color(cam16);
+        ucs_from_rgb
+    }
+}
+
+pub fn get_dec_sal_l_fn(ord: &ColorOrder) -> fn(Spec, f32) -> Spec {
+    match ord {
+        ColorOrder::LightFirst => Spec::darken,
+        ColorOrder::DarkFirst  => Spec::lighten,
+    }
+}
+
+pub fn get_inc_sal_l_fn(ord: &ColorOrder) -> fn(Spec, f32) -> Spec {
+    match ord {
+        ColorOrder::LightFirst => Spec::lighten,
+        ColorOrder::DarkFirst  => Spec::darken,
+    }
+}
+
+pub fn get_bg_min_sal(ord: &ColorOrder) -> f32 {
+    match ord {
+        ColorOrder::LightFirst => BG_DARK_MIN_SAL,
+        ColorOrder::DarkFirst  => BG_LIGHT_MIN_SAL,
+    }
+}
 
 /// Turn the color into a sane background given a collection of planned colors to use
 pub fn constrain_col_as_bg(col: Spec, cams: &[Spec], ord: &ColorOrder) -> Spec {
@@ -469,128 +608,4 @@ pub fn constrain_col_against_cols(context: Spec, cols: &[Spec], ord: &ColorOrder
     ret.reverse();
 
     ret
-}
-
-
-/// Get Parameters viewing environment for dark themes
-pub fn get_dark_view() -> Parameters<StaticWp<D65>, f32> {
-    // Assume dark theme user is in a dimly-lit room with a no-so-blinding monitor?
-    //
-    // Adapting Luminance: overall room brightness
-    //      Night Dark room                5 ====> 20
-    //      Dimly lit room/movie theater  20 ====> 50
-    //      Office/typical indoor         80 ===> 200
-    //      Bright office/sunny indoor   200 ===> 500
-    //      Outdoor shade/cloudy day     500 ==> 1000
-    //      Direct sunlight             2000 => 10000
-    // Background Luminance: background
-    //      % to full white, best guess per theme
-    // Surround: ambient lighting at edges of FOV
-
-    let mut view = Parameters::default_static_wp(140.0); // <- adapting luminance
-    view.background_luminance = 0.2;
-    view.surround = Surround::Average;
-    view
-}
-
-/// Get Parameters viewing environment for light themes
-pub fn get_light_view() -> Parameters<StaticWp<D65>, f32> {
-    let mut view = Parameters::default_static_wp(500.0); // <- adapting luminance
-    view.background_luminance = 0.8;
-    view.surround = Surround::Average;
-
-    view
-}
-
-
-pub fn get_bg_naive(ord: &ColorOrder) -> Spec {
-    match ord {
-        ColorOrder::LightFirst => DARKEST_COL,
-        ColorOrder::DarkFirst  => LIGHTEST_COL,
-    }
-}
-
-pub fn get_lightness_bound(ord: &ColorOrder) -> f32 {
-    match ord {
-        ColorOrder::LightFirst => DARKEST,
-        ColorOrder::DarkFirst  => LIGHTEST,
-    }
-}
-
-pub fn get_bg_min_sal(ord: &ColorOrder) -> f32 {
-    match ord {
-        ColorOrder::LightFirst => BG_DARK_MIN_SAL,
-        ColorOrder::DarkFirst  => BG_LIGHT_MIN_SAL,
-    }
-}
-
-
-fn get_sal_weights() -> (f32, f32) {
-    // lightness:color ratio
-
-    // // 1:16
-    // let wl = 1.0;
-    // let wc = 8.0;
-
-    // // 1:8
-    // let wl = 1.0;
-    // let wc = 4.0;
-
-    // // 1:6
-    // let wl = 1.0;
-    // let wc = 3.0;
-
-    // // 1:5
-    // let wl = 1.0;
-    // let wc = 2.5;
-
-    // // 1:4
-    // let wl = 1.0;
-    // let wc = 2.0;
-
-    // 1:3
-    let wl: f32 = 1.0;   // weight on light
-    let wc: f32 = 1.50;  // weight on color (a and b)
-
-    // // 1:2
-    // let wl: f32 = 1.0;   // weight on light
-    // let wc: f32 = 1.00;  // weight on color (a and b)
-
-    // // 1:1
-    // let wl: f32 = 1.5;   // weight on light
-    // let wc: f32 = 0.75;  // weight on color (a and b)
-
-    // // 2:1
-    // let wl: f32 = 1.2;   // weight on light
-    // let wc: f32 = 0.50;  // weight on color (a and b)
-
-
-    let norm = normalize_to_sum(&[wl, wc, wc], 3.0);
-    (norm[0], norm[1])
-}
-
-
-fn normalize_to_sum(slice: &[f32], target_sum: f32) -> Vec<f32> {
-    let current_sum: f32 = slice.iter().sum();
-    if current_sum == 0.0 {
-        // Distribute target_sum evenly if original sum is 0
-        let n = slice.len() as f32;
-        return vec![target_sum / n; slice.len()];
-    }
-
-    slice.iter().map(|&x| x * target_sum / current_sum).collect()
-}
-
-pub fn get_dec_sal_l_fn(ord: &ColorOrder) -> fn(Spec, f32) -> Spec {
-    match ord {
-        ColorOrder::LightFirst => Spec::darken,
-        ColorOrder::DarkFirst  => Spec::lighten,
-    }
-}
-
-pub fn get_inc_sal_l_fn(ord: &ColorOrder) -> fn(Spec, f32) -> Spec {
-    match ord {
-        ColorOrder::LightFirst => Spec::lighten,
-        ColorOrder::DarkFirst  => Spec::darken,
-    }
 }

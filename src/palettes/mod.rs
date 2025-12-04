@@ -31,6 +31,7 @@ use crate::{
 
 /// rename [`Palette`] so it's shorter to type
 use self::Palette as F;
+//use self::dark::Dark;
 
 // include!("dark.rs");
 // include!("harddark.rs");
@@ -38,8 +39,10 @@ use self::Palette as F;
 // include!("softdark.rs");
 // include!("softlight.rs");
 mod util;
+pub mod dark;
+
+
 mod ansidark;
-mod dark;
 mod harddark;
 mod light;
 mod salience;
@@ -65,7 +68,7 @@ use salience::{
 
 // How the palettes will samples colors passed from the colorspace
 #[derive(PartialEq)]
-enum SamplingMode {
+pub enum SamplingMode {
     High,
     Balanced,
     Distributed,
@@ -80,30 +83,37 @@ pub enum Scheme {
     Light,
 }
 
-pub struct Dark;
-pub struct Light;
+// pub trait Schemes: MyDark {}
+// pub use dark::MyDark;
 
-pub trait SchemeSort {
-    fn colors(&self) -> Colors;
-}
 
-pub enum Mode {
-    Luminance,
-    Salience,
-}
-
-pub fn scheme_factory(scheme: Scheme) -> Box<dyn SchemeSort> {
-    match scheme {
-        Scheme::Dark => Box::new(Dark),
-        Scheme::Light => Box::new(Light),
-    }
-}
-
-impl SchemeSort for Light {
-    fn colors(&self) -> Colors {
-        todo!()
-    }
-}
+// pub struct Dark;
+// pub struct Light;
+//
+// pub trait SchemeSort {
+//     fn colors(&self) -> Colors;
+// }
+// pub enum Mode {
+//     Luminance,
+//     Salience,
+// }
+// pub fn scheme_factory(scheme: Scheme) -> Box<dyn SchemeSort> {
+//     match scheme {
+//         Scheme::Dark => Box::new(Dark),
+//         Scheme::Light => Box::new(Light),
+//     }
+// }
+//
+// impl SchemeSort for Light {
+//     fn colors(&self) -> Colors {
+//         todo!()
+//     }
+// }
+//
+// trait Schemes: Build {
+//     fn dark(self) -> Colors;
+//     fn light(self) -> Colors;
+// }
 
 //--------------------------
 
