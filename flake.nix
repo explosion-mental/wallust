@@ -36,7 +36,7 @@
         pkgs,
         ...
       }: let
-        toolchain = inputs.fenix.packages.${pkgs.system}.minimal.toolchain;
+        toolchain = inputs.fenix.packages.${pkgs.system}.stable.lastest.toolchain;
       in {
         packages.default = config.packages.wallust;
         packages.wallust = pkgs.callPackage ./build.nix {
