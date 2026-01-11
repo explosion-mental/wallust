@@ -1,4 +1,4 @@
-# wallust v3.4
+# wallust v3.5
 #
 # You can copy this file to ~/.config/wallust/wallust.toml (keep in mind is a sample config)
 
@@ -15,7 +15,7 @@ backend = "fastresize"
 
 # What color space to use to produce and select the most prominent colors:
 # lab - labmixed - lch - lchmixed - salience
-color_space = "lch"
+color_space = "salience"
 
 # Use the most prominent colors in a way that makes sense, a scheme color palette:
 # dark - dark16 - darkcomp - darkcomp16
@@ -25,7 +25,7 @@ color_space = "lch"
 # softlight - softlight16 - softlightcomp - softlightcomp16
 # saliencedark - saliencedarkbalanced - saliencedarkdistributed - saliencedarklow (each has the 16 variations)
 # salienceligh - saliencelightbalanced - saliencelightdistributed - saliencelightlow (each has the 16 variations)
-palette = "dark"
+palette = "saliencedark"
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening
@@ -40,9 +40,16 @@ palette = "dark"
 # Alpha value for templating, by default 100 (no other use whatsoever)
 #alpha = 100
 
+# Disables hooks completly
+#no_hooks = true
+
 [templates]
 # NOTE: prefer '' over "" for paths, avoids escaping.
 # template: A RELATIVE path that points to `~/.config/wallust/template` (depends on platform)
 # target: ABSOLUTE path in which to place a file with generated templated values.
 # ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
+
+[hooks]
+# Run commands when wallust is invoked. Useful to avoid scripting.
+#wallpaper = """swww img "$(find ~/Media/Pictures/Wallpapers -iregex '.*.\\(jpg\\|jpeg\\|png\\|gif\\)' -type f | shuf -n 1)" """
