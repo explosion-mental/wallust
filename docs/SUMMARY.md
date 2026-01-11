@@ -33,6 +33,7 @@
     - [Pywal compatibility](./templates/pywal.md)
 
 - [Replacing `pywal` with `wallust`](./pywal_replacement.md)
+- [Hooks: spawn commands](./hooks.md)
 
 # Dev
 - [Contribute!](./contribute.md)

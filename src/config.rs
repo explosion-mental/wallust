@@ -55,6 +55,9 @@ pub struct Config {
     /// Enables the use of enviromental variables in the targets template paths
     pub env_vars: Option<bool>,
 
+    /// Ignores all hooks defined, if any.
+    pub no_hooks: bool,
+
     /// Entry for 'hooks', which summon external commands that are used along side wallust
     // TODO maybe add some paths or even filter variables to this?
     pub hooks: Option<HashMap<String, String>>,
@@ -134,6 +137,9 @@ pub struct PrettyConfig {
 
     /// Enables the use of enviromental variables in the targets template paths
     pub env_vars: Option<bool>,
+
+    /// Ignores all hooks defined in the config file, if any.
+    pub no_hooks: Option<bool>,
 
     /// Entry for 'hooks', which summon external commands that are used along side wallust
     pub hooks: Option<HashMap<String, String>>,
@@ -256,6 +262,7 @@ impl Config {
         ret.backend = ret.backend_user.unwrap_or_default();
         ret.color_space = ret.color_space_user.unwrap_or_default();
         ret.palette = ret.palette_user.unwrap_or_default();
+        ret.no_hooks = if ret.no_hooks == false { g.no_hooks } else { ret.no_hooks };
 
         //println!("{:#?}", ret);
 
@@ -493,6 +500,7 @@ impl From<PrettyConfig> for Config {
             templates: value.templates,
             env_vars: value.env_vars,
             hooks: value.hooks,
+            no_hooks: value.no_hooks.unwrap_or_default(),
             ..Self::default()
         }
     }
