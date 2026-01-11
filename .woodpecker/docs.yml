@@ -1,5 +1,5 @@
 variables:
-  - &doc_files [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs' ]
+  - &doc_files [ 'docs/*', 'book.toml', 'README.md', 'tests/docs.rs', 'woodpecker/*' ]
 
 when:
   branch: master
@@ -33,21 +33,26 @@ steps:
 
   publish:
     image: bitnami/git
-    commands:
-      - export MDBOOK_OUTPUT=book
-      - export TMP_DIR=tmp
-      - git config --global user.email "woodpecker@codeberg.org"
-      - git config --global user.name "Woodpecker CI"
-      # only get the .git dir
-      - git clone -b pages https://$berg_pat@codeberg.org/$CI_REPO.git $TMP_DIR --no-checkout
-      - mv $TMP_DIR/.git $MDBOOK_OUTPUT
-      - cd $MDBOOK_OUTPUT
-      - git add .
-      - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
-      - git push
+    depends_on: [ build ]
     environment:
       berg_pat:
         from_secret: berg_pat
+    commands:
+      - set -eu # non-zero exit
+      - export MDBOOK_OUTPUT=book
+      - export TMP_DIR=tmp-pages
+      - rm -rf "$TMP_DIR"
+      - git clone -b pages "https://${berg_pat}@codeberg.org/${CI_REPO}.git" "$TMP_DIR"
+      # Replace site contents while keeping the pages branch history
+      - rm -rf "$TMP_DIR"/*
+      - cp -a "$MDBOOK_OUTPUT"/. "$TMP_DIR"/
+      - cd "$TMP_DIR"
+      - git config user.email "woodpecker@codeberg.org"
+      - git config user.name "Woodpecker CI"
+      - git add -A
+      - git diff --cached --quiet && echo "No changes to publish" && exit 0
+      - git commit -m "Woodpecker CI ${CI_BUILD_CREATED}"
+      - git push
     when:
       event: push
       path:
