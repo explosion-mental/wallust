@@ -1,6 +1,6 @@
 # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.
 function __fish_wallust_global_optspecs
-	string join \n I/ignore-sequence= q/quiet s/skip-sequences T/skip-templates u/update-current C/config-file= d/config-dir= templates-dir= N/no-config h/help V/version
+	string join \n I/ignore-sequence= q/quiet s/skip-sequences T/skip-templates u/update-current C/config-file= d/config-dir= templates-dir= N/no-config no-hooks h/help V/version
 end
 
 function __fish_wallust_needs_command
@@ -51,6 +51,7 @@ complete -c wallust -n "__fish_wallust_needs_command" -s s -l skip-sequences -d 
 complete -c wallust -n "__fish_wallust_needs_command" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_needs_command" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_needs_command" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_needs_command" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_needs_command" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c wallust -n "__fish_wallust_needs_command" -s V -l version -d 'Print version'
 complete -c wallust -n "__fish_wallust_needs_command" -f -a "run" -d 'Generate a palette from an image'
@@ -141,11 +142,14 @@ complete -c wallust -n "__fish_wallust_using_subcommand run" -s k -l check-contr
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s n -l no-cache -d 'Don\'t cache the results'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -l dynamic-threshold -d 'Dynamically changes the threshold to be best fit'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s w -l overwrite-cache -d 'Generates colors even if there is a cache version of it'
+complete -c wallust -n "__fish_wallust_using_subcommand run" -l save-scheme -d 'Save the generated scheme inside the colorscheme dir'
+complete -c wallust -n "__fish_wallust_using_subcommand run" -l print-scheme -d 'Output the palette from color 0 to 15 separated by a new line. (Useful for scripting)'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s q -l quiet -d 'Don\'t print anything'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s s -l skip-sequences -d 'Skip setting terminal sequences'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand run" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand run" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s f -l format -d 'Specify a custom format. Without this option, wallust will sequentially try to decode it by trying one by one' -r -f -a "pywal\t'uses the wal colorscheme format, see <https://github.com/dylanaraps/pywal/tree/master/pywal/colorschemes>'
 terminal-sexy\t'uses <https://terminal.sexy> JSON export'
@@ -177,6 +181,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand cs" -s s -l skip-sequenc
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand cs" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand cs" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s I -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "background\t''
 foreground\t''
@@ -206,6 +211,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand theme" -s s -l skip-sequ
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand theme" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand theme" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s I -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "background\t''
 foreground\t''
@@ -234,6 +240,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s s -l skip-se
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand migrate" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand migrate" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s I -l ignore-sequence -d 'Won\'t send these colors sequences' -r -f -a "background\t''
 foreground\t''
@@ -262,6 +269,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand debug" -s s -l skip-sequ
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand debug" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand debug" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s a -d 'Set terminal background transparency. *Only works in URxvt*' -r
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s b -d 'Custom background color to use' -r
@@ -308,6 +316,7 @@ complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s e -d 'Skip rel
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s T -l skip-templates -d 'Skip templating process'
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s u -l update-current -d 'Only update the current terminal'
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s N -l no-config -d 'Won\'t read the config and avoids creating it\'s config path'
+complete -c wallust -n "__fish_wallust_using_subcommand pywal" -l no-hooks -d 'Ignore all hooks'
 complete -c wallust -n "__fish_wallust_using_subcommand pywal" -s h -l help -d 'Print help'
 complete -c wallust -n "__fish_wallust_using_subcommand help; and not __fish_seen_subcommand_from run cs theme migrate debug pywal help" -f -a "run" -d 'Generate a palette from an image'
 complete -c wallust -n "__fish_wallust_using_subcommand help; and not __fish_seen_subcommand_from run cs theme migrate debug pywal help" -f -a "cs" -d 'Apply a certain colorscheme'

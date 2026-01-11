@@ -35,6 +35,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
             cand -V 'Print version'
@@ -75,6 +76,8 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --dynamic-threshold 'Dynamically changes the threshold to be best fit'
             cand -w 'Generates colors even if there is a cache version of it'
             cand --overwrite-cache 'Generates colors even if there is a cache version of it'
+            cand --save-scheme 'Save the generated scheme inside the colorscheme dir'
+            cand --print-scheme 'Output the palette from color 0 to 15 separated by a new line. (Useful for scripting)'
             cand -q 'Don''t print anything'
             cand --quiet 'Don''t print anything'
             cand -s 'Skip setting terminal sequences'
@@ -85,6 +88,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
         }
@@ -108,6 +112,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
         }
@@ -131,6 +136,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help'
             cand --help 'Print help'
         }
@@ -152,6 +158,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help'
             cand --help 'Print help'
         }
@@ -173,6 +180,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help'
             cand --help 'Print help'
         }
@@ -211,6 +219,7 @@ set edit:completion:arg-completer[wallust] = {|@words|
             cand --update-current 'Only update the current terminal'
             cand -N 'Won''t read the config and avoids creating it''s config path'
             cand --no-config 'Won''t read the config and avoids creating it''s config path'
+            cand --no-hooks 'Ignore all hooks'
             cand -h 'Print help'
             cand --help 'Print help'
         }

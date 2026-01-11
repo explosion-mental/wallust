@@ -8,7 +8,7 @@ wallust \- Generate a 16 color scheme based on an image.
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
 .SH SYNOPSIS
-\fBwallust\fR [\fB\-I\fR|\fB\-\-ignore\-sequence\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-C\fR|\fB\-\-config\-file\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-\-templates\-dir\fR] [\fB\-N\fR|\fB\-\-no\-config\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+\fBwallust\fR [\fB\-I\fR|\fB\-\-ignore\-sequence\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-s\fR|\fB\-\-skip\-sequences\fR] [\fB\-T\fR|\fB\-\-skip\-templates\fR] [\fB\-u\fR|\fB\-\-update\-current\fR] [\fB\-C\fR|\fB\-\-config\-file\fR] [\fB\-d\fR|\fB\-\-config\-dir\fR] [\fB\-\-templates\-dir\fR] [\fB\-N\fR|\fB\-\-no\-config\fR] [\fB\-\-no\-hooks\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
 
 .SH "DESCRIPTION"
 .ad l
@@ -75,6 +75,9 @@ Uses TEMPLATE_DIR as the template directory
 .TP
 \fB\-N\fR, \fB\-\-no\-config\fR
 Won\*(Aqt read the config and avoids creating it\*(Aqs config path
+.TP
+\fB\-\-no\-hooks\fR
+Ignore all hooks
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)

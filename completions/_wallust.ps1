@@ -38,6 +38,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
@@ -79,6 +80,8 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--dynamic-threshold', '--dynamic-threshold', [CompletionResultType]::ParameterName, 'Dynamically changes the threshold to be best fit')
             [CompletionResult]::new('-w', '-w', [CompletionResultType]::ParameterName, 'Generates colors even if there is a cache version of it')
             [CompletionResult]::new('--overwrite-cache', '--overwrite-cache', [CompletionResultType]::ParameterName, 'Generates colors even if there is a cache version of it')
+            [CompletionResult]::new('--save-scheme', '--save-scheme', [CompletionResultType]::ParameterName, 'Save the generated scheme inside the colorscheme dir')
+            [CompletionResult]::new('--print-scheme', '--print-scheme', [CompletionResultType]::ParameterName, 'Output the palette from color 0 to 15 separated by a new line. (Useful for scripting)')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Don''t print anything')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Don''t print anything')
             [CompletionResult]::new('-s', '-s', [CompletionResultType]::ParameterName, 'Skip setting terminal sequences')
@@ -89,6 +92,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             break
@@ -113,6 +117,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             break
@@ -137,6 +142,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break
@@ -159,6 +165,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break
@@ -181,6 +188,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break
@@ -220,6 +228,7 @@ Register-ArgumentCompleter -Native -CommandName 'wallust' -ScriptBlock {
             [CompletionResult]::new('--update-current', '--update-current', [CompletionResultType]::ParameterName, 'Only update the current terminal')
             [CompletionResult]::new('-N', '-N ', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
             [CompletionResult]::new('--no-config', '--no-config', [CompletionResultType]::ParameterName, 'Won''t read the config and avoids creating it''s config path')
+            [CompletionResult]::new('--no-hooks', '--no-hooks', [CompletionResultType]::ParameterName, 'Ignore all hooks')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break

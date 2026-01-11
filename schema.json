@@ -61,22 +61,28 @@
         }
       ]
     },
+    "hooks": {
+      "description": "Entry for 'hooks', which summon external commands that are used along side wallust",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "no_hooks": {
+      "description": "Ignores all hooks defined in the config file, if any.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "palette": {
       "description": "Which palette to use, see palettes.rs",
       "anyOf": [
         {
           "$ref": "#/$defs/Palette"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "preset": {
-      "description": "Which preset to use, see presets.rs",
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Preset"
         },
         {
           "type": "null"
@@ -429,13 +435,6 @@
           "type": "string",
           "const": "saliencelightlow16"
         }
-      ]
-    },
-    "Preset": {
-      "description": "Presets overwrite, ignore, any backend, colorspace or palette defined. They take preference,\nthat is why they are optional.",
-      "type": "string",
-      "enum": [
-        "pywal"
       ]
     }
   }
