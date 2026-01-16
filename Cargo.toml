@@ -1,6 +1,6 @@
 [package]
 name = "wallust"
-version = "3.5.0"
+version = "3.5.1"
 edition = "2021"
 license = "MIT"
 authors = [ "explosion-mental" ]
@@ -25,7 +25,7 @@ glob = "0.3"
 spinners = "4.1"
 dirs = "6.0"
 itertools = "0.14"
-fast_image_resize = "5.6"
+fast_image_resize = "6.0"
 num-traits = "0.2"
 kmeans_colors = { version = "0.7.0", default-features = false, features = ["palette_color"] }
 palette = { version = "0.7", default-features = false, features = ["serializing"] }
